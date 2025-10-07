@@ -1,0 +1,159 @@
+[AI-TASK] Background task created.
+[AI-TASK] Starting continuous PoP update service...
+[AI-TASK] Updating PoP score for 0x55138244DC1F785C4b955480Ac70410bC1D85A08...
+[AI-TASK] Error during continuous PoP update: 
+ABI Not Found!
+Found 1 element(s) named `getAddress` that accept 1 argument(s).
+The provided arguments are not valid.
+Provided argument types: (bytes)
+Provided keyword argument types: {}
+
+Tried to find a matching ABI element named `getAddress`, but encountered the following problems:
+Signature: getAddress(bytes32), type: function
+Argument 1 value `b'\x11\xfd\xf1U\xbbQ"!\x85Po\x1e\xfb>\x8a\xfb\xb6\xba\xael\xfauQ\x9f2\xd4h\xbbm~\xec'` is not compatible with type `bytes32`.
+
+[AI-TASK] Updating PoP score for 0x55138244DC1F785C4b955480Ac70410bC1D85A08...
+[AI-TASK] Error during continuous PoP update: 
+ABI Not Found!
+Found 1 element(s) named `getAddress` that accept 1 argument(s).
+The provided arguments are not valid.
+Provided argument types: (bytes)
+Provided keyword argument types: {}
+
+Tried to find a matching ABI element named `getAddress`, but encountered the following problems:
+Signature: getAddress(bytes32), type: function
+Argument 1 value `b'\x11\xfd\xf1U\xbbQ"!\x85Po\x1e\xfb>\x8a\xfb\xb6\xba\xael\xfauQ\x9f2\xd4h\xbbm~\xec'` is not compatible with type `bytes32`.
+
+[AI-TASK] Updating PoP score for 0x55138244DC1F785C4b955480Ac70410bC1D85A08...
+[AI-TASK] Error during continuous PoP update: 
+ABI Not Found!
+Found 1 element(s) named `getAddress` that accept 1 argument(s).
+The provided arguments are not valid.
+Provided argument types: (bytes)
+Provided keyword argument types: {}
+
+Tried to find a matching ABI element named `getAddress`, but encountered the following problems:
+Signature: getAddress(bytes32), type: function
+Argument 1 value `b'\x11\xfd\xf1U\xbbQ"!\x85Po\x1e\xfb>\x8a\xfb\xb6\xba\xael\xfauQ\x9f2\xd4h\xbbm~\xec'` is not compatible with type `bytes32`.
+
+[AI-TASK] Updating PoP score for 0x55138244DC1F785C4b955480Ac70410bC1D85A08...
+[AI-TASK] Error during continuous PoP update: 
+ABI Not Found!
+Found 1 element(s) named `getAddress` that accept 1 argument(s).
+The provided arguments are not valid.
+Provided argument types: (bytes)
+Provided keyword argument types: {}
+
+Tried to find a matching ABI element named `getAddress`, but encountered the following problems:
+Signature: getAddress(bytes32), type: function
+Argument 1 value `b'\x11\xfd\xf1U\xbbQ"!\x85Po\x1e\xfb>\x8a\xfb\xb6\xba\xael\xfauQ\x9f2\xd4h\xbbm~\xec'` is not compatible with type `bytes32`.
+
+[AI-TASK] Updating PoP score for 0x55138244DC1F785C4b955480Ac70410bC1D85A08...
+[AI-TASK] Error during continuous PoP update: 
+ABI Not Found!
+Found 1 element(s) named `getAddress` that accept 1 argument(s).
+The provided arguments are not valid.
+Provided argument types: (bytes)
+Provided keyword argument types: {}
+
+Tried to find a matching ABI element named `getAddress`, but encountered the following problems:
+Signature: getAddress(bytes32), type: function
+Argument 1 value `b'\x11\xfd\xf1U\xbbQ"!\x85Po\x1e\xfb>\x8a\xfb\xb6\xba\xael\xfauQ\x9f2\xd4h\xbbm~\xec'` is not compatible with type `bytes32`.
+
+[AI-TASK] Updating PoP score for 0x55138244DC1F785C4b955480Ac70410bC1D85A08...
+[AI-TASK] Error during continuous PoP update: 
+ABI Not Found!
+Found 1 element(s) named `getAddress` that accept 1 argument(s).
+The provided arguments are not valid.
+Provided argument types: (bytes)
+Provided keyword argument types: {}
+
+Tried to find a matching ABI element named `getAddress`, but encountered the following problems:
+Signature: getAddress(bytes32), type: function
+Argument 1 value `b'\x11\xfd\xf1U\xbbQ"!\x85Po\x1e\xfb>\x8a\xfb\xb6\xba\xael\xfauQ\x9f2\xd4h\xbbm~\xec'` is not compatible with type `bytes32`.
+
+[AI-TASK] Updating PoP score for 0x55138244DC1F785C4b955480Ac70410bC1D85A08...
+[AI-TASK] Error during continuous PoP update: 
+ABI Not Found!
+Found 1 element(s) named `getAddress` that accept 1 argument(s).
+The provided arguments are not valid.
+Provided argument types: (bytes)
+Provided keyword argument types: {}
+
+Tried to find a matching ABI element named `getAddress`, but encountered the following problems:
+Signature: getAddress(bytes32), type: function
+Argument 1 value `b'\x11\xfd\xf1U\xbbQ"!\x85Po\x1e\xfb>\x8a\xfb\xb6\xba\xael\xfauQ\x9f2\xd4h\xbbm~\xec'` is not compatible with type `bytes32`.
+
+[AI-TASK] Updating PoP score for 0x55138244DC1F785C4b955480Ac70410bC1D85A08...
+[AI-TASK] Error during continuous PoP update: 
+ABI Not Found!
+Found 1 element(s) named `getAddress` that accept 1 argument(s).
+The provided arguments are not valid.
+Provided argument types: (bytes)
+Provided keyword argument types: {}
+
+Tried to find a matching ABI element named `getAddress`, but encountered the following problems:
+Signature: getAddress(bytes32), type: function
+Argument 1 value `b'\x11\xfd\xf1U\xbbQ"!\x85Po\x1e\xfb>\x8a\xfb\xb6\xba\xael\xfauQ\x9f2\xd4h\xbbm~\xec'` is not compatible with type `bytes32`.
+
+[AI-TASK] Updating PoP score for 0x55138244DC1F785C4b955480Ac70410bC1D85A08...
+[AI-TASK] Error during continuous PoP update: 
+ABI Not Found!
+Found 1 element(s) named `getAddress` that accept 1 argument(s).
+The provided arguments are not valid.
+Provided argument types: (bytes)
+Provided keyword argument types: {}
+
+Tried to find a matching ABI element named `getAddress`, but encountered the following problems:
+Signature: getAddress(bytes32), type: function
+Argument 1 value `b'\x11\xfd\xf1U\xbbQ"!\x85Po\x1e\xfb>\x8a\xfb\xb6\xba\xael\xfauQ\x9f2\xd4h\xbbm~\xec'` is not compatible with type `bytes32`.
+
+[AI-TASK] Updating PoP score for 0x55138244DC1F785C4b955480Ac70410bC1D85A08...
+[AI-TASK] Error during continuous PoP update: 
+ABI Not Found!
+Found 1 element(s) named `getAddress` that accept 1 argument(s).
+The provided arguments are not valid.
+Provided argument types: (bytes)
+Provided keyword argument types: {}
+
+Tried to find a matching ABI element named `getAddress`, but encountered the following problems:
+Signature: getAddress(bytes32), type: function
+Argument 1 value `b'\x11\xfd\xf1U\xbbQ"!\x85Po\x1e\xfb>\x8a\xfb\xb6\xba\xael\xfauQ\x9f2\xd4h\xbbm~\xec'` is not compatible with type `bytes32`.
+
+[AI-TASK] Updating PoP score for 0x55138244DC1F785C4b955480Ac70410bC1D85A08...
+[AI-TASK] Error during continuous PoP update: 
+ABI Not Found!
+Found 1 element(s) named `getAddress` that accept 1 argument(s).
+The provided arguments are not valid.
+Provided argument types: (bytes)
+Provided keyword argument types: {}
+
+Tried to find a matching ABI element named `getAddress`, but encountered the following problems:
+Signature: getAddress(bytes32), type: function
+Argument 1 value `b'\x11\xfd\xf1U\xbbQ"!\x85Po\x1e\xfb>\x8a\xfb\xb6\xba\xael\xfauQ\x9f2\xd4h\xbbm~\xec'` is not compatible with type `bytes32`.
+
+[AI-TASK] Updating PoP score for 0x55138244DC1F785C4b955480Ac70410bC1D85A08...
+[AI-TASK] Error during continuous PoP update: 
+ABI Not Found!
+Found 1 element(s) named `getAddress` that accept 1 argument(s).
+The provided arguments are not valid.
+Provided argument types: (bytes)
+Provided keyword argument types: {}
+
+Tried to find a matching ABI element named `getAddress`, but encountered the following problems:
+Signature: getAddress(bytes32), type: function
+Argument 1 value `b'\x11\xfd\xf1U\xbbQ"!\x85Po\x1e\xfb>\x8a\xfb\xb6\xba\xael\xfauQ\x9f2\xd4h\xbbm~\xec'` is not compatible with type `bytes32`.
+
+[AI-TASK] Updating PoP score for 0x55138244DC1F785C4b955480Ac70410bC1D85A08...
+[AI-TASK] Error during continuous PoP update: 
+ABI Not Found!
+Found 1 element(s) named `getAddress` that accept 1 argument(s).
+The provided arguments are not valid.
+Provided argument types: (bytes)
+Provided keyword argument types: {}
+
+Tried to find a matching ABI element named `getAddress`, but encountered the following problems:
+Signature: getAddress(bytes32), type: function
+Argument 1 value `b'\x11\xfd\xf1U\xbbQ"!\x85Po\x1e\xfb>\x8a\xfb\xb6\xba\xael\xfauQ\x9f2\xd4h\xbbm~\xec'` is not compatible with type `bytes32`.
+
+[AI-TASK] Updating PoP score for 0x55138244DC1F785C4b955480Ac70410bC1D85A08...
