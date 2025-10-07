@@ -1,0 +1,286 @@
+{
+  "_format": "hh-sol-artifact-1",
+  "contractName": "AccControl",
+  "sourceName": "src/contracts/permission/AccControl.sol",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "initialOwner",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "inputs": [],
+      "name": "AccessControlBadConfirmation",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "neededRole",
+          "type": "bytes32"
+        }
+      ],
+      "name": "AccessControlUnauthorizedAccount",
+      "type": "error"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "role",
+          "type": "bytes32"
+        },
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "previousAdminRole",
+          "type": "bytes32"
+        },
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "newAdminRole",
+          "type": "bytes32"
+        }
+      ],
+      "name": "RoleAdminChanged",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "role",
+          "type": "bytes32"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "sender",
+          "type": "address"
+        }
+      ],
+      "name": "RoleGranted",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "role",
+          "type": "bytes32"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "sender",
+          "type": "address"
+        }
+      ],
+      "name": "RoleRevoked",
+      "type": "event"
+    },
+    {
+      "inputs": [],
+      "name": "AI_ORACLE_ROLE",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "DAO_MEMBER_ROLE",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "DEFAULT_ADMIN_ROLE",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "VALIDATOR_ROLE",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "role",
+          "type": "bytes32"
+        }
+      ],
+      "name": "getRoleAdmin",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "role",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        }
+      ],
+      "name": "grantRole",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "role",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        }
+      ],
+      "name": "hasRole",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "role",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "address",
+          "name": "callerConfirmation",
+          "type": "address"
+        }
+      ],
+      "name": "renounceRole",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "role",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        }
+      ],
+      "name": "revokeRole",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes4",
+          "name": "interfaceId",
+          "type": "bytes4"
+        }
+      ],
+      "name": "supportsInterface",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "bytecode": "0x60803461006857601f61055338819003918201601f19168301916001600160401b0383118484101761006d5780849260209460405283398101031261006857516001600160a01b03811681036100685761005890610083565b5060405161043f90816101148239f35b600080fd5b634e487b7160e01b600052604160045260246000fd5b6001600160a01b031660008181527fad3228b676f7d3cd4284a5443f17f1962b36e491b30a40b2405849e597ba5fb5602052604081205490919060ff1661010f57818052816020526040822081835260205260408220600160ff1982541617905533917f2f8788117e7eff1d82e926ec794901d17c78024a50270940304540a733656f0d8180a4600190565b509056fe60806040818152600436101561001457600080fd5b600091823560e01c90816301ffc9a71461024e57508063248a9ca31461022457806327543a9a146101ea5780632f2ff15d146101cd57806336568abe1461018e57806391d1485414610155578063a217fddf1461013b578063c49baebe14610101578063c601f7af146100c75763d547741f1461009057600080fd5b346100c35760016100bf916100ba6100a7366102a7565b93909283875286602052862001546102d2565b610394565b5080f35b5080fd5b50346100c357816003193601126100c357602090517f482648e7878e9fa54c0a2f67ffd22d00ebc37cf7a03e060e428d2ab0cd6735cc8152f35b50346100c357816003193601126100c357602090517f21702c8af46127c7fa207f89d0b0a8441bb32959a0ac7df790e9ab1a25c989268152f35b50346100c357816003193601126100c35751908152602090f35b50346100c35760ff8160209361016a366102a7565b9082528186528282206001600160a01b039091168252855220549151911615158152f35b5090346101ca5761019e366102a7565b90336001600160a01b038316036101b957906100bf91610394565b835163334bd91960e11b8152600490fd5b80fd5b50346100c35760016100bf916101e56100a7366102a7565b610316565b50346100c357816003193601126100c357602090517ff29a78c020ddf311f61483cfe182d6d833b80b74c6044ef77e24d033c4266a4c8152f35b50346100c35760203660031901126100c35760018160209360043581528085522001549051908152f35b8390346100c35760203660031901126100c35760043563ffffffff60e01b81168091036102a35760209250637965db0b60e01b8114908115610292575b5015158152f35b6301ffc9a760e01b1490508361028b565b8280fd5b60409060031901126102cd57600435906024356001600160a01b03811681036102cd5790565b600080fd5b80600052600060205260406000203360005260205260ff60406000205416156102f85750565b6044906040519063e2517d3f60e01b82523360048301526024820152fd5b9060009180835282602052604083209160018060a01b03169182845260205260ff6040842054161560001461038f57808352826020526040832082845260205260408320600160ff198254161790557f2f8788117e7eff1d82e926ec794901d17c78024a50270940304540a733656f0d339380a4600190565b505090565b9060009180835282602052604083209160018060a01b03169182845260205260ff60408420541660001461038f5780835282602052604083208284526020526040832060ff1981541690557ff6391f5c32d9c69d2a47ea670b442974b53935d1edc7fd64eb21e047a839171b339380a460019056fea26469706673582212204d45df00907e9a64da97f39f4d80b50c8ec62f4e7cff4cc7e4660c04c7d211b564736f6c63430008180033",
+  "deployedBytecode": "0x60806040818152600436101561001457600080fd5b600091823560e01c90816301ffc9a71461024e57508063248a9ca31461022457806327543a9a146101ea5780632f2ff15d146101cd57806336568abe1461018e57806391d1485414610155578063a217fddf1461013b578063c49baebe14610101578063c601f7af146100c75763d547741f1461009057600080fd5b346100c35760016100bf916100ba6100a7366102a7565b93909283875286602052862001546102d2565b610394565b5080f35b5080fd5b50346100c357816003193601126100c357602090517f482648e7878e9fa54c0a2f67ffd22d00ebc37cf7a03e060e428d2ab0cd6735cc8152f35b50346100c357816003193601126100c357602090517f21702c8af46127c7fa207f89d0b0a8441bb32959a0ac7df790e9ab1a25c989268152f35b50346100c357816003193601126100c35751908152602090f35b50346100c35760ff8160209361016a366102a7565b9082528186528282206001600160a01b039091168252855220549151911615158152f35b5090346101ca5761019e366102a7565b90336001600160a01b038316036101b957906100bf91610394565b835163334bd91960e11b8152600490fd5b80fd5b50346100c35760016100bf916101e56100a7366102a7565b610316565b50346100c357816003193601126100c357602090517ff29a78c020ddf311f61483cfe182d6d833b80b74c6044ef77e24d033c4266a4c8152f35b50346100c35760203660031901126100c35760018160209360043581528085522001549051908152f35b8390346100c35760203660031901126100c35760043563ffffffff60e01b81168091036102a35760209250637965db0b60e01b8114908115610292575b5015158152f35b6301ffc9a760e01b1490508361028b565b8280fd5b60409060031901126102cd57600435906024356001600160a01b03811681036102cd5790565b600080fd5b80600052600060205260406000203360005260205260ff60406000205416156102f85750565b6044906040519063e2517d3f60e01b82523360048301526024820152fd5b9060009180835282602052604083209160018060a01b03169182845260205260ff6040842054161560001461038f57808352826020526040832082845260205260408320600160ff198254161790557f2f8788117e7eff1d82e926ec794901d17c78024a50270940304540a733656f0d339380a4600190565b505090565b9060009180835282602052604083209160018060a01b03169182845260205260ff60408420541660001461038f5780835282602052604083208284526020526040832060ff1981541690557ff6391f5c32d9c69d2a47ea670b442974b53935d1edc7fd64eb21e047a839171b339380a460019056fea26469706673582212204d45df00907e9a64da97f39f4d80b50c8ec62f4e7cff4cc7e4660c04c7d211b564736f6c63430008180033",
+  "linkReferences": {},
+  "deployedLinkReferences": {}
+}

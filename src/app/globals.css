@@ -1,0 +1,119 @@
+
+@import "@rainbow-me/rainbowkit/styles.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Palette: "AI x Finance" (Light Theme) */
+    --background: 210 17% 98%; /* #F9FAFB */
+    --foreground: 0 0% 10%; /* #1A1A1A */
+    --card: 0 0% 100%; /* #FFFFFF */
+    --card-foreground: 0 0% 10%; /* #1A1A1A */
+    --popover: 0 0% 100%; /* #FFFFFF */
+    --popover-foreground: 0 0% 10%; /* #1A1A1A */
+    --primary: 210 29% 25%; /* #2C3E50 */
+    --primary-foreground: 210 17% 98%; /* #F9FAFB */
+    --secondary: 207 70% 53%; /* #3498DB */
+    --secondary-foreground: 0 0% 100%; /* #FFFFFF */
+    --muted: 220 17% 91%; /* #E8EBF0 */
+    --muted-foreground: 209 18% 43%; /* #5D6D7E */
+    --accent: 168 100% 36%; /* #00B894 */
+    --accent-foreground: 0 0% 100%; /* #FFFFFF */
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 220 13% 91%; /* #E3E5E8 */
+    --input: 220 13% 91%; /* #E3E5E8 */
+    --ring: 207 70% 53%; /* #3498DB */
+    --radius: 1rem;
+    --chart-1: 210 29% 25%;
+    --chart-2: 207 70% 53%;
+    --chart-3: 168 100% 36%;
+    --chart-4: 38 92% 50%;
+    --chart-5: 0 84% 60%;
+    --sidebar-background: 210 14% 98%;
+    --sidebar-foreground: 240 10% 4%;
+    --sidebar-primary: 210 29% 25%;
+    --sidebar-primary-foreground: 210 20% 98%;
+    --sidebar-accent: 216 12% 92%;
+    --sidebar-accent-foreground: 240 10% 4%;
+    --sidebar-border: 215 20% 90%;
+    --sidebar-ring: 207 70% 53%;
+  }
+
+  .dark {
+    /* Palette: "AI Vision" (Dark Theme) */
+    --background: 220 26% 8%; /* #0E1117 */
+    --foreground: 0 0% 88%; /* #E0E0E0 */
+    --card: 223 15% 13%; /* #1C1F26 */
+    --card-foreground: 0 0% 88%; /* #E0E0E0 */
+    --popover: 220 26% 8%; /* #0E1117 */
+    --popover-foreground: 0 0% 88%; /* #E0E0E0 */
+    --primary: 230 99% 62%; /* #3D5AFE - Neural Blue, for AI emphasis */
+    --primary-foreground: 0 0% 88%; /* #E0E0E0 */
+    --secondary: 38 92% 50%; /* #F39C12 - Amber/Gold, for financial growth */
+    --secondary-foreground: 0 0% 7%; /* #121212 */
+    --muted: 223 15% 13%; /* #1C1F26 */
+    --muted-foreground: 200 14% 62%; /* #90A4AE */
+    --accent: 149 100% 45%; /* #00E676 - Green Signal, for success/positive votes */
+    --accent-foreground: 0 0% 7%; /* #121212 */
+    --destructive: 0 84% 60%; /* #EF4444 */
+    --destructive-foreground: 210 40% 98%;
+    --border: 215 21% 23%; /* #2D3748 */
+    --input: 215 21% 23%; /* #2D3748 */
+    --ring: 230 99% 62%; /* #3D5AFE */
+    --radius: 1rem;
+    --chart-1: 230 99% 62%;
+    --chart-2: 149 100% 45%;
+    --chart-3: 38 92% 50%;
+    --chart-4: 262 82% 62%;
+    --chart-5: 330 80% 60%;
+    --sidebar-background: 223 15% 13%; /* card */
+    --sidebar-foreground: 0 0% 88%;
+    --sidebar-primary: 230 99% 62%;
+    --sidebar-primary-foreground: 0 0% 88%;
+    --sidebar-accent: 220 26% 8%; /* background */
+    --sidebar-accent-foreground: 0 0% 88%;
+    --sidebar-border: 215 21% 23%; /* border */
+    --sidebar-ring: 230 99% 62%; /* ring */
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  
+  /* ✅ ۱. تنظیم فونت پیش‌فرض برای کل برنامه */
+  body {
+    @apply bg-background text-foreground font-sans; /* <- این اکنون به Exo 2 اشاره دارد */
+  }
+  
+  /* ✅ ۲. تغییر فونت بر اساس جهت صفحه */
+  [dir="rtl"] body {
+    @apply font-vazir; /* <- این اکنون به Vazirmatn اشاره دارد */
+  }
+
+  /* ما فقط به تگ‌های HTML استایل می‌دهیم. */
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-headline; /* <- این اکنون به Merienda اشاره دارد */
+  }
+
+  /* اگر زبان فارسی بود، برای سرفصل‌ها هم از فونت فارسی استفاده کن */
+  [dir="rtl"] h1,
+  [dir="rtl"] h2,
+  [dir="rtl"] h3,
+  [dir="rtl"] h4,
+  [dir="rtl"] h5,
+  [dir="rtl"] h6 {
+    @apply font-vazir;
+  }
+}
+
+@layer components {
+    .text-gradient {
+        @apply bg-clip-text text-transparent bg-gradient-to-br from-primary via-secondary to-accent;
+    }
+}
