@@ -41,7 +41,9 @@ export interface RayanChainDAOInterface extends Interface {
       | "quorumPercentage"
       | "releaseNextMilestone"
       | "renounceOwnership"
+      | "setStartupAccessTokenAddress"
       | "stakingContract"
+      | "startupAccessTokenAddress"
       | "tallyVotes"
       | "transferOwnership"
       | "updateParticipationScore"
@@ -119,7 +121,15 @@ export interface RayanChainDAOInterface extends Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
+    functionFragment: "setStartupAccessTokenAddress",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
     functionFragment: "stakingContract",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "startupAccessTokenAddress",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -196,7 +206,15 @@ export interface RayanChainDAOInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "setStartupAccessTokenAddress",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "stakingContract",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "startupAccessTokenAddress",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "tallyVotes", data: BytesLike): Result;
@@ -488,7 +506,15 @@ export interface RayanChainDAO extends BaseContract {
 
   renounceOwnership: TypedContractMethod<[], [void], "nonpayable">;
 
+  setStartupAccessTokenAddress: TypedContractMethod<
+    [_address: AddressLike],
+    [void],
+    "nonpayable"
+  >;
+
   stakingContract: TypedContractMethod<[], [string], "view">;
+
+  startupAccessTokenAddress: TypedContractMethod<[], [string], "view">;
 
   tallyVotes: TypedContractMethod<
     [_proposalId: BigNumberish],
@@ -637,7 +663,13 @@ export interface RayanChainDAO extends BaseContract {
     nameOrSignature: "renounceOwnership"
   ): TypedContractMethod<[], [void], "nonpayable">;
   getFunction(
+    nameOrSignature: "setStartupAccessTokenAddress"
+  ): TypedContractMethod<[_address: AddressLike], [void], "nonpayable">;
+  getFunction(
     nameOrSignature: "stakingContract"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "startupAccessTokenAddress"
   ): TypedContractMethod<[], [string], "view">;
   getFunction(
     nameOrSignature: "tallyVotes"

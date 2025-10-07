@@ -962,9 +962,23 @@ export const rayanChainDaoAbi = [
   },
   {
     type: 'function',
+    inputs: [{ name: '_address', internalType: 'address', type: 'address' }],
+    name: 'setStartupAccessTokenAddress',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
     inputs: [],
     name: 'stakingContract',
     outputs: [{ name: '', internalType: 'contract IStaking', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'startupAccessTokenAddress',
+    outputs: [{ name: '', internalType: 'address', type: 'address' }],
     stateMutability: 'view',
   },
   {
@@ -2418,6 +2432,15 @@ export const useReadRayanChainDaoStakingContract =
   })
 
 /**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link rayanChainDaoAbi}__ and `functionName` set to `"startupAccessTokenAddress"`
+ */
+export const useReadRayanChainDaoStartupAccessTokenAddress =
+  /*#__PURE__*/ createUseReadContract({
+    abi: rayanChainDaoAbi,
+    functionName: 'startupAccessTokenAddress',
+  })
+
+/**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link rayanChainDaoAbi}__ and `functionName` set to `"votingPeriod"`
  */
 export const useReadRayanChainDaoVotingPeriod =
@@ -2476,6 +2499,15 @@ export const useWriteRayanChainDaoRenounceOwnership =
   /*#__PURE__*/ createUseWriteContract({
     abi: rayanChainDaoAbi,
     functionName: 'renounceOwnership',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link rayanChainDaoAbi}__ and `functionName` set to `"setStartupAccessTokenAddress"`
+ */
+export const useWriteRayanChainDaoSetStartupAccessTokenAddress =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: rayanChainDaoAbi,
+    functionName: 'setStartupAccessTokenAddress',
   })
 
 /**
@@ -2572,6 +2604,15 @@ export const useSimulateRayanChainDaoRenounceOwnership =
   /*#__PURE__*/ createUseSimulateContract({
     abi: rayanChainDaoAbi,
     functionName: 'renounceOwnership',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link rayanChainDaoAbi}__ and `functionName` set to `"setStartupAccessTokenAddress"`
+ */
+export const useSimulateRayanChainDaoSetStartupAccessTokenAddress =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: rayanChainDaoAbi,
+    functionName: 'setStartupAccessTokenAddress',
   })
 
 /**
