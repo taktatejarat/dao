@@ -58,7 +58,7 @@ contract RayanChainDAO is Ownable, ReentrancyGuard {
     AccControl public accControl;
     IStaking public stakingContract;
     IFinance public financeContract;
-    
+    address public startupAccessTokenAddress = address(0); 
     mapping(uint256 => Proposal) public proposals;
     uint256 public nextProposalId;
     mapping(uint256 => mapping(address => bool)) public hasVoted;
@@ -306,6 +306,7 @@ contract RayanChainDAO is Ownable, ReentrancyGuard {
     // ✅ NEW: Function to set the Role Token address (only by owner/DAO)
     function setStartupAccessTokenAddress(address _address) external onlyOwner {
         require(_address != address(0), "DAO: Cannot set zero address.");
-        startupAccessTokenAddress = _address;
-}
+        // ✅ FIX: Assignment to the defined state variable
+        startupAccessTokenAddress = _address; 
+    }
 }

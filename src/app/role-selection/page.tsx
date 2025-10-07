@@ -14,10 +14,8 @@ import type { UserRole } from '@/context/Web3Provider';
 import { useRouter } from 'next/navigation';
 import { DaoLoadingSpinner } from '@/components/icons/dao-loading-spinner';
 import { useReadContract } from 'wagmi';
-// ✅ استفاده از نام صحیح camelCase و رفع خطای null
 import { daoRegistryAbi } from '@/lib/blockchain/generated';
 import { REGISTRY_KEYS } from '@/lib/blockchain/registry-keys';
-import { useGrantRole } from '@/hooks/useGrantRole';
 import type { Address } from 'viem';
 
 export default function RoleSelectionPage() {
@@ -36,14 +34,7 @@ export default function RoleSelectionPage() {
     });
     const accControlAddress = accControlAddressResult as Address | undefined;
 
-    // --- Use the custom hook for the on-chain role granting logic ---
-    const { grantRole, isGrantingRole } = useGrantRole({
-        accControlAddress,
-        targetAddress: address,
-    });
-
     const investorPlans = useMemo(() => [
-        // ... (آرایه پلن‌ها بدون تغییر)
         { title: t('role_selection.plan_bronze_title'), tier: "bronze" as const, description: t('role_selection.plan_bronze_desc'), price: "10000000", features: [t('role_selection.plan_bronze_feat1'), t('role_selection.plan_bronze_feat2'), t('role_selection.plan_bronze_feat3')] },
         { title: t('role_selection.plan_silver_title'), tier: "silver" as const, description: t('role_selection.plan_silver_desc'), price: "50000000", features: [t('role_selection.plan_silver_feat1'), t('role_selection.plan_silver_feat2'), t('role_selection.plan_silver_feat3'), t('role_selection.plan_silver_feat4')], isFeatured: true },
         { title: t('role_selection.plan_gold_title'), tier: "gold" as const, description: t('role_selection.plan_gold_desc'), price: "200000000", features: [t('role_selection.plan_gold_feat1'), t('role_selection.plan_gold_feat2'), t('role_selection.plan_gold_feat3'), t('role_selection.plan_gold_feat4')] }
@@ -51,18 +42,20 @@ export default function RoleSelectionPage() {
 
     // --- Main Handler for Role Selection ---
     const handleRoleSelect = (role: UserRole, amount?: string) => {
-        if (role === 'startup') {
-            grantRole(); // ✅ فراخوانی مستقیم تابع از هوک
+        // ✅ FIX: No more role granting logic here. Roles are self-service.
+        setUserRole(role);
+        if (typeof window !== 'undefined') {
+            localStorage.setItem('userRole', role as string);
+        }
+        if (role === 'investor' && amount) {
+            // Investor role is chosen, redirect to staking page with amount
+            router.push(`/staking?amount=${amount}`);
+        } else if (role === 'startup') {
+            // Startup role is chosen, check if user has Stake (will be checked by the contract on proposal creation)
+            router.push('/dashboard'); 
         } else {
-            setUserRole(role);
-            if (typeof window !== 'undefined') {
-                localStorage.setItem('userRole', role as string);
-            }
-            if (role === 'investor' && amount) {
-                router.push(`/staking?amount=${amount}`);
-            } else {
-                router.push('/dashboard');
-            }
+            // Voter/Delegate (Default)
+            router.push('/dashboard');
         }
     };
     
@@ -118,21 +111,17 @@ export default function RoleSelectionPage() {
                                 </p>
                              </CardContent>
                              <CardFooter>
-                                 <Button 
-                                     className="w-full" 
-                                     onClick={() => handleRoleSelect('startup')}
-                                     disabled={isGrantingRole || !accControlAddress}
-                                 >
-                                     {isGrantingRole ? (
-                                         <>
-                                             <DaoLoadingSpinner className="me-2" />
-                                             {t('role_selection.granting_role')}
-                                         </>
-                                     ) : (
-                                         t('role_selection.startup_cta')
-                                     )}
-                                 </Button>
-                             </CardFooter>
+                                <Button className="w-full" onClick={() => handleRoleSelect('startup')}>
+                                    {isLoading ? (
+                                    <>
+                                        <DaoLoadingSpinner className="me-2" />
+                                        {t('role_selection.granting_role')}
+                                    </>
+                                    ) : (
+                                    t('role_selection.startup_cta')
+                                    )}
+                                </Button>
+                            </CardFooter>
                         </Card>
                     </TabsContent>
 
