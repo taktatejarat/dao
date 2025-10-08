@@ -22,6 +22,7 @@ export default function RoleSelectionPage() {
     const { setUserRole, address, registryAddress, isHydrated } = useWeb3();
     const router = useRouter();
     const [selectedTab, setSelectedTab] = useState("investor");
+    const [isRedirecting, setIsRedirecting] = useState(false); 
     const { locale, direction } = useLanguage();
     const { t } = useTranslation();
 
@@ -110,11 +111,15 @@ export default function RoleSelectionPage() {
                                   {t('role_selection.startup_desc')}
                                 </p>
                              </CardContent>
-                             <CardFooter>
-                                <Button className="w-full" onClick={() => handleRoleSelect('startup')}>
-                                    {isLoading ? (
-                                    <>
-                                        <DaoLoadingSpinner className="me-2" />
+                                <CardFooter>
+                                    <Button 
+                                        className="w-full" 
+                                        onClick={() => handleRoleSelect('startup')}
+                                        disabled={isRedirecting}
+                                    >
+                                        {isRedirecting ? (
+                                            <>
+                                         <DaoLoadingSpinner className="me-2" />
                                         {t('role_selection.granting_role')}
                                     </>
                                     ) : (

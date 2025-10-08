@@ -1,13 +1,17 @@
+// src/components/ui/alert.tsx - REVISED: Switching from Absolute to Flex for better RTL/Content flow
+
 import * as React from "react"
 import { cva, type VariantProps } from "class-variance-authority"
 
 import { cn } from "@/lib/utils"
 
 const alertVariants = cva(
-  "relative w-full rounded-lg border p-4 [&>svg~*]:ps-7 rtl:[&>svg~*]:pe-7 rtl:[&>svg~*]:ps-0 [&>svg+div]:translate-y-[-3px] [&>svg]:absolute [&>svg]:start-4 rtl:[&>svg]:start-auto rtl:[&>svg]:right-4 [&>svg]:top-4 [&>svg]:text-foreground",
+  // ✅ FIX: Use simple flexbox classes
+  "relative w-full rounded-lg border p-4 flex items-start gap-4",
   {
     variants: {
       variant: {
+        // ✅ FIX: Remove redundant positioning classes. Text/Icon colors are fine.
         default: "bg-background text-foreground",
         destructive:
           "border-destructive/50 text-destructive dark:border-destructive [&>svg]:text-destructive",
@@ -33,12 +37,25 @@ const Alert = React.forwardRef<
 ))
 Alert.displayName = "Alert"
 
+// ✅ IMPORTANT: Now, the icon MUST be wrapped in a div with the text in the component usage
+/*
+// Example of required usage:
+<Alert>
+    <AlertTriangle className="h-4 w-4 flex-shrink-0" />
+    <div> // <- This wrapper is now CRITICAL
+        <AlertTitle>Title</AlertTitle>
+        <AlertDescription>Description</AlertDescription>
+    </div>
+</Alert>
+*/
+
 const AlertTitle = React.forwardRef<
   HTMLParagraphElement,
   React.HTMLAttributes<HTMLHeadingElement>
 >(({ className, ...props }, ref) => (
   <h5
     ref={ref}
+    // No changes needed here, its position is managed by the new flex parent
     className={cn("mb-1 font-medium leading-none tracking-tight", className)}
     {...props}
   />
@@ -51,6 +68,7 @@ const AlertDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <div
     ref={ref}
+    // No changes needed here
     className={cn("text-sm [&_p]:leading-relaxed", className)}
     {...props}
   />
