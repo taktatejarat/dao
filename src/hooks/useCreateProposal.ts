@@ -85,13 +85,13 @@ export function useCreateProposal({ daoAddress, isFormEnabled }: UseCreatePropos
             }).then(res => {
                  if (res.ok) {
                      // ✅ LINTER FIX: Use correct translation keys defined in previous steps
-                     toast.success(t('new_proposal.success_toast_title'), {
-                         description: `${t('new_proposal.confirmed_toast_desc')}. ${t('new_proposal.ai_check_triggered')}`,
+                     toast.success(t('new_proposal_page.success_toast_title'), {
+                         description: `${t('new_proposal_page.confirmed_toast_desc')}. ${t('new_proposal_page.ai_check_triggered')}`,
                      });
                  } else {
                      // ✅ LINTER FIX: Use correct translation keys defined in previous steps
-                     toast.error(t('new_proposal.ai_check_failed_title'), {
-                         description: t('new_proposal.ai_check_failed_desc'),
+                     toast.error(t('new_proposal_page.ai_check_failed_title'), {
+                         description: t('new_proposal_page.ai_check_failed_desc'),
                      });
                  }
             }).finally(() => {
@@ -141,13 +141,13 @@ export function useCreateProposal({ daoAddress, isFormEnabled }: UseCreatePropos
             } as any);
 
             setTxHash(submissionTxHash);
-            toast.info(t('new_proposal.pending_toast_title'), { description: submissionTxHash });
+            toast.info(t('new_proposal_page.pending_toast_title'), { description: submissionTxHash });
             
         } catch (err) {
             // Log the Viem error for better debugging
             console.error(err);
-            toast.error(t('new_proposal.error_toast_title'), {
-                description: (err as BaseError)?.shortMessage || t('new_proposal.unexpected_error_desc'),
+            toast.error(t('new_proposal_page.error_toast_title'), {
+                description: (err as BaseError)?.shortMessage || t('new_proposal_page.unexpected_error_desc'),
             });
             setIsPending(false);
         }

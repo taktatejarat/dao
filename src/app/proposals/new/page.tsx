@@ -15,18 +15,19 @@ import { DaoLoadingSpinner } from '@/components/icons/dao-loading-spinner';
 import { useRouter } from 'next/navigation';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertTriangle, PlusCircle, Trash2 } from 'lucide-react';
-import { useReadContract } from 'wagmi';
+import { useReadContract, useAccount } from 'wagmi'; 
 import type { Address } from 'viem';
-import { daoRegistryAbi, accControlAbi } from '@/lib/blockchain/generated';
+import { daoRegistryAbi } from '@/lib/blockchain/generated';
 import { REGISTRY_KEYS } from '@/lib/blockchain/registry-keys';
 import { useCreateProposal } from '@/hooks/useCreateProposal';
 import { toast } from 'sonner';
+
 
 export default function NewProposalPage() {
     const { t } = useTranslation();
     const router = useRouter();
     const { userRole, address, registryAddress, isHydrated } = useWeb3();
-
+    const { isConnected } = useAccount(); 
     // --- Fetching required contract addresses ---
     const { data: daoAddressResult, isLoading: isDaoAddrLoading } = useReadContract({
         address: registryAddress as Address,
@@ -43,27 +44,10 @@ export default function NewProposalPage() {
         query: { enabled: !!registryAddress && isHydrated },
     });
     const daoAddress = daoAddressResult as Address | undefined;
-    const accControlAddress = accCtrlAddressResult as Address | undefined;
 
-    // --- On-chain Role Check ---
-    const { data: roleId } = useReadContract({
-        address: accControlAddress,
-        abi: accControlAbi,
-        functionName: 'DAO_MEMBER_ROLE',
-        query: { enabled: !!accControlAddress },
-    });
-    const { data: hasRole, isLoading: isRoleChecking } = useReadContract({
-        address: accControlAddress,
-        abi: accControlAbi,
-        functionName: 'hasRole',
-        args: [roleId as any, address as Address],
-        query: { enabled: !!accControlAddress && !!address && !!roleId },
-    });
-    const hasBlockchainRole = !!hasRole;
-
-    // --- UI Permissions ---
     const canAccessPage = userRole === 'startup' || userRole === 'admin';
-    const canSubmitProposal = hasBlockchainRole || userRole === 'admin';
+    const canSubmitProposal = canAccessPage && isConnected; 
+
 
     // --- Custom Hook for Form Logic ---
     const {
@@ -90,7 +74,7 @@ export default function NewProposalPage() {
         }
     }, [isHydrated, canAccessPage, router, t]);
 
-    const isLoading = !isHydrated || isDaoAddrLoading || isAccCtrlAddrLoading || isRoleChecking;
+    const isLoading = !isHydrated || isDaoAddrLoading || isAccCtrlAddrLoading;
 
     if (isLoading) {
         return <AppLayout><div className="flex justify-center pt-20"><DaoLoadingSpinner /></div></AppLayout>;
@@ -117,15 +101,15 @@ export default function NewProposalPage() {
                         <CardDescription>{t('new_proposal_page.card_desc')}</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-6">
-                        {!canSubmitProposal && (
+                        {/* ✅ NEW: Simple Alert if wallet is not connected */}
+                        {!isConnected && (
                             <Alert variant="destructive">
                                 <AlertTriangle className="h-4 w-4" />
-                                <AlertTitle>{t('new_proposal_page.blockchain_role_missing_title')}</AlertTitle>
-                                <AlertDescription>{t('new_proposal_page.blockchain_role_missing_desc')}</AlertDescription>
+                                <AlertTitle>{t('dashboard.connect_to_see_data_title')}</AlertTitle>
+                                <AlertDescription>{t('new_proposal_page.connect_to_submit')}</AlertDescription>
                             </Alert>
                         )}
-
-                        {/* --- NEW: AI Feature Inputs (Risk Assessment Features) --- */}
+                       {/* --- NEW: AI Feature Inputs (Risk Assessment Features) --- */}
                         <div className="space-y-2">
                             <Label htmlFor="startup-industry">{t('new_proposal_page.startup_industry_label')}</Label>
                             <Input id="startup-industry" placeholder={t('new_proposal_page.startup_industry_placeholder')} value={startupIndustry} onChange={(e) => setStartupIndustry(e.target.value)} disabled={isPending} />

@@ -292,7 +292,19 @@ export const fa = {
     contract_write_error: "ارسال پیشنهاد به بلاکچین ناموفق بود. لطفاً دوباره تلاش کنید.",
     ai_check_triggered: "فرآیند بررسی ریسک توسط هوش مصنوعی آغاز شد.",
     ai_check_failed_title: "خطای فعال‌سازی هوش مصنوعی",
-    ai_check_failed_desc: "سیستم به صورت دستی آن را بررسی خواهد کرد.فرآیند بررسی ریسک توسط هوش مصنوعی ناموفق بود"
+    ai_check_failed_desc: "سیستم به صورت دستی آن را بررسی خواهد کرد.فرآیند بررسی ریسک توسط هوش مصنوعی ناموفق بود",
+    connect_to_submit: "برای ارسال پیشنهاد، لطفاً کیف پول خود را متصل کنید.",
+    startup_industry_label: "صنعت استارتاپ",
+    startup_industry_placeholder: "مثال: فناوری سلامت (HealthTech)، هوش مصنوعی مالی (Fintech AI)",
+    team_experience_label: "سابقه تیم و بنیان‌گذاران",
+    team_experience_placeholder: "خلاصه‌ای از سابقه کاری و فنی تیم اصلی (برای تحلیل AI)",
+    off_chain_note: "توضیحات کامل به‌صورت امن در پایگاه داده خارج از زنجیره ذخیره و فقط هش آن در بلاکچین ثبت می‌شود.",
+    redirecting: "در حال انتقال...",
+    success_toast_title: "پیشنهاد با موفقیت ارسال شد",
+    confirmed_toast_desc: "تراکنش در بلاکچین تأیید شد",
+    pending_toast_title: "تراکنش در حال پردازش",
+    error_toast_title: "خطا در ارسال پیشنهاد",
+    unexpected_error_desc: "خطای ناشناخته‌ای رخ داد. لطفاً لاگ‌ها را بررسی کنید."
   },
 
   // Profile Page
