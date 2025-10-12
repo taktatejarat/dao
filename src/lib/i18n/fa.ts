@@ -310,7 +310,7 @@ export const fa = {
     confirmed_toast_desc: "تراکنش در بلاکچین تأیید شد",
     pending_toast_title: "تراکنش در حال پردازش",
     error_toast_title: "خطا در ارسال پیشنهاد",
-    unexpected_error_desc: "خطای ناشناخته‌ای رخ داد. لطفاً لاگ‌ها را بررسی کنید."
+    unexpected_error_desc: "خطای ناشناخته‌ای رخ داد. لطفاً لاگ‌ها را بررسی کنید.",
   },
 
   // Profile Page
@@ -546,7 +546,7 @@ export const fa = {
     revert_reason_stake_zero: "مقدار سپرده گذاری باید بیشتر از صفر باشد",
     revert_reason_delegate_stake: "برای واگذاری حق رأی (Delegate)، ابتدا باید توکن RYC را سپرده گذاری کنید.",
     plan_selected_toast: "پلن انتخاب شد. اکنون روی دکمه 'سپرده‌گذاری' سپرده گذاریکلیک کنید.",
-
+    contract_addresses_missing: "آدرس قراردادهای ضروری (توکن/سپرده) هنوز بارگذاری نشده‌اند. لطفا منتظر بمانید.",
 
   },
 

@@ -104,33 +104,44 @@ export function useStaking({ tokenAddress, stakingAddress }: UseStakingProps) {
         return baseError?.shortMessage || t('staking_page.unexpected_error_desc');
     };
 
+
     const handleApprove = async () => {
+        // ✅ FIX 1: Explicit Null/Undefined Check
+        if (!tokenAddress || !stakingAddress) {
+            toast.error(t('new_proposal_page.error_toast_title'), { description: t('staking_page.contract_addresses_missing') });
+            return;
+        }
         try {
             const txHash = await writeContractAsync({
-                address: tokenAddress!,
+                address: tokenAddress, // Use checked address
                 abi: rayanChainTokenAbi,
                 functionName: 'approve',
-                args: [stakingAddress!, parsedStakeAmount],
+                args: [stakingAddress, parsedStakeAmount], // Use checked address
             } as any);
             setSubmittedHash(txHash);
-            toast.info(t('new_proposal.pending_toast_title'), { description: t('staking_page.approve_in_progress') }); 
+            toast.info(t('new_proposal_page.pending_toast_title'), { description: t('staking_page.approve_in_progress') }); 
         } catch (err) {
-            toast.error(t('new_proposal.error_toast_title'), { description: extractRevertReason(err) });
+            toast.error(t('new_proposal_page.error_toast_title'), { description: extractRevertReason(err) });
         }
     };
-    const handleStake = async () => {
+ const handleStake = async () => {
+        // ✅ FIX 1: Explicit Null/Undefined Check
+        if (!stakingAddress) {
+            toast.error(t('new_proposal_page.error_toast_title'), { description: t('staking_page.contract_addresses_missing') });
+            return;
+        }
         try {
             const txHash = await writeContractAsync({
-                address: stakingAddress!,
+                address: stakingAddress,
                 abi: stakingAbi,
                 functionName: 'stake',
                 args: [parsedStakeAmount],
             } as any);
             setSubmittedHash(txHash);
-            toast.info(t('new_proposal.pending_toast_title'), { description: txHash });
+            toast.info(t('new_proposal_page.pending_toast_title'), { description: txHash });
             setStakeAmount('');
         } catch (err) {
-            toast.error(t('new_proposal.error_toast_title'), { description: extractRevertReason(err) });
+            toast.error(t('new_proposal_page.error_toast_title'), { description: extractRevertReason(err) });
         }
     };
 
@@ -143,10 +154,10 @@ export function useStaking({ tokenAddress, stakingAddress }: UseStakingProps) {
                 args: [parsedUnstakeAmount],
             } as any);
             setSubmittedHash(txHash);
-            toast.info(t('new_proposal.pending_toast_title'), { description: txHash });
+            toast.info(t('new_proposal_page.pending_toast_title'), { description: txHash });
             setUnstakeAmount('');
         } catch (err) {
-            toast.error(t('new_proposal.error_toast_title'), { description: extractRevertReason(err) });
+            toast.error(t('new_proposal_page.error_toast_title'), { description: extractRevertReason(err) });
         }
     };
 
@@ -158,15 +169,16 @@ export function useStaking({ tokenAddress, stakingAddress }: UseStakingProps) {
                 functionName: 'claimReward',
             } as any);
             setSubmittedHash(txHash);
-            toast.info(t('new_proposal.pending_toast_title'), { description: txHash });
+            toast.info(t('new_proposal_page.pending_toast_title'), { description: txHash });
         } catch (err) {
-            toast.error(t('new_proposal.error_toast_title'), { description: extractRevertReason(err) });
+            toast.error(t('new_proposal_page.error_toast_title'), { description: extractRevertReason(err) });
         }
     };
     
-    const handleDelegate = async () => {
-        if (!isValidDelegateeAddress) {
-            toast.error(t('staking_page.delegate_error_title'), { description: t('staking_page.invalid_delegatee_desc') });
+  const handleDelegate = async () => {
+        // ✅ FIX 1: Explicit Null/Undefined Check
+        if (!stakingAddress) {
+            toast.error(t('new_proposal_page.error_toast_title'), { description: t('staking_page.contract_addresses_missing') });
             return;
         }
         
@@ -178,9 +190,9 @@ export function useStaking({ tokenAddress, stakingAddress }: UseStakingProps) {
                 args: [delegateeAddress as Address],
             } as any);
             setSubmittedHash(txHash);
-            toast.info(t('new_proposal.pending_toast_title'), { description: txHash });
+            toast.info(t('new_proposal_page.pending_toast_title'), { description: txHash });
         } catch (err) {
-            toast.error(t('new_proposal.error_toast_title'), { description: extractRevertReason(err) });
+            toast.error(t('new_proposal_page.error_toast_title'), { description: extractRevertReason(err) });
         }
     };
     
@@ -193,9 +205,9 @@ export function useStaking({ tokenAddress, stakingAddress }: UseStakingProps) {
                 args: [],
             } as any);
             setSubmittedHash(txHash);
-            toast.info(t('new_proposal.pending_toast_title'), { description: txHash });
+            toast.info(t('new_proposal_page.pending_toast_title'), { description: txHash });
         } catch (err) {
-            toast.error(t('new_proposal.error_toast_title'), { description: extractRevertReason(err) });
+            toast.error(t('new_proposal_page.error_toast_title'), { description: extractRevertReason(err) });
         }
     };
 
