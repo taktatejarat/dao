@@ -88,27 +88,32 @@
   
   /* ✅ ۱. تنظیم فونت پیش‌فرض برای کل برنامه */
   body {
-    @apply bg-background text-foreground font-sans; /* <- این اکنون به Exo 2 اشاره دارد */
+    @apply bg-background text-foreground;
+    /* FIX: استفاده از متغیر فونت برای font-sans */
+    font-family: var(--font-sans); 
   }
   
-  /* ✅ ۲. تغییر فونت بر اساس جهت صفحه */
+  /* ✅ ۲. تغییر فونت بر اساس جهت صفحه (فارسی) */
   [dir="rtl"] body {
-    @apply font-vazir; /* <- این اکنون به Vazirmatn اشاره دارد */
+    /* FIX: استفاده از متغیر فونت برای font-vazir */
+    font-family: var(--font-vazir); 
   }
 
-  /* ما فقط به تگ‌های HTML استایل می‌دهیم. */
+  /* ✅ ۳. تنظیم فونت پیش‌فرض برای سرفصل‌ها (انگلیسی) */
   h1, h2, h3, h4, h5, h6 {
-    @apply font-headline; /* <- این اکنون به Merienda اشاره دارد */
+    /* FIX: استفاده از متغیر فونت برای font-headline */
+    font-family: var(--font-headline); 
   }
 
-  /* اگر زبان فارسی بود، برای سرفصل‌ها هم از فونت فارسی استفاده کن */
+  /* ✅ ۴. FIX: اجبار فونت فارسی بر روی سرفصل‌ها در حالت RTL */
   [dir="rtl"] h1,
   [dir="rtl"] h2,
   [dir="rtl"] h3,
   [dir="rtl"] h4,
   [dir="rtl"] h5,
   [dir="rtl"] h6 {
-    @apply font-vazir;
+    /* FIX: استفاده از متغیر فونت برای font-vazir */
+    font-family: var(--font-vazir);
   }
 }
 

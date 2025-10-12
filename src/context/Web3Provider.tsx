@@ -6,7 +6,7 @@ import { useState, useEffect, createContext, useContext, ReactNode, useCallback 
 import { useAccount } from 'wagmi';
 import type { Address } from 'viem';
 
-export type UserRole = 'admin' | 'investor' | 'startup' | 'voter' | null;
+export type UserRole = 'admin' | 'investor' | 'startup' | 'voter' | 'delegate' | null;
 
 export interface IWeb3Context {
     userRole: UserRole;

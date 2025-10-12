@@ -85,13 +85,25 @@ export function useStaking({ tokenAddress, stakingAddress }: UseStakingProps) {
     const [submittedHash, setSubmittedHash] = useState<`0x${string}` | undefined>(undefined);
     const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ hash: submittedHash });
 
-    useEffect(() => {
+   useEffect(() => {
         if (isSuccess) {
             refetch();
+            // ✅ NEW: Show a confirmation toast after transaction is finalized
+            toast.success(t('staking_page.tx_success_title'), { description: t('staking_page.tx_success_desc') });
         }
-    }, [isSuccess, refetch]);
+    }, [isSuccess, refetch, t]);
 
     // --- Action Handlers ---
+    // Helper function to extract Revert Reason
+    const extractRevertReason = (err: unknown): string => {
+        const baseError = err as BaseError;
+        const revertMatch = baseError?.shortMessage?.match(/reverted with the following reason: (.*)\.?/);
+        if (revertMatch && revertMatch[1]) {
+            return revertMatch[1];
+        }
+        return baseError?.shortMessage || t('staking_page.unexpected_error_desc');
+    };
+
     const handleApprove = async () => {
         try {
             const txHash = await writeContractAsync({
@@ -101,12 +113,11 @@ export function useStaking({ tokenAddress, stakingAddress }: UseStakingProps) {
                 args: [stakingAddress!, parsedStakeAmount],
             } as any);
             setSubmittedHash(txHash);
-            toast.info(t('staking_page.approve_pending'));
+            toast.info(t('new_proposal.pending_toast_title'), { description: t('staking_page.approve_in_progress') }); 
         } catch (err) {
-            toast.error(t('staking_page.approve_error'));
+            toast.error(t('new_proposal.error_toast_title'), { description: extractRevertReason(err) });
         }
     };
-
     const handleStake = async () => {
         try {
             const txHash = await writeContractAsync({
@@ -116,10 +127,10 @@ export function useStaking({ tokenAddress, stakingAddress }: UseStakingProps) {
                 args: [parsedStakeAmount],
             } as any);
             setSubmittedHash(txHash);
-            toast.success(t('staking_page.stake_success'));
+            toast.info(t('new_proposal.pending_toast_title'), { description: txHash });
             setStakeAmount('');
         } catch (err) {
-            toast.error(t('staking_page.stake_error'));
+            toast.error(t('new_proposal.error_toast_title'), { description: extractRevertReason(err) });
         }
     };
 
@@ -132,10 +143,10 @@ export function useStaking({ tokenAddress, stakingAddress }: UseStakingProps) {
                 args: [parsedUnstakeAmount],
             } as any);
             setSubmittedHash(txHash);
-            toast.success(t('staking_page.unstake_success'));
+            toast.info(t('new_proposal.pending_toast_title'), { description: txHash });
             setUnstakeAmount('');
         } catch (err) {
-            toast.error(t('staking_page.unstake_error'));
+            toast.error(t('new_proposal.error_toast_title'), { description: extractRevertReason(err) });
         }
     };
 
@@ -147,12 +158,12 @@ export function useStaking({ tokenAddress, stakingAddress }: UseStakingProps) {
                 functionName: 'claimReward',
             } as any);
             setSubmittedHash(txHash);
-            toast.success(t('staking_page.claim_success'));
+            toast.info(t('new_proposal.pending_toast_title'), { description: txHash });
         } catch (err) {
-            toast.error(t('staking_page.claim_error'));
+            toast.error(t('new_proposal.error_toast_title'), { description: extractRevertReason(err) });
         }
     };
-    // ✅ NEW: Delegate Handler
+    
     const handleDelegate = async () => {
         if (!isValidDelegateeAddress) {
             toast.error(t('staking_page.delegate_error_title'), { description: t('staking_page.invalid_delegatee_desc') });
@@ -167,13 +178,12 @@ export function useStaking({ tokenAddress, stakingAddress }: UseStakingProps) {
                 args: [delegateeAddress as Address],
             } as any);
             setSubmittedHash(txHash);
-            toast.success(t('staking_page.delegate_success'));
+            toast.info(t('new_proposal.pending_toast_title'), { description: txHash });
         } catch (err) {
-            toast.error(t('staking_page.delegate_error'));
+            toast.error(t('new_proposal.error_toast_title'), { description: extractRevertReason(err) });
         }
     };
     
-    // ✅ NEW: Undelegate Handler
     const handleUndelegate = async () => {
         try {
             const txHash = await writeContractAsync({
@@ -183,12 +193,11 @@ export function useStaking({ tokenAddress, stakingAddress }: UseStakingProps) {
                 args: [],
             } as any);
             setSubmittedHash(txHash);
-            toast.success(t('staking_page.undelegate_success'));
+            toast.info(t('new_proposal.pending_toast_title'), { description: txHash });
         } catch (err) {
-            toast.error(t('staking_page.undelegate_error'));
+            toast.error(t('new_proposal.error_toast_title'), { description: extractRevertReason(err) });
         }
     };
-
 
     return {
         // State

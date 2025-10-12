@@ -1,3 +1,5 @@
+// src/app/staking/page.tsx - FINAL REVISION: Dynamic Plans, Delegation UI, and Layout Fixes
+
 "use client";
 
 import { useEffect, useMemo } from 'react';
@@ -7,11 +9,11 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { useTranslation } from '@/hooks/use-translation';
-import { useWeb3 } from '@/context/Web3Provider';
+import { useWeb3, UserRole } from '@/context/Web3Provider'; 
 import { useReadContract } from 'wagmi';
 import { formatEther } from 'viem';
 import { formatNumber } from '@/lib/utils';
-import { Wallet, PiggyBank, Award, Banknote, CheckCircle } from 'lucide-react';
+import { Wallet, PiggyBank, Award, Banknote, CheckCircle, Users, Vote } from 'lucide-react'; 
 import { DaoLoadingSpinner } from '@/components/icons/dao-loading-spinner';
 import { Skeleton } from '@/components/ui/skeleton';
 import { StakingPlanCard } from '@/components/staking/staking-plan-card';
@@ -20,11 +22,22 @@ import { daoRegistryAbi } from '@/lib/blockchain/generated';
 import { REGISTRY_KEYS } from '@/lib/blockchain/registry-keys';
 import { useStaking } from '@/hooks/useStaking';
 import type { Address } from 'viem';
+import { toast } from 'sonner';
+
 
 export default function StakingPage() {
     const { t, locale } = useTranslation();
     const { registryAddress, isHydrated } = useWeb3();
+    // ✅ FIX 2: Read userRole safely
+    const userRole = typeof window !== 'undefined' ? localStorage.getItem('userRole') as UserRole : 'voter';
     const searchParams = useSearchParams();
+
+    // Helper function:
+    const getTranslatedRoleName = (role: UserRole | null | string) => {
+        const safeRole = role || 'voter';
+        return t(`role_selection.${safeRole}`);
+    };
+    const roleName = getTranslatedRoleName(userRole);    
 
     // --- Fetch required contract addresses from the registry ---
     const { data: tokenAddressResult, isLoading: isTokenAddrLoading } = useReadContract({
@@ -51,6 +64,10 @@ export default function StakingPage() {
         unstakeAmount, setUnstakeAmount,
         needsApproval, isActionPending,
         handleApprove, handleStake, handleUnstake, handleClaim,
+        currentDelegatee, // Read the delegatee address
+        delegateeAddress, setDelegateeAddress, // State for new delegatee
+        handleDelegate, handleUndelegate, // Delegate actions
+        isDelegateButtonDisabled, isUndelegateButtonDisabled, // Delegate button states
         isStakeButtonDisabled, isUnstakeButtonDisabled, isClaimButtonDisabled
     } = useStaking({ tokenAddress, stakingAddress });
     
@@ -61,44 +78,48 @@ export default function StakingPage() {
         }
     }, [searchParams, setStakeAmount]);
 
-    const investorPlans = [
-        {
-            title: t('role_selection.plan_bronze_title'),
-            tier: "bronze" as const,
-            description: t('role_selection.plan_bronze_desc'),
-            price: "10000000",
-            features: [
-                t('role_selection.plan_bronze_feat1'), 
-                t('role_selection.plan_bronze_feat2'), 
-                t('role_selection.plan_bronze_feat3')
-            ]
+  // --- Dynamic Staking Plans Logic ---
+    const allPlans = useMemo(() => [
+        { // Base Voter Plan
+            roles: ['voter'], 
+            title: t('staking_page.plan_voter_title'), 
+            tier: "bronze" as const, 
+            price: "1000000", 
+            features: [t('voter_feat1'), t('voter_feat2')],
+            // ✅ FIX 3: Added missing description field
+            description: t('staking_page.plan_voter_desc'),
         },
-        {
-            title: t('role_selection.plan_silver_title'),
-            tier: "silver" as const,
-            description: t('role_selection.plan_silver_desc'),
-            price: "50000000",
-            features: [
-                t('role_selection.plan_silver_feat1'),
-                t('role_selection.plan_silver_feat2'),
-                t('role_selection.plan_silver_feat3'),
-                t('role_selection.plan_silver_feat4'),
-            ],
-            isFeatured: true,
+        { // Startup / Base Investor Plan
+            roles: ['startup', 'investor'], 
+            title: t('staking_page.plan_startup_title'), 
+            tier: "silver" as const, 
+            price: "50000000", 
+            features: [t('staking_page.startup_feat1'), t('staking_page.startup_feat2')],
+            isFeatured: userRole === 'startup',
+            // ✅ FIX 3: Added missing description field
+            description: t('staking_page.plan_startup_desc'),
         },
-        {
-            title: t('role_selection.plan_gold_title'),
-            tier: "gold" as const,
-            description: t('role_selection.plan_gold_desc'),
-            price: "200000000",
-            features: [
-                t('role_selection.plan_gold_feat1'),
-                t('role_selection.plan_gold_feat2'),
-                t('role_selection.plan_gold_feat3'),
-                t('role_selection.plan_gold_feat4'),
-            ]
-        }
-    ];
+        { // Delegate Plan (High Commitment)
+            roles: ['delegate', 'investor'], 
+            title: t('staking_page.plan_delegate_title'), 
+            tier: "gold" as const, 
+            price: "200000000", 
+            features: [t('delegate_feat1'), t('delegate_feat2')],
+            isFeatured: userRole === 'delegate',
+            // ✅ FIX 3: Added missing description field
+            description: t('staking_page.plan_delegate_desc'),
+        },
+    ], [t, userRole]);
+
+
+    const filteredPlans = useMemo(() => {
+        // Show all plans if admin (for management), otherwise show plans relevant to the role
+        if (userRole === 'admin') return allPlans;
+        
+        // Filter by the user's current selected role. Handles 'null' role by showing voter plans.
+        const currentRole = userRole === null ? 'voter' : userRole;
+        return allPlans.filter(plan => plan.roles.includes(currentRole as any));
+    }, [allPlans, userRole]);
 
     const isLoading = isTokenAddrLoading || isStakingAddrLoading || (!!tokenAddress && !!stakingAddress && (rycBalance === undefined || stakedBalance === undefined || earnedRewards === undefined));
 
@@ -106,11 +127,13 @@ export default function StakingPage() {
         <AppLayout>
             <header className="mb-6">
                 <h1 className="text-3xl font-bold font-headline">{t('staking_page.title')}</h1>
-                <p className="text-muted-foreground">{t('staking_page.subtitle')}</p>
+                {/* ✅ NEW: Display role specific subtitle */}
+            <p className="text-muted-foreground">{t('staking_page.subtitle_for_rule')} {roleName}</p>
             </header>
 
+             {/* --- Balance Cards --- */}
              <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 mb-8">
-                <Card>
+                 <Card>
                     <CardHeader className="flex-row items-center gap-3 space-y-0 pb-2"><Wallet className="w-6 h-6 text-primary"/><CardTitle className="text-lg">{t('staking_page.ryc_balance')}</CardTitle></CardHeader>
                     <CardContent>{isLoading ? <Skeleton className="h-8 w-3/4" /> : <p className="text-3xl font-bold">{formatNumber(formatEther(rycBalance ?? 0n), locale)}</p>}<p className="text-sm text-muted-foreground">RYC</p></CardContent>
                 </Card>
@@ -124,7 +147,9 @@ export default function StakingPage() {
                 </Card>
             </div>
             
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            {/* ✅ FIX: Action Cards - Use a 3-column layout for Stake, Unstake, Delegate */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+                {/* 1. Stake Card */}
                 <Card>
                     <CardHeader><CardTitle>{t('staking_page.stake_tokens_title')}</CardTitle><CardDescription>{t('staking_page.stake_tokens_desc')}</CardDescription></CardHeader>
                     <CardContent className="space-y-4">
@@ -142,6 +167,8 @@ export default function StakingPage() {
                         )}
                     </CardContent>
                 </Card>
+                
+                {/* 2. Unstake Card */}
                  <Card>
                     <CardHeader><CardTitle>{t('staking_page.unstake_tokens_title')}</CardTitle><CardDescription>{t('staking_page.unstake_tokens_desc')}</CardDescription></CardHeader>
                     <CardContent className="space-y-4">
@@ -149,6 +176,30 @@ export default function StakingPage() {
                          <Button variant="outline" className="w-full" disabled={isUnstakeButtonDisabled} onClick={handleUnstake}>
                             {isActionPending ? <DaoLoadingSpinner /> : <Banknote className="me-2"/>} {t('staking_page.unstake')}
                         </Button>
+                    </CardContent>
+                </Card>
+                
+                {/* 3. Delegate Card (PoP/dPoS) - FIX: Added from below the original code block */}
+                <Card>
+                    <CardHeader><CardTitle>{t('staking_page.delegate_title')}</CardTitle><CardDescription>{t('staking_page.delegate_desc')}</CardDescription></CardHeader>
+                    <CardContent className="space-y-4">
+                         {/* Display current delegatee */}
+                         <div className="space-y-2">
+                             <Label>{t('staking_page.current_delegatee')}</Label>
+                             <p className="text-sm font-mono break-all">{currentDelegatee || t('staking_page.no_delegatee')}</p>
+                        </div>
+                        <div className="space-y-2">
+                             <Label htmlFor="delegate-address">{t('staking_page.delegatee_address')}</Label>
+                             <Input id="delegate-address" placeholder={"0x..."} value={delegateeAddress} onChange={(e) => setDelegateeAddress(e.target.value)} disabled={isActionPending} />
+                        </div>
+                        <div className="flex gap-2">
+                             <Button className="flex-grow" disabled={isDelegateButtonDisabled} onClick={handleDelegate}>
+                                {isActionPending ? <DaoLoadingSpinner /> : <Users className="me-2"/>} {t('staking_page.delegate_cta')}
+                             </Button>
+                             <Button variant="outline" className="flex-grow" disabled={isUndelegateButtonDisabled} onClick={handleUndelegate}>
+                                {isActionPending ? <DaoLoadingSpinner /> : <Vote className="me-2"/>} {t('staking_page.undelegate_cta')}
+                             </Button>
+                        </div>
                     </CardContent>
                 </Card>
             </div>
@@ -162,10 +213,24 @@ export default function StakingPage() {
                 </CardContent>
             </Card>
 
-             <div className="text-center mb-8"><h2 className="text-2xl font-semibold font-headline">{t('staking_page.staking_plans_title')}</h2><p className="text-muted-foreground mt-1">{t('staking_page.staking_plans_desc')}</p></div>
+             <div className="text-center mb-8">
+                 <h2 className="text-2xl font-semibold font-headline">{t('staking_page.plans_for_role')} {roleName}</h2>
+                 <p className="text-muted-foreground mt-1">{t('staking_page.plans_for_role_desc')}</p>
+             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-               {investorPlans.map((plan) => (
-                   <StakingPlanCard key={plan.title} tier={plan.tier} price={formatNumber(plan.price, locale)} title={plan.title} description={plan.description} features={plan.features} isFeatured={plan.isFeatured} onSelect={() => setStakeAmount(plan.price)} />
+               {filteredPlans.map((plan) => (
+                   <StakingPlanCard key={plan.title} 
+                   tier={plan.tier} 
+                   price={formatNumber(plan.price, locale)} 
+                   title={plan.title} 
+                   description={plan.description} 
+                   features={plan.features} 
+                   isFeatured={plan.isFeatured}  
+                   onSelect={() => {
+                           setStakeAmount(plan.price);
+                           toast.info(t('staking_page.plan_selected_toast'));
+                         }} 
+                   />
                ))}
             </div>
 
