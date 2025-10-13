@@ -306,10 +306,10 @@ export const fa = {
     team_experience_placeholder: "خلاصه‌ای از سابقه کاری و فنی تیم اصلی (برای تحلیل AI)",
     off_chain_note: "توضیحات کامل به‌صورت امن در پایگاه داده خارج از زنجیره ذخیره و فقط هش آن در بلاکچین ثبت می‌شود.",
     redirecting: "در حال انتقال...",
-    success_toast_title: "پیشنهاد با موفقیت ارسال شد",
+    success_toast_title: "تراکنش با موفقیت ارسال شد",
     confirmed_toast_desc: "تراکنش در بلاکچین تأیید شد",
-    pending_toast_title: "تراکنش در حال پردازش",
-    error_toast_title: "خطا در ارسال پیشنهاد",
+    pending_toast_title: "است تراکنش در حال پردازش",
+    error_toast_title: "خطا در ارسال تراکنش",
     unexpected_error_desc: "خطای ناشناخته‌ای رخ داد. لطفاً لاگ‌ها را بررسی کنید.",
   },
 

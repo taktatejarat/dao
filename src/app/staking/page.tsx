@@ -10,8 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { useTranslation } from '@/hooks/use-translation';
 import { useWeb3, UserRole } from '@/context/Web3Provider'; 
-import { useReadContract } from 'wagmi';
-import { formatEther } from 'viem';
+import { parseEther, formatEther } from 'viem';
 import { formatNumber } from '@/lib/utils';
 import { Wallet, PiggyBank, Award, Banknote, CheckCircle, Users, Vote } from 'lucide-react'; 
 import { DaoLoadingSpinner } from '@/components/icons/dao-loading-spinner';
@@ -23,6 +22,8 @@ import { REGISTRY_KEYS } from '@/lib/blockchain/registry-keys';
 import { useStaking } from '@/hooks/useStaking';
 import type { Address } from 'viem';
 import { toast } from 'sonner';
+import { useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi'; 
+
 
 
 export default function StakingPage() {
@@ -31,6 +32,70 @@ export default function StakingPage() {
     // ✅ FIX 2: Read userRole safely
     const userRole = typeof window !== 'undefined' ? localStorage.getItem('userRole') as UserRole : 'voter';
     const searchParams = useSearchParams();
+
+    // --- Buy RYC Hook Logic ---
+    const [buyAmount, setBuyAmount] = useState(''); // Amount of RYC user wants to buy
+
+        
+    // Fetch RYC Price Constant (for display) and RYC Decimals
+    const { data: RYC_PRICE_IN_USD_FULL, isLoading: isPriceLoading } = useReadContract({ 
+        address: tokenAddress, abi: rayanChainTokenAbi, functionName: 'RYC_PRICE_IN_USD_FULL',
+        query: { enabled: !!tokenAddress }
+    });
+    const RYC_USD_CENTS_DISPLAY = RYC_PRICE_IN_USD_FULL ? Number(formatEther(RYC_PRICE_IN_USD_FULL)) : 0.1; // 0.1 USD per RYC (10 cents)
+
+        // --- Buy RYC Hook Logic ---
+    const [buyAmount, setBuyAmount] = useState(''); // Amount of RYC user wants to buy
+    
+    // Fetch RYC Price Constant (for display) and RYC Decimals
+    const { data: RYC_PRICE_IN_USD_FULL, isLoading: isPriceLoading } = useReadContract({ 
+        address: tokenAddress, abi: rayanChainTokenAbi, functionName: 'RYC_PRICE_IN_USD_FULL',
+        query: { enabled: !!tokenAddress }
+    });
+    const RYC_USD_CENTS_DISPLAY = RYC_PRICE_IN_USD_FULL ? Number(formatEther(RYC_PRICE_IN_USD_FULL)) : 0.1; // 0.1 USD per RYC (10 cents)
+    
+    const { data: buyTxHash, isPending: isBuyPending, writeContract: writeBuyContract } = useWriteContract();
+    const { isLoading: isBuyConfirming, isSuccess: isBuyConfirmed } = useWaitForTransactionReceipt({ hash: buyTxHash });
+    
+    // Helper to estimate cost (based on a constant price for simplicity)
+    const estimatedCost = useMemo(() => {
+        if (!RYC_PRICE_IN_USD_FULL || !buyAmount) return 0n;
+        try {
+            const amountRYCBigInt = parseEther(buyAmount);
+            // ⚠️ Simple Estimation: This is a complex calculation in FE, 
+            // but for a smooth UX, we just display the RYC amount. 
+            // The contract handles the real MATIC cost via Oracle.
+            // For now, we set a temporary value for the value prop.
+            return 100000000000000000n; // Dummy MATIC cost to make button active
+        } catch { return 0n; }
+    }, [RYC_PRICE_IN_USD_FULL, buyAmount]);
+
+    const handleBuyTokens = async () => {
+        if (!tokenAddress || parseEther(buyAmount || '0') <= 0n) {
+            toast.error(t('new_proposal.error_toast_title'), { description: t('staking_page.buy_amount_error') });
+            return;
+        }
+        
+        try {
+            // We ask the user to send a small arbitrary amount of MATIC,
+            // and the contract's 'receive' function calls 'buyTokensWithNative'.
+            // For a test, we ask for a reasonable value that is *likely* to cover the actual cost.
+            
+            const arbitraryMaticValue = 10000000000000000n; // 0.01 MATIC (as an estimate)
+            
+            writeBuyContract({
+                address: tokenAddress,
+                abi: rayanChainTokenAbi,
+                functionName: 'buyTokensWithNative',
+                value: arbitraryMaticValue, // User sends MATIC to cover the RYC price
+            } as any);
+            toast.info(t('new_proposal.pending_toast_title'), { description: t('staking_page.buy_in_progress') });
+
+        } catch (err) {
+            toast.error(t('new_proposal.error_toast_title'), { description: extractRevertReason(err) });
+        }
+    };
+
 
     // Helper function:
     const getTranslatedRoleName = (role: UserRole | null | string) => {
