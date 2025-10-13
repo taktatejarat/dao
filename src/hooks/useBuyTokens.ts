@@ -1,4 +1,4 @@
-// src/hooks/useBuyTokens.ts - Buy RYC with Native Currency Logic
+// src/hooks/useBuyTokens.ts - FINAL, SELF-CONTAINED VERSION
 
 import { useState, useMemo } from 'react';
 import { useTranslation } from '@/hooks/use-translation';
@@ -10,20 +10,17 @@ import type { Address } from 'viem';
 
 interface UseBuyTokensProps {
     tokenAddress: Address | undefined;
-    // Helper to extract revert reason (assuming it's defined globally or passed)
-    extractRevertReason: (err: unknown) => string; 
 }
 
-export function useBuyTokens({ tokenAddress, extractRevertReason }: UseBuyTokensProps) {
+export function useBuyTokens({ tokenAddress }: UseBuyTokensProps) {
     const { t, locale } = useTranslation();
-    const [buyAmount, setBuyAmount] = useState(''); // Amount of RYC user wants to buy
+    const [buyAmount, setBuyAmount] = useState(''); // Amount of MATIC user wants to spend
 
     // Fetch RYC Price Constant
     const { data: RYC_PRICE_IN_USD_FULL, isLoading: isPriceLoading } = useReadContract({ 
         address: tokenAddress, abi: rayanChainTokenAbi, functionName: 'RYC_PRICE_IN_USD_FULL',
         query: { enabled: !!tokenAddress }
     });
-    // Price Display (e.g., 0.1)
     const RYC_USD_CENTS_DISPLAY = RYC_PRICE_IN_USD_FULL ? Number(formatEther(RYC_PRICE_IN_USD_FULL)) : 0.1; 
     
     // Wagmi Tx Hooks
@@ -32,30 +29,32 @@ export function useBuyTokens({ tokenAddress, extractRevertReason }: UseBuyTokens
     
     const isBuyActionPending = isBuyPending || isBuyConfirming;
 
+    const extractRevertReason = (err: unknown): string => {
+        const baseError = err as BaseError;
+        const revertMatch = baseError?.shortMessage?.match(/reverted with the following reason: (.*)\.?/);
+        if (revertMatch && revertMatch[1]) {
+            return revertMatch[1];
+        }
+        return baseError?.shortMessage || t('new_proposal_page.unexpected_error_desc'); 
+    };
+
     const handleBuyTokens = async () => {
         if (!tokenAddress) {
             toast.error(t('new_proposal_page.error_toast_title'), { description: t('staking_page.contract_addresses_missing') });
             return;
         }
-        if (parseEther(buyAmount || '0') <= 0n) {
+        const maticToSend = parseEther(buyAmount || '0');
+        if (maticToSend <= 0n) {
             toast.error(t('new_proposal_page.error_toast_title'), { description: t('staking_page.buy_amount_error') });
             return;
         }
         
         try {
-            // ⚠️ CRITICAL: The contract calls buyTokensWithNative() which is payable.
-            // We need to pass the MATIC/ETH value.
-            // Since the contract calculates the price, we must send an amount *slightly more* 
-            // than the estimated cost to ensure the transaction doesn't fail due to price slippage.
-            
-            // For a robust test, we ask the user to send 0.05 MATIC for any purchase (temp fix)
-            const ARBITRARY_MATIC_VALUE = 50000000000000000n; // 0.05 MATIC/ETH
-            
             writeBuyContract({
                 address: tokenAddress,
                 abi: rayanChainTokenAbi,
                 functionName: 'buyTokensWithNative',
-                value: ARBITRARY_MATIC_VALUE, 
+                value: maticToSend, 
             } as any);
             toast.info(t('new_proposal_page.pending_toast_title'), { description: t('staking_page.buy_in_progress') });
 

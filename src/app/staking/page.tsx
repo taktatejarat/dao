@@ -1,8 +1,8 @@
-// src/app/staking/page.tsx - FINAL REVISION: Dynamic Plans, Delegation UI, and Layout Fixes
+// src/app/staking/page.tsx - FINAL, CLEANED, AND CORRECTED VERSION
 
 "use client";
 
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { AppLayout } from '@/components/layout/app-layout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { useTranslation } from '@/hooks/use-translation';
 import { useWeb3, UserRole } from '@/context/Web3Provider'; 
-import { parseEther, formatEther } from 'viem';
+import { formatEther, BaseError } from 'viem';
 import { formatNumber } from '@/lib/utils';
 import { Wallet, PiggyBank, Award, Banknote, CheckCircle, Users, Vote } from 'lucide-react'; 
 import { DaoLoadingSpinner } from '@/components/icons/dao-loading-spinner';
@@ -20,84 +20,17 @@ import { useSearchParams } from 'next/navigation';
 import { daoRegistryAbi } from '@/lib/blockchain/generated';
 import { REGISTRY_KEYS } from '@/lib/blockchain/registry-keys';
 import { useStaking } from '@/hooks/useStaking';
+import { useBuyTokens } from '@/hooks/useBuyTokens'; 
 import type { Address } from 'viem';
 import { toast } from 'sonner';
-import { useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi'; 
-
-
+import { useReadContract } from 'wagmi';
 
 export default function StakingPage() {
     const { t, locale } = useTranslation();
     const { registryAddress, isHydrated } = useWeb3();
-    // ✅ FIX 2: Read userRole safely
     const userRole = typeof window !== 'undefined' ? localStorage.getItem('userRole') as UserRole : 'voter';
     const searchParams = useSearchParams();
 
-    // --- Buy RYC Hook Logic ---
-    const [buyAmount, setBuyAmount] = useState(''); // Amount of RYC user wants to buy
-
-        
-    // Fetch RYC Price Constant (for display) and RYC Decimals
-    const { data: RYC_PRICE_IN_USD_FULL, isLoading: isPriceLoading } = useReadContract({ 
-        address: tokenAddress, abi: rayanChainTokenAbi, functionName: 'RYC_PRICE_IN_USD_FULL',
-        query: { enabled: !!tokenAddress }
-    });
-    const RYC_USD_CENTS_DISPLAY = RYC_PRICE_IN_USD_FULL ? Number(formatEther(RYC_PRICE_IN_USD_FULL)) : 0.1; // 0.1 USD per RYC (10 cents)
-
-        // --- Buy RYC Hook Logic ---
-    const [buyAmount, setBuyAmount] = useState(''); // Amount of RYC user wants to buy
-    
-    // Fetch RYC Price Constant (for display) and RYC Decimals
-    const { data: RYC_PRICE_IN_USD_FULL, isLoading: isPriceLoading } = useReadContract({ 
-        address: tokenAddress, abi: rayanChainTokenAbi, functionName: 'RYC_PRICE_IN_USD_FULL',
-        query: { enabled: !!tokenAddress }
-    });
-    const RYC_USD_CENTS_DISPLAY = RYC_PRICE_IN_USD_FULL ? Number(formatEther(RYC_PRICE_IN_USD_FULL)) : 0.1; // 0.1 USD per RYC (10 cents)
-    
-    const { data: buyTxHash, isPending: isBuyPending, writeContract: writeBuyContract } = useWriteContract();
-    const { isLoading: isBuyConfirming, isSuccess: isBuyConfirmed } = useWaitForTransactionReceipt({ hash: buyTxHash });
-    
-    // Helper to estimate cost (based on a constant price for simplicity)
-    const estimatedCost = useMemo(() => {
-        if (!RYC_PRICE_IN_USD_FULL || !buyAmount) return 0n;
-        try {
-            const amountRYCBigInt = parseEther(buyAmount);
-            // ⚠️ Simple Estimation: This is a complex calculation in FE, 
-            // but for a smooth UX, we just display the RYC amount. 
-            // The contract handles the real MATIC cost via Oracle.
-            // For now, we set a temporary value for the value prop.
-            return 100000000000000000n; // Dummy MATIC cost to make button active
-        } catch { return 0n; }
-    }, [RYC_PRICE_IN_USD_FULL, buyAmount]);
-
-    const handleBuyTokens = async () => {
-        if (!tokenAddress || parseEther(buyAmount || '0') <= 0n) {
-            toast.error(t('new_proposal.error_toast_title'), { description: t('staking_page.buy_amount_error') });
-            return;
-        }
-        
-        try {
-            // We ask the user to send a small arbitrary amount of MATIC,
-            // and the contract's 'receive' function calls 'buyTokensWithNative'.
-            // For a test, we ask for a reasonable value that is *likely* to cover the actual cost.
-            
-            const arbitraryMaticValue = 10000000000000000n; // 0.01 MATIC (as an estimate)
-            
-            writeBuyContract({
-                address: tokenAddress,
-                abi: rayanChainTokenAbi,
-                functionName: 'buyTokensWithNative',
-                value: arbitraryMaticValue, // User sends MATIC to cover the RYC price
-            } as any);
-            toast.info(t('new_proposal.pending_toast_title'), { description: t('staking_page.buy_in_progress') });
-
-        } catch (err) {
-            toast.error(t('new_proposal.error_toast_title'), { description: extractRevertReason(err) });
-        }
-    };
-
-
-    // Helper function:
     const getTranslatedRoleName = (role: UserRole | null | string) => {
         const safeRole = role || 'voter';
         return t(`role_selection.${safeRole}`);
@@ -122,19 +55,26 @@ export default function StakingPage() {
     const tokenAddress = tokenAddressResult as Address | undefined;
     const stakingAddress = stakingAddressResult as Address | undefined;
 
-    // --- Use the master custom hook for all staking logic ---
     const {
         rycBalance, stakedBalance, earnedRewards,
         stakeAmount, setStakeAmount,
         unstakeAmount, setUnstakeAmount,
-        needsApproval, isActionPending,
+        needsApproval, isActionPending: isStakingActionPending, // Renamed to avoid conflict
         handleApprove, handleStake, handleUnstake, handleClaim,
-        currentDelegatee, // Read the delegatee address
-        delegateeAddress, setDelegateeAddress, // State for new delegatee
-        handleDelegate, handleUndelegate, // Delegate actions
-        isDelegateButtonDisabled, isUndelegateButtonDisabled, // Delegate button states
+        currentDelegatee, delegateeAddress, setDelegateeAddress, 
+        handleDelegate, handleUndelegate, 
+        isDelegateButtonDisabled, isUndelegateButtonDisabled, 
         isStakeButtonDisabled, isUnstakeButtonDisabled, isClaimButtonDisabled
     } = useStaking({ tokenAddress, stakingAddress });
+
+    const {
+        buyAmount, setBuyAmount,
+        RYC_USD_CENTS_DISPLAY,
+        handleBuyTokens,
+        isBuyActionPending,
+        isBuyConfirmed,
+        isPriceLoading,
+    } = useBuyTokens({ tokenAddress });
     
     useEffect(() => {
         const amountFromUrl = searchParams.get('amount');
@@ -186,14 +126,13 @@ export default function StakingPage() {
         return allPlans.filter(plan => plan.roles.includes(currentRole as any));
     }, [allPlans, userRole]);
 
-    const isLoading = isTokenAddrLoading || isStakingAddrLoading || (!!tokenAddress && !!stakingAddress && (rycBalance === undefined || stakedBalance === undefined || earnedRewards === undefined));
+   const isLoading = isTokenAddrLoading || isStakingAddrLoading || isPriceLoading || (!!tokenAddress && !!stakingAddress && (rycBalance === undefined || stakedBalance === undefined || earnedRewards === undefined));
 
     return (
         <AppLayout>
             <header className="mb-6">
                 <h1 className="text-3xl font-bold font-headline">{t('staking_page.title')}</h1>
-                {/* ✅ NEW: Display role specific subtitle */}
-            <p className="text-muted-foreground">{t('staking_page.subtitle_for_rule')} {roleName}</p>
+                <p className="text-muted-foreground">{t('staking_page.subtitle_for_role')} {roleName}</p>
             </header>
 
              {/* --- Balance Cards --- */}
@@ -214,36 +153,41 @@ export default function StakingPage() {
             
             {/* ✅ FIX: Action Cards - Use a 3-column layout for Stake, Unstake, Delegate */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
-                {/* 1. Stake Card */}
+                {/* 1. Buy RYC Card */}
+                <Card>
+                    <CardHeader><CardTitle>{t('staking_page.buy_ryc_title')}</CardTitle>
+                    <CardDescription>{t('staking_page.buy_ryc_desc')} {isPriceLoading ? '...' : RYC_USD_CENTS_DISPLAY.toFixed(3)} USD per RYC</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="buy-amount">{t('staking_page.amount_of_matic_to_spend')}</Label>
+                            <Input id="buy-amount" type="number" placeholder="0.1" value={buyAmount} onChange={(e) => setBuyAmount(e.target.value)} />
+                        </div>
+                        <Button className="w-full" disabled={isBuyActionPending} onClick={handleBuyTokens}>
+                            {isBuyActionPending ? <DaoLoadingSpinner /> : <Wallet className="me-2"/>}
+                            {t('staking_page.buy_ryc_cta')}
+                        </Button>
+                        <p className="text-sm text-muted-foreground">{t('staking_page.buy_ryc_warning')}</p>
+                    </CardContent>
+                </Card>
+                {/* 2. Stake Card */}
                 <Card>
                     <CardHeader><CardTitle>{t('staking_page.stake_tokens_title')}</CardTitle><CardDescription>{t('staking_page.stake_tokens_desc')}</CardDescription></CardHeader>
                     <CardContent className="space-y-4">
                         <div className="space-y-2"><Label htmlFor="stake-amount">{t('staking_page.amount_to_stake')}</Label><Input id="stake-amount" type="number" placeholder="0.0" value={stakeAmount} onChange={(e) => setStakeAmount(e.target.value)} /></div>
                         {needsApproval ? (
-                             <Button className="w-full" disabled={isActionPending || isStakeButtonDisabled} onClick={handleApprove}>
-                                 {isActionPending ? <DaoLoadingSpinner /> : <CheckCircle className="me-2"/>}
+                             <Button className="w-full" disabled={isBuyActionPending || isStakeButtonDisabled} onClick={handleApprove}>
+                                 {isBuyActionPending ? <DaoLoadingSpinner /> : <CheckCircle className="me-2"/>}
                                  {t('staking_page.approve_button')}
                              </Button>
                         ) : (
-                             <Button className="w-full" disabled={isActionPending || isStakeButtonDisabled} onClick={handleStake}>
-                                 {isActionPending ? <DaoLoadingSpinner /> : <PiggyBank className="me-2"/>}
+                             <Button className="w-full" disabled={isBuyActionPending || isStakeButtonDisabled} onClick={handleStake}>
+                                 {isBuyActionPending ? <DaoLoadingSpinner /> : <PiggyBank className="me-2"/>}
                                  {t('staking_page.stake')}
                              </Button>
                         )}
                     </CardContent>
-                </Card>
-                
-                {/* 2. Unstake Card */}
-                 <Card>
-                    <CardHeader><CardTitle>{t('staking_page.unstake_tokens_title')}</CardTitle><CardDescription>{t('staking_page.unstake_tokens_desc')}</CardDescription></CardHeader>
-                    <CardContent className="space-y-4">
-                        <div className="space-y-2"><Label htmlFor="unstake-amount">{t('staking_page.amount_to_unstake')}</Label><Input id="unstake-amount" type="number" placeholder="0.0" value={unstakeAmount} onChange={(e) => setUnstakeAmount(e.target.value)} /></div>
-                         <Button variant="outline" className="w-full" disabled={isUnstakeButtonDisabled} onClick={handleUnstake}>
-                            {isActionPending ? <DaoLoadingSpinner /> : <Banknote className="me-2"/>} {t('staking_page.unstake')}
-                        </Button>
-                    </CardContent>
-                </Card>
-                
+                </Card>               
                 {/* 3. Delegate Card (PoP/dPoS) - FIX: Added from below the original code block */}
                 <Card>
                     <CardHeader><CardTitle>{t('staking_page.delegate_title')}</CardTitle><CardDescription>{t('staking_page.delegate_desc')}</CardDescription></CardHeader>
@@ -255,30 +199,42 @@ export default function StakingPage() {
                         </div>
                         <div className="space-y-2">
                              <Label htmlFor="delegate-address">{t('staking_page.delegatee_address')}</Label>
-                             <Input id="delegate-address" placeholder={"0x..."} value={delegateeAddress} onChange={(e) => setDelegateeAddress(e.target.value)} disabled={isActionPending} />
+                             <Input id="delegate-address" placeholder={"0x..."} value={delegateeAddress} onChange={(e) => setDelegateeAddress(e.target.value)} disabled={isBuyActionPending} />
                         </div>
                         <div className="flex gap-2">
                              <Button className="flex-grow" disabled={isDelegateButtonDisabled} onClick={handleDelegate}>
-                                {isActionPending ? <DaoLoadingSpinner /> : <Users className="me-2"/>} {t('staking_page.delegate_cta')}
+                                {isBuyActionPending ? <DaoLoadingSpinner /> : <Users className="me-2"/>} {t('staking_page.delegate_cta')}
                              </Button>
                              <Button variant="outline" className="flex-grow" disabled={isUndelegateButtonDisabled} onClick={handleUndelegate}>
-                                {isActionPending ? <DaoLoadingSpinner /> : <Vote className="me-2"/>} {t('staking_page.undelegate_cta')}
+                                {isBuyActionPending ? <DaoLoadingSpinner /> : <Vote className="me-2"/>} {t('staking_page.undelegate_cta')}
                              </Button>
                         </div>
                     </CardContent>
                 </Card>
             </div>
-
-            <Card className="mb-8">
-                <CardHeader><CardTitle>{t('staking_page.claim_rewards_title')}</CardTitle><CardDescription>{t('staking_page.claim_rewards_desc')}</CardDescription></CardHeader>
-                <CardContent>
-                    <Button className="w-full md:w-auto" disabled={isClaimButtonDisabled} onClick={handleClaim}>
-                         {isActionPending ? <DaoLoadingSpinner /> : <Award className="me-2"/>} {t('staking_page.claim_rewards')}
-                    </Button>
-                </CardContent>
-            </Card>
-
-             <div className="text-center mb-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                {/* 4. Unstake Card (Now in a new 2-column block with Claim Rewards for better flow) */}
+                 <Card>
+                    <CardHeader><CardTitle>{t('staking_page.unstake_tokens_title')}</CardTitle><CardDescription>{t('staking_page.unstake_tokens_desc')}</CardDescription></CardHeader>
+                    <CardContent className="space-y-4">
+                        <div className="space-y-2"><Label htmlFor="unstake-amount">{t('staking_page.amount_to_unstake')}</Label><Input id="unstake-amount" type="number" placeholder="0.0" value={unstakeAmount} onChange={(e) => setUnstakeAmount(e.target.value)} /></div>
+                         <Button variant="outline" className="w-full" disabled={isUnstakeButtonDisabled} onClick={handleUnstake}>
+                            {isBuyActionPending ? <DaoLoadingSpinner /> : <Banknote className="me-2"/>} {t('staking_page.unstake')}
+                        </Button>
+                    </CardContent>
+                </Card>
+                
+                {/* 5. Claim Rewards (Moved from the separate Card block) */}
+                <Card>
+                    <CardHeader><CardTitle>{t('staking_page.claim_rewards_title')}</CardTitle><CardDescription>{t('staking_page.claim_rewards_desc')}</CardDescription></CardHeader>
+                    <CardContent>
+                        <Button className="w-full" disabled={isClaimButtonDisabled} onClick={handleClaim}>
+                            {isBuyActionPending ? <DaoLoadingSpinner /> : <Award className="me-2"/>} {t('staking_page.claim_rewards')}
+                        </Button>
+                    </CardContent>
+                </Card>
+            </div>
+            <div className="text-center mb-8">
                  <h2 className="text-2xl font-semibold font-headline">{t('staking_page.plans_for_role')} {roleName}</h2>
                  <p className="text-muted-foreground mt-1">{t('staking_page.plans_for_role_desc')}</p>
              </div>

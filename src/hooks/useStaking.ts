@@ -1,5 +1,3 @@
-// src/hooks/useStaking.ts - Revised for dPoS
-
 "use client";
 
 import { useState, useEffect, useMemo } from 'react';
@@ -8,18 +6,14 @@ import { toast } from 'sonner';
 import { useTranslation } from '@/hooks/use-translation';
 import { stakingAbi, rayanChainTokenAbi } from '@/lib/blockchain/generated';
 import type { Address } from 'viem';
-import { BaseError, parseEther, isAddress } from 'viem';
+import { BaseError, parseEther, isAddress, maxUint256 } from 'viem';
+
 
 interface UseStakingProps {
     tokenAddress: Address | undefined;
     stakingAddress: Address | undefined;
 }
 
-/**
- * A comprehensive custom hook to manage all staking-related logic,
- * including data fetching, approvals, staking, unstaking, and claiming rewards,
- * now including dPoS Delegation.
- */
 export function useStaking({ tokenAddress, stakingAddress }: UseStakingProps) {
     const { t } = useTranslation();
     const { address } = useAccount();
@@ -27,23 +21,17 @@ export function useStaking({ tokenAddress, stakingAddress }: UseStakingProps) {
     // --- Form State ---
     const [stakeAmount, setStakeAmount] = useState('');
     const [unstakeAmount, setUnstakeAmount] = useState('');
-    const [delegateeAddress, setDelegateeAddress] = useState<string>(''); // New State for Delegatee
+    const [delegateeAddress, setDelegateeAddress] = useState<string>(''); 
 
     // --- Data Fetching ---
     const { data: contractData, refetch } = useReadContracts({
         contracts: [
-            // 0: RYC Balance
             { address: tokenAddress as Address, abi: rayanChainTokenAbi, functionName: 'balanceOf', args: [address as Address] as const },
-            // 1: Staked Balance (Own Stake) - We need the *actual* staked balance for staking/unstaking logic
             { address: stakingAddress as Address, abi: stakingAbi, functionName: 'balanceOf', args: [address as Address] as const },
-            // 2: Earned Rewards
             { address: stakingAddress as Address, abi: stakingAbi, functionName: 'earned', args: [address as Address] as const },
-            // 3: Allowance
             { address: tokenAddress as Address, abi: rayanChainTokenAbi, functionName: 'allowance', args: [address as Address, stakingAddress as Address] as const },
         ] as const,
-        query: {
-            enabled: !!address && !!tokenAddress && !!stakingAddress,
-        }
+        query: { enabled: !!address && !!tokenAddress && !!stakingAddress }
     } as any);
 
     const { data: delegateeAddressResult } = useReadContract({
@@ -55,11 +43,9 @@ export function useStaking({ tokenAddress, stakingAddress }: UseStakingProps) {
     });
 
     const [rycBalance, stakedBalance, earnedRewards, allowance] = useMemo(() => {
-        // index 1 is now the user's *actual* staked balance (for unstaking check)
         return contractData?.map(d => d.result as bigint | undefined) || [];
     }, [contractData]);
     
-    // The address the user has delegated to (address(0) if none)
     const currentDelegatee = delegateeAddressResult as Address | undefined;
 
     // --- Derived State from Form Inputs ---
@@ -80,50 +66,47 @@ export function useStaking({ tokenAddress, stakingAddress }: UseStakingProps) {
     }, [delegateeAddress, address]);
 
 
-    // --- Transaction Hooks ---
-    const { isPending, writeContractAsync } = useWriteContract();
+   // --- Transaction Hooks ---
+    const { data: txHash, isPending, writeContractAsync } = useWriteContract();
     const [submittedHash, setSubmittedHash] = useState<`0x${string}` | undefined>(undefined);
     const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ hash: submittedHash });
 
    useEffect(() => {
         if (isSuccess) {
             refetch();
-            // ✅ NEW: Show a confirmation toast after transaction is finalized
             toast.success(t('staking_page.tx_success_title'), { description: t('staking_page.tx_success_desc') });
         }
     }, [isSuccess, refetch, t]);
 
     // --- Action Handlers ---
-    // Helper function to extract Revert Reason
     const extractRevertReason = (err: unknown): string => {
         const baseError = err as BaseError;
         const revertMatch = baseError?.shortMessage?.match(/reverted with the following reason: (.*)\.?/);
         if (revertMatch && revertMatch[1]) {
             return revertMatch[1];
         }
-        return baseError?.shortMessage || t('staking_page.unexpected_error_desc');
+        return baseError?.shortMessage || t('new_proposal.unexpected_error_desc');
     };
 
-
     const handleApprove = async () => {
-        // ✅ FIX 1: Explicit Null/Undefined Check
         if (!tokenAddress || !stakingAddress) {
-            toast.error(t('new_proposal_page.error_toast_title'), { description: t('staking_page.contract_addresses_missing') });
+            toast.error(t('new_proposal.error_toast_title'), { description: t('staking_page.contract_addresses_missing') });
             return;
         }
         try {
-            const txHash = await writeContractAsync({
-                address: tokenAddress, // Use checked address
+            const hash = await writeContractAsync({
+                address: tokenAddress,
                 abi: rayanChainTokenAbi,
                 functionName: 'approve',
-                args: [stakingAddress, parsedStakeAmount], // Use checked address
+                args: [stakingAddress, maxUint256],
             } as any);
-            setSubmittedHash(txHash);
-            toast.info(t('new_proposal_page.pending_toast_title'), { description: t('staking_page.approve_in_progress') }); 
+            setSubmittedHash(hash);
+            toast.info(t('new_proposal.pending_toast_title'), { description: t('staking_page.approve_in_progress') }); 
         } catch (err) {
-            toast.error(t('new_proposal_page.error_toast_title'), { description: extractRevertReason(err) });
+            toast.error(t('new_proposal.error_toast_title'), { description: extractRevertReason(err) });
         }
     };
+
  const handleStake = async () => {
         // ✅ FIX 1: Explicit Null/Undefined Check
         if (!stakingAddress) {
@@ -211,34 +194,29 @@ export function useStaking({ tokenAddress, stakingAddress }: UseStakingProps) {
         }
     };
 
-    return {
-        // State
+     return {
         rycBalance,
         stakedBalance,
         earnedRewards,
-        currentDelegatee, // New State
+        currentDelegatee,
         stakeAmount,
         setStakeAmount,
         unstakeAmount,
         setUnstakeAmount,
-        delegateeAddress, // New State
-        setDelegateeAddress, // New State
+        delegateeAddress,
+        setDelegateeAddress,
         needsApproval,
         isActionPending: isPending || isConfirming,
-        
-        // Actions
         handleApprove,
         handleStake,
         handleUnstake,
         handleClaim,
-        handleDelegate, // New Action
-        handleUndelegate, // New Action
-
-        // UI Logic
+        handleDelegate,
+        handleUndelegate,
         isStakeButtonDisabled: parsedStakeAmount <= 0n || isPending || isConfirming,
         isUnstakeButtonDisabled: parsedUnstakeAmount <= 0n || (stakedBalance ? parsedUnstakeAmount > stakedBalance : true) || isPending || isConfirming,
         isClaimButtonDisabled: !(earnedRewards && earnedRewards > 0n) || isPending || isConfirming,
-        isDelegateButtonDisabled: !isValidDelegateeAddress || isPending || isConfirming || currentDelegatee === delegateeAddress as Address, // New Logic
-        isUndelegateButtonDisabled: currentDelegatee === undefined || currentDelegatee === '0x0000000000000000000000000000000000000000' || isPending || isConfirming, // New Logic
+        isDelegateButtonDisabled: !isValidDelegateeAddress || isPending || isConfirming || currentDelegatee === delegateeAddress as Address,
+        isUndelegateButtonDisabled: currentDelegatee === undefined || currentDelegatee === '0x0000000000000000000000000000000000000000' || isPending || isConfirming,
     };
 }
