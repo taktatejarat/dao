@@ -547,7 +547,7 @@ export const fa = {
     revert_reason_delegate_stake: "برای واگذاری حق رأی (Delegate)، ابتدا باید توکن RYC را سپرده گذاری کنید.",
     plan_selected_toast: "پلن انتخاب شد. اکنون روی دکمه 'سپرده‌گذاری' سپرده گذاریکلیک کنید.",
     contract_addresses_missing: "آدرس قراردادهای ضروری (توکن/سپرده) هنوز بارگذاری نشده‌اند. لطفا منتظر بمانید.",
-
+    buy_ryc_desc: "هر توکن RYC با قیمت تقریبی",
   },
 
   // Treasury Page

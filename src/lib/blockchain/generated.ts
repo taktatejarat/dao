@@ -1048,6 +1048,7 @@ export const rayanChainTokenAbi = [
     inputs: [
       { name: 'initialOwner', internalType: 'address', type: 'address' },
       { name: 'initialSupply', internalType: 'uint256', type: 'uint256' },
+      { name: '_priceFeedAddress', internalType: 'address', type: 'address' },
     ],
     stateMutability: 'nonpayable',
   },
@@ -1147,6 +1148,31 @@ export const rayanChainTokenAbi = [
     type: 'event',
     anonymous: false,
     inputs: [
+      {
+        name: 'buyer',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      {
+        name: 'nativeAmount',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+      {
+        name: 'rycAmount',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+    ],
+    name: 'TokensPurchased',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
       { name: 'from', internalType: 'address', type: 'address', indexed: true },
       { name: 'to', internalType: 'address', type: 'address', indexed: true },
       {
@@ -1157,6 +1183,21 @@ export const rayanChainTokenAbi = [
       },
     ],
     name: 'Transfer',
+  },
+  { type: 'fallback', stateMutability: 'payable' },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'PRICE_FEED_DECIMALS',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'RYC_PRICE_IN_USD_FULL',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
   },
   {
     type: 'function',
@@ -1188,8 +1229,29 @@ export const rayanChainTokenAbi = [
   {
     type: 'function',
     inputs: [],
+    name: 'buyTokens',
+    outputs: [],
+    stateMutability: 'payable',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'buyTokensWithNative',
+    outputs: [],
+    stateMutability: 'payable',
+  },
+  {
+    type: 'function',
+    inputs: [],
     name: 'decimals',
     outputs: [{ name: '', internalType: 'uint8', type: 'uint8' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'mintingActive',
+    outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
     stateMutability: 'view',
   },
   {
@@ -1209,7 +1271,45 @@ export const rayanChainTokenAbi = [
   {
     type: 'function',
     inputs: [],
+    name: 'priceFeed',
+    outputs: [
+      {
+        name: '',
+        internalType: 'contract AggregatorV3Interface',
+        type: 'address',
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
     name: 'renounceOwnership',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: '_active', internalType: 'bool', type: 'bool' }],
+    name: 'setMintingActive',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: '_priceFeedAddress', internalType: 'address', type: 'address' },
+    ],
+    name: 'setPriceFeedAddress',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'newPriceInUsdFull', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'setRycPriceInUsd',
     outputs: [],
     stateMutability: 'nonpayable',
   },
@@ -1255,6 +1355,7 @@ export const rayanChainTokenAbi = [
     outputs: [],
     stateMutability: 'nonpayable',
   },
+  { type: 'receive', stateMutability: 'payable' },
 ] as const
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -2737,6 +2838,24 @@ export const useReadRayanChainToken = /*#__PURE__*/ createUseReadContract({
 })
 
 /**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link rayanChainTokenAbi}__ and `functionName` set to `"PRICE_FEED_DECIMALS"`
+ */
+export const useReadRayanChainTokenPriceFeedDecimals =
+  /*#__PURE__*/ createUseReadContract({
+    abi: rayanChainTokenAbi,
+    functionName: 'PRICE_FEED_DECIMALS',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link rayanChainTokenAbi}__ and `functionName` set to `"RYC_PRICE_IN_USD_FULL"`
+ */
+export const useReadRayanChainTokenRycPriceInUsdFull =
+  /*#__PURE__*/ createUseReadContract({
+    abi: rayanChainTokenAbi,
+    functionName: 'RYC_PRICE_IN_USD_FULL',
+  })
+
+/**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link rayanChainTokenAbi}__ and `functionName` set to `"allowance"`
  */
 export const useReadRayanChainTokenAllowance =
@@ -2764,6 +2883,15 @@ export const useReadRayanChainTokenDecimals =
   })
 
 /**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link rayanChainTokenAbi}__ and `functionName` set to `"mintingActive"`
+ */
+export const useReadRayanChainTokenMintingActive =
+  /*#__PURE__*/ createUseReadContract({
+    abi: rayanChainTokenAbi,
+    functionName: 'mintingActive',
+  })
+
+/**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link rayanChainTokenAbi}__ and `functionName` set to `"name"`
  */
 export const useReadRayanChainTokenName = /*#__PURE__*/ createUseReadContract({
@@ -2778,6 +2906,15 @@ export const useReadRayanChainTokenOwner = /*#__PURE__*/ createUseReadContract({
   abi: rayanChainTokenAbi,
   functionName: 'owner',
 })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link rayanChainTokenAbi}__ and `functionName` set to `"priceFeed"`
+ */
+export const useReadRayanChainTokenPriceFeed =
+  /*#__PURE__*/ createUseReadContract({
+    abi: rayanChainTokenAbi,
+    functionName: 'priceFeed',
+  })
 
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link rayanChainTokenAbi}__ and `functionName` set to `"symbol"`
@@ -2812,12 +2949,57 @@ export const useWriteRayanChainTokenApprove =
   })
 
 /**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link rayanChainTokenAbi}__ and `functionName` set to `"buyTokens"`
+ */
+export const useWriteRayanChainTokenBuyTokens =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: rayanChainTokenAbi,
+    functionName: 'buyTokens',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link rayanChainTokenAbi}__ and `functionName` set to `"buyTokensWithNative"`
+ */
+export const useWriteRayanChainTokenBuyTokensWithNative =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: rayanChainTokenAbi,
+    functionName: 'buyTokensWithNative',
+  })
+
+/**
  * Wraps __{@link useWriteContract}__ with `abi` set to __{@link rayanChainTokenAbi}__ and `functionName` set to `"renounceOwnership"`
  */
 export const useWriteRayanChainTokenRenounceOwnership =
   /*#__PURE__*/ createUseWriteContract({
     abi: rayanChainTokenAbi,
     functionName: 'renounceOwnership',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link rayanChainTokenAbi}__ and `functionName` set to `"setMintingActive"`
+ */
+export const useWriteRayanChainTokenSetMintingActive =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: rayanChainTokenAbi,
+    functionName: 'setMintingActive',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link rayanChainTokenAbi}__ and `functionName` set to `"setPriceFeedAddress"`
+ */
+export const useWriteRayanChainTokenSetPriceFeedAddress =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: rayanChainTokenAbi,
+    functionName: 'setPriceFeedAddress',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link rayanChainTokenAbi}__ and `functionName` set to `"setRycPriceInUsd"`
+ */
+export const useWriteRayanChainTokenSetRycPriceInUsd =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: rayanChainTokenAbi,
+    functionName: 'setRycPriceInUsd',
   })
 
 /**
@@ -2863,12 +3045,57 @@ export const useSimulateRayanChainTokenApprove =
   })
 
 /**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link rayanChainTokenAbi}__ and `functionName` set to `"buyTokens"`
+ */
+export const useSimulateRayanChainTokenBuyTokens =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: rayanChainTokenAbi,
+    functionName: 'buyTokens',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link rayanChainTokenAbi}__ and `functionName` set to `"buyTokensWithNative"`
+ */
+export const useSimulateRayanChainTokenBuyTokensWithNative =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: rayanChainTokenAbi,
+    functionName: 'buyTokensWithNative',
+  })
+
+/**
  * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link rayanChainTokenAbi}__ and `functionName` set to `"renounceOwnership"`
  */
 export const useSimulateRayanChainTokenRenounceOwnership =
   /*#__PURE__*/ createUseSimulateContract({
     abi: rayanChainTokenAbi,
     functionName: 'renounceOwnership',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link rayanChainTokenAbi}__ and `functionName` set to `"setMintingActive"`
+ */
+export const useSimulateRayanChainTokenSetMintingActive =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: rayanChainTokenAbi,
+    functionName: 'setMintingActive',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link rayanChainTokenAbi}__ and `functionName` set to `"setPriceFeedAddress"`
+ */
+export const useSimulateRayanChainTokenSetPriceFeedAddress =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: rayanChainTokenAbi,
+    functionName: 'setPriceFeedAddress',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link rayanChainTokenAbi}__ and `functionName` set to `"setRycPriceInUsd"`
+ */
+export const useSimulateRayanChainTokenSetRycPriceInUsd =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: rayanChainTokenAbi,
+    functionName: 'setRycPriceInUsd',
   })
 
 /**
@@ -2920,6 +3147,15 @@ export const useWatchRayanChainTokenOwnershipTransferredEvent =
   /*#__PURE__*/ createUseWatchContractEvent({
     abi: rayanChainTokenAbi,
     eventName: 'OwnershipTransferred',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link rayanChainTokenAbi}__ and `eventName` set to `"TokensPurchased"`
+ */
+export const useWatchRayanChainTokenTokensPurchasedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: rayanChainTokenAbi,
+    eventName: 'TokensPurchased',
   })
 
 /**

@@ -10,9 +10,9 @@
     "compile": "hardhat compile && npx wagmi generate"
   },
   "dependencies": {
+    "@chainlink/contracts": "^1.5.0",
     "@coinbase/wallet-sdk": "^3.7.2",
     "@openzeppelin/contracts": "^5.0.2",
-    "@chainlink/contracts": "^1.5.0",
     "@radix-ui/react-accordion": "^1.2.0",
     "@radix-ui/react-alert-dialog": "^1.1.1",
     "@radix-ui/react-avatar": "^1.1.0",
