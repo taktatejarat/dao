@@ -1,9 +1,9 @@
-// src/hooks/useBuyTokens.ts - FINAL, SELF-CONTAINED VERSION
+// src/hooks/useBuyTokens.ts - FINAL, STABLE VERSION for Development
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useTranslation } from '@/hooks/use-translation';
-import { useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
-import { parseEther, formatEther, BaseError } from 'viem';
+import { useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
+import { parseEther, BaseError, Hex } from 'viem';
 import { rayanChainTokenAbi } from '@/lib/blockchain/generated';
 import { toast } from 'sonner';
 import type { Address } from 'viem';
@@ -13,18 +13,11 @@ interface UseBuyTokensProps {
 }
 
 export function useBuyTokens({ tokenAddress }: UseBuyTokensProps) {
-    const { t, locale } = useTranslation();
+    const { t } = useTranslation();
     const [buyAmount, setBuyAmount] = useState(''); // Amount of MATIC user wants to spend
-
-    // Fetch RYC Price Constant
-    const { data: RYC_PRICE_IN_USD_FULL, isLoading: isPriceLoading } = useReadContract({ 
-        address: tokenAddress, abi: rayanChainTokenAbi, functionName: 'RYC_PRICE_IN_USD_FULL',
-        query: { enabled: !!tokenAddress }
-    });
-    const RYC_USD_CENTS_DISPLAY = RYC_PRICE_IN_USD_FULL ? Number(formatEther(RYC_PRICE_IN_USD_FULL)) : 0.1; 
     
-    // Wagmi Tx Hooks
-    const { data: buyTxHash, isPending: isBuyPending, writeContract: writeBuyContract } = useWriteContract();
+    const [buyTxHash, setBuyTxHash] = useState<Hex | undefined>(undefined);
+    const { isPending: isBuyPending, writeContractAsync } = useWriteContract();
     const { isLoading: isBuyConfirming, isSuccess: isBuyConfirmed } = useWaitForTransactionReceipt({ hash: buyTxHash });
     
     const isBuyActionPending = isBuyPending || isBuyConfirming;
@@ -38,7 +31,7 @@ export function useBuyTokens({ tokenAddress }: UseBuyTokensProps) {
         return baseError?.shortMessage || t('new_proposal_page.unexpected_error_desc'); 
     };
 
-    const handleBuyTokens = async () => {
+   const handleBuyTokens = async () => {
         if (!tokenAddress) {
             toast.error(t('new_proposal_page.error_toast_title'), { description: t('staking_page.contract_addresses_missing') });
             return;
@@ -50,25 +43,34 @@ export function useBuyTokens({ tokenAddress }: UseBuyTokensProps) {
         }
         
         try {
-            writeBuyContract({
+            const hash = await writeContractAsync({
                 address: tokenAddress,
                 abi: rayanChainTokenAbi,
                 functionName: 'buyTokensWithNative',
+                // ✅ FINAL FIX: Send the exact amount of MATIC the user entered
                 value: maticToSend, 
-            } as any);
+            });
+            
+            setBuyTxHash(hash);
             toast.info(t('new_proposal_page.pending_toast_title'), { description: t('staking_page.buy_in_progress') });
 
         } catch (err) {
+            console.error("Buy tokens error:", err);
             toast.error(t('new_proposal_page.error_toast_title'), { description: extractRevertReason(err) });
         }
     };
+    
+    useEffect(() => {
+        if (isBuyConfirmed) {
+            toast.success(t('staking_page.buy_success_title'), { description: t('staking_page.buy_success_desc') });
+        }
+    }, [isBuyConfirmed, t]);
+
 
     return {
-        buyAmount, setBuyAmount,
-        RYC_USD_CENTS_DISPLAY,
+        buyAmount,
+        setBuyAmount,
         handleBuyTokens,
         isBuyActionPending,
-        isBuyConfirmed,
-        isPriceLoading,
     };
 }

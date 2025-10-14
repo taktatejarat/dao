@@ -10,11 +10,6 @@
         "internalType": "uint256",
         "name": "initialSupply",
         "type": "uint256"
-      },
-      {
-        "internalType": "address",
-        "name": "_priceFeedAddress",
-        "type": "address"
       }
     ],
     "stateMutability": "nonpayable",
@@ -223,25 +218,8 @@
     "type": "event"
   },
   {
-    "stateMutability": "payable",
-    "type": "fallback"
-  },
-  {
     "inputs": [],
-    "name": "PRICE_FEED_DECIMALS",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "RYC_PRICE_IN_USD_FULL",
+    "name": "RYC_PER_NATIVE",
     "outputs": [
       {
         "internalType": "uint256",
@@ -321,13 +299,6 @@
   },
   {
     "inputs": [],
-    "name": "buyTokens",
-    "outputs": [],
-    "stateMutability": "payable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
     "name": "buyTokensWithNative",
     "outputs": [],
     "stateMutability": "payable",
@@ -387,19 +358,6 @@
   },
   {
     "inputs": [],
-    "name": "priceFeed",
-    "outputs": [
-      {
-        "internalType": "contract AggregatorV3Interface",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
     "name": "renounceOwnership",
     "outputs": [],
     "stateMutability": "nonpayable",
@@ -414,32 +372,6 @@
       }
     ],
     "name": "setMintingActive",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_priceFeedAddress",
-        "type": "address"
-      }
-    ],
-    "name": "setPriceFeedAddress",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "newPriceInUsdFull",
-        "type": "uint256"
-      }
-    ],
-    "name": "setRycPriceInUsd",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

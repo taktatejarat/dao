@@ -58,24 +58,18 @@ async function main() {
     const accControlAddress = await accControl.getAddress();
     console.log("✅ AccControl deployed to:", accControlAddress);
 
-    // --- Chainlink Configuration (Amoy) ---
-    // ✅ NEW: Price Feed Address (MATIC/USD on Amoy)
-    const MATIC_USD_PRICE_FEED = "0x0715A7794a1d5852F964A3D2fE6fE92deD0656DC"; 
-
-    // 2. Deploy RayanChainToken
-    const initialTokenSupply = ethers.parseUnits("1000000000", 18); // 1 Billion tokens
+ // 2. Deploy RayanChainToken
+    const initialTokenSupply = ethers.parseUnits("1000000000", 18);
     console.log(`\n[2/7] Deploying RayanChainToken with initial supply of ${ethers.formatEther(initialTokenSupply)} RYC...`);
     
-    // ✅ FIX: Pass the Price Feed Address to the Constructor
+    // ✅ FINAL FIX: Use the simplified constructor
     const rayanChainToken = await ethers.deployContract("RayanChainToken", [
         deployer.address, 
-        initialTokenSupply,
-        MATIC_USD_PRICE_FEED // ✅ NEW ARGUMENT
+        initialTokenSupply
     ]);
     await rayanChainToken.waitForDeployment();
     const tokenAddress = await rayanChainToken.getAddress();
     console.log("✅ RayanChainToken deployed to:", tokenAddress);
-
     // 3. Deploy Staking Contract
     // NOTE: Staking.sol has been updated for dPoS, ensure you ran npm run build
     console.log("\n[3/7] Deploying Staking contract...");

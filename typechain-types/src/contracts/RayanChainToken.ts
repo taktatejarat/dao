@@ -26,22 +26,17 @@ import type {
 export interface RayanChainTokenInterface extends Interface {
   getFunction(
     nameOrSignature:
-      | "PRICE_FEED_DECIMALS"
-      | "RYC_PRICE_IN_USD_FULL"
+      | "RYC_PER_NATIVE"
       | "allowance"
       | "approve"
       | "balanceOf"
-      | "buyTokens"
       | "buyTokensWithNative"
       | "decimals"
       | "mintingActive"
       | "name"
       | "owner"
-      | "priceFeed"
       | "renounceOwnership"
       | "setMintingActive"
-      | "setPriceFeedAddress"
-      | "setRycPriceInUsd"
       | "symbol"
       | "totalSupply"
       | "transfer"
@@ -58,11 +53,7 @@ export interface RayanChainTokenInterface extends Interface {
   ): EventFragment;
 
   encodeFunctionData(
-    functionFragment: "PRICE_FEED_DECIMALS",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "RYC_PRICE_IN_USD_FULL",
+    functionFragment: "RYC_PER_NATIVE",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -77,7 +68,6 @@ export interface RayanChainTokenInterface extends Interface {
     functionFragment: "balanceOf",
     values: [AddressLike]
   ): string;
-  encodeFunctionData(functionFragment: "buyTokens", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "buyTokensWithNative",
     values?: undefined
@@ -89,7 +79,6 @@ export interface RayanChainTokenInterface extends Interface {
   ): string;
   encodeFunctionData(functionFragment: "name", values?: undefined): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
-  encodeFunctionData(functionFragment: "priceFeed", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "renounceOwnership",
     values?: undefined
@@ -97,14 +86,6 @@ export interface RayanChainTokenInterface extends Interface {
   encodeFunctionData(
     functionFragment: "setMintingActive",
     values: [boolean]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setPriceFeedAddress",
-    values: [AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setRycPriceInUsd",
-    values: [BigNumberish]
   ): string;
   encodeFunctionData(functionFragment: "symbol", values?: undefined): string;
   encodeFunctionData(
@@ -125,17 +106,12 @@ export interface RayanChainTokenInterface extends Interface {
   ): string;
 
   decodeFunctionResult(
-    functionFragment: "PRICE_FEED_DECIMALS",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "RYC_PRICE_IN_USD_FULL",
+    functionFragment: "RYC_PER_NATIVE",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "allowance", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "approve", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "buyTokens", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "buyTokensWithNative",
     data: BytesLike
@@ -147,21 +123,12 @@ export interface RayanChainTokenInterface extends Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "name", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "priceFeed", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "renounceOwnership",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
     functionFragment: "setMintingActive",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setPriceFeedAddress",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setRycPriceInUsd",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "symbol", data: BytesLike): Result;
@@ -294,9 +261,7 @@ export interface RayanChainToken extends BaseContract {
     event?: TCEvent
   ): Promise<this>;
 
-  PRICE_FEED_DECIMALS: TypedContractMethod<[], [bigint], "view">;
-
-  RYC_PRICE_IN_USD_FULL: TypedContractMethod<[], [bigint], "view">;
+  RYC_PER_NATIVE: TypedContractMethod<[], [bigint], "view">;
 
   allowance: TypedContractMethod<
     [owner: AddressLike, spender: AddressLike],
@@ -312,8 +277,6 @@ export interface RayanChainToken extends BaseContract {
 
   balanceOf: TypedContractMethod<[account: AddressLike], [bigint], "view">;
 
-  buyTokens: TypedContractMethod<[], [void], "payable">;
-
   buyTokensWithNative: TypedContractMethod<[], [void], "payable">;
 
   decimals: TypedContractMethod<[], [bigint], "view">;
@@ -324,24 +287,10 @@ export interface RayanChainToken extends BaseContract {
 
   owner: TypedContractMethod<[], [string], "view">;
 
-  priceFeed: TypedContractMethod<[], [string], "view">;
-
   renounceOwnership: TypedContractMethod<[], [void], "nonpayable">;
 
   setMintingActive: TypedContractMethod<
     [_active: boolean],
-    [void],
-    "nonpayable"
-  >;
-
-  setPriceFeedAddress: TypedContractMethod<
-    [_priceFeedAddress: AddressLike],
-    [void],
-    "nonpayable"
-  >;
-
-  setRycPriceInUsd: TypedContractMethod<
-    [newPriceInUsdFull: BigNumberish],
     [void],
     "nonpayable"
   >;
@@ -373,10 +322,7 @@ export interface RayanChainToken extends BaseContract {
   ): T;
 
   getFunction(
-    nameOrSignature: "PRICE_FEED_DECIMALS"
-  ): TypedContractMethod<[], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "RYC_PRICE_IN_USD_FULL"
+    nameOrSignature: "RYC_PER_NATIVE"
   ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
     nameOrSignature: "allowance"
@@ -396,9 +342,6 @@ export interface RayanChainToken extends BaseContract {
     nameOrSignature: "balanceOf"
   ): TypedContractMethod<[account: AddressLike], [bigint], "view">;
   getFunction(
-    nameOrSignature: "buyTokens"
-  ): TypedContractMethod<[], [void], "payable">;
-  getFunction(
     nameOrSignature: "buyTokensWithNative"
   ): TypedContractMethod<[], [void], "payable">;
   getFunction(
@@ -414,28 +357,11 @@ export interface RayanChainToken extends BaseContract {
     nameOrSignature: "owner"
   ): TypedContractMethod<[], [string], "view">;
   getFunction(
-    nameOrSignature: "priceFeed"
-  ): TypedContractMethod<[], [string], "view">;
-  getFunction(
     nameOrSignature: "renounceOwnership"
   ): TypedContractMethod<[], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "setMintingActive"
   ): TypedContractMethod<[_active: boolean], [void], "nonpayable">;
-  getFunction(
-    nameOrSignature: "setPriceFeedAddress"
-  ): TypedContractMethod<
-    [_priceFeedAddress: AddressLike],
-    [void],
-    "nonpayable"
-  >;
-  getFunction(
-    nameOrSignature: "setRycPriceInUsd"
-  ): TypedContractMethod<
-    [newPriceInUsdFull: BigNumberish],
-    [void],
-    "nonpayable"
-  >;
   getFunction(
     nameOrSignature: "symbol"
   ): TypedContractMethod<[], [string], "view">;

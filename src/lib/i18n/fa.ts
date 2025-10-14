@@ -490,7 +490,7 @@ export const fa = {
   staking_page: {
     title: "سپرده گذاری و پاداش",
     subtitle: "توکن‌های RYC خود را سپرده‌گذاری کنید، در حاکمیت شرکت کنید و پاداش بگیرید.",
-    subtitle_for_rule: "صفحه مدیریت استیکینگ برای نقش:",
+    subtitle_for_role: "صفحه مدیریت استیکینگ برای نقش:",
     ryc_balance: "موجودی RYC",
     staked_balance: "موجودی سپرده‌گذاری شده",
     staked_balance_desc: "توکن‌های سپرده‌گذاری شده شما",
@@ -548,6 +548,14 @@ export const fa = {
     plan_selected_toast: "پلن انتخاب شد. اکنون روی دکمه 'سپرده‌گذاری' سپرده گذاریکلیک کنید.",
     contract_addresses_missing: "آدرس قراردادهای ضروری (توکن/سپرده) هنوز بارگذاری نشده‌اند. لطفا منتظر بمانید.",
     buy_ryc_desc: "هر توکن RYC با قیمت تقریبی",
+    buy_ryc_title: "خرید توکن RYC",
+    buy_ryc_cta: "خرید RYC",
+    amount_of_matic_to_spend: "مقدار ارز برای پرداخت",
+    buy_ryc_warning: "هزینه نهایی بر اساس قیمت لحظه‌ای اوراکل در بلاکچین محاسبه می‌شود.",
+    buy_in_progress: "تراکنش خرید در حال ارسال است. لطفاً در کیف پول خود تأیید کنید.",
+    buy_amount_error: "مقدار ارز برای خرید باید بیشتر از صفر باشد.",
+    buy_success_title: "خرید موفقیت‌آمیز بود",
+    buy_success_desc: "توکن‌های RYC به کیف پول شما اضافه شدند. لطفاً موجودی خود را بررسی کنید.",
   },
 
   // Treasury Page

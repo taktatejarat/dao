@@ -85,12 +85,12 @@ export function useStaking({ tokenAddress, stakingAddress }: UseStakingProps) {
         if (revertMatch && revertMatch[1]) {
             return revertMatch[1];
         }
-        return baseError?.shortMessage || t('new_proposal.unexpected_error_desc');
+        return baseError?.shortMessage || t('new_proposal_page.unexpected_error_desc');
     };
 
     const handleApprove = async () => {
         if (!tokenAddress || !stakingAddress) {
-            toast.error(t('new_proposal.error_toast_title'), { description: t('staking_page.contract_addresses_missing') });
+            toast.error(t('new_proposal_page.error_toast_title'), { description: t('staking_page.contract_addresses_missing') });
             return;
         }
         try {
@@ -101,9 +101,9 @@ export function useStaking({ tokenAddress, stakingAddress }: UseStakingProps) {
                 args: [stakingAddress, maxUint256],
             } as any);
             setSubmittedHash(hash);
-            toast.info(t('new_proposal.pending_toast_title'), { description: t('staking_page.approve_in_progress') }); 
+            toast.info(t('new_proposal_page.pending_toast_title'), { description: t('staking_page.approve_in_progress') }); 
         } catch (err) {
-            toast.error(t('new_proposal.error_toast_title'), { description: extractRevertReason(err) });
+            toast.error(t('new_proposal_page.error_toast_title'), { description: extractRevertReason(err) });
         }
     };
 

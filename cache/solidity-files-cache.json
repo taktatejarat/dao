@@ -352,43 +352,6 @@
         "RayanChainDAO"
       ]
     },
-    "/home/errick/dao/src/contracts/interfaces/IStaking.sol": {
-      "lastModificationDate": 1759824742837,
-      "contentHash": "d7d5593302a811804980d9e3d7c48caa",
-      "sourceName": "src/contracts/interfaces/IStaking.sol",
-      "solcConfig": {
-        "version": "0.8.24",
-        "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
-          "viaIR": true,
-          "evmVersion": "paris",
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [],
-      "versionPragmas": [
-        "^0.8.24"
-      ],
-      "artifacts": [
-        "IStaking"
-      ]
-    },
     "/home/errick/dao/src/contracts/interfaces/IFinance.sol": {
       "lastModificationDate": 1758737715870,
       "contentHash": "b0dda6e81bd65be7d1752344cd25930d",
@@ -424,6 +387,43 @@
       ],
       "artifacts": [
         "IFinance"
+      ]
+    },
+    "/home/errick/dao/src/contracts/interfaces/IStaking.sol": {
+      "lastModificationDate": 1759824742837,
+      "contentHash": "d7d5593302a811804980d9e3d7c48caa",
+      "sourceName": "src/contracts/interfaces/IStaking.sol",
+      "solcConfig": {
+        "version": "0.8.24",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "viaIR": true,
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.24"
+      ],
+      "artifacts": [
+        "IStaking"
       ]
     },
     "/home/errick/dao/node_modules/@openzeppelin/contracts/utils/ReentrancyGuard.sol": {
@@ -663,8 +663,8 @@
       ]
     },
     "/home/errick/dao/src/contracts/RayanChainToken.sol": {
-      "lastModificationDate": 1760385463759,
-      "contentHash": "0eb19dd5c68bba69696afdca3b108215",
+      "lastModificationDate": 1760418097292,
+      "contentHash": "fc46e52f0ede15f61b61a29362102d87",
       "sourceName": "src/contracts/RayanChainToken.sol",
       "solcConfig": {
         "version": "0.8.24",
@@ -693,51 +693,13 @@
       },
       "imports": [
         "@openzeppelin/contracts/token/ERC20/ERC20.sol",
-        "@openzeppelin/contracts/access/Ownable.sol",
-        "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol"
+        "@openzeppelin/contracts/access/Ownable.sol"
       ],
       "versionPragmas": [
         "^0.8.24"
       ],
       "artifacts": [
         "RayanChainToken"
-      ]
-    },
-    "/home/errick/dao/node_modules/@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol": {
-      "lastModificationDate": 1760382931243,
-      "contentHash": "64a3f906dc7696aa3c9fa8454b673be7",
-      "sourceName": "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol",
-      "solcConfig": {
-        "version": "0.8.24",
-        "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
-          "viaIR": true,
-          "evmVersion": "paris",
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [],
-      "versionPragmas": [
-        "^0.8.0"
-      ],
-      "artifacts": [
-        "AggregatorV3Interface"
       ]
     },
     "/home/errick/dao/src/contracts/interfaces/IRayanChainToken.sol": {
