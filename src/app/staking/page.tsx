@@ -69,11 +69,8 @@ export default function StakingPage() {
 
     const {
         buyAmount, setBuyAmount,
-        RYC_USD_CENTS_DISPLAY,
         handleBuyTokens,
         isBuyActionPending,
-        isBuyConfirmed,
-        isPriceLoading,
     } = useBuyTokens({ tokenAddress });
     
     useEffect(() => {
@@ -126,7 +123,7 @@ export default function StakingPage() {
         return allPlans.filter(plan => plan.roles.includes(currentRole as any));
     }, [allPlans, userRole]);
 
-   const isLoading = isTokenAddrLoading || isStakingAddrLoading || isPriceLoading || (!!tokenAddress && !!stakingAddress && (rycBalance === undefined || stakedBalance === undefined || earnedRewards === undefined));
+   const isLoading = isTokenAddrLoading || isStakingAddrLoading || (!!tokenAddress && !!stakingAddress && (rycBalance === undefined || stakedBalance === undefined || earnedRewards === undefined));
 
     return (
         <AppLayout>
@@ -156,7 +153,7 @@ export default function StakingPage() {
                 {/* 1. Buy RYC Card */}
                 <Card>
                     <CardHeader><CardTitle>{t('staking_page.buy_ryc_title')}</CardTitle>
-                    <CardDescription>{t('staking_page.buy_ryc_desc')} {isPriceLoading ? '...' : RYC_USD_CENTS_DISPLAY.toFixed(3)} USD per RYC</CardDescription>
+                    <CardDescription>{t('staking_page.buy_ryc_desc')}</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <div className="space-y-2">
