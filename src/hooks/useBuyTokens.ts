@@ -43,12 +43,16 @@ export function useBuyTokens({ tokenAddress }: UseBuyTokensProps) {
         }
         
         try {
+            // ✅ FINAL FIX: Add a manual gas limit to prevent "Out of Gas" error.
+            // 200,000 is a safe limit for a minting function.
+            const SAFE_GAS_LIMIT = 200000n; 
+
             const hash = await writeContractAsync({
                 address: tokenAddress,
                 abi: rayanChainTokenAbi,
                 functionName: 'buyTokensWithNative',
-                // ✅ FINAL FIX: Send the exact amount of MATIC the user entered
-                value: maticToSend, 
+                value: maticToSend,
+                gas: SAFE_GAS_LIMIT, // ✅ Set the gas limit explicitly
             });
             
             setBuyTxHash(hash);
