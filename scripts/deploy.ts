@@ -23,6 +23,7 @@ function updateEnvFile(key: string, value: string) {
     fs.writeFileSync(envPath, envContent, 'utf8');
 }
 
+
 async function main() {
     console.log(`🚀 Starting full DAO deployment on network: ${network.name}...`);
 
@@ -30,14 +31,13 @@ async function main() {
     
     // AI Oracle Role is assigned to the Deployer (Admin) as requested
     const aiOracleAddress = deployer.address; 
-    
-    // The Admin's private key (from .env) is needed for the AI Oracle Python script
     const adminPrivateKey = process.env.PRIVATE_KEY; 
-    if (!adminPrivateKey) {
-        // The previous successful deploy meant PRIVATE_KEY was available through hardhat config,
-        // but for writing to .env, we must ensure it is present for the Oracle.
-        console.warn("⚠️ WARNING: PRIVATE_KEY is not set in process.env. Cannot configure AI Oracle Private Key automatically.");
-    }
+    
+    // ⚠️ NEW LOGIC: آدرس‌های موقت برای نقش‌های جدید
+    // برای سادگی، deployer را PAUSER و AUDITOR قرار می‌دهیم تا پس از Deploy، مالکیت به Timelock منتقل شود.
+    const pauserAddresses = [deployer.address]; 
+    const executorAddresses = [deployer.address]; // Timelock به عنوان Executor عمل خواهد کرد
+    const adminAddress = deployer.address;
     
     console.log("👤 Deploying contracts with the account:", deployer.address);
     console.log("🤖 AI Oracle Address (Using Deployer's Address):", aiOracleAddress);
@@ -45,24 +45,22 @@ async function main() {
     console.log("💰 Account balance:", ethers.formatEther(balance), "ETH/MATIC");
 
     // 0. Deploy DAORegistry
-    console.log("\n[0/7] Deploying DAORegistry (Contract address book)...");
+    console.log("\n[0/9] Deploying DAORegistry (Contract address book)...");
     const registry = await ethers.deployContract("DAORegistry", [deployer.address]);
     await registry.waitForDeployment();
     const registryAddress = await registry.getAddress();
     console.log("✅ DAORegistry deployed to:", registryAddress);
 
-    // 1. Deploy AccControl
-    console.log("\n[1/7] Deploying AccControl contract...");
+    // 1. Deploy AccControl (Now includes PAUSER, AUDITOR, EXECUTOR roles)
+    console.log("\n[1/9] Deploying AccControl contract...");
     const accControl = await ethers.deployContract("AccControl", [deployer.address]);
     await accControl.waitForDeployment();
     const accControlAddress = await accControl.getAddress();
     console.log("✅ AccControl deployed to:", accControlAddress);
 
- // 2. Deploy RayanChainToken
+    // 2. Deploy RayanChainToken
     const initialTokenSupply = ethers.parseUnits("1000000000", 18);
-    console.log(`\n[2/7] Deploying RayanChainToken with initial supply of ${ethers.formatEther(initialTokenSupply)} RYC...`);
-    
-    // ✅ FINAL FIX: Use the simplified constructor
+    console.log(`\n[2/9] Deploying RayanChainToken with initial supply of ${ethers.formatEther(initialTokenSupply)} RYC...`);
     const rayanChainToken = await ethers.deployContract("RayanChainToken", [
         deployer.address, 
         initialTokenSupply
@@ -70,39 +68,57 @@ async function main() {
     await rayanChainToken.waitForDeployment();
     const tokenAddress = await rayanChainToken.getAddress();
     console.log("✅ RayanChainToken deployed to:", tokenAddress);
+
     // 3. Deploy Staking Contract
-    // NOTE: Staking.sol has been updated for dPoS, ensure you ran npm run build
-    console.log("\n[3/7] Deploying Staking contract...");
+    console.log("\n[3/9] Deploying Staking contract...");
     const staking = await ethers.deployContract("Staking", [tokenAddress, deployer.address]);
     await staking.waitForDeployment();
     const stakingAddress = await staking.getAddress();
     console.log("✅ Staking contract deployed to:", stakingAddress);
     
-    // 4. Deploy Finance (Vault) Contract
-    console.log("\n[4/7] Deploying Finance (Vault) contract...");
-    const platformFeeBps = 250; // کارمزد پلتفرم: 2.5% (250 basis points)
-    const finance = await ethers.deployContract("Finance", [deployer.address, tokenAddress, platformFeeBps]); 
+    // 4. Deploy Finance (Vault) Contract (Now accepts AccControl Address)
+    console.log("\n[4/9] Deploying Finance (Vault) contract...");
+    const platformFeeBps = 250; 
+    // ✅ CHANGE: Added accControlAddress to Finance constructor
+    const finance = await ethers.deployContract("Finance", [deployer.address, tokenAddress, platformFeeBps, accControlAddress]); 
     await finance.waitForDeployment();
     const financeAddress = await finance.getAddress();
     console.log(`✅ Finance (Vault) deployed to: ${financeAddress} with a ${platformFeeBps / 100}% platform fee.`);
     
-    // 5. Deploy UserProfile Contract
-    console.log("\n[5/7] Deploying UserProfile contract...");
+  // 5. Deploy Timelock Controller (NEW CRITICAL STEP)
+    const minDelayInSeconds = 72 * 60 * 60; // 72 hours
+    console.log(`\n[5/9] Deploying TimelockController with min delay of ${minDelayInSeconds} seconds...`);
+    
+    // ✅ FIX: استفاده از Constructor استاندارد TimelockController
+    // Proposers و Executors را خالی می‌گذاریم و در مراحل بعدی به صورت دستی به DAO اعطا می‌کنیم.
+    const timelock = await ethers.deployContract("RayanChainTimelockController", [
+        minDelayInSeconds,
+        [], // proposers (ابتدا خالی)
+        [], // executors (ابتدا خالی)
+        deployer.address // admin (موقت)
+    ]);
+    await timelock.waitForDeployment();
+    const timelockAddress = await timelock.getAddress();
+    console.log("✅ TimelockController deployed to:", timelockAddress);
+    
+    // 6. Deploy UserProfile Contract
+    console.log("\n[6/9] Deploying UserProfile contract...");
     const userProfile = await ethers.deployContract("UserProfile", [deployer.address]);
     await userProfile.waitForDeployment();
     const userProfileAddress = await userProfile.getAddress();
     console.log("✅ UserProfile contract deployed to:", userProfileAddress);
     
-    // 6. Deploy RayanChainDAO Contract (The Core)
-    // NOTE: RayanChainDAO.sol has been updated to accept hash, ensure you ran npm run build
+    // 7. Deploy RayanChainDAO Contract (The Core)
     const votingPeriodInSeconds = 7 * 24 * 60 * 60; // 7 days
-    const quorumPercentage = 10; // 10%
-    const approvalThreshold = 51; // 51%
-    console.log("\n[6/7] Deploying RayanChainDAO contract...");
+    const quorumPercentage = 10; 
+    const approvalThreshold = 51; 
+    console.log("\n[7/9] Deploying RayanChainDAO contract...");
+ // ✅ FIX: اطمینان از ارسال آدرس صحیح Timelock
     const dao = await ethers.deployContract("RayanChainDAO", [
         accControlAddress,
         stakingAddress,
         financeAddress,
+        timelockAddress,
         votingPeriodInSeconds,
         quorumPercentage,
         approvalThreshold
@@ -111,32 +127,83 @@ async function main() {
     const daoAddress = await dao.getAddress();
     console.log("✅ RayanChainDAO deployed to:", daoAddress);
 
-    // 7. Final Configurations
-    console.log("\n[7/7] Performing final configurations...");
+    // 8. Timelock Role Finalization
+    console.log("\n[8/9] Finalizing Timelock Roles...");
+    const timelockContract = await ethers.getContractAt("RayanChainTimelockController", timelockAddress);
+    const PROPOSER_ROLE = await timelockContract.PROPOSER_ROLE();
+    const EXECUTOR_ROLE_TIMELOCK = await timelockContract.EXECUTOR_ROLE(); 
+    const CANCELLER_ROLE = await timelockContract.CANCELLER_ROLE();
+
+    process.stdout.write("   - Granting PROPOSER role to DAO contract...");
+    await (await timelockContract.grantRole(PROPOSER_ROLE, daoAddress)).wait();
+    process.stdout.write(" Done\n");
+
+    process.stdout.write("   - Granting EXECUTOR role to everyone (permissionless execution)...");
+    await (await timelockContract.grantRole(EXECUTOR_ROLE_TIMELOCK, ethers.ZeroAddress)).wait();
+    process.stdout.write(" Done\n");
+    
+    process.stdout.write("   - Granting CANCELLER role to DAO contract...");
+    await (await timelockContract.grantRole(CANCELLER_ROLE, daoAddress)).wait();
+    process.stdout.write(" Done\n");
+
+    // 9. Final Configurations & Ownership Transfer (CRITICAL SECURITY STEP)
+    console.log("\n[9/9] Performing final configurations and transferring ownerships...");
+    
+    // --- STEP 9.1: Role Assignments in AccControl ---
+    const DAO_MEMBER_ROLE = await accControl.DAO_MEMBER_ROLE();
+    const AI_ORACLE_ROLE = await accControl.AI_ORACLE_ROLE();
+    const PAUSER_ROLE = await accControl.PAUSER_ROLE(); // ✅ NEW
+    const EXECUTOR_ROLE_ACC = await accControl.EXECUTOR_ROLE();
+    
+    process.stdout.write("   - Granting DAO member role to deployer...");
+    await (await accControl.grantRole(DAO_MEMBER_ROLE, deployer.address)).wait();
+    process.stdout.write(" Done\n");
+    
+    process.stdout.write(`   - Granting AI_ORACLE_ROLE to Admin Address: ${aiOracleAddress}...`);
+    await (await accControl.grantRole(AI_ORACLE_ROLE, aiOracleAddress)).wait();
+    process.stdout.write(" Done\n");
+
+    // Grant EXECUTOR_ROLE from AccControl to the Timelock Controller
+    process.stdout.write(`   - Granting EXECUTOR_ROLE to Timelock: ${timelockAddress}...`);
+    await (await accControl.grantRole(EXECUTOR_ROLE_ACC, timelockAddress)).wait();
+    process.stdout.write(" Done\n");
+    
+    // Grant PAUSER_ROLE from AccControl to the deployer
+    process.stdout.write(`   - Granting PAUSER_ROLE to Deployer (Emergency Admin): ${deployer.address}...`);
+    await (await accControl.grantRole(PAUSER_ROLE, deployer.address)).wait();
+    process.stdout.write(" Done\n");
+
+
+    // --- STEP 9.2: Set DAO Address & Transfer Ownerships ---
     
     process.stdout.write("   - Setting DAO address in Finance contract...");
-    await (await finance.setDaoAddress(daoAddress)).wait();
+    // Note: setDaoAddress is still onlyOwner, and deployer is the owner.
+    await (await finance.setDaoAddress(daoAddress)).wait(); 
     process.stdout.write(" Done\n");
 
     process.stdout.write("   - Transferring ownership of Staking contract to the DAO...");
     await (await staking.transferOwnership(daoAddress)).wait();
     process.stdout.write(" Done\n");
 
-    // --- Role Assignments ---
-    const DAO_MEMBER_ROLE = await accControl.DAO_MEMBER_ROLE();
-    const AI_ORACLE_ROLE = await accControl.AI_ORACLE_ROLE();
+    // ⚠️ CRITICAL SECURITY STEP: TRANSFERRING OWNERSHIP TO TIMELOCK
+    console.log("\n   --- TRANSFERRING OWNERSHIP TO TIMELOCK ---");
     
-    process.stdout.write("   - Granting DAO member role to deployer...");
-    await (await accControl.grantRole(DAO_MEMBER_ROLE, deployer.address)).wait();
-    process.stdout.write(" Done\n");
-    
-    // Grant AI_ORACLE_ROLE to the Admin (Deployer)
-    process.stdout.write(`   - Granting AI_ORACLE_ROLE to Admin Address: ${aiOracleAddress}...`);
-    await (await accControl.grantRole(AI_ORACLE_ROLE, aiOracleAddress)).wait();
+    // Timelock will now manage the Treasury
+    process.stdout.write(`   - Transferring Finance Ownership to Timelock: ${timelockAddress}...`);
+    await (await finance.transferOwnership(timelockAddress)).wait();
     process.stdout.write(" Done\n");
 
+    // Timelock will now manage the Roles (AccControl)
+    process.stdout.write(`   - Transferring AccControl Ownership to Timelock: ${timelockAddress}...`);
+    await (await accControl.transferOwnership(timelockAddress)).wait();
+    process.stdout.write(" Done\n");
+    
+    // Timelock will now manage the DAO's configuration
+    process.stdout.write(`   - Transferring DAO Ownership to Timelock: ${timelockAddress}...`);
+    await (await dao.transferOwnership(timelockAddress)).wait();
+    process.stdout.write(" Done\n");
 
-    // Register all addresses in DAORegistry
+    // --- STEP 9.3: Register all addresses in DAORegistry ---
     console.log("   - Registering contract addresses in DAORegistry address book...");
     const KEY_DAO = ethers.id("RAYAN_CHAIN_DAO");
     const KEY_TOKEN = ethers.id("RAYAN_CHAIN_TOKEN");
@@ -144,12 +211,14 @@ async function main() {
     const KEY_STAKING = ethers.id("STAKING");
     const KEY_ACC = ethers.id("ACC_CONTROL");
     const KEY_USER_PROFILE = ethers.id("USER_PROFILE");
+    const KEY_TIMELOCK = ethers.id("TIMELOCK"); // ✅ NEW KEY
     await (await registry.setAddress(KEY_DAO, daoAddress)).wait();
     await (await registry.setAddress(KEY_TOKEN, tokenAddress)).wait();
     await (await registry.setAddress(KEY_FINANCE, financeAddress)).wait();
     await (await registry.setAddress(KEY_STAKING, stakingAddress)).wait();
     await (await registry.setAddress(KEY_ACC, accControlAddress)).wait();
     await (await registry.setAddress(KEY_USER_PROFILE, userProfileAddress)).wait();
+    await (await registry.setAddress(KEY_TIMELOCK, timelockAddress)).wait(); // ✅ NEW REGISTER
     console.log("   - Registry updated. Done\n");
     
     // --- AUTOMATIC ENV CONFIGURATION ---
@@ -158,17 +227,18 @@ async function main() {
     // 1. Read the DAO ABI from the artifact file
     const daoArtifactPath = path.resolve(__dirname, '..', 'artifacts', 'src', 'contracts', 'RayanChainDAO.sol', 'RayanChainDAO.json');
     const daoArtifact = JSON.parse(fs.readFileSync(daoArtifactPath, 'utf8'));
-    // We only need the 'abi' array, and we must escape quotes for the .env value
     const daoAbiJson = JSON.stringify(daoArtifact.abi).replace(/"/g, '\\"'); 
     
     // 2. Inject AI Oracle Private Key (Using Admin's Private Key)
     if (adminPrivateKey) {
-        // We use the same private key as the admin since the role was granted to the admin's address
         updateEnvFile('AI_ORACLE_PRIVATE_KEY', adminPrivateKey); 
     }
     
     // 3. Inject DAO ABI
     updateEnvFile('RAYAN_CHAIN_DAO_ABI', `"${daoAbiJson}"`);
+    
+    // ⚠️ NEW: Inject Timelock Address for the Front-End/Backend to check execution status
+    updateEnvFile('TIMELOCK_ADDRESS', timelockAddress);
     
     console.log("   - AI Oracle ENV setup complete. Done\n");
     // --- END AUTOMATIC ENV CONFIGURATION ---
@@ -184,6 +254,7 @@ async function main() {
         financeAddress,
         userProfileAddress,
         accControlAddress,
+        timelockAddress, // ✅ NEW FIELD
         aiOracleAddress,
     }));
     console.log("--- DEPLOYMENT_SUMMARY_END ---");

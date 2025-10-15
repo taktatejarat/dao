@@ -15,6 +15,11 @@
         "internalType": "uint256",
         "name": "_platformFeeBps",
         "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "_accControlAddress",
+        "type": "address"
       }
     ],
     "stateMutability": "nonpayable",
@@ -242,6 +247,19 @@
     ],
     "name": "TokenFundsWithdrawn",
     "type": "event"
+  },
+  {
+    "inputs": [],
+    "name": "accControl",
+    "outputs": [
+      {
+        "internalType": "contract AccControl",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
   },
   {
     "inputs": [],

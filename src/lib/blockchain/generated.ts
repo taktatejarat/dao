@@ -96,6 +96,13 @@ export const accControlAbi = [
   {
     type: 'function',
     inputs: [],
+    name: 'AUDITOR_ROLE',
+    outputs: [{ name: '', internalType: 'bytes32', type: 'bytes32' }],
+    stateMutability: 'pure',
+  },
+  {
+    type: 'function',
+    inputs: [],
     name: 'DAO_MEMBER_ROLE',
     outputs: [{ name: '', internalType: 'bytes32', type: 'bytes32' }],
     stateMutability: 'pure',
@@ -106,6 +113,20 @@ export const accControlAbi = [
     name: 'DEFAULT_ADMIN_ROLE',
     outputs: [{ name: '', internalType: 'bytes32', type: 'bytes32' }],
     stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'EXECUTOR_ROLE',
+    outputs: [{ name: '', internalType: 'bytes32', type: 'bytes32' }],
+    stateMutability: 'pure',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'PAUSER_ROLE',
+    outputs: [{ name: '', internalType: 'bytes32', type: 'bytes32' }],
+    stateMutability: 'pure',
   },
   {
     type: 'function',
@@ -318,6 +339,7 @@ export const financeAbi = [
       { name: '_initialOwner', internalType: 'address', type: 'address' },
       { name: '_tokenAddress', internalType: 'address', type: 'address' },
       { name: '_platformFeeBps', internalType: 'uint256', type: 'uint256' },
+      { name: '_accControlAddress', internalType: 'address', type: 'address' },
     ],
     stateMutability: 'nonpayable',
   },
@@ -516,6 +538,15 @@ export const financeAbi = [
   {
     type: 'function',
     inputs: [],
+    name: 'accControl',
+    outputs: [
+      { name: '', internalType: 'contract AccControl', type: 'address' },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
     name: 'daoAddress',
     outputs: [{ name: '', internalType: 'address', type: 'address' }],
     stateMutability: 'view',
@@ -639,6 +670,7 @@ export const rayanChainDaoAbi = [
       { name: '_accControlAddress', internalType: 'address', type: 'address' },
       { name: '_stakingAddress', internalType: 'address', type: 'address' },
       { name: '_financeAddress', internalType: 'address', type: 'address' },
+      { name: '_timelockAddress', internalType: 'address', type: 'address' },
       { name: '_votingPeriod', internalType: 'uint256', type: 'uint256' },
       { name: '_quorumPercentage', internalType: 'uint256', type: 'uint256' },
       { name: '_approvalThreshold', internalType: 'uint256', type: 'uint256' },
@@ -835,6 +867,28 @@ export const rayanChainDaoAbi = [
     type: 'function',
     inputs: [
       { name: '_descriptionHash', internalType: 'bytes32', type: 'bytes32' },
+      { name: '_recipient', internalType: 'address', type: 'address' },
+      { name: '_roleToGrant', internalType: 'bytes32', type: 'bytes32' },
+    ],
+    name: 'createGrantRoleProposal',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: '_originalProposalId', internalType: 'uint256', type: 'uint256' },
+      { name: '_proofHash', internalType: 'bytes32', type: 'bytes32' },
+      { name: '_descriptionHash', internalType: 'bytes32', type: 'bytes32' },
+    ],
+    name: 'createMilestoneReleaseProposal',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: '_descriptionHash', internalType: 'bytes32', type: 'bytes32' },
       { name: '_recipient', internalType: 'address payable', type: 'address' },
       { name: '_amount', internalType: 'uint256', type: 'uint256' },
       {
@@ -844,6 +898,13 @@ export const rayanChainDaoAbi = [
       },
     ],
     name: 'createTreasuryActionProposal',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: '_proposalId', internalType: 'uint256', type: 'uint256' }],
+    name: 'emergencyCancel',
     outputs: [],
     stateMutability: 'nonpayable',
   },
@@ -933,6 +994,7 @@ export const rayanChainDaoAbi = [
         internalType: 'uint256',
         type: 'uint256',
       },
+      { name: 'roleToGrant', internalType: 'bytes32', type: 'bytes32' },
     ],
     stateMutability: 'view',
   },
@@ -942,16 +1004,6 @@ export const rayanChainDaoAbi = [
     name: 'quorumPercentage',
     outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
     stateMutability: 'view',
-  },
-  {
-    type: 'function',
-    inputs: [
-      { name: '_proposalId', internalType: 'uint256', type: 'uint256' },
-      { name: '_proofHash', internalType: 'bytes32', type: 'bytes32' },
-    ],
-    name: 'releaseNextMilestone',
-    outputs: [],
-    stateMutability: 'nonpayable',
   },
   {
     type: 'function',
@@ -987,6 +1039,19 @@ export const rayanChainDaoAbi = [
     name: 'tallyVotes',
     outputs: [],
     stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'timelock',
+    outputs: [
+      {
+        name: '',
+        internalType: 'contract TimelockController',
+        type: 'address',
+      },
+    ],
+    stateMutability: 'view',
   },
   {
     type: 'function',
@@ -1777,6 +1842,13 @@ export const useReadAccControlAiOracleRole =
   })
 
 /**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link accControlAbi}__ and `functionName` set to `"AUDITOR_ROLE"`
+ */
+export const useReadAccControlAuditorRole = /*#__PURE__*/ createUseReadContract(
+  { abi: accControlAbi, functionName: 'AUDITOR_ROLE' },
+)
+
+/**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link accControlAbi}__ and `functionName` set to `"DAO_MEMBER_ROLE"`
  */
 export const useReadAccControlDaoMemberRole =
@@ -1793,6 +1865,23 @@ export const useReadAccControlDefaultAdminRole =
     abi: accControlAbi,
     functionName: 'DEFAULT_ADMIN_ROLE',
   })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link accControlAbi}__ and `functionName` set to `"EXECUTOR_ROLE"`
+ */
+export const useReadAccControlExecutorRole =
+  /*#__PURE__*/ createUseReadContract({
+    abi: accControlAbi,
+    functionName: 'EXECUTOR_ROLE',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link accControlAbi}__ and `functionName` set to `"PAUSER_ROLE"`
+ */
+export const useReadAccControlPauserRole = /*#__PURE__*/ createUseReadContract({
+  abi: accControlAbi,
+  functionName: 'PAUSER_ROLE',
+})
 
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link accControlAbi}__ and `functionName` set to `"VALIDATOR_ROLE"`
@@ -2097,6 +2186,14 @@ export const useWatchDaoRegistryOwnershipTransferredEvent =
  */
 export const useReadFinance = /*#__PURE__*/ createUseReadContract({
   abi: financeAbi,
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link financeAbi}__ and `functionName` set to `"accControl"`
+ */
+export const useReadFinanceAccControl = /*#__PURE__*/ createUseReadContract({
+  abi: financeAbi,
+  functionName: 'accControl',
 })
 
 /**
@@ -2495,6 +2592,13 @@ export const useReadRayanChainDaoStartupAccessTokenAddress =
   })
 
 /**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link rayanChainDaoAbi}__ and `functionName` set to `"timelock"`
+ */
+export const useReadRayanChainDaoTimelock = /*#__PURE__*/ createUseReadContract(
+  { abi: rayanChainDaoAbi, functionName: 'timelock' },
+)
+
+/**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link rayanChainDaoAbi}__ and `functionName` set to `"votingPeriod"`
  */
 export const useReadRayanChainDaoVotingPeriod =
@@ -2520,6 +2624,24 @@ export const useWriteRayanChainDaoCreateFundingProposal =
   })
 
 /**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link rayanChainDaoAbi}__ and `functionName` set to `"createGrantRoleProposal"`
+ */
+export const useWriteRayanChainDaoCreateGrantRoleProposal =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: rayanChainDaoAbi,
+    functionName: 'createGrantRoleProposal',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link rayanChainDaoAbi}__ and `functionName` set to `"createMilestoneReleaseProposal"`
+ */
+export const useWriteRayanChainDaoCreateMilestoneReleaseProposal =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: rayanChainDaoAbi,
+    functionName: 'createMilestoneReleaseProposal',
+  })
+
+/**
  * Wraps __{@link useWriteContract}__ with `abi` set to __{@link rayanChainDaoAbi}__ and `functionName` set to `"createTreasuryActionProposal"`
  */
 export const useWriteRayanChainDaoCreateTreasuryActionProposal =
@@ -2529,21 +2651,21 @@ export const useWriteRayanChainDaoCreateTreasuryActionProposal =
   })
 
 /**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link rayanChainDaoAbi}__ and `functionName` set to `"emergencyCancel"`
+ */
+export const useWriteRayanChainDaoEmergencyCancel =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: rayanChainDaoAbi,
+    functionName: 'emergencyCancel',
+  })
+
+/**
  * Wraps __{@link useWriteContract}__ with `abi` set to __{@link rayanChainDaoAbi}__ and `functionName` set to `"executeProposal"`
  */
 export const useWriteRayanChainDaoExecuteProposal =
   /*#__PURE__*/ createUseWriteContract({
     abi: rayanChainDaoAbi,
     functionName: 'executeProposal',
-  })
-
-/**
- * Wraps __{@link useWriteContract}__ with `abi` set to __{@link rayanChainDaoAbi}__ and `functionName` set to `"releaseNextMilestone"`
- */
-export const useWriteRayanChainDaoReleaseNextMilestone =
-  /*#__PURE__*/ createUseWriteContract({
-    abi: rayanChainDaoAbi,
-    functionName: 'releaseNextMilestone',
   })
 
 /**
@@ -2625,6 +2747,24 @@ export const useSimulateRayanChainDaoCreateFundingProposal =
   })
 
 /**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link rayanChainDaoAbi}__ and `functionName` set to `"createGrantRoleProposal"`
+ */
+export const useSimulateRayanChainDaoCreateGrantRoleProposal =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: rayanChainDaoAbi,
+    functionName: 'createGrantRoleProposal',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link rayanChainDaoAbi}__ and `functionName` set to `"createMilestoneReleaseProposal"`
+ */
+export const useSimulateRayanChainDaoCreateMilestoneReleaseProposal =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: rayanChainDaoAbi,
+    functionName: 'createMilestoneReleaseProposal',
+  })
+
+/**
  * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link rayanChainDaoAbi}__ and `functionName` set to `"createTreasuryActionProposal"`
  */
 export const useSimulateRayanChainDaoCreateTreasuryActionProposal =
@@ -2634,21 +2774,21 @@ export const useSimulateRayanChainDaoCreateTreasuryActionProposal =
   })
 
 /**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link rayanChainDaoAbi}__ and `functionName` set to `"emergencyCancel"`
+ */
+export const useSimulateRayanChainDaoEmergencyCancel =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: rayanChainDaoAbi,
+    functionName: 'emergencyCancel',
+  })
+
+/**
  * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link rayanChainDaoAbi}__ and `functionName` set to `"executeProposal"`
  */
 export const useSimulateRayanChainDaoExecuteProposal =
   /*#__PURE__*/ createUseSimulateContract({
     abi: rayanChainDaoAbi,
     functionName: 'executeProposal',
-  })
-
-/**
- * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link rayanChainDaoAbi}__ and `functionName` set to `"releaseNextMilestone"`
- */
-export const useSimulateRayanChainDaoReleaseNextMilestone =
-  /*#__PURE__*/ createUseSimulateContract({
-    abi: rayanChainDaoAbi,
-    functionName: 'releaseNextMilestone',
   })
 
 /**

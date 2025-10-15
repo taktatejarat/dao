@@ -200,6 +200,7 @@ export function useStaking({ tokenAddress, stakingAddress }: UseStakingProps) {
         earnedRewards,
         currentDelegatee,
         stakeAmount,
+        refetch,
         setStakeAmount,
         unstakeAmount,
         setUnstakeAmount,

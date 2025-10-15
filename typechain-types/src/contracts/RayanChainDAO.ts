@@ -30,7 +30,10 @@ export interface RayanChainDAOInterface extends Interface {
       | "accControl"
       | "approvalThresholdPercentage"
       | "createFundingProposal"
+      | "createGrantRoleProposal"
+      | "createMilestoneReleaseProposal"
       | "createTreasuryActionProposal"
+      | "emergencyCancel"
       | "executeProposal"
       | "financeContract"
       | "hasVoted"
@@ -39,12 +42,12 @@ export interface RayanChainDAOInterface extends Interface {
       | "participationScores"
       | "proposals"
       | "quorumPercentage"
-      | "releaseNextMilestone"
       | "renounceOwnership"
       | "setStartupAccessTokenAddress"
       | "stakingContract"
       | "startupAccessTokenAddress"
       | "tallyVotes"
+      | "timelock"
       | "transferOwnership"
       | "updateParticipationScore"
       | "updateProposalRiskScore"
@@ -80,8 +83,20 @@ export interface RayanChainDAOInterface extends Interface {
     values: [BytesLike, AddressLike, BigNumberish[]]
   ): string;
   encodeFunctionData(
+    functionFragment: "createGrantRoleProposal",
+    values: [BytesLike, AddressLike, BytesLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "createMilestoneReleaseProposal",
+    values: [BigNumberish, BytesLike, BytesLike]
+  ): string;
+  encodeFunctionData(
     functionFragment: "createTreasuryActionProposal",
     values: [BytesLike, AddressLike, BigNumberish, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "emergencyCancel",
+    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "executeProposal",
@@ -113,10 +128,6 @@ export interface RayanChainDAOInterface extends Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "releaseNextMilestone",
-    values: [BigNumberish, BytesLike]
-  ): string;
-  encodeFunctionData(
     functionFragment: "renounceOwnership",
     values?: undefined
   ): string;
@@ -136,6 +147,7 @@ export interface RayanChainDAOInterface extends Interface {
     functionFragment: "tallyVotes",
     values: [BigNumberish]
   ): string;
+  encodeFunctionData(functionFragment: "timelock", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "transferOwnership",
     values: [AddressLike]
@@ -171,7 +183,19 @@ export interface RayanChainDAOInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "createGrantRoleProposal",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "createMilestoneReleaseProposal",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "createTreasuryActionProposal",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "emergencyCancel",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -198,10 +222,6 @@ export interface RayanChainDAOInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "releaseNextMilestone",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "renounceOwnership",
     data: BytesLike
   ): Result;
@@ -218,6 +238,7 @@ export interface RayanChainDAOInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "tallyVotes", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "timelock", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "transferOwnership",
     data: BytesLike
@@ -419,6 +440,26 @@ export interface RayanChainDAO extends BaseContract {
     "nonpayable"
   >;
 
+  createGrantRoleProposal: TypedContractMethod<
+    [
+      _descriptionHash: BytesLike,
+      _recipient: AddressLike,
+      _roleToGrant: BytesLike
+    ],
+    [void],
+    "nonpayable"
+  >;
+
+  createMilestoneReleaseProposal: TypedContractMethod<
+    [
+      _originalProposalId: BigNumberish,
+      _proofHash: BytesLike,
+      _descriptionHash: BytesLike
+    ],
+    [void],
+    "nonpayable"
+  >;
+
   createTreasuryActionProposal: TypedContractMethod<
     [
       _descriptionHash: BytesLike,
@@ -426,6 +467,12 @@ export interface RayanChainDAO extends BaseContract {
       _amount: BigNumberish,
       _tokenType: BigNumberish
     ],
+    [void],
+    "nonpayable"
+  >;
+
+  emergencyCancel: TypedContractMethod<
+    [_proposalId: BigNumberish],
     [void],
     "nonpayable"
   >;
@@ -473,7 +520,8 @@ export interface RayanChainDAO extends BaseContract {
         boolean,
         bigint,
         bigint,
-        bigint
+        bigint,
+        string
       ] & {
         id: bigint;
         pType: bigint;
@@ -491,18 +539,13 @@ export interface RayanChainDAO extends BaseContract {
         currentMilestoneIndex: bigint;
         aiRiskScore: bigint;
         requiredApprovalThreshold: bigint;
+        roleToGrant: string;
       }
     ],
     "view"
   >;
 
   quorumPercentage: TypedContractMethod<[], [bigint], "view">;
-
-  releaseNextMilestone: TypedContractMethod<
-    [_proposalId: BigNumberish, _proofHash: BytesLike],
-    [void],
-    "nonpayable"
-  >;
 
   renounceOwnership: TypedContractMethod<[], [void], "nonpayable">;
 
@@ -521,6 +564,8 @@ export interface RayanChainDAO extends BaseContract {
     [void],
     "nonpayable"
   >;
+
+  timelock: TypedContractMethod<[], [string], "view">;
 
   transferOwnership: TypedContractMethod<
     [newOwner: AddressLike],
@@ -573,6 +618,28 @@ export interface RayanChainDAO extends BaseContract {
     "nonpayable"
   >;
   getFunction(
+    nameOrSignature: "createGrantRoleProposal"
+  ): TypedContractMethod<
+    [
+      _descriptionHash: BytesLike,
+      _recipient: AddressLike,
+      _roleToGrant: BytesLike
+    ],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "createMilestoneReleaseProposal"
+  ): TypedContractMethod<
+    [
+      _originalProposalId: BigNumberish,
+      _proofHash: BytesLike,
+      _descriptionHash: BytesLike
+    ],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
     nameOrSignature: "createTreasuryActionProposal"
   ): TypedContractMethod<
     [
@@ -584,6 +651,9 @@ export interface RayanChainDAO extends BaseContract {
     [void],
     "nonpayable"
   >;
+  getFunction(
+    nameOrSignature: "emergencyCancel"
+  ): TypedContractMethod<[_proposalId: BigNumberish], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "executeProposal"
   ): TypedContractMethod<[_proposalId: BigNumberish], [void], "nonpayable">;
@@ -627,7 +697,8 @@ export interface RayanChainDAO extends BaseContract {
         boolean,
         bigint,
         bigint,
-        bigint
+        bigint,
+        string
       ] & {
         id: bigint;
         pType: bigint;
@@ -645,6 +716,7 @@ export interface RayanChainDAO extends BaseContract {
         currentMilestoneIndex: bigint;
         aiRiskScore: bigint;
         requiredApprovalThreshold: bigint;
+        roleToGrant: string;
       }
     ],
     "view"
@@ -652,13 +724,6 @@ export interface RayanChainDAO extends BaseContract {
   getFunction(
     nameOrSignature: "quorumPercentage"
   ): TypedContractMethod<[], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "releaseNextMilestone"
-  ): TypedContractMethod<
-    [_proposalId: BigNumberish, _proofHash: BytesLike],
-    [void],
-    "nonpayable"
-  >;
   getFunction(
     nameOrSignature: "renounceOwnership"
   ): TypedContractMethod<[], [void], "nonpayable">;
@@ -674,6 +739,9 @@ export interface RayanChainDAO extends BaseContract {
   getFunction(
     nameOrSignature: "tallyVotes"
   ): TypedContractMethod<[_proposalId: BigNumberish], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "timelock"
+  ): TypedContractMethod<[], [string], "view">;
   getFunction(
     nameOrSignature: "transferOwnership"
   ): TypedContractMethod<[newOwner: AddressLike], [void], "nonpayable">;

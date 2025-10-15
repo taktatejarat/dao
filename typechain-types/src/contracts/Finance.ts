@@ -26,6 +26,7 @@ import type {
 export interface FinanceInterface extends Interface {
   getFunction(
     nameOrSignature:
+      | "accControl"
       | "daoAddress"
       | "investments"
       | "owner"
@@ -55,6 +56,10 @@ export interface FinanceInterface extends Interface {
       | "TokenFundsWithdrawn"
   ): EventFragment;
 
+  encodeFunctionData(
+    functionFragment: "accControl",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "daoAddress",
     values?: undefined
@@ -102,6 +107,7 @@ export interface FinanceInterface extends Interface {
     values: [AddressLike, BigNumberish]
   ): string;
 
+  decodeFunctionResult(functionFragment: "accControl", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "daoAddress", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "investments",
@@ -336,6 +342,8 @@ export interface Finance extends BaseContract {
     event?: TCEvent
   ): Promise<this>;
 
+  accControl: TypedContractMethod<[], [string], "view">;
+
   daoAddress: TypedContractMethod<[], [string], "view">;
 
   investments: TypedContractMethod<
@@ -412,6 +420,9 @@ export interface Finance extends BaseContract {
     key: string | FunctionFragment
   ): T;
 
+  getFunction(
+    nameOrSignature: "accControl"
+  ): TypedContractMethod<[], [string], "view">;
   getFunction(
     nameOrSignature: "daoAddress"
   ): TypedContractMethod<[], [string], "view">;

@@ -55,34 +55,37 @@ export default function StakingPage() {
     const tokenAddress = tokenAddressResult as Address | undefined;
     const stakingAddress = stakingAddressResult as Address | undefined;
 
+    // ✅ FIX 1: دریافت صحیح refetch از useStaking
     const {
         rycBalance, stakedBalance, earnedRewards,
         stakeAmount, setStakeAmount,
         unstakeAmount, setUnstakeAmount,
-        needsApproval, isActionPending: isStakingActionPending, // Renamed to avoid conflict
+        needsApproval, isActionPending: isStakingActionPending,
         handleApprove, handleStake, handleUnstake, handleClaim,
-        currentDelegatee, delegateeAddress, setDelegateeAddress, 
-        handleDelegate, handleUndelegate, 
-        isDelegateButtonDisabled, isUndelegateButtonDisabled, 
-        isStakeButtonDisabled, isUnstakeButtonDisabled, isClaimButtonDisabled
-        refetch: refetchStakingData // ✅ 1. Get the refetch function from useStaking
+        currentDelegatee, delegateeAddress, setDelegateeAddress,
+        handleDelegate, handleUndelegate,
+        isDelegateButtonDisabled, isUndelegateButtonDisabled,
+        isStakeButtonDisabled, isUnstakeButtonDisabled, isClaimButtonDisabled,
+        refetch: refetchStakingData // <-- این خط متغیر را دریافت می‌کند
     } = useStaking({ tokenAddress, stakingAddress });
 
 
+   // ✅ FIX 2: دریافت صحیح isBuyConfirmed از useBuyTokens
     const {
         buyAmount, setBuyAmount,
         handleBuyTokens,
         isBuyActionPending,
+        isBuyConfirmed // <-- این خط متغیر را دریافت می‌کند
     } = useBuyTokens({ tokenAddress });
 
-      // ✅ 2. FINAL FIX: Add a useEffect to refetch data after a successful purchase
+    // این useEffect اکنون به درستی کار خواهد کرد.
     useEffect(() => {
         if (isBuyConfirmed) {
-            // When the buy transaction is confirmed, refetch all staking/balance data
-            toast.info("Updating balances...");
-            refetchStakingData(); 
+            toast.success("Tokens purchased successfully! Updating balances...");
+            refetchStakingData();
         }
-    }, [isBuyConfirmed, refetchStakingData]); // Dependency array
+    }, [isBuyConfirmed, refetchStakingData]);
+
 
     
     useEffect(() => {

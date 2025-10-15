@@ -26,8 +26,11 @@ export interface AccControlInterface extends Interface {
   getFunction(
     nameOrSignature:
       | "AI_ORACLE_ROLE"
+      | "AUDITOR_ROLE"
       | "DAO_MEMBER_ROLE"
       | "DEFAULT_ADMIN_ROLE"
+      | "EXECUTOR_ROLE"
+      | "PAUSER_ROLE"
       | "VALIDATOR_ROLE"
       | "getRoleAdmin"
       | "grantRole"
@@ -46,11 +49,23 @@ export interface AccControlInterface extends Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
+    functionFragment: "AUDITOR_ROLE",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "DAO_MEMBER_ROLE",
     values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "DEFAULT_ADMIN_ROLE",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "EXECUTOR_ROLE",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "PAUSER_ROLE",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -87,11 +102,23 @@ export interface AccControlInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "AUDITOR_ROLE",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "DAO_MEMBER_ROLE",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
     functionFragment: "DEFAULT_ADMIN_ROLE",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "EXECUTOR_ROLE",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "PAUSER_ROLE",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -218,9 +245,15 @@ export interface AccControl extends BaseContract {
 
   AI_ORACLE_ROLE: TypedContractMethod<[], [string], "view">;
 
+  AUDITOR_ROLE: TypedContractMethod<[], [string], "view">;
+
   DAO_MEMBER_ROLE: TypedContractMethod<[], [string], "view">;
 
   DEFAULT_ADMIN_ROLE: TypedContractMethod<[], [string], "view">;
+
+  EXECUTOR_ROLE: TypedContractMethod<[], [string], "view">;
+
+  PAUSER_ROLE: TypedContractMethod<[], [string], "view">;
 
   VALIDATOR_ROLE: TypedContractMethod<[], [string], "view">;
 
@@ -264,10 +297,19 @@ export interface AccControl extends BaseContract {
     nameOrSignature: "AI_ORACLE_ROLE"
   ): TypedContractMethod<[], [string], "view">;
   getFunction(
+    nameOrSignature: "AUDITOR_ROLE"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
     nameOrSignature: "DAO_MEMBER_ROLE"
   ): TypedContractMethod<[], [string], "view">;
   getFunction(
     nameOrSignature: "DEFAULT_ADMIN_ROLE"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "EXECUTOR_ROLE"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "PAUSER_ROLE"
   ): TypedContractMethod<[], [string], "view">;
   getFunction(
     nameOrSignature: "VALIDATOR_ROLE"

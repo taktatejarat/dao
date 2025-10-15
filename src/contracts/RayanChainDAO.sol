@@ -7,12 +7,12 @@ import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "./permission/AccControl.sol";
 import "./interfaces/IStaking.sol";
 import "./interfaces/IFinance.sol";
-import "./TimelockController.sol"; // ✅ NEW: Import the Timelock Contract
+import "./TimelockController.sol"; 
 
 contract RayanChainDAO is Ownable, ReentrancyGuard {
     // --- Enums ---
     enum ProposalState { Pending, Validation, Voting, Approved, Rejected, Executed, Expired, Cancelled }
-    enum ProposalType { Funding, TreasuryAction, GrantRole } // ✅ NEW: GrantRole for B.2
+    enum ProposalType { Funding, TreasuryAction, GrantRole, MilestoneRelease } // ✅ NEW: GrantRole for B.2
     enum VoteType { For, Against }
     enum TokenType { Native, RYC }
 
@@ -79,12 +79,12 @@ contract RayanChainDAO is Ownable, ReentrancyGuard {
         _;
     }
 
-    // --- Constructor ---
+   // --- Constructor ---
     constructor(
         address _accControlAddress,
         address _stakingAddress,
         address _financeAddress,
-        address _timelockAddress, // ✅ NEW PARAMETER
+        address _timelockAddress,
         uint256 _votingPeriod,
         uint256 _quorumPercentage,
         uint256 _approvalThreshold
@@ -92,11 +92,11 @@ contract RayanChainDAO is Ownable, ReentrancyGuard {
         accControl = AccControl(_accControlAddress);
         stakingContract = IStaking(_stakingAddress);
         financeContract = IFinance(_financeAddress);
-        timelock = TimelockController(_timelockAddress); // ✅ NEW: Set Timelock
+        timelock = TimelockController(payable(_timelockAddress));
         votingPeriod = _votingPeriod;
         quorumPercentage = _quorumPercentage;
         approvalThresholdPercentage = _approvalThreshold;
-        nextProposalId = 1; 
+        nextProposalId = 1;
     }
 
     // --- Proposal Creation ---
@@ -124,6 +124,43 @@ contract RayanChainDAO is Ownable, ReentrancyGuard {
                 released: false
             }));
         }
+    }
+
+    // ✅ NEW: تابع ایجاد پروپوزال برای آزادسازی Milestone
+    /**
+     * @notice Creates a proposal to release the next milestone for an existing funding project.
+     * @dev Can be called by the original project recipient or an admin.
+     * @param _originalProposalId The ID of the initial funding proposal.
+     * @param _proofHash The hash of the off-chain proof of progress.
+     * @param _descriptionHash A hash of the description for this new milestone release proposal.
+     */
+    function createMilestoneReleaseProposal(
+        uint256 _originalProposalId,
+        bytes32 _proofHash,
+        bytes32 _descriptionHash
+    ) external {
+        Proposal storage originalProposal = proposals[_originalProposalId];
+        require(originalProposal.pType == ProposalType.Funding, "Original proposal is not for funding");
+        require(msg.sender == originalProposal.recipient || accControl.hasRole(accControl.DEFAULT_ADMIN_ROLE(), msg.sender), "Not authorized to propose milestone release");
+        require(originalProposal.currentMilestoneIndex < originalProposal.milestones.length, "All milestones already released");
+        require(_proofHash != bytes32(0), "Proof hash cannot be zero");
+
+        // ایجاد یک پروپوزال جدید از نوع MilestoneRelease
+        uint256 milestoneProposalId = _createProposal(
+            ProposalType.MilestoneRelease,
+            _descriptionHash,
+            payable(originalProposal.recipient), // Recipient is the same
+            _originalProposalId, // 'amount' field now stores the original proposal ID
+            TokenType.RYC
+        );
+        
+        // ذخیره کردن proofHash در پروپوزال جدید برای بررسی در زمان اجرا
+        proposals[milestoneProposalId].milestones.push(Milestone({
+            amount: 0, // Not used
+            state: ProposalState.Pending,
+            proofOfProgressHash: _proofHash,
+            released: false
+        }));
     }
 
     // ✅ NEW: ایجاد پروپوزال برای اعطای نقش (برای غیرمتمرکزسازی اعطای نقش)
@@ -247,9 +284,10 @@ contract RayanChainDAO is Ownable, ReentrancyGuard {
         p.executed = true;
         p.state = ProposalState.Executed;
 
-        // ✅ CHANGE: اکنون عملیات حساس را به Timelock زمان‌بندی می‌کنیم
         bytes memory data;
         address target;
+        // Salt باید یکتا و قابل پیش‌بینی باشد. استفاده از ID پروپوزال بهترین گزینه است.
+        bytes32 salt = keccak256(abi.encodePacked("RayanChainProposal", _proposalId));
 
         if (p.pType == ProposalType.Funding) {
             // عملیات: registerInvestment در قرارداد Finance
@@ -281,58 +319,100 @@ contract RayanChainDAO is Ownable, ReentrancyGuard {
                 p.roleToGrant, 
                 p.recipient // آدرس دریافت‌کننده نقش
             );
+        } else if (p.pType == ProposalType.MilestoneRelease) { // ✅ NEW LOGIC
+            uint256 originalProposalId = p.amount; // ID پروپوزال اصلی در فیلد amount ذخیره شده
+            target = address(financeContract);
+            data = abi.encodeWithSelector(
+                IFinance(target).releaseNextMilestone.selector,
+                originalProposalId
+        ); 
+         // آپدیت وضعیت در پروپوزال اصلی
+            Proposal storage originalProposal = proposals[originalProposalId];
+            bytes32 proofHash = p.milestones[0].proofOfProgressHash; // دریافت proofHash از پروپوزال فعلی
+            originalProposal.milestones[originalProposal.currentMilestoneIndex].proofOfProgressHash = proofHash;
+            originalProposal.milestones[originalProposal.currentMilestoneIndex].released = true;
+            emit MilestoneReleased(originalProposalId, originalProposal.currentMilestoneIndex, originalProposal.milestones[originalProposal.currentMilestoneIndex].amount);
+            originalProposal.currentMilestoneIndex++;
         }
         
-        // زمان‌بندی عملیات در Timelock
-        // Note: The DAO contract is the PROPOSER and EXECUTOR of the Timelock.
+        // ✅ FIX 2: افزودن آرگومان ششم (delay) به تابع schedule
         timelock.schedule(
-            target, 
-            0, // value: 0 (عملیات‌های DAO معمولاً بدون ETH/Native Value هستند)
-            data, 
-            bytes32(0), // predecessor: 0 (بدون عملیات پیش‌نیاز)
-            keccak256(data) // salt: از Hash خود داده برای یکتایی استفاده می‌کنیم
+            target,
+            0,
+            data,
+            bytes32(0),
+            salt,
+            timelock.getMinDelay() // حداقل زمان تأخیر
         );
 
         emit ProposalExecuted(_proposalId);
         emit ProposalStateChanged(_proposalId, ProposalState.Executed);
     }
 
- /**
-     * @notice Releases the next milestone for an approved funding proposal.
-     * @dev This should now also go through the Timelock if a new vote/milestone proposal is needed.
-     * BUT: Since the matrix has "اجرای پروپوزال مالی پس از (Timelock)" and "برداشت از خزانه (تخصیص سرمایه)" 
-     *      it is safer to assume that releaseNextMilestone (which is a fund transfer) must also be scheduled.
+    // --- ✅ NEW LOGIC: منطق اضطراری PAUSER ---
+    /**
+     * @notice Allows an account with the PAUSER_ROLE to cancel a scheduled operation in the Timelock.
+     * @dev This function acts as the emergency escape hatch for the DAO.
+     * @param _proposalId The ID of the proposal whose scheduled operation should be cancelled.
      */
-    function releaseNextMilestone(uint256 _proposalId, bytes32 _proofHash) external nonReentrant onlyRole(accControl.DEFAULT_ADMIN_ROLE()) { // ⚠️ هنوز 
-        require(p.pType == ProposalType.Funding, "Not a funding proposal");
-        require(p.state == ProposalState.Executed, "Proposal was not approved and executed");
-        require(p.currentMilestoneIndex < p.milestones.length, "All milestones already released");
-        require(_proofHash != bytes32(0), "Proof hash cannot be zero"); // New check
-        
-        // ✅ CHANGE: به جای اجرای مستقیم، آن را زمان‌بندی می‌کنیم (باید توسط DAO رأی‌گیری شود)
-        // این تابع باید توسط یک پروپوزال جدید (MilestoneReleaseProposal) جایگزین شود.
-        
-        // برای حفظ سازگاری: عملیات را از طریق Timelock زمان‌بندی می‌کنیم:
-        address target = address(financeContract);
-        bytes memory data = abi.encodeWithSelector(IFinance(target).releaseNextMilestone.selector, _proposalId);
-
-        timelock.schedule(
-            target, 
-            0, 
-            data, 
-            bytes32(0), 
-            keccak256(data)
-        );
-        
-        // آپدیت وضعیت در قرارداد DAO
+    function emergencyCancel(uint256 _proposalId) external nonReentrant onlyRole(accControl.PAUSER_ROLE()) {
         Proposal storage p = proposals[_proposalId];
-        p.milestones[p.currentMilestoneIndex].proofOfProgressHash = _proofHash; // ✅ CHANGE: Store the hash
-        p.milestones[p.currentMilestoneIndex].released = true;
-        emit MilestoneReleased(_proposalId, p.currentMilestoneIndex, p.milestones[p.currentMilestoneIndex].amount);
+        require(p.state == ProposalState.Executed, "DAO: Proposal must be in Executed (Scheduled) state to be cancelled.");
+
+        // ✅ NEW: بازسازی دقیق داده‌ها و salt برای فراخوانی timelock.cancel()
+        bytes memory data;
+        address target;
+        bytes32 salt = keccak256(abi.encodePacked(_proposalId, block.timestamp)); // ✅ Salt باید با salt استفاده شده در schedule() مطابقت داشته باشد.
+
+        if (p.pType == ProposalType.Funding) {
+            // بازسازی داده‌ها برای Funding
+            uint256 totalAmount = 0;
+            for (uint i = 0; i < p.milestones.length; i++) {
+                totalAmount += p.milestones[i].amount;
+            }
+            target = address(financeContract);
+            data = abi.encodeWithSelector(
+                IFinance(target).registerInvestment.selector,
+                _proposalId,
+                p.recipient,
+                totalAmount,
+                uint8(p.milestones.length)
+            );
+        } else if (p.pType == ProposalType.TreasuryAction) {
+            // بازسازی داده‌ها برای TreasuryAction
+            target = address(financeContract);
+            if (p.tokenType == TokenType.Native) {
+                data = abi.encodeWithSelector(IFinance(target).withdraw.selector, p.recipient, p.amount);
+            } else {
+                data = abi.encodeWithSelector(IFinance(target).withdrawTokens.selector, p.recipient, p.amount);
+            }
+        } else if (p.pType == ProposalType.GrantRole) {
+            // بازسازی داده‌ها برای GrantRole
+            target = address(accControl);
+            data = abi.encodeWithSelector(
+                AccControl(target).grantRole.selector,
+                p.roleToGrant, 
+                p.recipient
+            );
+        }
         
-        p.currentMilestoneIndex++;
+       // محاسبه شناسه عملیات (Operation ID)
+        bytes32 operationId = timelock.hashOperation(
+            target,
+            0,
+            data,
+            bytes32(0),
+            salt
+        );
+
+        // فراخوانی تابع cancel با شناسه صحیح
+        timelock.cancel(operationId);
+
+        // آپدیت وضعیت پروپوزال به Cancelled
+        p.state = ProposalState.Cancelled;
+        emit ProposalStateChanged(_proposalId, ProposalState.Cancelled);
     }
-    
+
     // --- Oracle Functions (Remains UNCHANGED) ---
     function updateParticipationScore(address _user, uint256 _score) external onlyRole(accControl.AI_ORACLE_ROLE()) {
         participationScores[_user] = _score;
