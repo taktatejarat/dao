@@ -1,19 +1,23 @@
+// src/contracts/Finance.sol - اصلاح شده برای مالکیت Timelock
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/access/Ownable.sol"; // ❌ Keep Ownable but change usage
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "./interfaces/IFinance.sol";
+import "./permission/AccControl.sol"; // ✅ NEW: Import AccControl
 
 /**
  * @title Finance Contract (Treasury) - Professional Version
  * @dev Manages DAO funds with support for milestone-based investments and platform fees.
  * This contract acts as the intelligent vault for a VC DAO.
+ * Ownership is handled by the Timelock/DAO via the EXECUTOR_ROLE.
  */
-contract Finance is IFinance, Ownable, ReentrancyGuard {
+contract Finance is IFinance, Ownable, ReentrancyGuard { // Keep Ownable for setDaoAddress, but change core logic
     IERC20 public immutable token;
     address public daoAddress;
+    AccControl public accControl; // ✅ NEW: State variable for AccControl
 
     // Platform fee in basis points (e.g., 250 = 2.5%)
     uint256 public platformFeeBps; // Bps = Basis Points. 1% = 100 Bps.
@@ -31,12 +35,21 @@ contract Finance is IFinance, Ownable, ReentrancyGuard {
     // Mapping from proposal ID to its investment details
     mapping(uint256 => Investment) public investments;
 
-    constructor(address _initialOwner, address _tokenAddress, uint256 _platformFeeBps) Ownable(_initialOwner) {
+    constructor(address _initialOwner, address _tokenAddress, uint256 _platformFeeBps, address _accControlAddress) 
+        Ownable(_initialOwner) {
         require(_initialOwner != address(0), "Owner cannot be zero address");
         require(_tokenAddress != address(0), "Token cannot be zero address");
         require(_platformFeeBps <= 1000, "Fee cannot exceed 10%"); // Safety check: max 10% fee
         token = IERC20(_tokenAddress);
         platformFeeBps = _platformFeeBps;
+        accControl = AccControl(_accControlAddress); // ✅ NEW: Set AccControl
+    }
+    
+    // --- Modifiers ---
+    // ✅ NEW MODIFIER: برای عملیات‌های حساس که باید توسط Timelock/DAO انجام شوند
+    modifier onlyExecutor() {
+        require(accControl.hasRole(accControl.EXECUTOR_ROLE(), msg.sender), "Finance: Must be Executor Role");
+        _;
     }
 
     /**
@@ -49,9 +62,9 @@ contract Finance is IFinance, Ownable, ReentrancyGuard {
     // --- Core Investment Logic ---
 
     /**
-     * @notice Registers a new investment when a proposal passes. Called by the main DAO contract.
+     * @notice Registers a new investment when a proposal passes. Called by the main DAO contract (via Timelock).
      */
-    function registerInvestment(uint256 _proposalId, address _recipient, uint256 _totalAmount, uint8 _milestoneCount) external override onlyOwner {
+    function registerInvestment(uint256 _proposalId, address _recipient, uint256 _totalAmount, uint8 _milestoneCount) external override onlyExecutor { // ✅ CHANGE: Replaced onlyOwner with onlyExecutor
         require(_recipient != address(0), "Recipient cannot be zero address");
         require(_totalAmount > 0, "Total amount must be greater than zero");
         require(_milestoneCount > 0, "Must have at least one milestone");
@@ -70,9 +83,9 @@ contract Finance is IFinance, Ownable, ReentrancyGuard {
     }
 
     /**
-     * @notice Releases the funds for the next milestone of a project. Called by the main DAO contract.
+     * @notice Releases the funds for the next milestone of a project. Called by the main DAO contract (via Timelock).
      */
-    function releaseNextMilestone(uint256 _proposalId) external nonReentrant onlyOwner {
+    function releaseNextMilestone(uint256 _proposalId) external nonReentrant onlyExecutor { // ✅ CHANGE: Replaced onlyOwner with onlyExecutor
         Investment storage investment = investments[_proposalId];
         require(investment.isActive, "Investment is not active");
         require(investment.currentMilestone < investment.milestoneCount, "All milestones have been released");
@@ -102,20 +115,19 @@ contract Finance is IFinance, Ownable, ReentrancyGuard {
         emit MilestoneReleased(_proposalId, amountToRecipient, investment.currentMilestone);
     }
 
-    // --- Functions from IFinance (for compatibility and general treasury management) ---
-
+ 
     /**
      * @notice This function is deprecated for new investments but is kept for IFinance compatibility.
      * Use releaseNextMilestone for new, structured investments.
      */
-    function releaseFunds(address payable, uint256) external view override onlyOwner {
-    revert("Finance: This function is deprecated. Use releaseNextMilestone instead.");
+    function releaseFunds(address payable, uint256) external view override onlyOwner { // Keep onlyOwner for access control to deprecated function
+        revert("Finance: This function is deprecated. Use releaseNextMilestone instead.");
     }
 
     /**
-     * @notice Withdraws native currency from the treasury. Called by the DAO for operational purposes.
+     * @notice Withdraws native currency from the treasury. Called by the DAO (via Timelock) for operational purposes.
      */
-    function withdraw(address payable to, uint256 amount) external override onlyOwner nonReentrant {
+    function withdraw(address payable to, uint256 amount) external override onlyExecutor nonReentrant { // ✅ CHANGE: Replaced onlyOwner with onlyExecutor
         require(address(this).balance >= amount, "Finance: Insufficient native balance");
         (bool success, ) = to.call{value: amount}("");
         require(success, "Finance: Native currency transfer failed");
@@ -123,9 +135,9 @@ contract Finance is IFinance, Ownable, ReentrancyGuard {
     }
 
     /**
-     * @notice Withdraws RYC tokens from the treasury. Called by the DAO for operational purposes.
+     * @notice Withdraws RYC tokens from the treasury. Called by the DAO (via Timelock) for operational purposes.
      */
-    function withdrawTokens(address to, uint256 amount) external override onlyOwner nonReentrant {
+    function withdrawTokens(address to, uint256 amount) external override onlyExecutor nonReentrant { // ✅ CHANGE: Replaced onlyOwner with onlyExecutor
         require(token.balanceOf(address(this)) >= amount, "Finance: Insufficient RYC funds");
         bool success = token.transfer(to, amount);
         require(success, "Finance: RYC token transfer failed");
@@ -136,8 +148,10 @@ contract Finance is IFinance, Ownable, ReentrancyGuard {
 
     /**
      * @notice Sets the DAO contract address. Can only be called by the current owner.
+     * @dev This remains onlyOwner since changing the DAO address is a highly sensitive admin function 
+     *      that will be executed by the Timelock (which will be the owner).
      */
-    function setDaoAddress(address _daoAddress) external override onlyOwner {
+    function setDaoAddress(address _daoAddress) external override onlyOwner { 
         require(_daoAddress != address(0), "Finance: DAO address cannot be zero");
         daoAddress = _daoAddress;
         emit DaoAddressSet(_daoAddress);

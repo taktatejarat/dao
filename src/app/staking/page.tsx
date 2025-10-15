@@ -65,13 +65,25 @@ export default function StakingPage() {
         handleDelegate, handleUndelegate, 
         isDelegateButtonDisabled, isUndelegateButtonDisabled, 
         isStakeButtonDisabled, isUnstakeButtonDisabled, isClaimButtonDisabled
+        refetch: refetchStakingData // ✅ 1. Get the refetch function from useStaking
     } = useStaking({ tokenAddress, stakingAddress });
+
 
     const {
         buyAmount, setBuyAmount,
         handleBuyTokens,
         isBuyActionPending,
     } = useBuyTokens({ tokenAddress });
+
+      // ✅ 2. FINAL FIX: Add a useEffect to refetch data after a successful purchase
+    useEffect(() => {
+        if (isBuyConfirmed) {
+            // When the buy transaction is confirmed, refetch all staking/balance data
+            toast.info("Updating balances...");
+            refetchStakingData(); 
+        }
+    }, [isBuyConfirmed, refetchStakingData]); // Dependency array
+
     
     useEffect(() => {
         const amountFromUrl = searchParams.get('amount');

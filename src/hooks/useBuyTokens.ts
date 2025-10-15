@@ -76,5 +76,6 @@ export function useBuyTokens({ tokenAddress }: UseBuyTokensProps) {
         setBuyAmount,
         handleBuyTokens,
         isBuyActionPending,
+        isBuyConfirmed,
     };
 }
