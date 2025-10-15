@@ -12,6 +12,7 @@ import { Terminal, Rocket, CheckCircle, AlertTriangle } from 'lucide-react';
 import { DaoLoadingSpinner } from '@/components/icons/dao-loading-spinner';
 import { useWeb3 } from '@/context/Web3Provider';
 import { useRouter } from 'next/navigation';
+import { DeploymentLog } from '@/components/setup/deployment-log'; // ✅ NEW IMPORT
 
 export default function SetupPage() {
     const { t } = useTranslation();
@@ -21,7 +22,6 @@ export default function SetupPage() {
 
     // وضعیت استقرار بر اساس وجود آدرس رجیستری تعیین می‌شود
     const isSetupCompleted = !!registryAddress;
-
     const handleResetSetup = async () => {
         try {
             // API جدید برای ریست کردن سمت سرور
@@ -274,7 +274,7 @@ export default function SetupPage() {
                     </CardHeader>
                     <CardContent className="flex-1 bg-muted/50 rounded-lg p-4 overflow-y-auto">
                         <pre className="text-xs whitespace-pre-wrap font-mono">
-                            {logs}
+                            <DeploymentLog logs={logs} />
                         </pre>
                         {error && (
                             <Alert variant="destructive" className="mt-4">

@@ -76,11 +76,11 @@ const config = {
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
+      // ✅ FIX: تعریف متغیرهای فونت برای Tailwind
       fontFamily: {
-        // ✅✅✅ راه‌حل کلیدی: هماهنگ‌سازی با layout.tsx ✅✅✅
-        sans: ["var(--font-sans)"],       // به Exo 2 اشاره دارد
-        headline: ["var(--font-headline)"], // به Merienda اشاره دارد
-        vazir: ["var(--font-vazir)"],         // به Vazirmatn اشاره دارد
+        sans: ['var(--font-sans)'],
+        headline: ['var(--font-headline)'],
+        vazir: ['var(--font-vazir)'],
       },
       keyframes: {
         "accordion-down": {
