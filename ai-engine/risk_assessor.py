@@ -1,75 +1,49 @@
-# ai-engine/risk_assessor.py - Mock AI Model for Project Risk Assessment (R(p))
+# ai-engine/risk_assessor.py - اصلاح شده برای بارگذاری مدل XGBoost
 
-import json
+import xgboost as xgb
+import pandas as pd
 from typing import Dict, Any, Tuple
+import joblib # برای بارگذاری مدل و preprocessor
+import os # ✅ NEW: Import os
 
-# Mock Model Weights (Simulating DNN/XGBoost logic)
-# Weights are used to determine which feature has more impact on the final score
-MOCK_WEIGHTS = {
-    "startupIndustry": 0.2,       # Example: Tech has higher risk than Pharma
-    "teamExperience": 0.4,        # High weight: Team is crucial in VC
-    "milestoneCount": 0.1,        # More milestones = slightly lower risk
-    "totalAmount": 0.3,           # Higher amount = higher risk
-}
-MAX_RISK_SCORE = 75  # Matches the on-chain constant
+# ✅ FIX: تعریف مسیرها نسبت به مکان فعلی فایل
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+MODEL_PATH = os.path.join(SCRIPT_DIR, "models/risk_model.json")
+PREPROCESSOR_PATH = os.path.join(SCRIPT_DIR, "models/preprocessor.joblib")
 
-def analyze_risk(ai_features: Dict[str, Any], milestone_amounts: list) -> Tuple[int, int]:
+# بارگذاری مدل و preprocessor در زمان شروع
+try:
+    model = xgb.Booster()
+    model.load_model(MODEL_PATH)
+    preprocessor = joblib.load(PREPROCESSOR_PATH)
+    print("[AI-ENGINE] Risk assessment model loaded successfully.")
+except Exception as e:
+    model = None
+    preprocessor = None
+    print(f"[AI-ENGINE] WARNING: Could not load risk model. Predictions will fail. Error: {e}")
+
+def analyze_risk(ai_features: Dict[str, Any]) -> Tuple[int, int]:
     """
-    Analyzes project risk based on provided features and returns a Risk Score and Confidence Score.
-    
-    Args:
-        ai_features: Dictionary of features (e.g., startupIndustry, teamExperience).
-        milestone_amounts: List of milestone funding amounts (for total amount calc).
-        
-    Returns:
-        Tuple[int, int]: (Risk Score [0-100], Confidence Score [0-100])
+    با استفاده از مدل آموزش‌دیده XGBoost، ریسک پروژه را تحلیل می‌کند.
     """
-    
-    # --- 1. Feature Engineering and Quantification (Simulated) ---
-    
-    # Simulate quantification of categorical/text data
-    industry_risk = 0
-    if "tech" in ai_features.get("startupIndustry", "").lower():
-        industry_risk = 50 # High risk for early stage tech
-    elif "pharma" in ai_features.get("startupIndustry", "").lower():
-        industry_risk = 30 # Lower risk for regulated industry
-    
-    experience_score = 0
-    if len(ai_features.get("teamExperience", "").split()) > 10:
-        experience_score = 80 # Experienced team = low risk
-    else:
-        experience_score = 30 # Inexperienced team = high risk
-        
-    total_amount_usd = sum(float(amount) for amount in milestone_amounts) # Assuming amounts are RYC/USD equivalent
-    
-    # --- 2. Risk Calculation (Simulating DNN/Eq. 11) ---
-    
-    # Simple weighted risk calculation: Risk = (100 - Experience) * W + IndustryRisk * W + ...
-    weighted_risk = (100 - experience_score) * MOCK_WEIGHTS["teamExperience"]
-    weighted_risk += industry_risk * MOCK_WEIGHTS["startupIndustry"]
-    
-    # Apply a base factor and normalize to 0-100 range
-    final_risk = int((weighted_risk + (total_amount_usd / 1000000) * 10) / sum(MOCK_WEIGHTS.values()))
-    
-    # --- 3. Confidence Score (Simulating Cold Start Problem/Eq. 12) ---
-    
-    confidence_score = 90 # High confidence if all data is present
-    if not ai_features.get("teamExperience"):
-        confidence_score = 30 # Low confidence due to missing critical feature (Cold Start)
-    
-    # Cap risk score to 100
-    final_risk = min(max(0, final_risk), 100)
-    
-    return final_risk, confidence_score
+    if not model or not preprocessor:
+        # در صورتی که مدل بارگذاری نشده باشد، یک مقدار پیش‌فرض برمی‌گرداند
+        return 99, 10 # ریسک بالا، اطمینان پایین
 
-if __name__ == '__main__':
-    # Example usage for testing
-    test_features = {
-        "startupIndustry": "Deep Tech AI",
-        "teamExperience": "Former Google/OpenAI employees with 10+ years of experience.",
-    }
-    test_amounts = ["500000", "500000", "1000000"]
+    # ۱. تبدیل داده‌های ورودی به DataFrame پاندا
+    input_data = pd.DataFrame([ai_features])
     
-    risk, confidence = analyze_risk(test_features, test_amounts)
-    print(f"Project Risk Score: {risk}")
-    print(f"Model Confidence Score: {confidence}")
+    # ۲. پیش‌پردازش داده‌ها با استفاده از preprocessor ذخیره شده
+    processed_data = preprocessor.transform(input_data)
+    
+    # ۳. پیش‌بینی با مدل XGBoost
+    # خروجی مدل معمولاً یک احتمال بین 0 و 1 است
+    prediction_proba = model.predict(processed_data)[0]
+    
+    # ۴. تبدیل احتمال به نمره ریسک 0-100
+    risk_score = int(prediction_proba * 100)
+    
+    # Confidence Score (در این مرحله ساده است)
+    confidence_score = 90 # فرض می‌کنیم مدل با اطمینان بالا پیش‌بینی می‌کند
+    
+    return risk_score, confidence_score

@@ -2,12 +2,12 @@
 
 "use client";
 
-import { useState, useMemo, useEffect, useCallback } from 'react'; // Added useCallback for better practice
+import { useState, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { useTranslation } from '@/hooks/use-translation';
-import { useAccount, useSimulateContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi'; 
-import { Address, isAddress, parseEther, BaseError, Hex } from 'viem';
+import { useAccount, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
+import { Address, isAddress, parseEther, BaseError, Hex, decodeEventLog, encodeEventTopics, AbiEvent } from 'viem'; // ✅ NEW: Imports
 import { rayanChainDaoAbi } from '@/lib/blockchain/generated';
 
 interface UseCreateProposalProps {
@@ -23,26 +23,19 @@ export function useCreateProposal({ daoAddress, isFormEnabled }: UseCreatePropos
     const { address } = useAccount(); 
     const { t } = useTranslation(); // ✅ Added t dependency here
     const router = useRouter(); // ✅ Added router dependency here
-
     const [description, setDescription] = useState('');
     const [recipient, setRecipient] = useState<string>(''); 
     const [milestoneAmounts, setMilestoneAmounts] = useState<string[]>(['']);
-    
     // ✅ AI Features States
     const [startupIndustry, setStartupIndustry] = useState('');
     const [teamExperience, setTeamExperience] = useState('');
-
-    const [isPending, setIsPending] = useState(false);
-    
+    const [isPending, setIsPending] = useState(false);   
     // State for intermediate steps
     const [txHash, setTxHash] = useState<Hex | undefined>(undefined);
-    const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({ hash: txHash });
-
+    // ✅ FIX 1: دریافت صحیح 'receipt' از هوک
+    const { data: receipt, isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({ hash: txHash });
     // Wagmi hook for sending the transaction
     const { writeContractAsync } = useWriteContract();
-
-    // --- MILESTONE AND VALIDATION LOGIC (UNCHANGED) ---
-    // ... (All handler functions and useMemo calls remain the same) ...
     const handleAddMilestone = () => setMilestoneAmounts(prev => [...prev, '']);
     const handleMilestoneAmountChange = (index: number, value: string) => {
         const newAmounts = [...milestoneAmounts];
@@ -73,35 +66,83 @@ export function useCreateProposal({ daoAddress, isFormEnabled }: UseCreatePropos
     }, [description, recipient, parsedMilestoneAmounts, milestoneAmounts, startupIndustry, teamExperience]);
     // --- END ORIGINAL CODE ---
 
-
-    // ✅ NEW: Trigger AI Oracle on successful transaction confirmation - WITH LINTER FIX
+  // ✅ NEW & CRITICAL: این useEffect اکنون داده‌های کامل را به AI Oracle ارسال می‌کند
     useEffect(() => {
-        if (isConfirmed && daoAddress && txHash) {
-            // STEP 3: Blockchain Tx Confirmed -> Trigger AI Oracle for Risk Check
-            fetch('/api/trigger-ai-update', {
+        if (isConfirmed && receipt && daoAddress && txHash) {
+            // STEP 3: تراکنش تأیید شد -> خواندن proposalId از رویدادها و فعال‌سازی AI Oracle
+            
+            try {
+                // ✅ FIX 2: ایجاد داینامیک هش رویداد (جایگزین هاردکد)
+                const proposalCreatedEvent = rayanChainDaoAbi.find(
+                    (item) => item.type === 'event' && item.name === 'ProposalCreated'
+                ) as AbiEvent | undefined;
+
+                if (!proposalCreatedEvent) {
+                    throw new Error("Could not find 'ProposalCreated' event in ABI.");
+                }
+
+                const eventTopic = encodeEventTopics({ abi: [proposalCreatedEvent] })[0];
+
+                // ۱. پیدا کردن رویداد ProposalCreated در لاگ‌های تراکنش
+                const proposalCreatedLog = receipt.logs.find(
+                    // ✅ FIX 3: تعریف نوع داده برای 'log'
+                    (log: { address: string; topics: readonly Hex[] }) =>
+                        log.address.toLowerCase() === daoAddress.toLowerCase() &&
+                        log.topics[0] === eventTopic
+                );
+
+                if (!proposalCreatedLog) {
+                    throw new Error("Could not find ProposalCreated event in transaction logs.");
+                }
+
+                // ۲. decode کردن رویداد برای استخراج proposalId
+                const decodedLog = decodeEventLog({
+                    abi: rayanChainDaoAbi,
+                    data: proposalCreatedLog.data,
+                    topics: proposalCreatedLog.topics,
+                });
+                
+                // ✅ FIX 4: اطمینان دادن به TypeScript که این رویداد صحیح است
+                if (decodedLog.eventName !== 'ProposalCreated') {
+                    throw new Error("Decoded log is not the ProposalCreated event.");
+                }
+
+                const proposalId = decodedLog.args.id;
+
+                if (proposalId === undefined) {
+                    throw new Error("Failed to decode proposal ID from event.");
+                }
+
+                // ۳. فراخوانی API برای فعال‌سازی AI با داده‌های کامل
+                fetch('/api/trigger-ai-update', {
                  method: 'POST',
                  headers: { 'Content-Type': 'application/json' },
-                 body: JSON.stringify({ txHash: txHash }), 
+                 body: JSON.stringify({
+                     proposalId: Number(proposalId), // تبدیل BigInt به Number
+                     aiFeatures: { startupIndustry, teamExperience },
+                     milestoneAmounts
+                 }), 
             }).then(res => {
                  if (res.ok) {
-                     // ✅ LINTER FIX: Use correct translation keys defined in previous steps
                      toast.success(t('new_proposal_page.success_toast_title'), {
-                         description: `${t('new_proposal_page.confirmed_toast_desc')}. ${t('new_proposal_page.ai_check_triggered')}`,
+                         description: `${t('new_proposal_page.confirmed_toast_desc')}. AI analysis triggered for Proposal #${proposalId}.`,
                      });
                  } else {
-                     // ✅ LINTER FIX: Use correct translation keys defined in previous steps
                      toast.error(t('new_proposal_page.ai_check_failed_title'), {
                          description: t('new_proposal_page.ai_check_failed_desc'),
                      });
                  }
             }).finally(() => {
-                setIsPending(false); // Stop all pending states
+                setIsPending(false);
                 setTimeout(() => router.push('/proposals'), 2000);
-            });
+                });
+            } catch (error) {
+                console.error("Error processing transaction receipt:", error);
+                toast.error("Error", { description: (error as Error).message });
+                setIsPending(false);
+            }
         }
-    // ✅ LINTER FIX: Added router and t to the dependency array
-    }, [isConfirmed, daoAddress, txHash, router, t]); 
-
+    }, [isConfirmed, receipt, daoAddress, txHash, router, t, startupIndustry, teamExperience, milestoneAmounts]);
 
     const handleSubmit = async (e: React.FormEvent, proposerAddress: Address | undefined) => {
         e.preventDefault();

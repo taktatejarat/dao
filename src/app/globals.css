@@ -86,33 +86,31 @@
     @apply border-border;
   }
   
-  /* ✅ ۱. تنظیم فونت پیش‌فرض برای کل برنامه */
+  /* ۱. تنظیم فونت پیش‌فرض برای کل برنامه */
   body {
     @apply bg-background text-foreground;
-    /* FIX: استفاده از متغیر فونت برای font-sans */
     font-family: var(--font-sans); 
   }
   
-  /* ✅ ۲. تغییر فونت بر اساس جهت صفحه (فارسی) */
+  /* ۲. تغییر فونت برای بدنه متن در حالت فارسی */
   [dir="rtl"] body {
-    /* FIX: استفاده از متغیر فونت برای font-vazir */
     font-family: var(--font-vazir); 
   }
 
-  /* ✅ ۳. تنظیم فونت پیش‌فرض برای سرفصل‌ها (انگلیسی) */
+  /* ۳. تنظیم فونت پیش‌فرض برای سرفصل‌ها (انگلیسی) */
   h1, h2, h3, h4, h5, h6 {
-    /* FIX: استفاده از متغیر فونت برای font-headline */
-    font-family: var(--font-headline); 
+    font-family: var(--font-headline);
   }
 
-  /* ✅ ۴. FIX: اجبار فونت فارسی بر روی سرفصل‌ها در حالت RTL */
+  /* ✅ FIX: این قانون جدید و اصلاح شده مشکل را به طور کامل حل می‌کند */
+  /* به مرورگر می‌گوییم که در حالت راست‌چین، هم تگ‌های h1-h6 و هم هر عنصری با کلاس .font-headline باید از فونت وزیرمتن استفاده کنند */
   [dir="rtl"] h1,
   [dir="rtl"] h2,
   [dir="rtl"] h3,
   [dir="rtl"] h4,
   [dir="rtl"] h5,
-  [dir="rtl"] h6 {
-    /* FIX: استفاده از متغیر فونت برای font-vazir */
+  [dir="rtl"] h6,
+  [dir="rtl"] .font-headline {
     font-family: var(--font-vazir);
   }
 }

@@ -24,6 +24,7 @@ import { useBuyTokens } from '@/hooks/useBuyTokens';
 import type { Address } from 'viem';
 import { toast } from 'sonner';
 import { useReadContract } from 'wagmi';
+import { AddToWalletButton } from '@/components/common/add-to-wallet-button';
 
 export default function StakingPage() {
     const { t, locale } = useTranslation();
@@ -152,6 +153,13 @@ export default function StakingPage() {
                  <Card>
                     <CardHeader className="flex-row items-center gap-3 space-y-0 pb-2"><Wallet className="w-6 h-6 text-primary"/><CardTitle className="text-lg">{t('staking_page.ryc_balance')}</CardTitle></CardHeader>
                     <CardContent>{isLoading ? <Skeleton className="h-8 w-3/4" /> : <p className="text-3xl font-bold">{formatNumber(formatEther(rycBalance ?? 0n), locale)}</p>}<p className="text-sm text-muted-foreground">RYC</p></CardContent>
+                    <div className="mt-4">
+                        <AddToWalletButton 
+                            tokenAddress={tokenAddress}
+                            tokenSymbol="RYC"
+                            tokenDecimals={18}
+                        />
+                    </div>
                 </Card>
                 <Card>
                     <CardHeader className="flex-row items-center gap-3 space-y-0 pb-2"><PiggyBank className="w-6 h-6 text-secondary"/><CardTitle className="text-lg">{t('staking_page.staked_balance')}</CardTitle></CardHeader>
