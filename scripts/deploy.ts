@@ -174,9 +174,8 @@ async function main() {
     process.stdout.write(" Done\n");
 
 
-     // --- STEP 9.2: Set DAO Address & Initial Ownership Transfers ---
-    
-    process.stdout.write("   - Setting DAO address in Finance contract...");
+    // --- STEP 9.2: Set DAO Address & Initial Ownership Transfers ---    
+   process.stdout.write("   - Setting DAO address in Finance contract...");
     await (await finance.setDaoAddress(daoAddress)).wait(); 
     process.stdout.write(" Done\n");
 
@@ -197,18 +196,30 @@ async function main() {
     await (await dao.transferOwnership(timelockAddress)).wait();
     process.stdout.write(" Done\n");
     
-    // ✅ FIX: انتقال مالکیت AccControl به عنوان یکی از آخرین مراحل قبل از نهایی‌سازی Timelock
+    // ✅ FIX: انتقال مالکیت AccControl به عنوان آخرین مرحله قبل از نهایی‌سازی Timelock
+    // این تراکنش باید جداگانه و با دقت انجام شود.
     process.stdout.write(`   - Transferring AccControl Ownership to Timelock: ${timelockAddress}...`);
-    await (await accControl.transferOwnership(timelockAddress)).wait();
+    const tx = await accControl.transferOwnership(timelockAddress);
+    await tx.wait(1); // منتظر یک تاییدیه می‌مانیم تا از ثبت تراکنش مطمئن شویم
     process.stdout.write(" Done\n");
 
-    // ✅ NEW & CRITICAL: نهایی‌سازی کامل DAO با حذف ادمین اولیه از Timelock
+    // --- STEP 9.4: Finalizing DAO Autonomy (Making the DAO self-governed) ---
+    console.log("\n   --- FINALIZING DAO AUTONOMY ---");
     const TIMELOCK_ADMIN_ROLE = await timelockContract.DEFAULT_ADMIN_ROLE();
-    process.stdout.write("   - Revoking Timelock Admin role from Deployer to make DAO autonomous...");
-    await (await timelockContract.renounceRole(TIMELOCK_ADMIN_ROLE, deployer.address)).wait();
+    
+    process.stdout.write("   - Proposing to transfer Timelock ownership to itself (DAO becomes self-owner)...");
+    
+    // ✅ FIX: به جای renounceRole، ما مالکیت را به خود Timelock می‌دهیم.
+    // این کار به DAO اجازه می‌دهد تا در آینده از طریق رأی‌گیری، ادمین Timelock را تغییر دهد.
+    const grantAdminTx = await timelockContract.grantRole(TIMELOCK_ADMIN_ROLE, timelockAddress);
+    await grantAdminTx.wait(1);
+    
+    process.stdout.write(" Done\n   - Revoking Deployer's admin access from Timelock...");
+    const revokeAdminTx = await timelockContract.renounceRole(TIMELOCK_ADMIN_ROLE, deployer.address);
+    await revokeAdminTx.wait(1);
     console.log("   ✅ DAO is now fully decentralized and autonomous.");
 
-    // --- STEP 9.4: Register all addresses in DAORegistry ---
+    // --- STEP 9.5: Register all addresses in DAORegistry ---
     console.log("   - Registering contract addresses in DAORegistry address book...");
     const KEY_DAO = ethers.id("RAYAN_CHAIN_DAO");
     const KEY_TOKEN = ethers.id("RAYAN_CHAIN_TOKEN");
