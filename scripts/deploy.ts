@@ -233,7 +233,26 @@ async function main() {
     process.stdout.write(" Done\n   - Revoking Deployer's admin access from Timelock...");
     await (await timelockContract.renounceRole(TIMELOCK_ADMIN_ROLE, deployer.address)).wait();
     console.log("   ✅ DAO is now fully decentralized and autonomous.");
-    
+
+    // ✅✅✅ NEW STEP: Treasury Funding ✅✅✅
+    console.log("\n   --- Funding the DAO Treasury ---");
+    const rayanChainTokenContract = await ethers.getContractAt("RayanChainToken", tokenAddress);
+    const initialSupply = await rayanChainTokenContract.balanceOf(deployer.address);
+
+    if (initialSupply > 0) {
+        process.stdout.write(`   - Transferring initial supply (${ethers.formatEther(initialSupply)} RYC) from Deployer to Finance contract...`);
+        const transferTx = await rayanChainTokenContract.transfer(financeAddress, initialSupply);
+        await transferTx.wait();
+        process.stdout.write(" Done\n");
+
+        const deployerFinalBalance = await rayanChainTokenContract.balanceOf(deployer.address);
+        const financeFinalBalance = await rayanChainTokenContract.balanceOf(financeAddress);
+        console.log(`   - Deployer final RYC balance: ${ethers.formatUnits(deployerFinalBalance, 18)}`); // Should be 0
+        console.log(`   - Treasury (Finance) final RYC balance: ${ethers.formatUnits(financeFinalBalance, 18)}`); // Should be 1 Billion
+    } else {
+        console.log("   - Deployer has no initial supply to transfer. Skipping treasury funding.");
+    }
+
     // --- STEP 9.5: Register all addresses in DAORegistry ---
     console.log("   - Registering contract addresses in DAORegistry address book...");
     const KEY_DAO = ethers.id("RAYAN_CHAIN_DAO");

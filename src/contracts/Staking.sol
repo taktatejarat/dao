@@ -106,7 +106,7 @@ contract Staking is IStaking, Ownable, ReentrancyGuard {
     }
 
     function getStakedAmount(address user) external view override returns (uint256) {
-        return delegatedPower[user];
+        return _stakedBalances[user] + delegatedPower[user];
     }
     
     function claimReward() external override nonReentrant updateReward(msg.sender) {

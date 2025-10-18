@@ -175,7 +175,7 @@ export default function StakingPage() {
             {/* ✅ FIX: Action Cards - Use a 3-column layout for Stake, Unstake, Delegate */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
                 {/* 1. Buy RYC Card */}
-                    <Card>
+                                <Card>
                     <CardHeader>
                         <CardTitle>{t('staking_page.buy_ryc_title')}</CardTitle>
                         <CardDescription>{t('staking_page.buy_ryc_desc')}</CardDescription>
@@ -185,18 +185,7 @@ export default function StakingPage() {
                             <Label htmlFor="buy-amount">{t('staking_page.amount_of_matic_to_spend')}</Label>
                             <Input id="buy-amount" type="number" placeholder="0.1" value={buyAmount} onChange={(e) => setBuyAmount(e.target.value)} />
                         </div>
-                      {/* ✅ NEW: نمایش پیش‌نمایش تعداد توکن */}
-                        <div className="text-sm text-muted-foreground p-3 bg-muted rounded-md text-center">
-                            {isEstimatingPrice ? (
-                                <DaoLoadingSpinner className="mx-auto" />
-                            ) : (
-                                <span>
-                                    {t('staking_page.you_will_receive')}{' '}
-                                    <strong className="text-primary">{formatNumber(estimatedRycReceived, locale)}</strong> RYC
-                                </span>
-                            )}
-                        </div>
-                        <Button className="w-full" disabled={isBuyActionPending || isEstimatingPrice} onClick={handleBuyTokens}>
+                        <Button className="w-full" disabled={isBuyActionPending} onClick={handleBuyTokens}>
                             {isBuyActionPending ? <DaoLoadingSpinner /> : <Wallet className="me-2"/>}
                             {t('staking_page.buy_ryc_cta')}
                         </Button>
