@@ -1174,8 +1174,8 @@
       ]
     },
     "/home/errick/dao/src/contracts/TimelockController.sol": {
-      "lastModificationDate": 1760516743001,
-      "contentHash": "c50aac514e8c11132ec6da296c9f80a0",
+      "lastModificationDate": 1760791623019,
+      "contentHash": "61bade919e6d950490c3ccad89e1caed",
       "sourceName": "src/contracts/TimelockController.sol",
       "solcConfig": {
         "version": "0.8.24",

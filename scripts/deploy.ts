@@ -59,18 +59,29 @@ async function main() {
     console.log("✅ AccControl deployed to:", accControlAddress);
 
     // 2. Deploy RayanChainToken and Initialize
-    console.log(`\n[2/7] Deploying RayanChainToken contracts...`);
     const initialTokenSupply = ethers.parseUnits("1000000000", 18);
-    const rayanChainToken = await ethers.deployContract("RayanChainToken", [deployer.address, initialTokenSupply]);
+    console.log(`\n[2/9] Deploying RayanChainToken contract...`);
+    
+    const rayanChainToken = await ethers.deployContract("RayanChainToken", [
+        deployer.address, 
+        initialTokenSupply
+    ]);
     await rayanChainToken.waitForDeployment();
     const tokenAddress = await rayanChainToken.getAddress();
     console.log(`✅ RayanChainToken deployed to: ${tokenAddress}`);
 
-    console.log("   - Initializing dynamic pricing with Chainlink Oracle...");
-    const maticUsdPriceFeedAmoy = "0x001382149eBa3441043Ac4368649709A58A3B636"; // Amoy Testnet
-    const initialRycAmountPerUsd = ethers.parseUnits("1", 18); // 1 RYC per 1 USD
-    await (await rayanChainToken.initializePricing(maticUsdPriceFeedAmoy, initialRycAmountPerUsd)).wait();
-    console.log("   ✅ Dynamic pricing initialized.");
+    console.log("   - Initializing dynamic pricing parameters...");
+    
+    // ✅ FIX: تبدیل آدرس Price Feed به Checksum Address
+    const maticUsdPriceFeedAmoy = ethers.getAddress("0x001382149eBa3441043c1c66972b4772963f5D43");
+    const initialRycAmountPerUsd = ethers.parseUnits("100000", 18);
+
+    const initTx = await rayanChainToken.initializePricing(
+        maticUsdPriceFeedAmoy,
+        initialRycAmountPerUsd
+    );
+    await initTx.wait();
+    console.log("   ✅ Dynamic pricing initialized successfully.");
 
     // 3. Deploy Staking Contract
     console.log("\n[3/9] Deploying Staking contract...");
@@ -88,10 +99,18 @@ async function main() {
     const financeAddress = await finance.getAddress();
     console.log(`✅ Finance (Vault) deployed to: ${financeAddress} with a ${platformFeeBps / 100}% platform fee.`);
     
-    // 5. Deploy Timelock Controller
-    console.log(`\n[5/7] Deploying TimelockController contract...`);
-    const minDelayInSeconds = 72 * 3600; // 72 hours
-    const timelock = await ethers.deployContract("RayanChainTimelockController", [minDelayInSeconds, [], [], deployer.address]);
+  // 5. Deploy Timelock Controller (NEW CRITICAL STEP)
+    const minDelayInSeconds = 72 * 60 * 60; // 72 hours
+    console.log(`\n[5/9] Deploying TimelockController with min delay of ${minDelayInSeconds} seconds...`);
+    
+    // ✅ FIX: استفاده از Constructor استاندارد TimelockController
+    // Proposers و Executors را خالی می‌گذاریم و در مراحل بعدی به صورت دستی به DAO اعطا می‌کنیم.
+    const timelock = await ethers.deployContract("RayanChainTimelockController", [
+        minDelayInSeconds,
+        [], // proposers (ابتدا خالی)
+        [], // executors (ابتدا خالی)
+        deployer.address // admin (موقت)
+    ]);
     await timelock.waitForDeployment();
     const timelockAddress = await timelock.getAddress();
     console.log("✅ TimelockController deployed to:", timelockAddress);
