@@ -391,8 +391,8 @@
       ]
     },
     "/home/errick/dao/src/contracts/interfaces/IStaking.sol": {
-      "lastModificationDate": 1759824742837,
-      "contentHash": "d7d5593302a811804980d9e3d7c48caa",
+      "lastModificationDate": 1760783856032,
+      "contentHash": "e8f1448370fb888f5c34cef504aa6019",
       "sourceName": "src/contracts/interfaces/IStaking.sol",
       "solcConfig": {
         "version": "0.8.24",
@@ -465,8 +465,8 @@
       ]
     },
     "/home/errick/dao/src/contracts/Staking.sol": {
-      "lastModificationDate": 1759824921077,
-      "contentHash": "41d6584d668767abbd203ed2956cac48",
+      "lastModificationDate": 1760783990961,
+      "contentHash": "83af266da6fae20bd737acd7037d85cc",
       "sourceName": "src/contracts/Staking.sol",
       "solcConfig": {
         "version": "0.8.24",
@@ -664,8 +664,8 @@
       ]
     },
     "/home/errick/dao/src/contracts/RayanChainToken.sol": {
-      "lastModificationDate": 1760418097292,
-      "contentHash": "fc46e52f0ede15f61b61a29362102d87",
+      "lastModificationDate": 1760781389499,
+      "contentHash": "70ff4869f4735a7bd38e3bbb1c9d25b8",
       "sourceName": "src/contracts/RayanChainToken.sol",
       "solcConfig": {
         "version": "0.8.24",
@@ -694,7 +694,8 @@
       },
       "imports": [
         "@openzeppelin/contracts/token/ERC20/ERC20.sol",
-        "@openzeppelin/contracts/access/Ownable.sol"
+        "@openzeppelin/contracts/access/Ownable.sol",
+        "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol"
       ],
       "versionPragmas": [
         "^0.8.24"
@@ -1209,6 +1210,43 @@
       ],
       "artifacts": [
         "RayanChainTimelockController"
+      ]
+    },
+    "/home/errick/dao/node_modules/@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol": {
+      "lastModificationDate": 1760382931243,
+      "contentHash": "64a3f906dc7696aa3c9fa8454b673be7",
+      "sourceName": "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol",
+      "solcConfig": {
+        "version": "0.8.24",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "viaIR": true,
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "AggregatorV3Interface"
       ]
     }
   }

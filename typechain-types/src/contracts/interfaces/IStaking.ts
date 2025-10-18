@@ -28,8 +28,6 @@ export interface IStakingInterface extends Interface {
     nameOrSignature:
       | "claimReward"
       | "delegate"
-      | "delegatedPower"
-      | "delegates"
       | "distributeRewards"
       | "earned"
       | "fundRewards"
@@ -45,7 +43,6 @@ export interface IStakingInterface extends Interface {
     nameOrSignatureOrTopic:
       | "Delegated"
       | "RewardClaimed"
-      | "RewardDistributed"
       | "RewardFunded"
       | "RewardRateSet"
       | "Staked"
@@ -59,14 +56,6 @@ export interface IStakingInterface extends Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "delegate",
-    values: [AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "delegatedPower",
-    values: [AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "delegates",
     values: [AddressLike]
   ): string;
   encodeFunctionData(
@@ -105,11 +94,6 @@ export interface IStakingInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "delegate", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "delegatedPower",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "delegates", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "distributeRewards",
     data: BytesLike
@@ -164,18 +148,6 @@ export namespace RewardClaimedEvent {
   export interface OutputObject {
     user: string;
     reward: bigint;
-  }
-  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
-  export type Filter = TypedDeferredTopicFilter<Event>;
-  export type Log = TypedEventLog<Event>;
-  export type LogDescription = TypedLogDescription<Event>;
-}
-
-export namespace RewardDistributedEvent {
-  export type InputTuple = [totalReward: BigNumberish];
-  export type OutputTuple = [totalReward: bigint];
-  export interface OutputObject {
-    totalReward: bigint;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -307,10 +279,6 @@ export interface IStaking extends BaseContract {
     "nonpayable"
   >;
 
-  delegatedPower: TypedContractMethod<[arg0: AddressLike], [bigint], "view">;
-
-  delegates: TypedContractMethod<[arg0: AddressLike], [string], "view">;
-
   distributeRewards: TypedContractMethod<
     [totalReward: BigNumberish],
     [void],
@@ -352,12 +320,6 @@ export interface IStaking extends BaseContract {
     nameOrSignature: "delegate"
   ): TypedContractMethod<[_delegatee: AddressLike], [void], "nonpayable">;
   getFunction(
-    nameOrSignature: "delegatedPower"
-  ): TypedContractMethod<[arg0: AddressLike], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "delegates"
-  ): TypedContractMethod<[arg0: AddressLike], [string], "view">;
-  getFunction(
     nameOrSignature: "distributeRewards"
   ): TypedContractMethod<[totalReward: BigNumberish], [void], "nonpayable">;
   getFunction(
@@ -398,13 +360,6 @@ export interface IStaking extends BaseContract {
     RewardClaimedEvent.InputTuple,
     RewardClaimedEvent.OutputTuple,
     RewardClaimedEvent.OutputObject
-  >;
-  getEvent(
-    key: "RewardDistributed"
-  ): TypedContractEvent<
-    RewardDistributedEvent.InputTuple,
-    RewardDistributedEvent.OutputTuple,
-    RewardDistributedEvent.OutputObject
   >;
   getEvent(
     key: "RewardFunded"
@@ -463,17 +418,6 @@ export interface IStaking extends BaseContract {
       RewardClaimedEvent.InputTuple,
       RewardClaimedEvent.OutputTuple,
       RewardClaimedEvent.OutputObject
-    >;
-
-    "RewardDistributed(uint256)": TypedContractEvent<
-      RewardDistributedEvent.InputTuple,
-      RewardDistributedEvent.OutputTuple,
-      RewardDistributedEvent.OutputObject
-    >;
-    RewardDistributed: TypedContractEvent<
-      RewardDistributedEvent.InputTuple,
-      RewardDistributedEvent.OutputTuple,
-      RewardDistributedEvent.OutputObject
     >;
 
     "RewardFunded(address,uint256)": TypedContractEvent<

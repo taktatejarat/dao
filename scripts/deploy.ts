@@ -58,16 +58,19 @@ async function main() {
     const accControlAddress = await accControl.getAddress();
     console.log("✅ AccControl deployed to:", accControlAddress);
 
-    // 2. Deploy RayanChainToken
+    // 2. Deploy RayanChainToken and Initialize
+    console.log(`\n[2/7] Deploying RayanChainToken contracts...`);
     const initialTokenSupply = ethers.parseUnits("1000000000", 18);
-    console.log(`\n[2/9] Deploying RayanChainToken with initial supply of ${ethers.formatEther(initialTokenSupply)} RYC...`);
-    const rayanChainToken = await ethers.deployContract("RayanChainToken", [
-        deployer.address, 
-        initialTokenSupply
-    ]);
+    const rayanChainToken = await ethers.deployContract("RayanChainToken", [deployer.address, initialTokenSupply]);
     await rayanChainToken.waitForDeployment();
     const tokenAddress = await rayanChainToken.getAddress();
-    console.log("✅ RayanChainToken deployed to:", tokenAddress);
+    console.log(`✅ RayanChainToken deployed to: ${tokenAddress}`);
+
+    console.log("   - Initializing dynamic pricing with Chainlink Oracle...");
+    const maticUsdPriceFeedAmoy = "0x001382149eBa3441043Ac4368649709A58A3B636"; // Amoy Testnet
+    const initialRycAmountPerUsd = ethers.parseUnits("1", 18); // 1 RYC per 1 USD
+    await (await rayanChainToken.initializePricing(maticUsdPriceFeedAmoy, initialRycAmountPerUsd)).wait();
+    console.log("   ✅ Dynamic pricing initialized.");
 
     // 3. Deploy Staking Contract
     console.log("\n[3/9] Deploying Staking contract...");
@@ -85,18 +88,10 @@ async function main() {
     const financeAddress = await finance.getAddress();
     console.log(`✅ Finance (Vault) deployed to: ${financeAddress} with a ${platformFeeBps / 100}% platform fee.`);
     
-  // 5. Deploy Timelock Controller (NEW CRITICAL STEP)
-    const minDelayInSeconds = 72 * 60 * 60; // 72 hours
-    console.log(`\n[5/9] Deploying TimelockController with min delay of ${minDelayInSeconds} seconds...`);
-    
-    // ✅ FIX: استفاده از Constructor استاندارد TimelockController
-    // Proposers و Executors را خالی می‌گذاریم و در مراحل بعدی به صورت دستی به DAO اعطا می‌کنیم.
-    const timelock = await ethers.deployContract("RayanChainTimelockController", [
-        minDelayInSeconds,
-        [], // proposers (ابتدا خالی)
-        [], // executors (ابتدا خالی)
-        deployer.address // admin (موقت)
-    ]);
+    // 5. Deploy Timelock Controller
+    console.log(`\n[5/7] Deploying TimelockController contract...`);
+    const minDelayInSeconds = 72 * 3600; // 72 hours
+    const timelock = await ethers.deployContract("RayanChainTimelockController", [minDelayInSeconds, [], [], deployer.address]);
     await timelock.waitForDeployment();
     const timelockAddress = await timelock.getAddress();
     console.log("✅ TimelockController deployed to:", timelockAddress);
@@ -135,7 +130,8 @@ async function main() {
     const CANCELLER_ROLE = await timelockContract.CANCELLER_ROLE();
 
     process.stdout.write("   - Granting PROPOSER role to DAO contract...");
-    await (await timelockContract.grantRole(PROPOSER_ROLE, daoAddress)).wait();
+    // ethers.getAddress() تضمین می‌کند که آدرس معتبر است
+    await (await timelockContract.grantRole(PROPOSER_ROLE, ethers.getAddress(daoAddress))).wait();
     process.stdout.write(" Done\n");
 
     process.stdout.write("   - Granting EXECUTOR role to everyone (permissionless execution)...");

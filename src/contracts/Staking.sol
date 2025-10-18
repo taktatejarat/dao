@@ -1,4 +1,4 @@
-// src/contracts/Staking.sol
+// src/contracts/Staking.sol - FINAL, COMPILABLE VERSION
 
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
@@ -10,14 +10,10 @@ import "./interfaces/IStaking.sol";
 
 contract Staking is IStaking, Ownable, ReentrancyGuard {
     IERC20 public immutable rycToken;
-
-    uint256 private _totalSupply;
-    mapping(address => uint256) private _balances; // Staked amounts
-    
-    // ✅ NEW: Delegation Mappings
-    mapping(address => address) public delegates; // user => delegatee
-    mapping(address => uint256) public delegatedPower; // delegatee => total power delegated to them
-
+    uint256 private _totalStaked;
+    mapping(address => uint256) private _stakedBalances;
+    mapping(address => address) public delegates;
+    mapping(address => uint256) public delegatedPower;
     uint256 public rewardRate;
     uint256 public lastUpdateTime;
     uint256 public rewardPerTokenStored;
@@ -38,105 +34,81 @@ contract Staking is IStaking, Ownable, ReentrancyGuard {
         rycToken = IERC20(_tokenAddress);
     }
 
-    function totalSupply() external view returns (uint256) {
-        return _totalSupply;
+    function totalSupply() external view override returns (uint256) {
+        return _totalStaked;
     }
 
+    function getStakedBalance(address account) external view returns (uint256) {
+        return _stakedBalances[account];
+    }
+    
     function stake(uint256 amount) external override nonReentrant updateReward(msg.sender) {
         require(amount > 0, "Cannot stake 0");
-        _totalSupply += amount;
+        _totalStaked += amount;
+        _stakedBalances[msg.sender] += amount;
         
-        // ❌ CORRECTION: Must adjust delegated power for the previous delegatee before updating balances
         address currentDelegatee = delegates[msg.sender];
-        if (currentDelegatee != address(0)) {
-            // Remove previous staked amount from delegated power
-            delegatedPower[currentDelegatee] -= _balances[msg.sender];
+        if (currentDelegatee == address(0)) {
+            currentDelegatee = msg.sender;
+            delegates[msg.sender] = currentDelegatee;
         }
+        delegatedPower[currentDelegatee] += amount;
         
-        _balances[msg.sender] += amount;
         rycToken.transferFrom(msg.sender, address(this), amount);
         emit Staked(msg.sender, amount);
-        
-        // Update delegated power after the balance is updated
-        if (currentDelegatee != address(0)) {
-            delegatedPower[currentDelegatee] += _balances[msg.sender];
-            emit Delegated(msg.sender, currentDelegatee, _balances[msg.sender]); // Emit update
-        }
+        emit Delegated(msg.sender, currentDelegatee, _stakedBalances[msg.sender]);
     }
 
     function unstake(uint256 amount) external override nonReentrant updateReward(msg.sender) {
         require(amount > 0, "Cannot unstake 0");
-        require(_balances[msg.sender] >= amount, "Unstake amount exceeds balance");
+        require(_stakedBalances[msg.sender] >= amount, "Unstake amount exceeds balance");
 
-        // ✅ NEW: Adjust delegated power for the current delegatee
         address currentDelegatee = delegates[msg.sender];
-        if (currentDelegatee != address(0)) {
-            delegatedPower[currentDelegatee] -= amount;
-        }
-        
-        _totalSupply -= amount;
-        _balances[msg.sender] -= amount;
+        require(currentDelegatee != address(0), "Staking: Inconsistent delegation state");
+
+        _totalStaked -= amount;
+        _stakedBalances[msg.sender] -= amount;
+        delegatedPower[currentDelegatee] -= amount;
+
         rycToken.transfer(msg.sender, amount);
         emit Unstaked(msg.sender, amount);
+        emit Delegated(msg.sender, currentDelegatee, _stakedBalances[msg.sender]);
     }
     
-    // --- Delegation Functions (dPoS) ---
-    
-    /**
-     * @notice Delegates the user's entire staked voting power to another address.
-     * @param _delegatee The address to delegate the power to.
-     */
-    function delegate(address _delegatee) external nonReentrant updateReward(msg.sender) {
-        require(_delegatee != msg.sender, "Cannot delegate to yourself");
-        uint256 stakedAmount = _balances[msg.sender];
-        require(stakedAmount > 0, "Must have staked tokens to delegate");
-        
+    function delegate(address _delegatee) external override nonReentrant {
+        require(_delegatee != address(0), "Cannot delegate to zero address");
         address currentDelegatee = delegates[msg.sender];
-        
-        // If already delegated, undelegate first
-        if (currentDelegatee != address(0) && currentDelegatee != _delegatee) {
-            delegatedPower[currentDelegatee] -= stakedAmount;
-            emit Undelegated(msg.sender, currentDelegatee, stakedAmount);
+        if (currentDelegatee == address(0)) {
+            currentDelegatee = msg.sender;
         }
-        
-        // Delegate to the new address
+
+        uint256 userStakedBalance = _stakedBalances[msg.sender];
+        if (userStakedBalance > 0 && currentDelegatee != _delegatee) {
+            delegatedPower[currentDelegatee] -= userStakedBalance;
+            delegatedPower[_delegatee] += userStakedBalance;
+        }
         delegates[msg.sender] = _delegatee;
-        delegatedPower[_delegatee] += stakedAmount;
-        emit Delegated(msg.sender, _delegatee, stakedAmount);
+        
+        emit Delegated(msg.sender, _delegatee, userStakedBalance);
     }
 
-    /**
-     * @notice Removes the delegation. The power returns to the delegator (self-delegation).
-     */
-    function undelegate() external nonReentrant updateReward(msg.sender) {
+    function undelegate() external override nonReentrant {
         address currentDelegatee = delegates[msg.sender];
-        require(currentDelegatee != address(0), "No active delegation");
+        require(currentDelegatee != address(0) && currentDelegatee != msg.sender, "Not delegated or already self-delegated");
 
-        uint256 stakedAmount = _balances[msg.sender];
-        
-        delegatedPower[currentDelegatee] -= stakedAmount;
-        delegates[msg.sender] = address(0);
-        emit Undelegated(msg.sender, currentDelegatee, stakedAmount);
+        uint256 userStakedBalance = _stakedBalances[msg.sender];
+
+        delegatedPower[currentDelegatee] -= userStakedBalance;
+        delegatedPower[msg.sender] += userStakedBalance;
+        delegates[msg.sender] = msg.sender;
+
+        emit Undelegated(msg.sender, currentDelegatee, userStakedBalance);
     }
 
-    /**
-     * @notice Returns the voting power of an address. 
-     * If the user is a delegatee, it returns their own stake PLUS the total power delegated to them.
-     * If the user is a delegator, it returns 0.
-     * If the user is neither, it returns their own stake.
-     * This power is then multiplied by PoP score in RayanChainDAO.
-     */
     function getStakedAmount(address user) external view override returns (uint256) {
-        // If the user has delegated, their own power is zero for voting purposes.
-        if (delegates[user] != address(0) && delegates[user] != user) {
-            return 0; // Delegated power is counted for the delegatee
-        }
-        
-        // Power = own staked balance + delegated power (if they are a delegatee)
-        return _balances[user] + delegatedPower[user];
+        return delegatedPower[user];
     }
     
-    // --- Other functions remain unchanged ---
     function claimReward() external override nonReentrant updateReward(msg.sender) {
         uint256 reward = rewards[msg.sender];
         if (reward > 0) {
@@ -146,17 +118,8 @@ contract Staking is IStaking, Ownable, ReentrancyGuard {
         }
     }
 
-    function rewardPerToken() public view returns (uint256) {
-        if (_totalSupply == 0) {
-            return rewardPerTokenStored;
-        }
-        uint256 timeElapsed = block.timestamp - lastUpdateTime;
-        return rewardPerTokenStored + (timeElapsed * rewardRate * 1e18) / _totalSupply;
-    }
-
     function earned(address account) public view override returns (uint256) {
-        uint256 userBalance = _balances[account];
-        return userBalance * (rewardPerToken() - userRewardPerTokenPaid[account]) / 1e18 + rewards[account];
+        return _stakedBalances[account] * (rewardPerToken() - userRewardPerTokenPaid[account]) / 1e18 + rewards[account];
     }
     
     function setRewardRate(uint256 _rewardRate) external override onlyOwner updateReward(address(0)) {
@@ -168,8 +131,14 @@ contract Staking is IStaking, Ownable, ReentrancyGuard {
         rycToken.transferFrom(msg.sender, address(this), amount);
         emit RewardFunded(msg.sender, amount);
     }
-    
+
+    // This function now correctly overrides the one in the interface.
     function distributeRewards(uint256) external pure override {
-        revert("distributeRewards is deprecated. Use setRewardRate and fundRewards instead.");
+        revert("Staking: distributeRewards is deprecated. Use setRewardRate and fundRewards.");
+    }
+
+    function rewardPerToken() internal view returns (uint256) {
+        if (_totalStaked == 0) return rewardPerTokenStored;
+        return rewardPerTokenStored + ((block.timestamp - lastUpdateTime) * rewardRate * 1e18) / _totalStaked;
     }
 }

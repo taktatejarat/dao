@@ -2,8 +2,8 @@
 
 import { useState, useMemo, useEffect } from 'react';
 import { useTranslation } from '@/hooks/use-translation';
-import { useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
-import { parseEther, BaseError, Hex } from 'viem';
+import { useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
+import { parseEther, BaseError, Hex, formatEther  } from 'viem';
 import { rayanChainTokenAbi } from '@/lib/blockchain/generated';
 import { toast } from 'sonner';
 import type { Address } from 'viem';
@@ -14,8 +14,23 @@ interface UseBuyTokensProps {
 
 export function useBuyTokens({ tokenAddress }: UseBuyTokensProps) {
     const { t } = useTranslation();
-    const [buyAmount, setBuyAmount] = useState(''); // Amount of MATIC user wants to spend
-    
+    const [buyAmount, setBuyAmount] = useState(''); // مقدار MATIC
+    const maticToSend = useMemo(() => {
+        try { return parseEther(buyAmount || '0'); } catch { return 0n; }
+    }, [buyAmount]);
+
+    // ✅ NEW: فراخوانی view function برای پیش‌نمایش تعداد توکن
+    const { data: estimatedRycAmount, isLoading: isEstimating } = useReadContract({
+        address: tokenAddress,
+        abi: rayanChainTokenAbi,
+        functionName: 'getAmountOfTokensForNative',
+        args: [maticToSend],
+        query: {
+            enabled: !!tokenAddress && maticToSend > 0n,
+            // هر ۵ ثانیه قیمت را به‌روز می‌کند تا کاربر قیمت لحظه‌ای را ببیند
+            refetchInterval: 5000,
+        }
+    });
     const [buyTxHash, setBuyTxHash] = useState<Hex | undefined>(undefined);
     const { isPending: isBuyPending, writeContractAsync } = useWriteContract();
     const { isLoading: isBuyConfirming, isSuccess: isBuyConfirmed } = useWaitForTransactionReceipt({ hash: buyTxHash });
@@ -71,11 +86,14 @@ export function useBuyTokens({ tokenAddress }: UseBuyTokensProps) {
     }, [isBuyConfirmed, t]);
 
 
-    return {
+   return {
         buyAmount,
         setBuyAmount,
         handleBuyTokens,
         isBuyActionPending,
         isBuyConfirmed,
+        // ✅ NEW: مقادیر جدید برای نمایش در UI
+        estimatedRycReceived: estimatedRycAmount ? formatEther(estimatedRycAmount as bigint) : '0',
+        isEstimatingPrice: isEstimating,
     };
 }

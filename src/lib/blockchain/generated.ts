@@ -1250,13 +1250,6 @@ export const rayanChainTokenAbi = [
   },
   {
     type: 'function',
-    inputs: [],
-    name: 'RYC_PER_NATIVE',
-    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
-    stateMutability: 'view',
-  },
-  {
-    type: 'function',
     inputs: [
       { name: 'owner', internalType: 'address', type: 'address' },
       { name: 'spender', internalType: 'address', type: 'address' },
@@ -1298,6 +1291,29 @@ export const rayanChainTokenAbi = [
   },
   {
     type: 'function',
+    inputs: [
+      { name: '_nativeAmount', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'getAmountOfTokensForNative',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: '_priceFeedAddress', internalType: 'address', type: 'address' },
+      {
+        name: '_initialRycAmountPerUsd',
+        internalType: 'uint256',
+        type: 'uint256',
+      },
+    ],
+    name: 'initializePricing',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
     inputs: [],
     name: 'mintingActive',
     outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
@@ -1320,14 +1336,50 @@ export const rayanChainTokenAbi = [
   {
     type: 'function',
     inputs: [],
+    name: 'priceFeed',
+    outputs: [
+      {
+        name: '',
+        internalType: 'contract AggregatorV3Interface',
+        type: 'address',
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
     name: 'renounceOwnership',
     outputs: [],
     stateMutability: 'nonpayable',
   },
   {
     type: 'function',
+    inputs: [],
+    name: 'rycAmountPerUsd',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
     inputs: [{ name: '_active', internalType: 'bool', type: 'bool' }],
     name: 'setMintingActive',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: '_newPriceFeed', internalType: 'address', type: 'address' },
+    ],
+    name: 'setPriceFeed',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: '_newRate', internalType: 'uint256', type: 'uint256' }],
+    name: 'setRycAmountPerUsd',
     outputs: [],
     stateMutability: 'nonpayable',
   },
@@ -1457,19 +1509,6 @@ export const stakingAbi = [
       },
     ],
     name: 'RewardClaimed',
-  },
-  {
-    type: 'event',
-    anonymous: false,
-    inputs: [
-      {
-        name: 'totalReward',
-        internalType: 'uint256',
-        type: 'uint256',
-        indexed: false,
-      },
-    ],
-    name: 'RewardDistributed',
   },
   {
     type: 'event',
@@ -1614,6 +1653,13 @@ export const stakingAbi = [
   },
   {
     type: 'function',
+    inputs: [{ name: 'account', internalType: 'address', type: 'address' }],
+    name: 'getStakedBalance',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
     inputs: [],
     name: 'lastUpdateTime',
     outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
@@ -1632,13 +1678,6 @@ export const stakingAbi = [
     name: 'renounceOwnership',
     outputs: [],
     stateMutability: 'nonpayable',
-  },
-  {
-    type: 'function',
-    inputs: [],
-    name: 'rewardPerToken',
-    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
-    stateMutability: 'view',
   },
   {
     type: 'function',
@@ -2931,15 +2970,6 @@ export const useReadRayanChainToken = /*#__PURE__*/ createUseReadContract({
 })
 
 /**
- * Wraps __{@link useReadContract}__ with `abi` set to __{@link rayanChainTokenAbi}__ and `functionName` set to `"RYC_PER_NATIVE"`
- */
-export const useReadRayanChainTokenRycPerNative =
-  /*#__PURE__*/ createUseReadContract({
-    abi: rayanChainTokenAbi,
-    functionName: 'RYC_PER_NATIVE',
-  })
-
-/**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link rayanChainTokenAbi}__ and `functionName` set to `"allowance"`
  */
 export const useReadRayanChainTokenAllowance =
@@ -2967,6 +2997,15 @@ export const useReadRayanChainTokenDecimals =
   })
 
 /**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link rayanChainTokenAbi}__ and `functionName` set to `"getAmountOfTokensForNative"`
+ */
+export const useReadRayanChainTokenGetAmountOfTokensForNative =
+  /*#__PURE__*/ createUseReadContract({
+    abi: rayanChainTokenAbi,
+    functionName: 'getAmountOfTokensForNative',
+  })
+
+/**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link rayanChainTokenAbi}__ and `functionName` set to `"mintingActive"`
  */
 export const useReadRayanChainTokenMintingActive =
@@ -2990,6 +3029,24 @@ export const useReadRayanChainTokenOwner = /*#__PURE__*/ createUseReadContract({
   abi: rayanChainTokenAbi,
   functionName: 'owner',
 })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link rayanChainTokenAbi}__ and `functionName` set to `"priceFeed"`
+ */
+export const useReadRayanChainTokenPriceFeed =
+  /*#__PURE__*/ createUseReadContract({
+    abi: rayanChainTokenAbi,
+    functionName: 'priceFeed',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link rayanChainTokenAbi}__ and `functionName` set to `"rycAmountPerUsd"`
+ */
+export const useReadRayanChainTokenRycAmountPerUsd =
+  /*#__PURE__*/ createUseReadContract({
+    abi: rayanChainTokenAbi,
+    functionName: 'rycAmountPerUsd',
+  })
 
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link rayanChainTokenAbi}__ and `functionName` set to `"symbol"`
@@ -3033,6 +3090,15 @@ export const useWriteRayanChainTokenBuyTokensWithNative =
   })
 
 /**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link rayanChainTokenAbi}__ and `functionName` set to `"initializePricing"`
+ */
+export const useWriteRayanChainTokenInitializePricing =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: rayanChainTokenAbi,
+    functionName: 'initializePricing',
+  })
+
+/**
  * Wraps __{@link useWriteContract}__ with `abi` set to __{@link rayanChainTokenAbi}__ and `functionName` set to `"renounceOwnership"`
  */
 export const useWriteRayanChainTokenRenounceOwnership =
@@ -3048,6 +3114,24 @@ export const useWriteRayanChainTokenSetMintingActive =
   /*#__PURE__*/ createUseWriteContract({
     abi: rayanChainTokenAbi,
     functionName: 'setMintingActive',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link rayanChainTokenAbi}__ and `functionName` set to `"setPriceFeed"`
+ */
+export const useWriteRayanChainTokenSetPriceFeed =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: rayanChainTokenAbi,
+    functionName: 'setPriceFeed',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link rayanChainTokenAbi}__ and `functionName` set to `"setRycAmountPerUsd"`
+ */
+export const useWriteRayanChainTokenSetRycAmountPerUsd =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: rayanChainTokenAbi,
+    functionName: 'setRycAmountPerUsd',
   })
 
 /**
@@ -3102,6 +3186,15 @@ export const useSimulateRayanChainTokenBuyTokensWithNative =
   })
 
 /**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link rayanChainTokenAbi}__ and `functionName` set to `"initializePricing"`
+ */
+export const useSimulateRayanChainTokenInitializePricing =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: rayanChainTokenAbi,
+    functionName: 'initializePricing',
+  })
+
+/**
  * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link rayanChainTokenAbi}__ and `functionName` set to `"renounceOwnership"`
  */
 export const useSimulateRayanChainTokenRenounceOwnership =
@@ -3117,6 +3210,24 @@ export const useSimulateRayanChainTokenSetMintingActive =
   /*#__PURE__*/ createUseSimulateContract({
     abi: rayanChainTokenAbi,
     functionName: 'setMintingActive',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link rayanChainTokenAbi}__ and `functionName` set to `"setPriceFeed"`
+ */
+export const useSimulateRayanChainTokenSetPriceFeed =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: rayanChainTokenAbi,
+    functionName: 'setPriceFeed',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link rayanChainTokenAbi}__ and `functionName` set to `"setRycAmountPerUsd"`
+ */
+export const useSimulateRayanChainTokenSetRycAmountPerUsd =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: rayanChainTokenAbi,
+    functionName: 'setRycAmountPerUsd',
   })
 
 /**
@@ -3237,6 +3348,15 @@ export const useReadStakingGetStakedAmount =
   })
 
 /**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link stakingAbi}__ and `functionName` set to `"getStakedBalance"`
+ */
+export const useReadStakingGetStakedBalance =
+  /*#__PURE__*/ createUseReadContract({
+    abi: stakingAbi,
+    functionName: 'getStakedBalance',
+  })
+
+/**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link stakingAbi}__ and `functionName` set to `"lastUpdateTime"`
  */
 export const useReadStakingLastUpdateTime = /*#__PURE__*/ createUseReadContract(
@@ -3250,13 +3370,6 @@ export const useReadStakingOwner = /*#__PURE__*/ createUseReadContract({
   abi: stakingAbi,
   functionName: 'owner',
 })
-
-/**
- * Wraps __{@link useReadContract}__ with `abi` set to __{@link stakingAbi}__ and `functionName` set to `"rewardPerToken"`
- */
-export const useReadStakingRewardPerToken = /*#__PURE__*/ createUseReadContract(
-  { abi: stakingAbi, functionName: 'rewardPerToken' },
-)
 
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link stakingAbi}__ and `functionName` set to `"rewardPerTokenStored"`
@@ -3509,15 +3622,6 @@ export const useWatchStakingRewardClaimedEvent =
   /*#__PURE__*/ createUseWatchContractEvent({
     abi: stakingAbi,
     eventName: 'RewardClaimed',
-  })
-
-/**
- * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link stakingAbi}__ and `eventName` set to `"RewardDistributed"`
- */
-export const useWatchStakingRewardDistributedEvent =
-  /*#__PURE__*/ createUseWatchContractEvent({
-    abi: stakingAbi,
-    eventName: 'RewardDistributed',
   })
 
 /**

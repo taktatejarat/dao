@@ -1,11 +1,10 @@
 // src/app/api/contract-creation/route.ts - FINAL FIX: HASH ONLY (NO SYSTEM TX)
 
 import { NextRequest, NextResponse } from 'next/server';
-import { saveOffChainProposal } from '@/lib/proposal-db';
-// ❌ REMOVED: All viem client imports (publicClient, walletClient, privateKeyToAccount, etc.)
-import { Address, Hex, parseEther, keccak256, encodePacked } from 'viem';
-import { rayanChainDaoAbi, daoRegistryAbi } from '@/lib/blockchain/generated'; // Kept for ABI reference only
-import { REGISTRY_KEYS } from '@/lib/blockchain/registry-keys'; 
+import { Address, Hex, keccak256, encodePacked, parseEther } from 'viem';
+import { getDb } from '@/lib/mongodb'; // ✅ NEW: وارد کردن getDb
+import { logEvent } from '@/lib/logger';  // ✅ NEW: وارد کردن logger
+
 
 // Helper to compute hash using viem
 function computeProposalHash(description: string): Hex {
@@ -13,6 +12,7 @@ function computeProposalHash(description: string): Hex {
     const data = encodePacked(['string', 'bytes32'], [description, salt]);
     return keccak256(data);
 }
+
 
 export async function POST(req: NextRequest) {
     try {
@@ -24,30 +24,42 @@ export async function POST(req: NextRequest) {
             aiFeatures 
         } = await req.json();
 
-        // 1. Validation and Hash Computation
-        if (!description || !recipientAddress || milestoneAmounts.length === 0) {
+        // ۱. اعتبارسنجی
+        if (!description || !recipientAddress || !milestoneAmounts || milestoneAmounts.length === 0) {
+            await logEvent('WARN', 'USER_ACTION', 'Proposal creation failed: Missing fields.', { proposerAddress });
             return NextResponse.json({ message: 'Missing required fields.' }, { status: 400 });
         }
+        
+        // ۲. محاسبه هش
         const descriptionHash = computeProposalHash(description);
         
-        // 2. Prepare Data for DB and On-Chain Payload
-        const parsedMilestoneAmounts = milestoneAmounts.map(
-             (amount: string) => parseEther(amount)
-        );
+        // ۳. ذخیره داده‌های Off-chain در MongoDB
+        const db = await getDb();
+        const proposalsCollection = db.collection('proposals'); // ✅ استفاده از collection 'proposals'
         
-        // 3. Save off-chain data (MUST happen first)
         const offChainData = {
             proposerAddress,
             description,
             recipientAddress,
             milestoneAmounts: milestoneAmounts.map((a: string) => a.toString()),
-            descriptionHash,
-            proposalId: 0, 
             aiFeatures: aiFeatures || {},
+            descriptionHash: descriptionHash,
+            createdAt: new Date(),
+            // فیلدهای اولیه برای وضعیت آن‌چین
+            onChainStatus: 'pending_submission',
+            proposalIdOnChain: null, 
         };
-        await saveOffChainProposal(offChainData);
+
+        // ✅ به جای saveOffChainProposal، مستقیماً از MongoDB استفاده می‌کنیم
+        const result = await proposalsCollection.insertOne(offChainData);
+
+        await logEvent('INFO', 'USER_ACTION', 'Off-chain proposal data saved successfully.', {
+            proposer: proposerAddress,
+            mongoId: result.insertedId.toString(),
+            descriptionHash: descriptionHash
+        });
         
-        // 4. Return the payload needed for the user's wallet to sign the transaction.
+        // ۴. برگرداندن پاسخ برای فرانت‌اند
         return NextResponse.json({ 
             success: true, 
             message: 'Off-chain data saved. Ready for on-chain submission.',
@@ -55,12 +67,15 @@ export async function POST(req: NextRequest) {
             txArgs: [
                 descriptionHash, 
                 recipientAddress as Address,
-                // NOTE: We return the strings here and let useCreateProposal re-parse them
-                milestoneAmounts.map((a: string) => parseEther(a)), // Return BigInt array for front-end Wagmi
+                milestoneAmounts.map((a: string) => parseEther(a)),
             ],
         }, { status: 200 });
 
     } catch (error) {
+        await logEvent('ERROR', 'USER_ACTION', 'Error in contract-creation API.', { 
+            error: (error as Error).message,
+            stack: (error as Error).stack 
+        });
         console.error("Error creating proposal:", error);
         return NextResponse.json(
             { message: (error as Error).message },

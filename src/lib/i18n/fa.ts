@@ -556,6 +556,7 @@ export const fa = {
     buy_amount_error: "مقدار ارز برای خرید باید بیشتر از صفر باشد.",
     buy_success_title: "خرید موفقیت‌آمیز بود",
     buy_success_desc: "توکن‌های RYC به کیف پول شما اضافه شدند. لطفاً موجودی خود را بررسی کنید.",
+    you_will_receive: "تعداد توکن قابل دریافت",
   },
 
   // Treasury Page
