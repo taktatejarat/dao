@@ -152,8 +152,15 @@ export function useStaking({ tokenAddress, stakingAddress }: UseStakingProps) {
         } catch (err) { /* Error is handled by useEffect */ }
     };
 
-    const isActionPending = isPending || isConfirming;
-    const isStakeButtonDisabled = isActionPending || parsedStakeAmount <= 0n || (rycBalance ? parsedStakeAmount > rycBalance : true) || needsApproval;
+   const isActionPending = isPending || isConfirming;
+
+    // ✅✅✅ THE CRITICAL FIX IS HERE ✅✅✅
+    // 1. یک متغیر اختصاصی برای دکمه Approve ایجاد می‌کنیم
+    const isApproveButtonDisabled = isActionPending || parsedStakeAmount <= 0n || (rycBalance ? parsedStakeAmount > rycBalance : true);
+
+    // 2. از منطق isStakeButtonDisabled، شرط needsApproval را حذف می‌کنیم
+    const isStakeButtonDisabled = isActionPending || parsedStakeAmount <= 0n || (rycBalance ? parsedStakeAmount > rycBalance : true);
+    
     const isUnstakeButtonDisabled = isActionPending || parsedUnstakeAmount <= 0n || (stakedBalance ? parsedUnstakeAmount > stakedBalance : true);
     const isClaimButtonDisabled = isActionPending || !earnedRewards || earnedRewards <= 0n;
     const isDelegateButtonDisabled = isActionPending || !isValidDelegateeAddress || !stakedBalance || stakedBalance <= 0n;
@@ -168,6 +175,7 @@ export function useStaking({ tokenAddress, stakingAddress }: UseStakingProps) {
         isActionPending,
         handleApprove, handleStake, handleUnstake, handleClaim, handleDelegate, handleUndelegate,
         refetch,
+        isApproveButtonDisabled,
         isStakeButtonDisabled,
         isUnstakeButtonDisabled,
         isClaimButtonDisabled,

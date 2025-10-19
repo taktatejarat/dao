@@ -66,8 +66,8 @@ export default function StakingPage() {
         currentDelegatee, delegateeAddress, setDelegateeAddress,
         handleDelegate, handleUndelegate,
         isDelegateButtonDisabled, isUndelegateButtonDisabled,
-        isStakeButtonDisabled, isUnstakeButtonDisabled, isClaimButtonDisabled,
-        refetch: refetchStakingData // <-- اطمینان از دریافت این تابع
+        isStakeButtonDisabled, isClaimButtonDisabled, isApproveButtonDisabled, isUnstakeButtonDisabled, 
+        refetch: refetchStakingData
     } = useStaking({ tokenAddress, stakingAddress });
 
     // ✅ FIX: دریافت مقادیر کامل از هوک useBuyTokens
@@ -235,12 +235,12 @@ export default function StakingPage() {
                                 <Input id="stake-amount" type="number" placeholder="0.0" value={stakeAmount} onChange={(e) => setStakeAmount(e.target.value)} />
                             </div>
                             {needsApproval ? (
-                                <Button className="w-full" disabled={isStakingActionPending || isStakeButtonDisabled} onClick={handleApprove}>
+                                <Button className="w-full" disabled={isBuyActionPending || isApproveButtonDisabled} onClick={handleApprove}> {/* ✅ از متغیر جدید استفاده کنید */}
                                     {isStakingActionPending ? <DaoLoadingSpinner /> : <CheckCircle className="me-2"/>}
                                     {t('staking_page.approve_button')}
                                 </Button>
                             ) : (
-                                <Button className="w-full" disabled={isStakingActionPending || isStakeButtonDisabled} onClick={handleStake}>
+                                <Button className="w-full" disabled={isBuyActionPending || isStakeButtonDisabled} onClick={handleStake}>
                                     {isStakingActionPending ? <DaoLoadingSpinner /> : <PiggyBank className="me-2"/>}
                                     {t('staking_page.stake')}
                                 </Button>

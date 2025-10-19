@@ -6,35 +6,45 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-const PERSIAN_DIGITS = "۰۱۲۳۴۵۶۷۸۹";
-const ARABIC_DIGITS = "٠١٢٣٤٥٦٧٨٩";
-
 export function formatNumber(
-  value: number | string | bigint,
+  value: number | string | bigint | undefined | null,
   locale: Locale = 'en',
-  options?: Intl.NumberFormatOptions
+  options: Intl.NumberFormatOptions = {}
 ): string {
-    const numericValue = Number(value);
-    
-    if (isNaN(numericValue)) {
-        return String(value);
+    // 1. Handle null/undefined/empty inputs safely
+    if (value === undefined || value === null || value === '') {
+        return '0';
     }
-    
+
+    // 2. The Intl.NumberFormat API can handle bigint directly, preventing precision loss.
+    // We only need to convert strings to numbers.
+    let valueToFormat: number | bigint;
+    if (typeof value === 'bigint') {
+        valueToFormat = value;
+    } else {
+        const num = Number(value);
+        if (isNaN(num)) {
+            return '0'; // Return '0' for invalid numbers
+        }
+        valueToFormat = num;
+    }
+
     const defaultOptions: Intl.NumberFormatOptions = {
-        maximumFractionDigits: 3,
+        maximumFractionDigits: 4, // Show up to 4 decimal places
         ...options,
     };
-    
-    const formatter = new Intl.NumberFormat(locale, defaultOptions);
-    let formattedValue = formatter.format(numericValue);
 
-    if (locale === 'fa') {
-        formattedValue = formattedValue.replace(/[0-9]/g, (d) => PERSIAN_DIGITS[parseInt(d, 10)]);
-    } else if (locale === 'ar') {
-        formattedValue = formattedValue.replace(/[0-9]/g, (d) => ARABIC_DIGITS[parseInt(d, 10)]);
+    // 3. Use Unicode extension to force Latin digits (0,1,2,3...) for all locales.
+    // This provides a consistent financial data representation across the app.
+    // 'fa-IR' becomes 'fa-IR-u-nu-latn'
+    const effectiveLocale = `${locale}-u-nu-latn`;
+
+    try {
+        return new Intl.NumberFormat(effectiveLocale, defaultOptions).format(valueToFormat);
+    } catch (e) {
+        // Fallback to default locale if the combined locale is not supported
+        return new Intl.NumberFormat(locale, defaultOptions).format(valueToFormat);
     }
-
-    return formattedValue;
 }
 
 export function formatLocaleDate(

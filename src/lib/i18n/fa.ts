@@ -557,6 +557,8 @@ export const fa = {
     buy_success_title: "خرید موفقیت‌آمیز بود",
     buy_success_desc: "توکن‌های RYC به کیف پول شما اضافه شدند. لطفاً موجودی خود را بررسی کنید.",
     you_will_receive: "تعداد توکن قابل دریافت",
+    manage_stake_title: "مدیریت سپرده",
+    manage_stake_desc: "سپرده خود را برداشت کرده یا پاداش‌های کسب شده را دریافت کنید.",
   },
 
   // Treasury Page
