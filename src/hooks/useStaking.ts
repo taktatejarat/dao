@@ -1,4 +1,4 @@
-// src/hooks/useStaking.ts - FINAL, TYPE-SAFE, AND CORRECTED VERSION
+// src/hooks/useStaking.ts - FINAL, BULLETPROOF VERSION 2.0
 
 "use client";
 
@@ -57,7 +57,7 @@ export function useStaking({ tokenAddress, stakingAddress }: UseStakingProps) {
         return allowance < parsedStakeAmount;
     }, [allowance, parsedStakeAmount]);
 
-    const { data: txHash, isPending, writeContractAsync, error } = useWriteContract();
+    const { data: txHash, isPending, writeContractAsync, error, reset } = useWriteContract();
     const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ hash: txHash });
 
     useEffect(() => {
@@ -66,16 +66,20 @@ export function useStaking({ tokenAddress, stakingAddress }: UseStakingProps) {
             refetch();
             setStakeAmount('');
             setUnstakeAmount('');
+            reset(); // Reset the hook state
         }
         if (error) {
             toast.error("Transaction Failed", { description: (error as BaseError).shortMessage || error.message });
+            reset(); // Reset the hook state
         }
-    }, [isSuccess, error, refetch, t]);
+    }, [isSuccess, error, refetch, t, reset]);
 
-    // ✅✅✅ THE FIX: Removed the generic `handleWrite` function and call `writeContractAsync` directly ✅✅✅
-
+    // ✅✅✅ THE FIX: Reverting to direct, type-safe calls instead of a generic handler ✅✅✅
     const handleApprove = async () => {
-        if (!tokenAddress || !stakingAddress) return;
+        if (!tokenAddress || !stakingAddress) {
+            toast.error("Error", { description: "Contract addresses not loaded yet."});
+            return;
+        }
         try {
             await writeContractAsync({
                 address: tokenAddress,
@@ -88,7 +92,10 @@ export function useStaking({ tokenAddress, stakingAddress }: UseStakingProps) {
     };
 
     const handleStake = async () => {
-        if (!stakingAddress) return;
+        if (!stakingAddress) {
+            toast.error("Error", { description: "Contract addresses not loaded yet."});
+            return;
+        }
         try {
             await writeContractAsync({
                 address: stakingAddress,
@@ -100,67 +107,27 @@ export function useStaking({ tokenAddress, stakingAddress }: UseStakingProps) {
         } catch (err) { /* Error is handled by useEffect */ }
     };
 
+    // ... (All other handlers follow the same direct-call pattern)
     const handleUnstake = async () => {
         if (!stakingAddress) return;
-        try {
-            await writeContractAsync({
-                address: stakingAddress,
-                abi: stakingAbi,
-                functionName: 'unstake',
-                args: [parsedUnstakeAmount],
-            });
-            toast.info("Unstake Submitted", { description: "Waiting for confirmation..." });
-        } catch (err) { /* Error is handled by useEffect */ }
+        try { await writeContractAsync({ address: stakingAddress, abi: stakingAbi, functionName: 'unstake', args: [parsedUnstakeAmount] }); toast.info("Unstake Submitted"); } catch(e) {}
     };
-
     const handleClaim = async () => {
         if (!stakingAddress) return;
-        try {
-            await writeContractAsync({
-                address: stakingAddress,
-                abi: stakingAbi,
-                functionName: 'claimReward',
-                args: [],
-            });
-            toast.info("Claim Submitted", { description: "Waiting for confirmation..." });
-        } catch (err) { /* Error is handled by useEffect */ }
+        try { await writeContractAsync({ address: stakingAddress, abi: stakingAbi, functionName: 'claimReward', args: [] }); toast.info("Claim Submitted"); } catch(e) {}
     };
-
     const handleDelegate = async () => {
         if (!stakingAddress || !isValidDelegateeAddress) return;
-        try {
-            await writeContractAsync({
-                address: stakingAddress,
-                abi: stakingAbi,
-                functionName: 'delegate',
-                args: [delegateeAddress as Address],
-            });
-            toast.info("Delegate Submitted", { description: "Waiting for confirmation..." });
-        } catch (err) { /* Error is handled by useEffect */ }
+        try { await writeContractAsync({ address: stakingAddress, abi: stakingAbi, functionName: 'delegate', args: [delegateeAddress as Address] }); toast.info("Delegate Submitted"); } catch(e) {}
     };
-
     const handleUndelegate = async () => {
         if (!stakingAddress) return;
-        try {
-            await writeContractAsync({
-                address: stakingAddress,
-                abi: stakingAbi,
-                functionName: 'undelegate',
-                args: [],
-            });
-            toast.info("Undelegate Submitted", { description: "Waiting for confirmation..." });
-        } catch (err) { /* Error is handled by useEffect */ }
+        try { await writeContractAsync({ address: stakingAddress, abi: stakingAbi, functionName: 'undelegate', args: [] }); toast.info("Undelegate Submitted"); } catch(e) {}
     };
 
-   const isActionPending = isPending || isConfirming;
-
-    // ✅✅✅ THE CRITICAL FIX IS HERE ✅✅✅
-    // 1. یک متغیر اختصاصی برای دکمه Approve ایجاد می‌کنیم
+    const isActionPending = isPending || isConfirming;
     const isApproveButtonDisabled = isActionPending || parsedStakeAmount <= 0n || (rycBalance ? parsedStakeAmount > rycBalance : true);
-
-    // 2. از منطق isStakeButtonDisabled، شرط needsApproval را حذف می‌کنیم
-    const isStakeButtonDisabled = isActionPending || parsedStakeAmount <= 0n || (rycBalance ? parsedStakeAmount > rycBalance : true);
-    
+    const isStakeButtonDisabled = isActionPending || parsedStakeAmount <= 0n || (rycBalance ? parsedStakeAmount > rycBalance : true) || needsApproval;
     const isUnstakeButtonDisabled = isActionPending || parsedUnstakeAmount <= 0n || (stakedBalance ? parsedUnstakeAmount > stakedBalance : true);
     const isClaimButtonDisabled = isActionPending || !earnedRewards || earnedRewards <= 0n;
     const isDelegateButtonDisabled = isActionPending || !isValidDelegateeAddress || !stakedBalance || stakedBalance <= 0n;
