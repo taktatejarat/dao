@@ -43,7 +43,14 @@ contract Staking is IStaking, Ownable, ReentrancyGuard {
     }
     
     function stake(uint256 amount) external override nonReentrant updateReward(msg.sender) {
-        require(amount > 0, "Cannot stake 0");
+        require(amount > 0, "Staking: Cannot stake 0");
+
+        // ✅✅✅ THE CRITICAL FIX IS HERE ✅✅✅
+        // اضافه کردن یک require صریح برای بررسی allowance قبل از هر کاری
+        // این باعث می‌شود پیام خطای واضح‌تری دریافت کنیم
+        uint256 allowed = rycToken.allowance(msg.sender, address(this));
+        require(allowed >= amount, "Staking: Check the token allowance");
+
         _totalStaked += amount;
         _stakedBalances[msg.sender] += amount;
         
@@ -54,7 +61,10 @@ contract Staking is IStaking, Ownable, ReentrancyGuard {
         }
         delegatedPower[currentDelegatee] += amount;
         
-        rycToken.transferFrom(msg.sender, address(this), amount);
+        // این فراخوانی اکنون با موفقیت انجام خواهد شد
+        bool success = rycToken.transferFrom(msg.sender, address(this), amount);
+        require(success, "Staking: Token transfer failed");
+
         emit Staked(msg.sender, amount);
         emit Delegated(msg.sender, currentDelegatee, _stakedBalances[msg.sender]);
     }

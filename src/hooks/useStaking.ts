@@ -1,13 +1,14 @@
+// src/hooks/useStaking.ts - FINAL, TYPE-SAFE, AND CORRECTED VERSION
+
 "use client";
 
-import { useState, useEffect, useMemo, useCallback } from 'react';
-import { useAccount, useReadContracts, useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
+import { useState, useEffect, useMemo } from 'react';
+import { useAccount, useReadContracts, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { toast } from 'sonner';
 import { useTranslation } from '@/hooks/use-translation';
 import { stakingAbi, rayanChainTokenAbi } from '@/lib/blockchain/generated';
 import type { Address } from 'viem';
 import { BaseError, parseEther, isAddress, maxUint256 } from 'viem';
-
 
 interface UseStakingProps {
     tokenAddress: Address | undefined;
@@ -16,208 +17,161 @@ interface UseStakingProps {
 
 export function useStaking({ tokenAddress, stakingAddress }: UseStakingProps) {
     const { t } = useTranslation();
-    const { address } = useAccount();
+    const { address, isConnected } = useAccount();
 
-    // --- Form State ---
     const [stakeAmount, setStakeAmount] = useState('');
     const [unstakeAmount, setUnstakeAmount] = useState('');
-    const [delegateeAddress, setDelegateeAddress] = useState<string>(''); 
+    const [delegateeAddress, setDelegateeAddress] = useState<string>('');
 
-    // --- Data Fetching ---
+    const contractsToRead = useMemo(() => [
+        { address: tokenAddress as Address, abi: rayanChainTokenAbi, functionName: 'balanceOf', args: [address!] },
+        { address: stakingAddress as Address, abi: stakingAbi, functionName: 'getStakedBalance', args: [address!] },
+        { address: stakingAddress as Address, abi: stakingAbi, functionName: 'earned', args: [address!] },
+        { address: tokenAddress as Address, abi: rayanChainTokenAbi, functionName: 'allowance', args: [address!, stakingAddress!] },
+        { address: stakingAddress as Address, abi: stakingAbi, functionName: 'delegates', args: [address!] },
+    ], [tokenAddress, stakingAddress, address]);
+
     const { data: contractData, refetch } = useReadContracts({
-        contracts: [
-            { address: tokenAddress as Address, abi: rayanChainTokenAbi, functionName: 'balanceOf', args: [address as Address] as const },
-            { address: stakingAddress as Address, abi: stakingAbi, functionName: 'balanceOf', args: [address as Address] as const },
-            { address: stakingAddress as Address, abi: stakingAbi, functionName: 'earned', args: [address as Address] as const },
-            { address: tokenAddress as Address, abi: rayanChainTokenAbi, functionName: 'allowance', args: [address as Address, stakingAddress as Address] as const },
-        ] as const,
-        query: { enabled: !!address && !!tokenAddress && !!stakingAddress }
-    } as any);
-
-    const { data: delegateeAddressResult } = useReadContract({
-        address: stakingAddress,
-        abi: stakingAbi,
-        functionName: 'delegates',
-        args: [address as Address],
-        query: { enabled: !!address && !!stakingAddress }
+        contracts: contractsToRead,
+        query: { enabled: !!address && !!tokenAddress && !!stakingAddress && isConnected }
     });
 
-    const [rycBalance, stakedBalance, earnedRewards, allowance] = useMemo(() => {
-        return contractData?.map(d => d.result as bigint | undefined) || [];
+    const [rycBalance, stakedBalance, earnedRewards, allowance, currentDelegatee] = useMemo(() => {
+        if (!contractData) return [undefined, undefined, undefined, undefined, undefined];
+        return [
+            contractData[0].result as bigint | undefined,
+            contractData[1].result as bigint | undefined,
+            contractData[2].result as bigint | undefined,
+            contractData[3].result as bigint | undefined,
+            contractData[4].result as Address | undefined,
+        ];
     }, [contractData]);
+
+    const parsedStakeAmount = useMemo(() => { try { return parseEther(stakeAmount || '0'); } catch { return 0n; } }, [stakeAmount]);
+    const parsedUnstakeAmount = useMemo(() => { try { return parseEther(unstakeAmount || '0'); } catch { return 0n; } }, [unstakeAmount]);
+    const isValidDelegateeAddress = useMemo(() => isAddress(delegateeAddress) && delegateeAddress.toLowerCase() !== address?.toLowerCase(), [delegateeAddress, address]);
     
-    const currentDelegatee = delegateeAddressResult as Address | undefined;
-
-    // --- Derived State from Form Inputs ---
-    const parsedStakeAmount = useMemo(() => {
-        try { return parseEther(stakeAmount || '0'); } catch { return 0n; }
-    }, [stakeAmount]);
-
-    const parsedUnstakeAmount = useMemo(() => {
-        try { return parseEther(unstakeAmount || '0'); } catch { return 0n; }
-    }, [unstakeAmount]);
-
     const needsApproval = useMemo(() => {
-        return !!allowance && allowance < parsedStakeAmount;
+        if (typeof allowance === 'undefined' || allowance === null) return false;
+        if (parsedStakeAmount <= 0n) return false;
+        return allowance < parsedStakeAmount;
     }, [allowance, parsedStakeAmount]);
-    
-    const isValidDelegateeAddress = useMemo(() => {
-        return isAddress(delegateeAddress) && delegateeAddress.toLowerCase() !== address?.toLowerCase();
-    }, [delegateeAddress, address]);
 
+    const { data: txHash, isPending, writeContractAsync, error } = useWriteContract();
+    const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ hash: txHash });
 
-   // --- Transaction Hooks ---
-    const { data: txHash, isPending, writeContractAsync } = useWriteContract();
-    const [submittedHash, setSubmittedHash] = useState<`0x${string}` | undefined>(undefined);
-    const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ hash: submittedHash });
-
-   useEffect(() => {
+    useEffect(() => {
         if (isSuccess) {
+            toast.success(t('staking_page.tx_success_title'));
             refetch();
-            toast.success(t('staking_page.tx_success_title'), { description: t('staking_page.tx_success_desc') });
+            setStakeAmount('');
+            setUnstakeAmount('');
         }
-    }, [isSuccess, refetch, t]);
+        if (error) {
+            toast.error("Transaction Failed", { description: (error as BaseError).shortMessage || error.message });
+        }
+    }, [isSuccess, error, refetch, t]);
 
-    // --- Action Handlers ---
-    const extractRevertReason = (err: unknown): string => {
-        const baseError = err as BaseError;
-        const revertMatch = baseError?.shortMessage?.match(/reverted with the following reason: (.*)\.?/);
-        if (revertMatch && revertMatch[1]) {
-            return revertMatch[1];
-        }
-        return baseError?.shortMessage || t('new_proposal_page.unexpected_error_desc');
-    };
+    // ✅✅✅ THE FIX: Removed the generic `handleWrite` function and call `writeContractAsync` directly ✅✅✅
 
     const handleApprove = async () => {
-        if (!tokenAddress || !stakingAddress) {
-            toast.error(t('new_proposal_page.error_toast_title'), { description: t('staking_page.contract_addresses_missing') });
-            return;
-        }
+        if (!tokenAddress || !stakingAddress) return;
         try {
-            const hash = await writeContractAsync({
+            await writeContractAsync({
                 address: tokenAddress,
                 abi: rayanChainTokenAbi,
                 functionName: 'approve',
                 args: [stakingAddress, maxUint256],
-            } as any);
-            setSubmittedHash(hash);
-            toast.info(t('new_proposal_page.pending_toast_title'), { description: t('staking_page.approve_in_progress') }); 
-        } catch (err) {
-            toast.error(t('new_proposal_page.error_toast_title'), { description: extractRevertReason(err) });
-        }
+            });
+            toast.info("Approval Submitted", { description: "Waiting for confirmation..." });
+        } catch (err) { /* Error is handled by useEffect */ }
     };
 
- const handleStake = async () => {
-        // ✅ FIX 1: Explicit Null/Undefined Check
-        if (!stakingAddress) {
-            toast.error(t('new_proposal_page.error_toast_title'), { description: t('staking_page.contract_addresses_missing') });
-            return;
-        }
+    const handleStake = async () => {
+        if (!stakingAddress) return;
         try {
-            const txHash = await writeContractAsync({
+            await writeContractAsync({
                 address: stakingAddress,
                 abi: stakingAbi,
                 functionName: 'stake',
                 args: [parsedStakeAmount],
-            } as any);
-            setSubmittedHash(txHash);
-            toast.info(t('new_proposal_page.pending_toast_title'), { description: txHash });
-            setStakeAmount('');
-        } catch (err) {
-            toast.error(t('new_proposal_page.error_toast_title'), { description: extractRevertReason(err) });
-        }
+            });
+            toast.info("Stake Submitted", { description: "Waiting for confirmation..." });
+        } catch (err) { /* Error is handled by useEffect */ }
     };
 
     const handleUnstake = async () => {
+        if (!stakingAddress) return;
         try {
-            const txHash = await writeContractAsync({
-                address: stakingAddress!,
+            await writeContractAsync({
+                address: stakingAddress,
                 abi: stakingAbi,
                 functionName: 'unstake',
                 args: [parsedUnstakeAmount],
-            } as any);
-            setSubmittedHash(txHash);
-            toast.info(t('new_proposal_page.pending_toast_title'), { description: txHash });
-            setUnstakeAmount('');
-        } catch (err) {
-            toast.error(t('new_proposal_page.error_toast_title'), { description: extractRevertReason(err) });
-        }
+            });
+            toast.info("Unstake Submitted", { description: "Waiting for confirmation..." });
+        } catch (err) { /* Error is handled by useEffect */ }
     };
 
     const handleClaim = async () => {
+        if (!stakingAddress) return;
         try {
-            const txHash = await writeContractAsync({
-                address: stakingAddress!,
+            await writeContractAsync({
+                address: stakingAddress,
                 abi: stakingAbi,
                 functionName: 'claimReward',
-            } as any);
-            setSubmittedHash(txHash);
-            toast.info(t('new_proposal_page.pending_toast_title'), { description: txHash });
-        } catch (err) {
-            toast.error(t('new_proposal_page.error_toast_title'), { description: extractRevertReason(err) });
-        }
+                args: [],
+            });
+            toast.info("Claim Submitted", { description: "Waiting for confirmation..." });
+        } catch (err) { /* Error is handled by useEffect */ }
     };
-    
-  const handleDelegate = async () => {
-        // ✅ FIX 1: Explicit Null/Undefined Check
-        if (!stakingAddress) {
-            toast.error(t('new_proposal_page.error_toast_title'), { description: t('staking_page.contract_addresses_missing') });
-            return;
-        }
-        
+
+    const handleDelegate = async () => {
+        if (!stakingAddress || !isValidDelegateeAddress) return;
         try {
-            const txHash = await writeContractAsync({
-                address: stakingAddress!,
+            await writeContractAsync({
+                address: stakingAddress,
                 abi: stakingAbi,
                 functionName: 'delegate',
                 args: [delegateeAddress as Address],
-            } as any);
-            setSubmittedHash(txHash);
-            toast.info(t('new_proposal_page.pending_toast_title'), { description: txHash });
-        } catch (err) {
-            toast.error(t('new_proposal_page.error_toast_title'), { description: extractRevertReason(err) });
-        }
+            });
+            toast.info("Delegate Submitted", { description: "Waiting for confirmation..." });
+        } catch (err) { /* Error is handled by useEffect */ }
     };
-    
+
     const handleUndelegate = async () => {
+        if (!stakingAddress) return;
         try {
-            const txHash = await writeContractAsync({
-                address: stakingAddress!,
+            await writeContractAsync({
+                address: stakingAddress,
                 abi: stakingAbi,
                 functionName: 'undelegate',
                 args: [],
-            } as any);
-            setSubmittedHash(txHash);
-            toast.info(t('new_proposal_page.pending_toast_title'), { description: txHash });
-        } catch (err) {
-            toast.error(t('new_proposal_page.error_toast_title'), { description: extractRevertReason(err) });
-        }
+            });
+            toast.info("Undelegate Submitted", { description: "Waiting for confirmation..." });
+        } catch (err) { /* Error is handled by useEffect */ }
     };
 
-     return {
-        rycBalance,
-        stakedBalance,
-        earnedRewards,
-        currentDelegatee,
-        stakeAmount,
-        refetch,
-        setStakeAmount,
-        unstakeAmount,
-        setUnstakeAmount,
-        delegateeAddress,
-        setDelegateeAddress,
+    const isActionPending = isPending || isConfirming;
+    const isStakeButtonDisabled = isActionPending || parsedStakeAmount <= 0n || (rycBalance ? parsedStakeAmount > rycBalance : true) || needsApproval;
+    const isUnstakeButtonDisabled = isActionPending || parsedUnstakeAmount <= 0n || (stakedBalance ? parsedUnstakeAmount > stakedBalance : true);
+    const isClaimButtonDisabled = isActionPending || !earnedRewards || earnedRewards <= 0n;
+    const isDelegateButtonDisabled = isActionPending || !isValidDelegateeAddress || !stakedBalance || stakedBalance <= 0n;
+    const isUndelegateButtonDisabled = isActionPending || !currentDelegatee || currentDelegatee === '0x0000000000000000000000000000000000000000' || currentDelegatee === address;
+
+    return {
+        rycBalance, stakedBalance, earnedRewards, currentDelegatee,
+        stakeAmount, setStakeAmount,
+        unstakeAmount, setUnstakeAmount,
+        delegateeAddress, setDelegateeAddress,
         needsApproval,
-        isActionPending: isPending || isConfirming,
-        handleApprove,
-        handleStake,
-        handleUnstake,
-        handleClaim,
-        handleDelegate,
-        handleUndelegate,
-        isStakeButtonDisabled: parsedStakeAmount <= 0n || isPending || isConfirming,
-        isUnstakeButtonDisabled: parsedUnstakeAmount <= 0n || (stakedBalance ? parsedUnstakeAmount > stakedBalance : true) || isPending || isConfirming,
-        isClaimButtonDisabled: !(earnedRewards && earnedRewards > 0n) || isPending || isConfirming,
-        isDelegateButtonDisabled: !isValidDelegateeAddress || isPending || isConfirming || currentDelegatee === delegateeAddress as Address,
-        isUndelegateButtonDisabled: currentDelegatee === undefined || currentDelegatee === '0x0000000000000000000000000000000000000000' || isPending || isConfirming,
+        isActionPending,
+        handleApprove, handleStake, handleUnstake, handleClaim, handleDelegate, handleUndelegate,
+        refetch,
+        isStakeButtonDisabled,
+        isUnstakeButtonDisabled,
+        isClaimButtonDisabled,
+        isDelegateButtonDisabled,
+        isUndelegateButtonDisabled,
     };
 }

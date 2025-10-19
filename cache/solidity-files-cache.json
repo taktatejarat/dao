@@ -465,8 +465,8 @@
       ]
     },
     "/home/errick/dao/src/contracts/Staking.sol": {
-      "lastModificationDate": 1760783990961,
-      "contentHash": "83af266da6fae20bd737acd7037d85cc",
+      "lastModificationDate": 1760883003242,
+      "contentHash": "5f912d8a55bcde00b36be8eb9c713ab4",
       "sourceName": "src/contracts/Staking.sol",
       "solcConfig": {
         "version": "0.8.24",
