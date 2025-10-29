@@ -9,6 +9,7 @@ import { useTranslation } from '@/hooks/use-translation';
 import { stakingAbi, rayanChainTokenAbi } from '@/lib/blockchain/generated';
 import type { Address } from 'viem';
 import { BaseError, parseEther, isAddress, maxUint256 } from 'viem';
+import { formatEther } from 'ethers';
 
 interface UseStakingProps {
     tokenAddress: Address | undefined;
@@ -96,6 +97,23 @@ export function useStaking({ tokenAddress, stakingAddress }: UseStakingProps) {
             toast.error("Error", { description: "Contract addresses not loaded yet."});
             return;
         }
+
+        // ✅✅✅ DEBUGGING LOGS ✅✅✅
+        console.log("--- Preparing Stake Transaction ---");
+        console.log("Staking Contract Address:", stakingAddress);
+        console.log("User's RYC Balance (from hook):", rycBalance ? formatEther(rycBalance) : 'Loading...');
+        console.log("Amount to Stake (string):", stakeAmount);
+        console.log("Amount to Stake (parsed bigint):", parsedStakeAmount.toString());
+        console.log("Current Allowance:", allowance ? formatEther(allowance) : 'Loading...');
+        console.log("Needs Approval?:", needsApproval);
+
+        if (rycBalance && parsedStakeAmount > rycBalance) {
+            toast.error("Error: Insufficient Balance", { description: `You are trying to stake ${stakeAmount} RYC, but you only have ${formatEther(rycBalance)}.`});
+            console.error("Stake amount exceeds balance!");
+            return;
+        }
+        // ✅✅✅ END DEBUGGING LOGS ✅✅✅
+
         try {
             await writeContractAsync({
                 address: stakingAddress,
