@@ -1,63 +1,111 @@
-// src/app/api/events/route.ts
+// src/app/api/events/route.ts - FINAL VERSION, COMPATIBLE WITH YOUR .env
 
 import { NextRequest, NextResponse } from 'next/server';
+import { createPublicClient, http, decodeEventLog, webSocket } from 'viem';
+import { polygonAmoy } from 'viem/chains';
+// ✅ Make sure this ABI import path is correct for your project structure
+import { rayanChainDaoAbi } from '@/lib/blockchain/generated';
 
-// ✅✅✅ ۱. استفاده از نام متغیر صحیح و آدرس پایه صحیح Etherscan V2
-const API_KEY = process.env.POLYGONSCAN_API_KEY; // نام متغیر در .env شما
-const BASE_URL = 'https://api.etherscan.io/v2/api';
+// ✅ Reads the correct environment variable names from your .env file
+const DAO_ADDRESS = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS as `0x${string}`;
+const RPC_URL = process.env.AMOY_RPC_URL;
 
-// ✅✅✅ ۲. یک تابع کمکی برای تبدیل نام شبکه به Chain ID
-const getChainId = (networkName: string): string => {
-    switch (networkName.toLowerCase()) {
-        case 'amoy':
-            return '80002';
-        case 'mainnet': // Polygon Mainnet
-            return '137';
-        case 'sepolia':
-            return '11155111';
-        case 'ethereum': // Ethereum Mainnet
-            return '1';
-        default:
-            throw new Error(`Unsupported network: ${networkName}`);
-    }
-};
+// This function is for demonstration. In a real app, you would fetch this from a DB or off-chain source.
+function getProposalTitleFromHash(hash: string): string {
+    // In a real implementation, you would look up this hash in your MongoDB 'proposals' collection
+    // to get the actual title or a snippet of the description.
+    return `Proposal (hash: ${hash.substring(0, 10)}...)`;
+}
+
 
 export async function GET(req: NextRequest) {
-    const { searchParams } = new URL(req.url);
-    const address = searchParams.get('address');
-    const fromBlock = searchParams.get('fromBlock') || '0';
-    
-    const network = process.env.NEXT_PUBLIC_NETWORK || 'amoy';
-    
-    if (!API_KEY) {
-        return NextResponse.json({ success: false, message: 'POLYGONSCAN_API_KEY is not configured on the server.' }, { status: 500 });
-    }
-    if (!address) {
-        return NextResponse.json({ success: false, message: 'Contract address is required.' }, { status: 400 });
+    if (!DAO_ADDRESS || !RPC_URL) {
+        return NextResponse.json({ 
+            error: "Server configuration error: NEXT_PUBLIC_CONTRACT_ADDRESS or AMOY_RPC_URL is missing in .env" 
+        }, { status: 500 });
     }
 
     try {
-        const chainId = getChainId(network);
+        const client = createPublicClient({
+            chain: polygonAmoy,
+            transport: http(RPC_URL),
+        });
 
-        // ✅✅✅ ۳. ساخت URL با فرمت صحیح Etherscan V2
-        const apiUrl = `${BASE_URL}?chainid=${chainId}&module=logs&action=getLogs&address=${address}&fromblock=0&toblock=latest&apikey=${API_KEY}`;
-        console.log("Fetching Event Logs from Etherscan V2:", apiUrl);
+        console.log(`Fetching events for DAO contract: ${DAO_ADDRESS}`);
 
-        const response = await fetch(apiUrl);
-        if (!response.ok) {
-            throw new Error(`Etherscan V2 API responded with status: ${response.status}`);
-        }
-        const data = await response.json();
+        // ✅✅✅ THE FIX IS HERE ✅✅✅
+        // 1. دریافت شماره آخرین بلاک
+        const latestBlock = await client.getBlockNumber();
+        // 2. تعیین بازه جستجو (مثلاً ۵۰۰ هزار بلاک آخر)
+        const fromBlock = latestBlock > 500000n ? latestBlock - 500000n : 0n;
+        
+        console.log(`Searching for logs from block ${fromBlock} to ${latestBlock}`);
 
-        if (data.status === '1') {
-            return NextResponse.json({ success: true, result: data.result });
-        } else if (data.message === 'No records found' || (data.result && data.result.length === 0)) {
-            return NextResponse.json({ success: true, result: [] });
-        } else {
-            console.error("Etherscan V2 API Error (getLogs):", data);
-            throw new Error(data.message || data.result);
-        }
+
+        // 3. استفاده از fromBlock محاسبه شده در درخواست‌ها
+        const [proposalLogs, voteLogs, stateChangeLogs] = await Promise.all([
+            client.getLogs({
+                address: DAO_ADDRESS,
+                event: rayanChainDaoAbi.find((item) => item.type === 'event' && item.name === 'ProposalCreated')!,
+                fromBlock: fromBlock, 
+            }),
+            client.getLogs({
+                address: DAO_ADDRESS,
+                event: rayanChainDaoAbi.find((item) => item.type === 'event' && item.name === 'Voted')!,
+                fromBlock: fromBlock,
+            }),
+            client.getLogs({
+                address: DAO_ADDRESS,
+                event: rayanChainDaoAbi.find((item) => item.type === 'event' && item.name === 'ProposalStateChanged')!,
+                fromBlock: fromBlock,
+            })
+        ]);
+
+        const allLogs = [...proposalLogs, ...voteLogs, ...stateChangeLogs];
+
+        const activities = allLogs.map(log => {
+            const decodedLog = decodeEventLog({
+                abi: rayanChainDaoAbi,
+                data: log.data,
+                topics: log.topics
+            });
+
+            // Process the log into a user-friendly format
+            let description = '';
+            const args = decodedLog.args as any; // Type assertion for easier access
+
+            switch (decodedLog.eventName) {
+                case 'ProposalCreated':
+                    description = `New proposal created by ${args.proposer}.`;
+                    break;
+                case 'Voted':
+                    const voteType = args.vote === 0 ? 'For' : 'Against'; // Assuming 0 = For, 1 = Against
+                    description = `${args.voter} voted '${voteType}' on Proposal #${args.proposalId}`;
+                    break;
+                case 'ProposalStateChanged':
+                    // In a real app, you would have an enum for states
+                    description = `Proposal #${args.id} state changed to '${args.newState}'.`;
+                    break;
+                default:
+                    description = `An unknown event occurred.`;
+            }
+            
+            return {
+                eventName: decodedLog.eventName,
+                description: description,
+                blockNumber: log.blockNumber.toString(),
+                transactionHash: log.transactionHash,
+                args: args
+            };
+        });
+
+        // Sort activities by block number, newest first
+        activities.sort((a, b) => parseInt(b.blockNumber) - parseInt(a.blockNumber));
+
+        return NextResponse.json({ success: true, result: activities });
+
     } catch (error) {
+        console.error("Error fetching event logs directly from RPC:", error);
         const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred.';
         return NextResponse.json({ success: false, message: `Could not fetch event logs: ${errorMessage}` }, { status: 500 });
     }

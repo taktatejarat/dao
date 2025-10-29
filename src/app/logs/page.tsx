@@ -20,68 +20,72 @@ import { daoRegistryAbi } from '@/lib/blockchain/generated'; // ✅ از منب�
 import { REGISTRY_KEYS } from '@/lib/blockchain/registry-keys';
 import { useQueries } from '@tanstack/react-query'; // ✅ از useQueries استفاده می‌کنیم
 
-// Simplified Transaction type based on PolygonScan API response
-type Transaction = {
-    hash: string;
-    from: string;
-    to: string;
-    value: string;
-    timeStamp: string;
+// ✅✅✅ NEW: تعریف نوع داده برای رویدادهای پردازش شده
+type DaoEvent = {
+    eventName: string;
+    description: string;
     blockNumber: string;
-    functionName: string;
-    isError: string;
+    transactionHash: string;
+    args: any;
 };
 
-interface TransactionTableProps {
+interface EventTableProps {
     contractAddress: Address | undefined | null;
     contractName: string;
     emptyMessage: string;
 }
 
-
-
-
-const TransactionTable: React.FC<TransactionTableProps> = ({ contractAddress, contractName, emptyMessage }) => {
+const EventTable: React.FC<EventTableProps> = ({ contractAddress, contractName, emptyMessage }) => {
     const { t, locale } = useTranslation();
-    const { data: nativeBalance } = useBalance({ address: contractAddress as Address });
 
-    // ✅ ۱. فقط یک درخواست ساده
-    const { data: transactions, isLoading, error } = useQuery<Transaction[]>({
-        queryKey: ['transactions', contractAddress],
+    // ✅ 1. فراخوانی API جدید (/api/events)
+    // توجه: ما دیگر از /api/transactions استفاده نمی‌کنیم
+
+    const { data: events, isLoading, error } = useQuery<DaoEvent[]>({
+        queryKey: ['events', contractAddress],
         queryFn: async () => {
             if (!contractAddress) return [];
-            const response = await fetch(`/api/transactions?address=${contractAddress}`);
+
+            // ✅✅✅ THE FIX IS HERE ✅✅✅
+            // با افزودن این گزینه، به Next.js می‌گوییم که این درخواست باید همیشه پویا باشد
+            // و نتیجه آن نباید در زمان بیلد کش شود.
+            const response = await fetch(`/api/events`, { cache: 'no-store' });
+
             if (!response.ok) {
                 const errorData = await response.json();
-                throw new Error(errorData.message || 'Failed to fetch transactions.');
+                throw new Error(errorData.message || 'Failed to fetch events.');
             }
             const data = await response.json();
             
-            // ✅ ۲. داده‌ها را از کلید 'result' استخراج می‌کنیم
-            if (data.status === '1') {
-                return data.result || [];
-            } else if (data.message === 'No transactions found') {
-                return [];
-            } else {
-                throw new Error(data.result || data.message);
+            if (data.success && Array.isArray(data.result)) {
+                if (contractName === 'RayanChainDao') {
+                    return data.result.filter((e: DaoEvent) => ['ProposalCreated', 'Voted', 'ProposalStateChanged', 'ProposalExecuted'].includes(e.eventName));
+                }
+                return data.result;
             }
+            return [];
         },
         enabled: !!contractAddress,
     });
-
-    const getTxnDirection = (from: string, to: string) => {
-        const fromLower = from.toLowerCase();
-        const toLower = to.toLowerCase();
-        const contractLower = contractAddress?.toLowerCase();
-        
-        if (fromLower === contractLower) return 'out';
-        if (toLower === contractLower) return 'in';
-        return 'self';
-    }
-
-    const formatFunctionName = (name: string) => {
-        if (!name) return t('logs_page.contract_interaction');
-        return name.split('(')[0].replace(/([A-Z])/g, ' $1').trim();
+    
+    // ✅ 3. تابع جدید برای ایجاد یک توضیح خوانا از هر رویداد
+    const formatEventDescription = (event: DaoEvent) => {
+        const { eventName, args } = event;
+        switch (eventName) {
+            case 'ProposalCreated':
+                return `Proposal #${args.id} created by ${formatAddress(args.proposer)}`;
+            case 'Voted':
+                const voteType = args.vote === 0 ? 'For' : 'Against';
+                return `${formatAddress(args.voter)} voted '${voteType}' on Proposal #${args.proposalId} with power ${formatNumber(formatEther(args.weight), locale)}`;
+            case 'ProposalStateChanged':
+                 const states = ['Pending', 'Validation', 'Voting', 'Approved', 'Rejected', 'Executed', 'Expired', 'Cancelled'];
+                return `Proposal #${args.id} state changed to '${states[args.newState] || 'Unknown'}'`;
+            case 'ProposalExecuted':
+                return `Proposal #${args.id} was executed.`;
+            // در آینده، رویدادهای Staked, Unstaked, Delegated و... را نیز اضافه می‌کنیم
+            default:
+                return `Event: ${eventName}`;
+        }
     };
 
     if (isLoading) {
@@ -123,60 +127,48 @@ const TransactionTable: React.FC<TransactionTableProps> = ({ contractAddress, co
 
     return (
         <Table>
-        {/* ✅✅✅ ۳. اصلاح کامل ساختار جدول ✅✅✅ */}
-        <TableHeader>
-            <TableRow>
-                <TableHead className="w-[200px]">{t('logs_page.action')}</TableHead>
-                <TableHead>{t('logs_page.details')}</TableHead>
-                <TableHead className="w-[150px]">{t('logs_page.amount')}</TableHead>
-                <TableHead className="w-[200px]">{t('logs_page.date')}</TableHead>
-                <TableHead className="text-right w-[50px]">{t('actions')}</TableHead>
-            </TableRow>
-        </TableHeader>
-        <TableBody>
-            {transactions && transactions.length > 0 ? (
-                transactions.map((tx) => (
-                    <TableRow key={tx.hash}>
-                        <TableCell>
-                            <div className="flex items-center gap-2">
-                                 {getTxnDirection(tx.from, tx.to) === 'in' ? <ArrowRight className="size-4 text-green-500 shrink-0" /> : <ArrowLeft className="size-4 text-destructive shrink-0" />}
-                                 <span className="capitalize font-medium truncate">{formatFunctionName(tx.functionName)}</span>
-                                 {tx.isError === '1' && <Badge variant="destructive">{t('logs_page.failed')}</Badge>}
-                            </div>
-                        </TableCell>
-                        <TableCell>
-                           <div className="flex flex-col gap-1 text-xs font-mono">
-                               <div>
-                                   <span className="text-muted-foreground">{t('logs_page.from')}:</span> {formatAddress(tx.from)}
-                               </div>
-                               <div>
-                                   <span className="text-muted-foreground">{t('logs_page.to')}:</span> {formatAddress(tx.to)}
-                               </div>
-                           </div>
-                        </TableCell>
-                        <TableCell className="font-mono text-sm">
-                            {`${formatNumber(formatEther(BigInt(tx.value)), locale)} ${nativeBalance?.symbol ?? ''}`}
-                        </TableCell>
-                        <TableCell className="text-xs text-muted-foreground">
-                            {formatLocaleDate(new Date(Number(tx.timeStamp) * 1000), locale, { dateStyle: 'medium', timeStyle: 'short' })}
-                        </TableCell>
-                        <TableCell className="text-right">
-                           <Button variant="ghost" size="icon" asChild>
-                               <a href={`https://amoy.polygonscan.com/tx/${tx.hash}`} target="_blank" rel="noopener noreferrer">
-                                   <ExternalLink className="h-4 w-4" />
-                               </a>
-                           </Button>
-                        </TableCell>
-                    </TableRow>
-                ))
-            ) : (
+            <TableHeader>
                 <TableRow>
-                    <TableCell colSpan={5} className="h-24 text-center">{emptyMessage}</TableCell>
+                    <TableHead className="w-[250px]">{t('logs_page.action')}</TableHead>
+                    <TableHead>{t('logs_page.details')}</TableHead>
+                    <TableHead className="w-[200px]">{t('logs_page.date')}</TableHead>
+                    <TableHead className="text-right w-[50px]">{t('actions')}</TableHead>
                 </TableRow>
-            )}
-        </TableBody>
-    </Table>
-);
+            </TableHeader>
+            <TableBody>
+                {events && events.length > 0 ? (
+                    events.map((event) => (
+                        <TableRow key={event.transactionHash + event.eventName}>
+                            <TableCell>
+                                <div className="flex items-center gap-2">
+                                     <Info className="size-4 text-muted-foreground shrink-0" />
+                                     <span className="capitalize font-medium">{event.eventName.replace(/([A-Z])/g, ' $1').trim()}</span>
+                                </div>
+                            </TableCell>
+                            <TableCell>
+                               <p className="text-sm">{formatEventDescription(event)}</p>
+                            </TableCell>
+                            <TableCell className="text-xs text-muted-foreground">
+                                {/* برای تاریخ، نیاز به Block Timestamp داریم که API فعلی برنمی‌گرداند. این را در فاز بعد اضافه می‌کنیم. */}
+                                Block: {event.blockNumber}
+                            </TableCell>
+                            <TableCell className="text-right">
+                               <Button variant="ghost" size="icon" asChild>
+                                   <a href={`https://amoy.polygonscan.com/tx/${event.transactionHash}`} target="_blank" rel="noopener noreferrer">
+                                       <ExternalLink className="h-4 w-4" />
+                                   </a>
+                               </Button>
+                            </TableCell>
+                        </TableRow>
+                    ))
+                ) : (
+                    <TableRow>
+                        <TableCell colSpan={4} className="h-24 text-center">{emptyMessage}</TableCell>
+                    </TableRow>
+                )}
+            </TableBody>
+        </Table>
+    );
 };
 
 export default function LogsPage() {
@@ -237,7 +229,7 @@ export default function LogsPage() {
                             <CardDescription>{t('logs_page.governance_events_desc')}</CardDescription>
                         </CardHeader>
                         <CardContent>
-                           <TransactionTable 
+                           <EventTable 
                                 contractName="RayanChainDao"
                                 contractAddress={daoAddress} 
                                 emptyMessage={t('logs_page.no_governance_logs')} 
@@ -253,7 +245,7 @@ export default function LogsPage() {
                             <CardDescription>{t('logs_page.staking_events_desc')}</CardDescription>
                         </CardHeader>
                         <CardContent>
-                           <TransactionTable 
+                           <EventTable 
                                 contractName="Staking"
                                 contractAddress={stakingAddress} 
                                 emptyMessage={t('logs_page.no_staking_logs')} 
@@ -269,7 +261,7 @@ export default function LogsPage() {
                             <CardDescription>{t('logs_page.finance_events_desc')}</CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <TransactionTable 
+                            <EventTable 
                                 contractName="Finance"
                                 contractAddress={financeAddress} 
                                 emptyMessage={t('logs_page.no_finance_logs')} 

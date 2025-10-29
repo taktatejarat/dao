@@ -1,3 +1,5 @@
+// src/app/reports/page.tsx - FINAL, CORRECTED VERSION
+
 "use client";
 
 import { useState } from 'react';
@@ -9,19 +11,22 @@ import { Input } from '@/components/ui/input';
 import { DaoLoadingSpinner } from '@/components/icons/dao-loading-spinner';
 import { StatCard } from '@/components/dashboard/stat-card';
 import { AppLayout } from '@/components/layout/app-layout'; 
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { AlertTriangle } from 'lucide-react';
 
-// Function to fetch the API (فرض می‌کنیم این API وجود دارد)
+// This function remains outside as it doesn't depend on component state
 const fetchAnalysis = async (proposalId: number) => {
   const response = await fetch(`/api/ai-report/${proposalId}`);
   if (!response.ok) {
-    throw new Error('Network response was not ok');
+    const errorData = await response.json();
+    throw new Error(errorData.message || 'Failed to fetch AI report.');
   }
   return response.json();
 };
 
 export default function ReportsPage() {
     const { t } = useTranslation();
-    const [proposalId, setProposalId] = useState<number>(1);
+    const [proposalIdInput, setProposalIdInput] = useState<string>("1");
     const [queryId, setQueryId] = useState<number | null>(null);
 
     const { data, isLoading, isError, error, isFetching } = useQuery({
@@ -31,11 +36,13 @@ export default function ReportsPage() {
     });
     
     const handleStartAnalysis = () => {
-        setQueryId(proposalId);
+        const id = parseInt(proposalIdInput, 10);
+        if (!isNaN(id) && id > 0) {
+            setQueryId(id);
+        }
     };
 
     return (
-        // ✅✅✅ ۲. قرار دادن کل محتوا در داخل AppLayout
         <AppLayout>
             <div className="space-y-6">
                 <header>
@@ -52,36 +59,47 @@ export default function ReportsPage() {
                         <Input 
                             type="number"
                             placeholder={t('reports_page.input_placeholder')}
-                            value={proposalId}
-                            onChange={(e) => setProposalId(Number(e.target.value))}
+                            value={proposalIdInput}
+                            onChange={(e) => setProposalIdInput(e.target.value)}
                             min="1"
                         />
-                        <Button onClick={handleStartAnalysis} disabled={isFetching}>
+                        <Button onClick={handleStartAnalysis} disabled={isFetching || !proposalIdInput}>
                             {isFetching ? <DaoLoadingSpinner /> : t('reports_page.start_analysis')}
                         </Button>
                     </CardContent>
                 </Card>
 
-                {isFetching && <div className="flex justify-center p-8"><DaoLoadingSpinner /></div>}
+                {isFetching && (
+                    <div className="flex justify-center p-8">
+                        <DaoLoadingSpinner className="size-12" />
+                    </div>
+                )}
                 
-                {isError && !isFetching && <p className="text-red-500">{(error as Error).message}</p>}
+                {isError && !isFetching && (
+                    <Alert variant="destructive">
+                        <AlertTriangle className="h-4 w-4" />
+                        <AlertTitle>Error Fetching Report</AlertTitle>
+                        <AlertDescription>{(error as Error).message}</AlertDescription>
+                    </Alert>
+                )}
 
-                {data && !isFetching && (
+                {data && !isFetching && queryId && (
                     <Card>
                         <CardHeader>
-                            <CardTitle>{t('reports_page.proposal_report_title').replace('{id}', queryId!.toString())}</CardTitle>
+                            {/* ✅✅✅ THE FIX IS HERE ✅✅✅ */}
+                            {/* We use string.replace() which is the standard way */}
+                            <CardTitle>{t('reports_page.proposal_report_title').replace('{id}', queryId.toString())}</CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                                <StatCard title={t('analytics_page.participation_rate')} value={`${data.participation_rate}%`} description={t('analytics_page.participation_rate_desc')} />
-                                <StatCard title={t('analytics_page.voter_concentration')} value={`${data.voter_concentration}%`} description={t('analytics_page.voter_concentration_desc')} />
-                                <StatCard title={t('analytics_page.voting_power_distribution')} value={data.voting_power_distribution.toFixed(2)} description={t('analytics_page.voting_power_distribution_desc')} />
-                                <StatCard title={t('analytics_page.collusion_risk')} value={data.collusion_risk} description={t('analytics_page.collusion_risk_desc')} />
-                                <StatCard title={t('reports_page.ai_risk_score')} value={data.ai_risk_score.toFixed(2)} description={t('reports_page.ai_risk_score_desc')} />
+                                <StatCard title="AI Risk Score" value={data.ai_risk_score?.toFixed(2) || 'N/A'} description="Calculated risk based on project data" />
+                                {/* You can add other stat cards here based on your AI response */}
+                                {/* Example: */}
+                                {/* <StatCard title="Collusion Risk" value={data.collusion_risk || 'Low'} description="Risk of coordinated voting" /> */}
                             </div>
                             <div>
-                                <h3 className="font-semibold">{t('analytics_page.summary_title')}</h3>
-                                <p className="text-sm text-muted-foreground">{data.summary}</p>
+                                <h3 className="font-semibold">Analysis Summary</h3>
+                                <p className="text-sm text-muted-foreground">{data.summary || 'No summary available.'}</p>
                             </div>
                         </CardContent>
                     </Card>
