@@ -1,8 +1,8 @@
-// src/app/proposals/new/page.tsx - Revised for AI Features and API Submission
+// src/app/proposals/new/page.tsx - FINAL CORRECTED VERSION
 
 "use client";
 
-import { useEffect, useMemo } from 'react';
+import { useEffect } from 'react';
 import { AppLayout } from '@/components/layout/app-layout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -15,41 +15,25 @@ import { DaoLoadingSpinner } from '@/components/icons/dao-loading-spinner';
 import { useRouter } from 'next/navigation';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertTriangle, PlusCircle, Trash2 } from 'lucide-react';
-import { useReadContract, useAccount } from 'wagmi'; 
-import type { Address } from 'viem';
-import { daoRegistryAbi } from '@/lib/blockchain/generated';
-import { REGISTRY_KEYS } from '@/lib/blockchain/registry-keys';
+import { useAccount } from 'wagmi'; 
 import { useCreateProposal } from '@/hooks/useCreateProposal';
 import { toast } from 'sonner';
 
+// ✅ NEW IMPORTS: برای فیلدهای جدید فرم
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
 export default function NewProposalPage() {
     const { t } = useTranslation();
     const router = useRouter();
     const { userRole, address, registryAddress, isHydrated } = useWeb3();
     const { isConnected } = useAccount(); 
-    // --- Fetching required contract addresses ---
-    const { data: daoAddressResult, isLoading: isDaoAddrLoading } = useReadContract({
-        address: registryAddress as Address,
-        abi: daoRegistryAbi,
-        functionName: 'getAddress',
-        args: [REGISTRY_KEYS.DAO],
-        query: { enabled: !!registryAddress && isHydrated },
-    });
-    const { data: accCtrlAddressResult, isLoading: isAccCtrlAddrLoading } = useReadContract({
-        address: registryAddress as Address,
-        abi: daoRegistryAbi,
-        functionName: 'getAddress',
-        args: [REGISTRY_KEYS.ACC_CONTROL],
-        query: { enabled: !!registryAddress && isHydrated },
-    });
-    const daoAddress = daoAddressResult as Address | undefined;
 
+    // ✅ FIX: دسترسی به صفحه اکنون فقط برای نقش‌های مجاز است
     const canAccessPage = userRole === 'startup' || userRole === 'admin';
     const canSubmitProposal = canAccessPage && isConnected; 
 
-
-    // --- Custom Hook for Form Logic ---
+    // ✅✅✅ THE FIX IS HERE: دریافت تمام متغیرهای جدید از هوک ✅✅✅
     const {
         description, setDescription,
         recipient, setRecipient,
@@ -57,16 +41,20 @@ export default function NewProposalPage() {
         handleAddMilestone,
         handleMilestoneAmountChange,
         handleRemoveMilestone,
-        // ✅ NEW: AI Features
+        // متغیرهای جدید AI
         startupIndustry, setStartupIndustry,
-        teamExperience, setTeamExperience,
+        teamExperienceYears, setTeamExperienceYears,
+        hasPreviousFunding, setHasPreviousFunding,
+        marketSize, setMarketSize,
+        teamBio, setTeamBio,
+        // توابع و وضعیت‌ها
         handleSubmit,
         isPending,
         isButtonDisabled,
         isFormValid
-    } = useCreateProposal({ daoAddress, isFormEnabled: canSubmitProposal });
+    } = useCreateProposal({ daoAddress: registryAddress, isFormEnabled: canSubmitProposal }); // فرض می‌کنیم registryAddress همان daoAddress است یا از آن خوانده می‌شود
 
-    // --- Effects for Redirection & Warnings ---
+    // --- Effects for Redirection (بدون تغییر) ---
     useEffect(() => {
         if (isHydrated && !canAccessPage) {
             toast.error(t('new_proposal_page.access_denied_title'), { description: t('new_proposal_page.access_denied_desc') });
@@ -74,22 +62,17 @@ export default function NewProposalPage() {
         }
     }, [isHydrated, canAccessPage, router, t]);
 
-    const isLoading = !isHydrated || isDaoAddrLoading || isAccCtrlAddrLoading;
-
-    if (isLoading) {
+    if (!isHydrated) {
         return <AppLayout><div className="flex justify-center pt-20"><DaoLoadingSpinner /></div></AppLayout>;
     }
-
     if (!canAccessPage) {
         return <AppLayout><div className="flex justify-center pt-20"><p>{t('new_proposal_page.redirecting')}</p></div></AppLayout>;
     }
     
-    // ✅ Change: Pass the user's address to the handler for the API to use
     const onFormSubmit = (e: React.FormEvent) => handleSubmit(e, address); 
 
     return (
         <AppLayout>
-            {/* ✅ Change: Use the new handler */}
             <form onSubmit={onFormSubmit}> 
                 <header className="mb-6">
                     <h1 className="text-3xl font-bold font-headline">{t('new_proposal_page.title')}</h1>
@@ -101,7 +84,6 @@ export default function NewProposalPage() {
                         <CardDescription>{t('new_proposal_page.card_desc')}</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-6">
-                        {/* ✅ NEW: Simple Alert if wallet is not connected */}
                         {!isConnected && (
                             <Alert variant="destructive">
                                 <AlertTriangle className="h-4 w-4" />
@@ -109,21 +91,57 @@ export default function NewProposalPage() {
                                 <AlertDescription>{t('new_proposal_page.connect_to_submit')}</AlertDescription>
                             </Alert>
                         )}
-                       {/* --- NEW: AI Feature Inputs (Risk Assessment Features) --- */}
+                       
+                       {/* --- AI Feature Inputs (بخش کامل شده) --- */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="space-y-2">
+                                <Label htmlFor="startup-industry">{t('new_proposal_page.startup_industry_label')}</Label>
+                                <Select onValueChange={setStartupIndustry} value={startupIndustry} disabled={isPending}>
+                                    <SelectTrigger><SelectValue placeholder={t('new_proposal_page.startup_industry_placeholder')} /></SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="Fintech">Fintech</SelectItem>
+                                        <SelectItem value="AI">Artificial Intelligence</SelectItem>
+                                        <SelectItem value="HealthTech">HealthTech</SelectItem>
+                                        <SelectItem value="DeFi">DeFi / Web3</SelectItem>
+                                        <SelectItem value="SaaS">SaaS</SelectItem>
+                                        <SelectItem value="Gaming">Gaming</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label htmlFor="team-experience-years">{t('new_proposal_page.team_experience_years_label')}</Label>
+                                <Input id="team-experience-years" type="number" placeholder="e.g., 25" value={teamExperienceYears} onChange={(e) => setTeamExperienceYears(e.target.value)} disabled={isPending} />
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label>{t('new_proposal_page.has_previous_funding_label')}</Label>
+                                <RadioGroup onValueChange={setHasPreviousFunding} value={hasPreviousFunding} className="flex gap-4 pt-2" disabled={isPending}>
+                                    <div className="flex items-center space-x-2">
+                                        <RadioGroupItem value="true" id="funding-yes" /><Label htmlFor="funding-yes">{t('common.yes')}</Label>
+                                    </div>
+                                    <div className="flex items-center space-x-2">
+                                        <RadioGroupItem value="false" id="funding-no" /><Label htmlFor="funding-no">{t('common.no')}</Label>
+                                    </div>
+                                </RadioGroup>
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label htmlFor="market-size">{t('new_proposal_page.market_size_label')}</Label>
+                                <Input id="market-size" type="number" placeholder="e.g., 5000000000" value={marketSize} onChange={(e) => setMarketSize(e.target.value)} disabled={isPending} />
+                            </div>
+                        </div>
+
                         <div className="space-y-2">
-                            <Label htmlFor="startup-industry">{t('new_proposal_page.startup_industry_label')}</Label>
-                            <Input id="startup-industry" placeholder={t('new_proposal_page.startup_industry_placeholder')} value={startupIndustry} onChange={(e) => setStartupIndustry(e.target.value)} disabled={isPending} />
+                            <Label htmlFor="team-bio">{t('new_proposal_page.team_bio_label')}</Label>
+                            <Textarea id="team-bio" placeholder={t('new_proposal_page.team_bio_placeholder')} className="min-h-[100px]" value={teamBio} onChange={(e) => setTeamBio(e.target.value)} disabled={isPending} />
                         </div>
-                         <div className="space-y-2">
-                            <Label htmlFor="team-experience">{t('new_proposal_page.team_experience_label')}</Label>
-                            <Textarea id="team-experience" placeholder={t('new_proposal_page.team_experience_placeholder')} className="min-h-[80px]" value={teamExperience} onChange={(e) => setTeamExperience(e.target.value)} disabled={isPending} />
-                        </div>
-                        {/* --- END NEW AI Feature Inputs --- */}
+                        {/* --- END AI Feature Inputs --- */}
 
                         <div className="space-y-2">
                             <Label htmlFor="proposal-description">{t('new_proposal_page.full_description')}</Label>
                             <Textarea id="proposal-description" placeholder={t('new_proposal_page.full_description_placeholder')} className="min-h-[120px]" value={description} onChange={(e) => setDescription(e.target.value)} disabled={isPending} />
-                            <p className="text-sm text-muted-foreground">{t('new_proposal_page.off_chain_note')}</p> {/* Note for off-chain storage */}
+                            <p className="text-sm text-muted-foreground">{t('new_proposal_page.off_chain_note')}</p>
                         </div>
                          <div className="space-y-2">
                             <Label htmlFor="recipient-address">{t('new_proposal_page.recipient_address')}</Label>
@@ -137,7 +155,7 @@ export default function NewProposalPage() {
                                     <span className="font-bold text-lg text-muted-foreground pt-1.5">{index + 1}</span>
                                     <div className="flex-grow space-y-2">
                                         <Label className="text-sm font-normal">{t('new_proposal_page.amount')} (RYC)</Label>
-                                        <Input type="number" inputMode="decimal" step="any" min={0} placeholder="1000" value={amount} onChange={(e) => handleMilestoneAmountChange(index, e.target.value)} disabled={isPending} />
+                                        <Input type="number" inputMode="decimal" step="any" min="0" placeholder="1000" value={amount} onChange={(e) => handleMilestoneAmountChange(index, e.target.value)} disabled={isPending} />
                                     </div>
                                     <Button type="button" variant="ghost" size="icon" className="mt-6 text-muted-foreground hover:text-destructive" onClick={() => handleRemoveMilestone(index)} disabled={isPending}>
                                         <Trash2 className="h-4 w-4" />

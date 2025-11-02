@@ -14,6 +14,8 @@ export const fa = {
   investor: "سرمایه‌گذار",
   startup: "استارت‌آپ",
   voter: "رأی‌دهنده",
+  yes: "بله",
+  no: "خیر",
 
   // Header
   header: {
@@ -311,6 +313,11 @@ export const fa = {
     pending_toast_title: "است تراکنش در حال پردازش",
     error_toast_title: "خطا در ارسال تراکنش",
     unexpected_error_desc: "خطای ناشناخته‌ای رخ داد. لطفاً لاگ‌ها را بررسی کنید.",
+    team_experience_years_label: "مجموع سال‌های تجربه تیم",
+    has_previous_funding_label: "آیا قبلاً سرمایه جذب کرده‌اید؟",
+    market_size_label: "اندازه تخمینی بازار (به دلار)",
+    team_bio_label: "سوابق و بیوگرافی تیم",
+    team_bio_placeholder: "تجربه‌ها، موفقیت‌ها و نقش هر یک از اعضای کلیدی تیم را شرح دهید..."
   },
 
   // Profile Page
