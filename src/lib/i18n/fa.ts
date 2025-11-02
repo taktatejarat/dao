@@ -640,8 +640,13 @@ export const fa = {
   },
   reports_page: {
     no_proposals_found: "هیچ پیشنهادی یافت نشد",
-    proposal_report_title: "نتایج تحلیل (پیشنهاد #{id})",
     ai_risk_score: "نمره ریسک AI",
     ai_risk_score_desc: "نمره بین ۰ تا ۱۰۰",
+    subtitle: "تحلیل‌های عمیق و پیش‌بینی‌های مبتنی بر هوش مصنوعی برای هر پروپوزال.",
+    card_title: "تحلیل هوشمند پروپوزال",
+    card_desc: "شناسه (ID) پروپوزال مورد نظر خود را برای دریافت یک گزارش تحلیلی کامل از موتور هوش مصنوعی وارد کنید.",
+    input_placeholder: "شناسه پروپوزال را وارد کنید...",
+    start_analysis: "شروع تحلیل",
+    proposal_report_title: "گزارش تحلیلی برای پروپوزال شماره {id}",
   },
 };
