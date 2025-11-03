@@ -32,6 +32,7 @@ export interface RayanChainTokenInterface extends Interface {
       | "buyTokensWithNative"
       | "decimals"
       | "getAmountOfTokensForNative"
+      | "getRycPriceInUsd"
       | "initializePricing"
       | "mintingActive"
       | "name"
@@ -77,6 +78,10 @@ export interface RayanChainTokenInterface extends Interface {
   encodeFunctionData(
     functionFragment: "getAmountOfTokensForNative",
     values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getRycPriceInUsd",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "initializePricing",
@@ -137,6 +142,10 @@ export interface RayanChainTokenInterface extends Interface {
   decodeFunctionResult(functionFragment: "decimals", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "getAmountOfTokensForNative",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getRycPriceInUsd",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -324,6 +333,8 @@ export interface RayanChainToken extends BaseContract {
     "view"
   >;
 
+  getRycPriceInUsd: TypedContractMethod<[], [bigint], "view">;
+
   initializePricing: TypedContractMethod<
     [_priceFeedAddress: AddressLike, _initialRycAmountPerUsd: BigNumberish],
     [void],
@@ -412,6 +423,9 @@ export interface RayanChainToken extends BaseContract {
   getFunction(
     nameOrSignature: "getAmountOfTokensForNative"
   ): TypedContractMethod<[_nativeAmount: BigNumberish], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "getRycPriceInUsd"
+  ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
     nameOrSignature: "initializePricing"
   ): TypedContractMethod<

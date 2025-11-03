@@ -110,6 +110,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IRayanChainToken__factory>;
     getContractFactory(
+      name: "ISafeProxyFactory",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.ISafeProxyFactory__factory>;
+    getContractFactory(
       name: "IStaking",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IStaking__factory>;
@@ -259,6 +263,11 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.IRayanChainToken>;
     getContractAt(
+      name: "ISafeProxyFactory",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ISafeProxyFactory>;
+    getContractAt(
       name: "IStaking",
       address: string | ethers.Addressable,
       signer?: ethers.Signer
@@ -391,6 +400,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.IRayanChainToken>;
     deployContract(
+      name: "ISafeProxyFactory",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.ISafeProxyFactory>;
+    deployContract(
       name: "IStaking",
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.IStaking>;
@@ -539,6 +552,11 @@ declare module "hardhat/types/runtime" {
       args: any[],
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.IRayanChainToken>;
+    deployContract(
+      name: "ISafeProxyFactory",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.ISafeProxyFactory>;
     deployContract(
       name: "IStaking",
       args: any[],

@@ -276,9 +276,41 @@
         "type": "address"
       },
       {
-        "internalType": "uint256[]",
-        "name": "_milestoneAmounts",
-        "type": "uint256[]"
+        "components": [
+          {
+            "internalType": "string",
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "internalType": "uint256",
+            "name": "durationDays",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "enum RayanChainDAO.ProposalState",
+            "name": "state",
+            "type": "uint8"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "proofOfProgressHash",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "bool",
+            "name": "released",
+            "type": "bool"
+          }
+        ],
+        "internalType": "struct RayanChainDAO.Milestone[]",
+        "name": "_milestones",
+        "type": "tuple[]"
       }
     ],
     "name": "createFundingProposal",

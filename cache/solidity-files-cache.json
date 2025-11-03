@@ -310,8 +310,8 @@
       ]
     },
     "/home/errick/dao/src/contracts/RayanChainDAO.sol": {
-      "lastModificationDate": 1760525453759,
-      "contentHash": "9aec3d3fa1a9e967cc2bf310b15c3e81",
+      "lastModificationDate": 1762169486236,
+      "contentHash": "ab1fc509fd62fdfbbb1104e2e365e5cb",
       "sourceName": "src/contracts/RayanChainDAO.sol",
       "solcConfig": {
         "version": "0.8.24",
@@ -664,8 +664,8 @@
       ]
     },
     "/home/errick/dao/src/contracts/RayanChainToken.sol": {
-      "lastModificationDate": 1760781389499,
-      "contentHash": "70ff4869f4735a7bd38e3bbb1c9d25b8",
+      "lastModificationDate": 1762167420126,
+      "contentHash": "4a88d6ee1493986d721251ced06d5b55",
       "sourceName": "src/contracts/RayanChainToken.sol",
       "solcConfig": {
         "version": "0.8.24",
@@ -1247,6 +1247,43 @@
       ],
       "artifacts": [
         "AggregatorV3Interface"
+      ]
+    },
+    "/home/errick/dao/src/contracts/interfaces/ISafe.sol": {
+      "lastModificationDate": 1762177883663,
+      "contentHash": "f093e34f90561d247a006abef6d479aa",
+      "sourceName": "src/contracts/interfaces/ISafe.sol",
+      "solcConfig": {
+        "version": "0.8.24",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "viaIR": true,
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.24"
+      ],
+      "artifacts": [
+        "ISafeProxyFactory"
       ]
     }
   }

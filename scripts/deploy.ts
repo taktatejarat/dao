@@ -105,7 +105,7 @@ async function main() {
     
     // ✅ FIX: استفاده از Constructor استاندارد TimelockController
     // Proposers و Executors را خالی می‌گذاریم و در مراحل بعدی به صورت دستی به DAO اعطا می‌کنیم.
-    const timelock = await ethers.deployContract("RayanChainTimelockController", [
+    const timelock = await ethers.deployContract("TimelockController", [
         minDelayInSeconds,
         [], // proposers (ابتدا خالی)
         [], // executors (ابتدا خالی)

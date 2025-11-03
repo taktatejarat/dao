@@ -56,6 +56,8 @@ export type { IFinance } from "./src/contracts/interfaces/IFinance";
 export { IFinance__factory } from "./factories/src/contracts/interfaces/IFinance__factory";
 export type { IRayanChainToken } from "./src/contracts/interfaces/IRayanChainToken";
 export { IRayanChainToken__factory } from "./factories/src/contracts/interfaces/IRayanChainToken__factory";
+export type { ISafeProxyFactory } from "./src/contracts/interfaces/ISafe.sol/ISafeProxyFactory";
+export { ISafeProxyFactory__factory } from "./factories/src/contracts/interfaces/ISafe.sol/ISafeProxyFactory__factory";
 export type { IStaking } from "./src/contracts/interfaces/IStaking";
 export { IStaking__factory } from "./factories/src/contracts/interfaces/IStaking__factory";
 export type { AccControl } from "./src/contracts/permission/AccControl";
