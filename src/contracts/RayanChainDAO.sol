@@ -18,10 +18,13 @@ contract RayanChainDAO is Ownable, ReentrancyGuard {
 
 
     // --- Structs ---
+    // ✅✅✅ FIX 1: به‌روزرسانی کامل ساختار Milestone ✅✅✅
     struct Milestone {
+        string name;
+        uint256 durationDays;
         uint256 amount;
         ProposalState state;
-        bytes32 proofOfProgressHash; // ✅ CHANGE: Link changed to Hash for Off-Chain Proof
+        bytes32 proofOfProgressHash;
         bool released;
     }
 
@@ -29,8 +32,7 @@ contract RayanChainDAO is Ownable, ReentrancyGuard {
         uint256 id;
         ProposalType pType;
         address proposer;
-        // string description; // ❌ REMOVED: Full description is now off-chain
-        bytes32 descriptionHash; // ✅ RETAINED: Only the hash is stored on-chain
+        bytes32 descriptionHash;
         address payable recipient;
         uint256 amount;
         TokenType tokenType;
@@ -101,32 +103,36 @@ contract RayanChainDAO is Ownable, ReentrancyGuard {
 
     // --- Proposal Creation ---
     function createFundingProposal(
-        bytes32 _descriptionHash, 
+        bytes32 _descriptionHash,
         address payable _recipient,
-        uint256[] memory _milestoneAmounts
-    // ❌ REMOVED: external onlyRole(accControl.DAO_MEMBER_ROLE()) 
+        // ✅✅✅ FIX 2: تابع اکنون آرایه‌ای از Struct جدید را می‌پذیرد ✅✅✅
+        Milestone[] memory _milestones
     ) external {
-        // ✅ NEW: Temporary, less restrictive access check for testing.
-        // In final version, this will be: require(IERC20(startupAccessTokenAddress).balanceOf(msg.sender) > 0, "DAO: Must hold Startup Access Token to propose.");
-        require(stakingContract.getStakedAmount(msg.sender) > 0, "DAO: Must have RYC staked to propose."); // A simple interim security check
-        require(_milestoneAmounts.length > 0, "At least one milestone is required");
-        require(_descriptionHash != bytes32(0), "Description hash cannot be zero"); // New check
-        
+        require(stakingContract.getStakedAmount(msg.sender) > 0, "DAO: Must have RYC staked to propose.");
+        require(_milestones.length > 0, "At least one milestone is required");
+        require(_descriptionHash != bytes32(0), "Description hash cannot be zero");
+
         uint256 proposalId = _createProposal(
             ProposalType.Funding, _descriptionHash, _recipient, 0, TokenType.RYC
         );
 
-        for (uint i = 0; i < _milestoneAmounts.length; i++) {
+        // ✅✅✅ FIX 3: ذخیره کردن Milestone های جدید به درستی ✅✅✅
+        for (uint i = 0; i < _milestones.length; i++) {
+            require(_milestones[i].amount > 0, "Milestone amount must be > 0");
+            require(_milestones[i].durationDays > 0, "Milestone duration must be > 0");
+            require(bytes(_milestones[i].name).length > 0, "Milestone name cannot be empty");
+
             proposals[proposalId].milestones.push(Milestone({
-                amount: _milestoneAmounts[i],
+                name: _milestones[i].name,
+                durationDays: _milestones[i].durationDays,
+                amount: _milestones[i].amount,
                 state: ProposalState.Pending,
-                proofOfProgressHash: bytes32(0), // Initial hash is zero
+                proofOfProgressHash: bytes32(0),
                 released: false
             }));
         }
     }
 
-    // ✅ NEW: تابع ایجاد پروپوزال برای آزادسازی Milestone
     /**
      * @notice Creates a proposal to release the next milestone for an existing funding project.
      * @dev Can be called by the original project recipient or an admin.
@@ -154,11 +160,14 @@ contract RayanChainDAO is Ownable, ReentrancyGuard {
             TokenType.RYC
         );
         
+        // ✅✅✅ THE FIX IS HERE: مقداردهی کامل struct با مقادیر پیش‌فرض ✅✅✅
         // ذخیره کردن proofHash در پروپوزال جدید برای بررسی در زمان اجرا
         proposals[milestoneProposalId].milestones.push(Milestone({
-            amount: 0, // Not used
+            name: "", // ✅ FIX: افزودن فیلد name با مقدار پیش‌فرض
+            durationDays: 0, // ✅ FIX: افزودن فیلد durationDays با مقدار پیش‌فرض
+            amount: 0, // برای این نوع پروپوزال استفاده نمی‌شود
             state: ProposalState.Pending,
-            proofOfProgressHash: _proofHash,
+            proofOfProgressHash: _proofHash, // مقدار اصلی که باید ذخیره شود
             released: false
         }));
     }

@@ -1,6 +1,6 @@
 
 export const fa = {
-  // Common
+  common:{
   actions: "اقدامات",
   status: "وضعیت",
   active: "فعال",
@@ -16,6 +16,7 @@ export const fa = {
   voter: "رأی‌دهنده",
   yes: "بله",
   no: "خیر",
+  },
 
   // Header
   header: {
@@ -317,7 +318,11 @@ export const fa = {
     has_previous_funding_label: "آیا قبلاً سرمایه جذب کرده‌اید؟",
     market_size_label: "اندازه تخمینی بازار (به دلار)",
     team_bio_label: "سوابق و بیوگرافی تیم",
-    team_bio_placeholder: "تجربه‌ها، موفقیت‌ها و نقش هر یک از اعضای کلیدی تیم را شرح دهید..."
+    team_bio_placeholder: "تجربه‌ها، موفقیت‌ها و نقش هر یک از اعضای کلیدی تیم را شرح دهید...",
+    milestone_name: "نام مرحله/فاز",
+    duration_days: "مدت زمان مرحله/فاز",
+    milestone_name_placeholder: "نام مرحله/فاز پیشنهاد مانند: فاز1",
+    
   },
 
   // Profile Page

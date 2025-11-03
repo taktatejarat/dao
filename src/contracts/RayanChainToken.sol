@@ -81,6 +81,18 @@ contract RayanChainToken is ERC20, Ownable {
         priceFeed = AggregatorV3Interface(_newPriceFeed);
     }
     
+    function getRycPriceInUsd() external view returns (uint256) {
+        require(address(priceFeed) != address(0), "Price feed not set");
+        require(rycAmountPerUsd > 0, "RYC rate must be set");
+
+        // The price of 1 USD in RYC is `rycAmountPerUsd` (with 18 decimals)
+        // So, the price of 1 RYC in USD is (1 / rycAmountPerUsd)
+        // To avoid division with decimals in Solidity, we do:
+        // (1 * 10^18 * 10^18) / rycAmountPerUsd
+        // We use 10**36 to maintain precision for the final USD value with 18 decimals.
+        return (10**36) / rycAmountPerUsd;
+    }
+
     event TokensPurchased(address indexed buyer, uint256 nativeAmount, uint256 rycAmount);
 
     receive() external payable {

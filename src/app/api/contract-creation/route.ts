@@ -5,6 +5,12 @@ import { Address, Hex, keccak256, encodePacked, parseEther } from 'viem';
 import { getDb } from '@/lib/mongodb'; // ✅ NEW: وارد کردن getDb
 import { logEvent } from '@/lib/logger';  // ✅ NEW: وارد کردن logger
 
+// ✅ تعریف اینترفیس برای داده‌های ورودی برای افزایش خوانایی
+interface MilestoneInput {
+    name: string;
+    durationDays: string;
+    amount: string;
+}
 
 // Helper to compute hash using viem
 function computeProposalHash(description: string): Hex {
@@ -13,62 +19,59 @@ function computeProposalHash(description: string): Hex {
     return keccak256(data);
 }
 
-
 export async function POST(req: NextRequest) {
     try {
-        const { 
-            proposerAddress, 
-            description, 
-            recipientAddress, 
-            milestoneAmounts,
-            aiFeatures 
+        const {
+            proposerAddress,
+            description,
+            recipientAddress,
+            milestones, // ✅ FIX 1: اکنون 'milestones' را دریافت می‌کنیم نه 'milestoneAmounts'
+            aiFeatures
         } = await req.json();
 
-        // ۱. اعتبارسنجی
-        if (!description || !recipientAddress || !milestoneAmounts || milestoneAmounts.length === 0) {
+        if (!description || !recipientAddress || !milestones || !Array.isArray(milestones) || milestones.length === 0) {
             await logEvent('WARN', 'USER_ACTION', 'Proposal creation failed: Missing fields.', { proposerAddress });
             return NextResponse.json({ message: 'Missing required fields.' }, { status: 400 });
         }
-        
-        // ۲. محاسبه هش
+
         const descriptionHash = computeProposalHash(description);
-        
-        // ۳. ذخیره داده‌های Off-chain در MongoDB
         const db = await getDb();
-        const proposalsCollection = db.collection('proposals'); // ✅ استفاده از collection 'proposals'
-        
+        const proposalsCollection = db.collection('proposals');
+
         const offChainData = {
             proposerAddress,
             description,
             recipientAddress,
-            milestoneAmounts: milestoneAmounts.map((a: string) => a.toString()),
+            milestones, // ذخیره ساختار کامل در MongoDB
             aiFeatures: aiFeatures || {},
             descriptionHash: descriptionHash,
             createdAt: new Date(),
-            // فیلدهای اولیه برای وضعیت آن‌چین
             onChainStatus: 'pending_submission',
-            proposalIdOnChain: null, 
+            proposalIdOnChain: null,
         };
-
-        // ✅ به جای saveOffChainProposal، مستقیماً از MongoDB استفاده می‌کنیم
         const result = await proposalsCollection.insertOne(offChainData);
+        await logEvent('INFO', 'USER_ACTION', 'Off-chain proposal data saved.', { mongoId: result.insertedId.toString() });
 
-        await logEvent('INFO', 'USER_ACTION', 'Off-chain proposal data saved successfully.', {
-            proposer: proposerAddress,
-            mongoId: result.insertedId.toString(),
-            descriptionHash: descriptionHash
-        });
-        
-        // ۴. برگرداندن پاسخ برای فرانت‌اند
-        return NextResponse.json({ 
-            success: true, 
+        // ✅✅✅ FIX 2: ساخت آرگومان‌های تراکنش بر اساس ساختار جدید قرارداد ✅✅✅
+        const txArgs = [
+            descriptionHash,
+            recipientAddress as Address,
+            milestones.map((m: MilestoneInput) => ({
+                name: m.name,
+                durationDays: BigInt(m.durationDays || '0'), // تبدیل به BigInt
+                amount: parseEther(m.amount || '0'),
+                // فیلدهای زیر در زمان ساخت پروپوزال مقداردهی اولیه می‌شوند و نیازی به ارسال نیست
+                state: 0, // Pending
+                proofOfProgressHash: '0x0000000000000000000000000000000000000000000000000000000000000000',
+                released: false,
+            })),
+        ];
+
+        return NextResponse.json({
+            success: true,
             message: 'Off-chain data saved. Ready for on-chain submission.',
             descriptionHash,
-            txArgs: [
-                descriptionHash, 
-                recipientAddress as Address,
-                milestoneAmounts.map((a: string) => parseEther(a)),
-            ],
+            txArgs, // ارسال آرگومان‌های صحیح
         }, { status: 200 });
 
     } catch (error) {

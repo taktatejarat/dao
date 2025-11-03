@@ -18,41 +18,40 @@ import { AlertTriangle, PlusCircle, Trash2 } from 'lucide-react';
 import { useAccount } from 'wagmi'; 
 import { useCreateProposal } from '@/hooks/useCreateProposal';
 import { toast } from 'sonner';
+import { useCurrencyConverter } from '@/hooks/useCurrencyConverter'; // ✅ ایمپورت هوک جدید
 
 // ✅ NEW IMPORTS: برای فیلدهای جدید فرم
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
+
 export default function NewProposalPage() {
     const { t } = useTranslation();
     const router = useRouter();
     const { userRole, address, registryAddress, isHydrated } = useWeb3();
-    const { isConnected } = useAccount(); 
+    const { isConnected } = useAccount();
+    const { convertRycToLocalCurrency } = useCurrencyConverter(); // ✅ استفاده از هوک جدید
 
-    // ✅ FIX: دسترسی به صفحه اکنون فقط برای نقش‌های مجاز است
     const canAccessPage = userRole === 'startup' || userRole === 'admin';
-    const canSubmitProposal = canAccessPage && isConnected; 
+    const canSubmitProposal = canAccessPage && isConnected;
 
-    // ✅✅✅ THE FIX IS HERE: دریافت تمام متغیرهای جدید از هوک ✅✅✅
     const {
         description, setDescription,
         recipient, setRecipient,
-        milestoneAmounts,
+        milestones, // ✅ دریافت state جدید
         handleAddMilestone,
-        handleMilestoneAmountChange,
+        handleMilestoneChange, // ✅ دریافت handler جدید
         handleRemoveMilestone,
-        // متغیرهای جدید AI
         startupIndustry, setStartupIndustry,
         teamExperienceYears, setTeamExperienceYears,
         hasPreviousFunding, setHasPreviousFunding,
         marketSize, setMarketSize,
         teamBio, setTeamBio,
-        // توابع و وضعیت‌ها
         handleSubmit,
         isPending,
         isButtonDisabled,
         isFormValid
-    } = useCreateProposal({ daoAddress: registryAddress, isFormEnabled: canSubmitProposal }); // فرض می‌کنیم registryAddress همان daoAddress است یا از آن خوانده می‌شود
+    } = useCreateProposal({ daoAddress: registryAddress, isFormEnabled: canSubmitProposal });
 
     // --- Effects for Redirection (بدون تغییر) ---
     useEffect(() => {
@@ -150,14 +149,53 @@ export default function NewProposalPage() {
                         
                         <div className="space-y-4">
                             <Label>{t('new_proposal_page.funding_milestones')}</Label>
-                            {milestoneAmounts.map((amount, index) => (
-                                <div key={index} className="flex items-start gap-4 p-4 border rounded-lg bg-muted/50">
-                                    <span className="font-bold text-lg text-muted-foreground pt-1.5">{index + 1}</span>
-                                    <div className="flex-grow space-y-2">
-                                        <Label className="text-sm font-normal">{t('new_proposal_page.amount')} (RYC)</Label>
-                                        <Input type="number" inputMode="decimal" step="any" min="0" placeholder="1000" value={amount} onChange={(e) => handleMilestoneAmountChange(index, e.target.value)} disabled={isPending} />
+                            {milestones.map((milestone, index) => (
+                                <div key={index} className="flex items-start gap-2 md:gap-4 p-4 border rounded-lg bg-muted/50">
+                                    <span className="font-bold text-lg text-muted-foreground pt-8">{index + 1}</span>
+                                    <div className="flex-grow grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        {/* فیلد نام Milestone */}
+                                        <div className="space-y-2">
+                                            <Label htmlFor={`milestone-name-${index}`} className="text-sm font-normal">{t('new_proposal_page.milestone_name')}</Label>
+                                            <Input
+                                                id={`milestone-name-${index}`}
+                                                placeholder={t('new_proposal_page.milestone_name_placeholder')}
+                                                value={milestone.name}
+                                                onChange={(e) => handleMilestoneChange(index, 'name', e.target.value)}
+                                                disabled={isPending}
+                                            />
+                                        </div>
+                                        {/* فیلد مدت Milestone */}
+                                        <div className="space-y-2">
+                                            <Label htmlFor={`milestone-duration-${index}`} className="text-sm font-normal">{t('new_proposal_page.duration_days')}</Label>
+                                            <Input
+                                                id={`milestone-duration-${index}`}
+                                                type="text" // برای جلوگیری از باگ
+                                                inputMode="numeric"
+                                                placeholder="e.g., 30"
+                                                value={milestone.durationDays}
+                                                onChange={(e) => handleMilestoneChange(index, 'durationDays', e.target.value)}
+                                                disabled={isPending}
+                                            />
+                                        </div>
+                                        {/* فیلد مبلغ Milestone */}
+                                        <div className="space-y-2">
+                                            <Label htmlFor={`milestone-amount-${index}`} className="text-sm font-normal">{t('new_proposal_page.amount')} (RYC)</Label>
+                                            <Input
+                                                id={`milestone-amount-${index}`}
+                                                type="text" // ✅ FIX: برای جلوگیری از باگ، از نوع text استفاده می‌کنیم
+                                                inputMode="decimal"
+                                                placeholder="1000"
+                                                value={milestone.amount}
+                                                onChange={(e) => handleMilestoneChange(index, 'amount', e.target.value)}
+                                                disabled={isPending}
+                                            />
+                                            {/* ✅ NEW: نمایش ارزش محلی */}
+                                            <p className="text-xs text-muted-foreground text-right pr-1 h-4">
+                                                {milestone.amount && `≈ ${convertRycToLocalCurrency(milestone.amount)}`}
+                                            </p>
+                                        </div>
                                     </div>
-                                    <Button type="button" variant="ghost" size="icon" className="mt-6 text-muted-foreground hover:text-destructive" onClick={() => handleRemoveMilestone(index)} disabled={isPending}>
+                                    <Button type="button" variant="ghost" size="icon" className="mt-6 text-muted-foreground hover:text-destructive" onClick={() => handleRemoveMilestone(index)} disabled={isPending || milestones.length <= 1}>
                                         <Trash2 className="h-4 w-4" />
                                     </Button>
                                 </div>
@@ -167,7 +205,6 @@ export default function NewProposalPage() {
                                 {t('new_proposal_page.add_milestone')}
                             </Button>
                         </div>
-                        
                         {!isFormValid && canSubmitProposal && (
                             <Alert variant="default">
                                 <AlertTriangle className="h-4 w-4" />
