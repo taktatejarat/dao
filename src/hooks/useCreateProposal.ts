@@ -68,10 +68,14 @@ export function useCreateProposal({ daoAddress, isFormEnabled }: UseCreatePropos
     const parsedMilestoneAmounts = useMemo(() => {
         return milestones
             .map(m => {
-                try { return parseEther(m.amount || '0'); }
-                catch { return 0n; }
+                try { 
+                    return parseEther(m.amount || '0').toString(); // تبدیل همه BigInt ها به رشته
+                }
+                catch { 
+                    return "0"; 
+                }
             })
-            .filter(amountBigInt => amountBigInt > 0n);
+            .filter(amountStr => BigInt(amountStr) > 0n);
     }, [milestones]);
 
     // ✅ 4. اصلاح منطق اعتبارسنجی فرم برای حل باگ 'فرم ناقص است'
@@ -118,7 +122,6 @@ export function useCreateProposal({ daoAddress, isFormEnabled }: UseCreatePropos
 
                 const proposalId = decodedLog.args.id;
                 if (proposalId === undefined) throw new Error("Failed to decode proposal ID from event.");
-
                 // ✅ CRITICAL FIX: ساخت آبجکت کامل aiFeatures برای ارسال
                 const fullAiFeatures = {
                     industry: startupIndustry,
@@ -127,7 +130,6 @@ export function useCreateProposal({ daoAddress, isFormEnabled }: UseCreatePropos
                     market_size_usd: parseInt(marketSize, 10) || 0,
                     team_bio: teamBio,
                 };
-
                 // فراخوانی API برای فعال‌سازی AI با داده‌های کامل
                 fetch('/api/trigger-ai-update', {
                     method: 'POST',
@@ -164,6 +166,19 @@ export function useCreateProposal({ daoAddress, isFormEnabled }: UseCreatePropos
         if (!isFormValid || !daoAddress || !proposerAddress || isPending) return;
         setIsPending(true);
         
+        // ✅ DEBUG STEP 1: بررسی وضعیت اعتبارسنجی فرم و داده‌ها اولیه
+        console.log("🚀 [DEBUG] Form submission started...");
+        console.log("📝 [DEBUG] isFormValid:", isFormValid);
+        console.log("📌 [DEBUG] DAO Address:", daoAddress);
+        console.log("📌 [DEBUG] Proposer Address:", proposerAddress);
+        console.log("📌 [DEBUG] Is Pending:", isPending);
+
+        if (!isFormValid || !daoAddress || !proposerAddress || isPending) {
+            console.error("❌ [DEBUG] Invalid form data or state.");
+            return;
+        }
+        setIsPending(true);
+
         try {
             // ✅ 5. ارسال تمام داده‌های جدید به API ذخیره‌سازی Off-chain
             const fullAiFeatures = {
@@ -173,6 +188,16 @@ export function useCreateProposal({ daoAddress, isFormEnabled }: UseCreatePropos
                 market_size_usd: parseInt(marketSize, 10) || 0,
                 team_bio: teamBio,
             };
+            // ✅ DEBUG STEP 2: نمایش اطلاعات کامل که به API ارسال خواهند شد
+            const payload = {
+                proposerAddress,
+                daoAddress,
+                description,
+                recipientAddress: recipient,
+                milestones: milestones.map(m => ({...m, amount: parseEther(m.amount).toString()})), // تبدیل مقدار به string قبل از ارسال
+                aiFeatures: fullAiFeatures
+            };
+            console.log("🚀 [DEBUG] Payload to be sent to /api/contract-creation:", JSON.stringify(payload, null, 2));
 
             const response = await fetch('/api/contract-creation', {
                 method: 'POST',
@@ -186,6 +211,8 @@ export function useCreateProposal({ daoAddress, isFormEnabled }: UseCreatePropos
                     aiFeatures: fullAiFeatures
                 }),
             });
+            // ✅ DEBUG STEP 3: بررسی وضعیت پاسخ دریافتی از سرور
+            console.log("📩 [DEBUG] Response status from /api/contract-creation:", response.status);
 
             if (!response.ok) {
                 const errorData = await response.json();
@@ -193,6 +220,8 @@ export function useCreateProposal({ daoAddress, isFormEnabled }: UseCreatePropos
             }
 
             const { txArgs } = await response.json();
+            // ✅ DEBUG STEP 4: اطمینان از دریافت آرگومان‌های تراکنش موفقیت‌آمیز
+            console.log("✅ [DEBUG] Transaction arguments:", txArgs);
 
             // STEP 2: On-Chain Submission
             const submissionTxHash = await writeContractAsync({
@@ -201,6 +230,8 @@ export function useCreateProposal({ daoAddress, isFormEnabled }: UseCreatePropos
                 functionName: 'createFundingProposal',
                 args: txArgs,
             } as any);
+            // ✅ DEBUG STEP 5: نمایش هش تراکنش ایجاد پروپوزال
+            console.log("📜 [DEBUG] Submission transaction hash:", submissionTxHash);
 
             setTxHash(submissionTxHash);
             toast.info(t('new_proposal_page.pending_toast_title'), { description: submissionTxHash });

@@ -854,9 +854,25 @@ export const rayanChainDaoAbi = [
       { name: '_descriptionHash', internalType: 'bytes32', type: 'bytes32' },
       { name: '_recipient', internalType: 'address payable', type: 'address' },
       {
-        name: '_milestoneAmounts',
-        internalType: 'uint256[]',
-        type: 'uint256[]',
+        name: '_milestones',
+        internalType: 'struct RayanChainDAO.Milestone[]',
+        type: 'tuple[]',
+        components: [
+          { name: 'name', internalType: 'string', type: 'string' },
+          { name: 'durationDays', internalType: 'uint256', type: 'uint256' },
+          { name: 'amount', internalType: 'uint256', type: 'uint256' },
+          {
+            name: 'state',
+            internalType: 'enum RayanChainDAO.ProposalState',
+            type: 'uint8',
+          },
+          {
+            name: 'proofOfProgressHash',
+            internalType: 'bytes32',
+            type: 'bytes32',
+          },
+          { name: 'released', internalType: 'bool', type: 'bool' },
+        ],
       },
     ],
     name: 'createFundingProposal',
@@ -1295,6 +1311,13 @@ export const rayanChainTokenAbi = [
       { name: '_nativeAmount', internalType: 'uint256', type: 'uint256' },
     ],
     name: 'getAmountOfTokensForNative',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'getRycPriceInUsd',
     outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
     stateMutability: 'view',
   },
@@ -3003,6 +3026,15 @@ export const useReadRayanChainTokenGetAmountOfTokensForNative =
   /*#__PURE__*/ createUseReadContract({
     abi: rayanChainTokenAbi,
     functionName: 'getAmountOfTokensForNative',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link rayanChainTokenAbi}__ and `functionName` set to `"getRycPriceInUsd"`
+ */
+export const useReadRayanChainTokenGetRycPriceInUsd =
+  /*#__PURE__*/ createUseReadContract({
+    abi: rayanChainTokenAbi,
+    functionName: 'getRycPriceInUsd',
   })
 
 /**

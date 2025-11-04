@@ -1,22 +1,20 @@
 
 export const fa = {
-  common:{
-  actions: "اقدامات",
-  status: "وضعیت",
-  active: "فعال",
-  settings: "تنظیمات",
-  logout: "خروج",
-  save_settings: "ذخیره تنظیمات",
-  edit_profile: "ویرایش پروفایل",
-  view_details: "مشاهده جزئیات",
-  risk_assessment: "ارزیابی ریسک",
-  admin: "ادمین",
-  investor: "سرمایه‌گذار",
-  startup: "استارت‌آپ",
-  voter: "رأی‌دهنده",
-  yes: "بله",
-  no: "خیر",
-  },
+    actions: "اقدامات",
+    status: "وضعیت",
+    active: "فعال",
+    settings: "تنظیمات",
+    logout: "خروج",
+    save_settings: "ذخیره تنظیمات",
+    edit_profile: "ویرایش پروفایل",
+    view_details: "مشاهده جزئیات",
+    risk_assessment: "ارزیابی ریسک",
+    admin: "ادمین",
+    investor: "سرمایه‌گذار",
+    startup: "استارت‌آپ",
+    voter: "رأی‌دهنده",
+    yes: "بله",
+    no: "خیر",
 
   // Header
   header: {

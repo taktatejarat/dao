@@ -1,8 +1,8 @@
-// scripts/deploy.ts - Final, Working Version with Auto-Configuration for AI Oracle
+// scripts/deploy.ts - FINAL, FULLY INTEGRATED VERSION with Multisig Deployment
 
 import { ethers, network } from "hardhat";
-import * as fs from 'fs'; // ✅ NEW
-import * as path from 'path'; // ✅ NEW
+import * as fs from 'fs';
+import * as path from 'path';
 
 // Helper function to read/write env file (simple append/replace)
 function updateEnvFile(key: string, value: string) {
@@ -23,10 +23,9 @@ function updateEnvFile(key: string, value: string) {
     fs.writeFileSync(envPath, envContent, 'utf8');
 }
 
-
 async function main() {
     console.log(`🚀 Starting full DAO deployment on network: ${network.name}...`);
-
+    
     const [deployer] = await ethers.getSigners();
     
     // AI Oracle Role is assigned to the Deployer (Admin) as requested
@@ -187,6 +186,7 @@ async function main() {
     process.stdout.write(`   - Granting PAUSER_ROLE to Deployer (Emergency Admin): ${deployer.address}...`);
     await (await accControl.grantRole(PAUSER_ROLE, deployer.address)).wait();
     process.stdout.write(" Done\n");
+
 
 
     // --- STEP 9.2: Set DAO Address & Initial Ownership Transfers ---    

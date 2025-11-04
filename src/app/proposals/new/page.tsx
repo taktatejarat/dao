@@ -117,10 +117,10 @@ export default function NewProposalPage() {
                                 <Label>{t('new_proposal_page.has_previous_funding_label')}</Label>
                                 <RadioGroup onValueChange={setHasPreviousFunding} value={hasPreviousFunding} className="flex gap-4 pt-2" disabled={isPending}>
                                     <div className="flex items-center space-x-2">
-                                        <RadioGroupItem value="true" id="funding-yes" /><Label htmlFor="funding-yes">{t('common.yes')}</Label>
+                                        <RadioGroupItem value="true" id="funding-yes" /><Label htmlFor="funding-yes">{t('yes')}</Label>
                                     </div>
                                     <div className="flex items-center space-x-2">
-                                        <RadioGroupItem value="false" id="funding-no" /><Label htmlFor="funding-no">{t('common.no')}</Label>
+                                        <RadioGroupItem value="false" id="funding-no" /><Label htmlFor="funding-no">{t('no')}</Label>
                                     </div>
                                 </RadioGroup>
                             </div>

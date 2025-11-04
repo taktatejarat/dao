@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
             proposerAddress,
             description,
             recipientAddress,
-            milestones, // ✅ FIX 1: اکنون 'milestones' را دریافت می‌کنیم نه 'milestoneAmounts'
+            milestones, 
             aiFeatures
         } = await req.json();
 
@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
             proposerAddress,
             description,
             recipientAddress,
-            milestones, // ذخیره ساختار کامل در MongoDB
+            milestones,
             aiFeatures: aiFeatures || {},
             descriptionHash: descriptionHash,
             createdAt: new Date(),
@@ -52,16 +52,14 @@ export async function POST(req: NextRequest) {
         const result = await proposalsCollection.insertOne(offChainData);
         await logEvent('INFO', 'USER_ACTION', 'Off-chain proposal data saved.', { mongoId: result.insertedId.toString() });
 
-        // ✅✅✅ FIX 2: ساخت آرگومان‌های تراکنش بر اساس ساختار جدید قرارداد ✅✅✅
         const txArgs = [
             descriptionHash,
             recipientAddress as Address,
             milestones.map((m: MilestoneInput) => ({
                 name: m.name,
-                durationDays: BigInt(m.durationDays || '0'), // تبدیل به BigInt
-                amount: parseEther(m.amount || '0'),
-                // فیلدهای زیر در زمان ساخت پروپوزال مقداردهی اولیه می‌شوند و نیازی به ارسال نیست
-                state: 0, // Pending
+                durationDays: BigInt(m.durationDays || '0').toString(), // تبدیل به رشته
+                amount: parseEther(m.amount || '0').toString(), // تبدیل به رشته
+                state: 0, 
                 proofOfProgressHash: '0x0000000000000000000000000000000000000000000000000000000000000000',
                 released: false,
             })),
