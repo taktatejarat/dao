@@ -99,6 +99,11 @@ async function main() {
 
     // 7. Deploy RayanChainDAO (Upgradeable)
     console.log("\n[7/9] Deploying RayanChainDAO (Upgradeable)...");
+    console.log("Owner Address:", deployer.address);
+    console.log("AccControl Address:", accControlAddress);
+    console.log("Staking Address:", stakingAddress);
+    console.log("Finance Address:", financeAddress);
+    console.log("Timelock Address:", timelockAddress);
     const RayanChainDAOFactory = await ethers.getContractFactory("RayanChainDAO");
     const votingPeriodInSeconds = 7 * 24 * 60 * 60;
     const quorumPercentage = 10;

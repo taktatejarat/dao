@@ -58,7 +58,7 @@ contract RayanChainDAO is Initializable, OwnableUpgradeable, ReentrancyGuardUpgr
     IStaking public stakingContract;
     IFinance public financeContract;
     TimelockController public timelock; // ✅ NEW: State variable for Timelock
-    address public startupAccessTokenAddress = address(0); 
+    address public startupAccessTokenAddress;  
     mapping(uint256 => Proposal) public proposals;
     uint256 public nextProposalId;
     mapping(uint256 => mapping(address => bool)) public hasVoted;
@@ -108,6 +108,7 @@ contract RayanChainDAO is Initializable, OwnableUpgradeable, ReentrancyGuardUpgr
         votingPeriod = _votingPeriod;
         quorumPercentage = _quorumPercentage;
         approvalThresholdPercentage = _approvalThreshold;
+        startupAccessTokenAddress = address(0);
         nextProposalId = 1;
     }
 
