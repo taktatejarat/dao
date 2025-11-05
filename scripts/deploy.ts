@@ -50,10 +50,10 @@ async function main() {
     console.log("\n[1/9] Deploying AccControl (Upgradeable)...");
     const AccControlFactory = await ethers.getContractFactory("AccControl");
     const accControl = await upgrades.deployProxy(AccControlFactory, [deployer.address], { initializer: 'initialize', kind: 'uups' });
-    await accControl.waitForDeployment();
+     await accControl.waitForDeployment();
     const accControlAddress = await accControl.getAddress();
     console.log("✅ AccControl (Proxy) deployed to:", accControlAddress);
-
+    
     // 2. Deploy RayanChainToken (Upgradeable)
     console.log("\n[2/9] Deploying RayanChainToken (Upgradeable)...");
     const RayanChainTokenFactory = await ethers.getContractFactory("RayanChainToken");
