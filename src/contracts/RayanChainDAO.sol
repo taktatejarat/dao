@@ -7,14 +7,12 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "./permission/AccControl.sol";
 import "./interfaces/IStaking.sol";
 import "./interfaces/IFinance.sol";
 import "./TimelockController.sol"; 
 
-contract RayanChainDAO is Ownable, ReentrancyGuard {
+contract RayanChainDAO is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, UUPSUpgradeable {
     // --- Enums ---
     enum ProposalState { Pending, Validation, Voting, Approved, Rejected, Executed, Expired, Cancelled }
     enum ProposalType { Funding, TreasuryAction, GrantRole, MilestoneRelease } // ✅ NEW: GrantRole for B.2
@@ -86,7 +84,7 @@ contract RayanChainDAO is Ownable, ReentrancyGuard {
         _;
     }
 
-    // --- ✅✅✅ INITIALIZER FUNCTION (جایگزین constructor) ✅✅✅ ---
+    // --- ✅ INITIALIZER FUNCTION ---
     function initialize(
         address _initialOwner,
         address _accControlAddress,
@@ -97,10 +95,11 @@ contract RayanChainDAO is Ownable, ReentrancyGuard {
         uint256 _quorumPercentage,
         uint256 _approvalThreshold
     ) public initializer {
-        // فراخوانی initializer های قراردادهای والد
         __Ownable_init(_initialOwner);
         __ReentrancyGuard_init();
-        __UUPSUpgradeable_init();
+
+        // تنظیم دستی مالک اولیه
+        transferOwnership(_initialOwner); // تنظیم مالک اولیه به آدرس ارائه‌شده
 
         accControl = AccControl(_accControlAddress);
         stakingContract = IStaking(_stakingAddress);

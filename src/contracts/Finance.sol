@@ -1,28 +1,22 @@
-// src/contracts/Finance.sol - اصلاح شده برای مالکیت Timelock
+// src/contracts/Finance.sol - نسخه نهایی و قابل ارتقاء (UPGRADEABLE)
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/access/Ownable.sol"; // ❌ Keep Ownable but change usage
-import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+
 import "./interfaces/IFinance.sol";
-import "./permission/AccControl.sol"; // ✅ NEW: Import AccControl
+import "./permission/AccControl.sol";
 
-/**
- * @title Finance Contract (Treasury) - Professional Version
- * @dev Manages DAO funds with support for milestone-based investments and platform fees.
- * This contract acts as the intelligent vault for a VC DAO.
- * Ownership is handled by the Timelock/DAO via the EXECUTOR_ROLE.
- */
-contract Finance is IFinance, Ownable, ReentrancyGuard { // Keep Ownable for setDaoAddress, but change core logic
-    IERC20 public immutable token;
+contract Finance is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, UUPSUpgradeable, IFinance {
+    IERC20 public token;
     address public daoAddress;
-    AccControl public accControl; // ✅ NEW: State variable for AccControl
+    AccControl public accControl;
+    uint256 public platformFeeBps;
 
-    // Platform fee in basis points (e.g., 250 = 2.5%)
-    uint256 public platformFeeBps; // Bps = Basis Points. 1% = 100 Bps.
-
-    // Struct to hold all details of an investment tied to a proposal
     struct Investment {
         address recipient;
         uint256 totalAmount;
@@ -31,30 +25,31 @@ contract Finance is IFinance, Ownable, ReentrancyGuard { // Keep Ownable for set
         uint8 currentMilestone;
         bool isActive;
     }
-
-    // Mapping from proposal ID to its investment details
     mapping(uint256 => Investment) public investments;
 
-    constructor(address _initialOwner, address _tokenAddress, uint256 _platformFeeBps, address _accControlAddress) 
-        Ownable(_initialOwner) {
-        require(_initialOwner != address(0), "Owner cannot be zero address");
+
+    // --- Initializer ---
+    function initialize(address _initialOwner, address _tokenAddress, uint256 _platformFeeBps, address _accControlAddress) public initializer {
+        __Ownable_init(_initialOwner);
+        __ReentrancyGuard_init();
+
         require(_tokenAddress != address(0), "Token cannot be zero address");
-        require(_platformFeeBps <= 1000, "Fee cannot exceed 10%"); // Safety check: max 10% fee
+        require(_platformFeeBps <= 1000, "Fee cannot exceed 10%");
+        
         token = IERC20(_tokenAddress);
         platformFeeBps = _platformFeeBps;
-        accControl = AccControl(_accControlAddress); // ✅ NEW: Set AccControl
+        accControl = AccControl(_accControlAddress);
     }
-    
+
+    // --- UUPS Upgrade Authorization ---
+    function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
+
     // --- Modifiers ---
-    // ✅ NEW MODIFIER: برای عملیات‌های حساس که باید توسط Timelock/DAO انجام شوند
     modifier onlyExecutor() {
         require(accControl.hasRole(accControl.EXECUTOR_ROLE(), msg.sender), "Finance: Must be Executor Role");
         _;
     }
 
-    /**
-     * @dev Allows anyone to deposit native currency (e.g., ETH, MATIC) into the treasury.
-     */
     receive() external payable {
         emit FundsDeposited(msg.sender, msg.value);
     }

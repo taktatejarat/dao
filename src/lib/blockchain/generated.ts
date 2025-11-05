@@ -27,6 +27,41 @@ export const accControlAbi = [
     name: 'AccessControlUnauthorizedAccount',
   },
   {
+    type: 'error',
+    inputs: [{ name: 'target', internalType: 'address', type: 'address' }],
+    name: 'AddressEmptyCode',
+  },
+  {
+    type: 'error',
+    inputs: [
+      { name: 'implementation', internalType: 'address', type: 'address' },
+    ],
+    name: 'ERC1967InvalidImplementation',
+  },
+  { type: 'error', inputs: [], name: 'ERC1967NonPayable' },
+  { type: 'error', inputs: [], name: 'FailedCall' },
+  { type: 'error', inputs: [], name: 'InvalidInitialization' },
+  { type: 'error', inputs: [], name: 'NotInitializing' },
+  { type: 'error', inputs: [], name: 'UUPSUnauthorizedCallContext' },
+  {
+    type: 'error',
+    inputs: [{ name: 'slot', internalType: 'bytes32', type: 'bytes32' }],
+    name: 'UUPSUnsupportedProxiableUUID',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'version',
+        internalType: 'uint64',
+        type: 'uint64',
+        indexed: false,
+      },
+    ],
+    name: 'Initialized',
+  },
+  {
     type: 'event',
     anonymous: false,
     inputs: [
@@ -87,6 +122,19 @@ export const accControlAbi = [
     name: 'RoleRevoked',
   },
   {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'implementation',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+    ],
+    name: 'Upgraded',
+  },
+  {
     type: 'function',
     inputs: [],
     name: 'AI_ORACLE_ROLE',
@@ -131,6 +179,13 @@ export const accControlAbi = [
   {
     type: 'function',
     inputs: [],
+    name: 'UPGRADE_INTERFACE_VERSION',
+    outputs: [{ name: '', internalType: 'string', type: 'string' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
     name: 'VALIDATOR_ROLE',
     outputs: [{ name: '', internalType: 'bytes32', type: 'bytes32' }],
     stateMutability: 'pure',
@@ -165,6 +220,22 @@ export const accControlAbi = [
   {
     type: 'function',
     inputs: [
+      { name: 'initialOwner', internalType: 'address', type: 'address' },
+    ],
+    name: 'initialize',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'proxiableUUID',
+    outputs: [{ name: '', internalType: 'bytes32', type: 'bytes32' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [
       { name: 'role', internalType: 'bytes32', type: 'bytes32' },
       { name: 'callerConfirmation', internalType: 'address', type: 'address' },
     ],
@@ -188,6 +259,16 @@ export const accControlAbi = [
     name: 'supportsInterface',
     outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
     stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'newImplementation', internalType: 'address', type: 'address' },
+      { name: 'data', internalType: 'bytes', type: 'bytes' },
+    ],
+    name: 'upgradeToAndCall',
+    outputs: [],
+    stateMutability: 'payable',
   },
 ] as const
 
@@ -334,15 +415,21 @@ export const daoRegistryAbi = [
 
 export const financeAbi = [
   {
-    type: 'constructor',
-    inputs: [
-      { name: '_initialOwner', internalType: 'address', type: 'address' },
-      { name: '_tokenAddress', internalType: 'address', type: 'address' },
-      { name: '_platformFeeBps', internalType: 'uint256', type: 'uint256' },
-      { name: '_accControlAddress', internalType: 'address', type: 'address' },
-    ],
-    stateMutability: 'nonpayable',
+    type: 'error',
+    inputs: [{ name: 'target', internalType: 'address', type: 'address' }],
+    name: 'AddressEmptyCode',
   },
+  {
+    type: 'error',
+    inputs: [
+      { name: 'implementation', internalType: 'address', type: 'address' },
+    ],
+    name: 'ERC1967InvalidImplementation',
+  },
+  { type: 'error', inputs: [], name: 'ERC1967NonPayable' },
+  { type: 'error', inputs: [], name: 'FailedCall' },
+  { type: 'error', inputs: [], name: 'InvalidInitialization' },
+  { type: 'error', inputs: [], name: 'NotInitializing' },
   {
     type: 'error',
     inputs: [{ name: 'owner', internalType: 'address', type: 'address' }],
@@ -354,6 +441,12 @@ export const financeAbi = [
     name: 'OwnableUnauthorizedAccount',
   },
   { type: 'error', inputs: [], name: 'ReentrancyGuardReentrantCall' },
+  { type: 'error', inputs: [], name: 'UUPSUnauthorizedCallContext' },
+  {
+    type: 'error',
+    inputs: [{ name: 'slot', internalType: 'bytes32', type: 'bytes32' }],
+    name: 'UUPSUnsupportedProxiableUUID',
+  },
   {
     type: 'event',
     anonymous: false,
@@ -399,6 +492,19 @@ export const financeAbi = [
       },
     ],
     name: 'FundsReleased',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'version',
+        internalType: 'uint64',
+        type: 'uint64',
+        indexed: false,
+      },
+    ],
+    name: 'Initialized',
   },
   {
     type: 'event',
@@ -536,6 +642,26 @@ export const financeAbi = [
     name: 'TokenFundsWithdrawn',
   },
   {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'implementation',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+    ],
+    name: 'Upgraded',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'UPGRADE_INTERFACE_VERSION',
+    outputs: [{ name: '', internalType: 'string', type: 'string' }],
+    stateMutability: 'view',
+  },
+  {
     type: 'function',
     inputs: [],
     name: 'accControl',
@@ -550,6 +676,18 @@ export const financeAbi = [
     name: 'daoAddress',
     outputs: [{ name: '', internalType: 'address', type: 'address' }],
     stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: '_initialOwner', internalType: 'address', type: 'address' },
+      { name: '_tokenAddress', internalType: 'address', type: 'address' },
+      { name: '_platformFeeBps', internalType: 'uint256', type: 'uint256' },
+      { name: '_accControlAddress', internalType: 'address', type: 'address' },
+    ],
+    name: 'initialize',
+    outputs: [],
+    stateMutability: 'nonpayable',
   },
   {
     type: 'function',
@@ -577,6 +715,13 @@ export const financeAbi = [
     inputs: [],
     name: 'platformFeeBps',
     outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'proxiableUUID',
+    outputs: [{ name: '', internalType: 'bytes32', type: 'bytes32' }],
     stateMutability: 'view',
   },
   {
@@ -639,6 +784,16 @@ export const financeAbi = [
   {
     type: 'function',
     inputs: [
+      { name: 'newImplementation', internalType: 'address', type: 'address' },
+      { name: 'data', internalType: 'bytes', type: 'bytes' },
+    ],
+    name: 'upgradeToAndCall',
+    outputs: [],
+    stateMutability: 'payable',
+  },
+  {
+    type: 'function',
+    inputs: [
       { name: 'to', internalType: 'address payable', type: 'address' },
       { name: 'amount', internalType: 'uint256', type: 'uint256' },
     ],
@@ -665,18 +820,21 @@ export const financeAbi = [
 
 export const rayanChainDaoAbi = [
   {
-    type: 'constructor',
-    inputs: [
-      { name: '_accControlAddress', internalType: 'address', type: 'address' },
-      { name: '_stakingAddress', internalType: 'address', type: 'address' },
-      { name: '_financeAddress', internalType: 'address', type: 'address' },
-      { name: '_timelockAddress', internalType: 'address', type: 'address' },
-      { name: '_votingPeriod', internalType: 'uint256', type: 'uint256' },
-      { name: '_quorumPercentage', internalType: 'uint256', type: 'uint256' },
-      { name: '_approvalThreshold', internalType: 'uint256', type: 'uint256' },
-    ],
-    stateMutability: 'nonpayable',
+    type: 'error',
+    inputs: [{ name: 'target', internalType: 'address', type: 'address' }],
+    name: 'AddressEmptyCode',
   },
+  {
+    type: 'error',
+    inputs: [
+      { name: 'implementation', internalType: 'address', type: 'address' },
+    ],
+    name: 'ERC1967InvalidImplementation',
+  },
+  { type: 'error', inputs: [], name: 'ERC1967NonPayable' },
+  { type: 'error', inputs: [], name: 'FailedCall' },
+  { type: 'error', inputs: [], name: 'InvalidInitialization' },
+  { type: 'error', inputs: [], name: 'NotInitializing' },
   {
     type: 'error',
     inputs: [{ name: 'owner', internalType: 'address', type: 'address' }],
@@ -688,6 +846,25 @@ export const rayanChainDaoAbi = [
     name: 'OwnableUnauthorizedAccount',
   },
   { type: 'error', inputs: [], name: 'ReentrancyGuardReentrantCall' },
+  { type: 'error', inputs: [], name: 'UUPSUnauthorizedCallContext' },
+  {
+    type: 'error',
+    inputs: [{ name: 'slot', internalType: 'bytes32', type: 'bytes32' }],
+    name: 'UUPSUnsupportedProxiableUUID',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'version',
+        internalType: 'uint64',
+        type: 'uint64',
+        indexed: false,
+      },
+    ],
+    name: 'Initialized',
+  },
   {
     type: 'event',
     anonymous: false,
@@ -799,6 +976,19 @@ export const rayanChainDaoAbi = [
     anonymous: false,
     inputs: [
       {
+        name: 'implementation',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+    ],
+    name: 'Upgraded',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
         name: 'proposalId',
         internalType: 'uint256',
         type: 'uint256',
@@ -830,6 +1020,13 @@ export const rayanChainDaoAbi = [
     inputs: [],
     name: 'MAX_RISK_SCORE',
     outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'UPGRADE_INTERFACE_VERSION',
+    outputs: [{ name: '', internalType: 'string', type: 'string' }],
     stateMutability: 'view',
   },
   {
@@ -950,6 +1147,22 @@ export const rayanChainDaoAbi = [
   },
   {
     type: 'function',
+    inputs: [
+      { name: '_initialOwner', internalType: 'address', type: 'address' },
+      { name: '_accControlAddress', internalType: 'address', type: 'address' },
+      { name: '_stakingAddress', internalType: 'address', type: 'address' },
+      { name: '_financeAddress', internalType: 'address', type: 'address' },
+      { name: '_timelockAddress', internalType: 'address', type: 'address' },
+      { name: '_votingPeriod', internalType: 'uint256', type: 'uint256' },
+      { name: '_quorumPercentage', internalType: 'uint256', type: 'uint256' },
+      { name: '_approvalThreshold', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'initialize',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
     inputs: [],
     name: 'nextProposalId',
     outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
@@ -1012,6 +1225,13 @@ export const rayanChainDaoAbi = [
       },
       { name: 'roleToGrant', internalType: 'bytes32', type: 'bytes32' },
     ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'proxiableUUID',
+    outputs: [{ name: '', internalType: 'bytes32', type: 'bytes32' }],
     stateMutability: 'view',
   },
   {
@@ -1099,6 +1319,16 @@ export const rayanChainDaoAbi = [
   {
     type: 'function',
     inputs: [
+      { name: 'newImplementation', internalType: 'address', type: 'address' },
+      { name: 'data', internalType: 'bytes', type: 'bytes' },
+    ],
+    name: 'upgradeToAndCall',
+    outputs: [],
+    stateMutability: 'payable',
+  },
+  {
+    type: 'function',
+    inputs: [
       { name: '_proposalId', internalType: 'uint256', type: 'uint256' },
       {
         name: '_voteType',
@@ -1125,13 +1355,18 @@ export const rayanChainDaoAbi = [
 
 export const rayanChainTokenAbi = [
   {
-    type: 'constructor',
-    inputs: [
-      { name: 'initialOwner', internalType: 'address', type: 'address' },
-      { name: 'initialSupply', internalType: 'uint256', type: 'uint256' },
-    ],
-    stateMutability: 'nonpayable',
+    type: 'error',
+    inputs: [{ name: 'target', internalType: 'address', type: 'address' }],
+    name: 'AddressEmptyCode',
   },
+  {
+    type: 'error',
+    inputs: [
+      { name: 'implementation', internalType: 'address', type: 'address' },
+    ],
+    name: 'ERC1967InvalidImplementation',
+  },
+  { type: 'error', inputs: [], name: 'ERC1967NonPayable' },
   {
     type: 'error',
     inputs: [
@@ -1170,6 +1405,9 @@ export const rayanChainTokenAbi = [
     inputs: [{ name: 'spender', internalType: 'address', type: 'address' }],
     name: 'ERC20InvalidSpender',
   },
+  { type: 'error', inputs: [], name: 'FailedCall' },
+  { type: 'error', inputs: [], name: 'InvalidInitialization' },
+  { type: 'error', inputs: [], name: 'NotInitializing' },
   {
     type: 'error',
     inputs: [{ name: 'owner', internalType: 'address', type: 'address' }],
@@ -1179,6 +1417,12 @@ export const rayanChainTokenAbi = [
     type: 'error',
     inputs: [{ name: 'account', internalType: 'address', type: 'address' }],
     name: 'OwnableUnauthorizedAccount',
+  },
+  { type: 'error', inputs: [], name: 'UUPSUnauthorizedCallContext' },
+  {
+    type: 'error',
+    inputs: [{ name: 'slot', internalType: 'bytes32', type: 'bytes32' }],
+    name: 'UUPSUnsupportedProxiableUUID',
   },
   {
     type: 'event',
@@ -1204,6 +1448,19 @@ export const rayanChainTokenAbi = [
       },
     ],
     name: 'Approval',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'version',
+        internalType: 'uint64',
+        type: 'uint64',
+        indexed: false,
+      },
+    ],
+    name: 'Initialized',
   },
   {
     type: 'event',
@@ -1265,6 +1522,26 @@ export const rayanChainTokenAbi = [
     name: 'Transfer',
   },
   {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'implementation',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+    ],
+    name: 'Upgraded',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'UPGRADE_INTERFACE_VERSION',
+    outputs: [{ name: '', internalType: 'string', type: 'string' }],
+    stateMutability: 'view',
+  },
+  {
     type: 'function',
     inputs: [
       { name: 'owner', internalType: 'address', type: 'address' },
@@ -1324,6 +1601,16 @@ export const rayanChainTokenAbi = [
   {
     type: 'function',
     inputs: [
+      { name: 'initialOwner', internalType: 'address', type: 'address' },
+      { name: 'initialSupply', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'initialize',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
       { name: '_priceFeedAddress', internalType: 'address', type: 'address' },
       {
         name: '_initialRycAmountPerUsd',
@@ -1367,6 +1654,13 @@ export const rayanChainTokenAbi = [
         type: 'address',
       },
     ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'proxiableUUID',
+    outputs: [{ name: '', internalType: 'bytes32', type: 'bytes32' }],
     stateMutability: 'view',
   },
   {
@@ -1448,7 +1742,16 @@ export const rayanChainTokenAbi = [
     outputs: [],
     stateMutability: 'nonpayable',
   },
-  { type: 'receive', stateMutability: 'payable' },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'newImplementation', internalType: 'address', type: 'address' },
+      { name: 'data', internalType: 'bytes', type: 'bytes' },
+    ],
+    name: 'upgradeToAndCall',
+    outputs: [],
+    stateMutability: 'payable',
+  },
 ] as const
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1457,13 +1760,21 @@ export const rayanChainTokenAbi = [
 
 export const stakingAbi = [
   {
-    type: 'constructor',
-    inputs: [
-      { name: '_tokenAddress', internalType: 'address', type: 'address' },
-      { name: '_initialOwner', internalType: 'address', type: 'address' },
-    ],
-    stateMutability: 'nonpayable',
+    type: 'error',
+    inputs: [{ name: 'target', internalType: 'address', type: 'address' }],
+    name: 'AddressEmptyCode',
   },
+  {
+    type: 'error',
+    inputs: [
+      { name: 'implementation', internalType: 'address', type: 'address' },
+    ],
+    name: 'ERC1967InvalidImplementation',
+  },
+  { type: 'error', inputs: [], name: 'ERC1967NonPayable' },
+  { type: 'error', inputs: [], name: 'FailedCall' },
+  { type: 'error', inputs: [], name: 'InvalidInitialization' },
+  { type: 'error', inputs: [], name: 'NotInitializing' },
   {
     type: 'error',
     inputs: [{ name: 'owner', internalType: 'address', type: 'address' }],
@@ -1475,6 +1786,12 @@ export const stakingAbi = [
     name: 'OwnableUnauthorizedAccount',
   },
   { type: 'error', inputs: [], name: 'ReentrancyGuardReentrantCall' },
+  { type: 'error', inputs: [], name: 'UUPSUnauthorizedCallContext' },
+  {
+    type: 'error',
+    inputs: [{ name: 'slot', internalType: 'bytes32', type: 'bytes32' }],
+    name: 'UUPSUnsupportedProxiableUUID',
+  },
   {
     type: 'event',
     anonymous: false,
@@ -1499,6 +1816,19 @@ export const stakingAbi = [
       },
     ],
     name: 'Delegated',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'version',
+        internalType: 'uint64',
+        type: 'uint64',
+        indexed: false,
+      },
+    ],
+    name: 'Initialized',
   },
   {
     type: 'event',
@@ -1619,6 +1949,26 @@ export const stakingAbi = [
     name: 'Unstaked',
   },
   {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'implementation',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+    ],
+    name: 'Upgraded',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'UPGRADE_INTERFACE_VERSION',
+    outputs: [{ name: '', internalType: 'string', type: 'string' }],
+    stateMutability: 'view',
+  },
+  {
     type: 'function',
     inputs: [],
     name: 'claimReward',
@@ -1683,6 +2033,16 @@ export const stakingAbi = [
   },
   {
     type: 'function',
+    inputs: [
+      { name: '_tokenAddress', internalType: 'address', type: 'address' },
+      { name: '_initialOwner', internalType: 'address', type: 'address' },
+    ],
+    name: 'initialize',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
     inputs: [],
     name: 'lastUpdateTime',
     outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
@@ -1693,6 +2053,13 @@ export const stakingAbi = [
     inputs: [],
     name: 'owner',
     outputs: [{ name: '', internalType: 'address', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'proxiableUUID',
+    outputs: [{ name: '', internalType: 'bytes32', type: 'bytes32' }],
     stateMutability: 'view',
   },
   {
@@ -1774,6 +2141,16 @@ export const stakingAbi = [
   },
   {
     type: 'function',
+    inputs: [
+      { name: 'newImplementation', internalType: 'address', type: 'address' },
+      { name: 'data', internalType: 'bytes', type: 'bytes' },
+    ],
+    name: 'upgradeToAndCall',
+    outputs: [],
+    stateMutability: 'payable',
+  },
+  {
+    type: 'function',
     inputs: [{ name: '', internalType: 'address', type: 'address' }],
     name: 'userRewardPerTokenPaid',
     outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
@@ -1787,12 +2164,21 @@ export const stakingAbi = [
 
 export const userProfileAbi = [
   {
-    type: 'constructor',
-    inputs: [
-      { name: 'initialOwner', internalType: 'address', type: 'address' },
-    ],
-    stateMutability: 'nonpayable',
+    type: 'error',
+    inputs: [{ name: 'target', internalType: 'address', type: 'address' }],
+    name: 'AddressEmptyCode',
   },
+  {
+    type: 'error',
+    inputs: [
+      { name: 'implementation', internalType: 'address', type: 'address' },
+    ],
+    name: 'ERC1967InvalidImplementation',
+  },
+  { type: 'error', inputs: [], name: 'ERC1967NonPayable' },
+  { type: 'error', inputs: [], name: 'FailedCall' },
+  { type: 'error', inputs: [], name: 'InvalidInitialization' },
+  { type: 'error', inputs: [], name: 'NotInitializing' },
   {
     type: 'error',
     inputs: [{ name: 'owner', internalType: 'address', type: 'address' }],
@@ -1802,6 +2188,25 @@ export const userProfileAbi = [
     type: 'error',
     inputs: [{ name: 'account', internalType: 'address', type: 'address' }],
     name: 'OwnableUnauthorizedAccount',
+  },
+  { type: 'error', inputs: [], name: 'UUPSUnauthorizedCallContext' },
+  {
+    type: 'error',
+    inputs: [{ name: 'slot', internalType: 'bytes32', type: 'bytes32' }],
+    name: 'UUPSUnsupportedProxiableUUID',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'version',
+        internalType: 'uint64',
+        type: 'uint64',
+        indexed: false,
+      },
+    ],
+    name: 'Initialized',
   },
   {
     type: 'event',
@@ -1837,6 +2242,35 @@ export const userProfileAbi = [
     name: 'ProfileUpdated',
   },
   {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'implementation',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+    ],
+    name: 'Upgraded',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'UPGRADE_INTERFACE_VERSION',
+    outputs: [{ name: '', internalType: 'string', type: 'string' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'initialOwner', internalType: 'address', type: 'address' },
+    ],
+    name: 'initialize',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
     type: 'function',
     inputs: [{ name: '', internalType: 'address', type: 'address' }],
     name: 'metadataURIs',
@@ -1848,6 +2282,13 @@ export const userProfileAbi = [
     inputs: [],
     name: 'owner',
     outputs: [{ name: '', internalType: 'address', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'proxiableUUID',
+    outputs: [{ name: '', internalType: 'bytes32', type: 'bytes32' }],
     stateMutability: 'view',
   },
   {
@@ -1880,6 +2321,16 @@ export const userProfileAbi = [
     name: 'transferOwnership',
     outputs: [],
     stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'newImplementation', internalType: 'address', type: 'address' },
+      { name: 'data', internalType: 'bytes', type: 'bytes' },
+    ],
+    name: 'upgradeToAndCall',
+    outputs: [],
+    stateMutability: 'payable',
   },
 ] as const
 
@@ -1946,6 +2397,15 @@ export const useReadAccControlPauserRole = /*#__PURE__*/ createUseReadContract({
 })
 
 /**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link accControlAbi}__ and `functionName` set to `"UPGRADE_INTERFACE_VERSION"`
+ */
+export const useReadAccControlUpgradeInterfaceVersion =
+  /*#__PURE__*/ createUseReadContract({
+    abi: accControlAbi,
+    functionName: 'UPGRADE_INTERFACE_VERSION',
+  })
+
+/**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link accControlAbi}__ and `functionName` set to `"VALIDATOR_ROLE"`
  */
 export const useReadAccControlValidatorRole =
@@ -1972,6 +2432,15 @@ export const useReadAccControlHasRole = /*#__PURE__*/ createUseReadContract({
 })
 
 /**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link accControlAbi}__ and `functionName` set to `"proxiableUUID"`
+ */
+export const useReadAccControlProxiableUuid =
+  /*#__PURE__*/ createUseReadContract({
+    abi: accControlAbi,
+    functionName: 'proxiableUUID',
+  })
+
+/**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link accControlAbi}__ and `functionName` set to `"supportsInterface"`
  */
 export const useReadAccControlSupportsInterface =
@@ -1995,6 +2464,15 @@ export const useWriteAccControlGrantRole = /*#__PURE__*/ createUseWriteContract(
 )
 
 /**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link accControlAbi}__ and `functionName` set to `"initialize"`
+ */
+export const useWriteAccControlInitialize =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: accControlAbi,
+    functionName: 'initialize',
+  })
+
+/**
  * Wraps __{@link useWriteContract}__ with `abi` set to __{@link accControlAbi}__ and `functionName` set to `"renounceRole"`
  */
 export const useWriteAccControlRenounceRole =
@@ -2013,6 +2491,15 @@ export const useWriteAccControlRevokeRole =
   })
 
 /**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link accControlAbi}__ and `functionName` set to `"upgradeToAndCall"`
+ */
+export const useWriteAccControlUpgradeToAndCall =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: accControlAbi,
+    functionName: 'upgradeToAndCall',
+  })
+
+/**
  * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link accControlAbi}__
  */
 export const useSimulateAccControl = /*#__PURE__*/ createUseSimulateContract({
@@ -2026,6 +2513,15 @@ export const useSimulateAccControlGrantRole =
   /*#__PURE__*/ createUseSimulateContract({
     abi: accControlAbi,
     functionName: 'grantRole',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link accControlAbi}__ and `functionName` set to `"initialize"`
+ */
+export const useSimulateAccControlInitialize =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: accControlAbi,
+    functionName: 'initialize',
   })
 
 /**
@@ -2047,10 +2543,28 @@ export const useSimulateAccControlRevokeRole =
   })
 
 /**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link accControlAbi}__ and `functionName` set to `"upgradeToAndCall"`
+ */
+export const useSimulateAccControlUpgradeToAndCall =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: accControlAbi,
+    functionName: 'upgradeToAndCall',
+  })
+
+/**
  * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link accControlAbi}__
  */
 export const useWatchAccControlEvent =
   /*#__PURE__*/ createUseWatchContractEvent({ abi: accControlAbi })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link accControlAbi}__ and `eventName` set to `"Initialized"`
+ */
+export const useWatchAccControlInitializedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: accControlAbi,
+    eventName: 'Initialized',
+  })
 
 /**
  * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link accControlAbi}__ and `eventName` set to `"RoleAdminChanged"`
@@ -2077,6 +2591,15 @@ export const useWatchAccControlRoleRevokedEvent =
   /*#__PURE__*/ createUseWatchContractEvent({
     abi: accControlAbi,
     eventName: 'RoleRevoked',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link accControlAbi}__ and `eventName` set to `"Upgraded"`
+ */
+export const useWatchAccControlUpgradedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: accControlAbi,
+    eventName: 'Upgraded',
   })
 
 /**
@@ -2251,6 +2774,15 @@ export const useReadFinance = /*#__PURE__*/ createUseReadContract({
 })
 
 /**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link financeAbi}__ and `functionName` set to `"UPGRADE_INTERFACE_VERSION"`
+ */
+export const useReadFinanceUpgradeInterfaceVersion =
+  /*#__PURE__*/ createUseReadContract({
+    abi: financeAbi,
+    functionName: 'UPGRADE_INTERFACE_VERSION',
+  })
+
+/**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link financeAbi}__ and `functionName` set to `"accControl"`
  */
 export const useReadFinanceAccControl = /*#__PURE__*/ createUseReadContract({
@@ -2290,6 +2822,14 @@ export const useReadFinancePlatformFeeBps = /*#__PURE__*/ createUseReadContract(
 )
 
 /**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link financeAbi}__ and `functionName` set to `"proxiableUUID"`
+ */
+export const useReadFinanceProxiableUuid = /*#__PURE__*/ createUseReadContract({
+  abi: financeAbi,
+  functionName: 'proxiableUUID',
+})
+
+/**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link financeAbi}__ and `functionName` set to `"releaseFunds"`
  */
 export const useReadFinanceReleaseFunds = /*#__PURE__*/ createUseReadContract({
@@ -2310,6 +2850,14 @@ export const useReadFinanceToken = /*#__PURE__*/ createUseReadContract({
  */
 export const useWriteFinance = /*#__PURE__*/ createUseWriteContract({
   abi: financeAbi,
+})
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link financeAbi}__ and `functionName` set to `"initialize"`
+ */
+export const useWriteFinanceInitialize = /*#__PURE__*/ createUseWriteContract({
+  abi: financeAbi,
+  functionName: 'initialize',
 })
 
 /**
@@ -2358,6 +2906,15 @@ export const useWriteFinanceTransferOwnership =
   })
 
 /**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link financeAbi}__ and `functionName` set to `"upgradeToAndCall"`
+ */
+export const useWriteFinanceUpgradeToAndCall =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: financeAbi,
+    functionName: 'upgradeToAndCall',
+  })
+
+/**
  * Wraps __{@link useWriteContract}__ with `abi` set to __{@link financeAbi}__ and `functionName` set to `"withdraw"`
  */
 export const useWriteFinanceWithdraw = /*#__PURE__*/ createUseWriteContract({
@@ -2380,6 +2937,15 @@ export const useWriteFinanceWithdrawTokens =
 export const useSimulateFinance = /*#__PURE__*/ createUseSimulateContract({
   abi: financeAbi,
 })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link financeAbi}__ and `functionName` set to `"initialize"`
+ */
+export const useSimulateFinanceInitialize =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: financeAbi,
+    functionName: 'initialize',
+  })
 
 /**
  * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link financeAbi}__ and `functionName` set to `"registerInvestment"`
@@ -2424,6 +2990,15 @@ export const useSimulateFinanceTransferOwnership =
   /*#__PURE__*/ createUseSimulateContract({
     abi: financeAbi,
     functionName: 'transferOwnership',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link financeAbi}__ and `functionName` set to `"upgradeToAndCall"`
+ */
+export const useSimulateFinanceUpgradeToAndCall =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: financeAbi,
+    functionName: 'upgradeToAndCall',
   })
 
 /**
@@ -2476,6 +3051,15 @@ export const useWatchFinanceFundsReleasedEvent =
   /*#__PURE__*/ createUseWatchContractEvent({
     abi: financeAbi,
     eventName: 'FundsReleased',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link financeAbi}__ and `eventName` set to `"Initialized"`
+ */
+export const useWatchFinanceInitializedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: financeAbi,
+    eventName: 'Initialized',
   })
 
 /**
@@ -2542,6 +3126,15 @@ export const useWatchFinanceTokenFundsWithdrawnEvent =
   })
 
 /**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link financeAbi}__ and `eventName` set to `"Upgraded"`
+ */
+export const useWatchFinanceUpgradedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: financeAbi,
+    eventName: 'Upgraded',
+  })
+
+/**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link rayanChainDaoAbi}__
  */
 export const useReadRayanChainDao = /*#__PURE__*/ createUseReadContract({
@@ -2555,6 +3148,15 @@ export const useReadRayanChainDaoMaxRiskScore =
   /*#__PURE__*/ createUseReadContract({
     abi: rayanChainDaoAbi,
     functionName: 'MAX_RISK_SCORE',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link rayanChainDaoAbi}__ and `functionName` set to `"UPGRADE_INTERFACE_VERSION"`
+ */
+export const useReadRayanChainDaoUpgradeInterfaceVersion =
+  /*#__PURE__*/ createUseReadContract({
+    abi: rayanChainDaoAbi,
+    functionName: 'UPGRADE_INTERFACE_VERSION',
   })
 
 /**
@@ -2624,6 +3226,15 @@ export const useReadRayanChainDaoProposals =
   /*#__PURE__*/ createUseReadContract({
     abi: rayanChainDaoAbi,
     functionName: 'proposals',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link rayanChainDaoAbi}__ and `functionName` set to `"proxiableUUID"`
+ */
+export const useReadRayanChainDaoProxiableUuid =
+  /*#__PURE__*/ createUseReadContract({
+    abi: rayanChainDaoAbi,
+    functionName: 'proxiableUUID',
   })
 
 /**
@@ -2731,6 +3342,15 @@ export const useWriteRayanChainDaoExecuteProposal =
   })
 
 /**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link rayanChainDaoAbi}__ and `functionName` set to `"initialize"`
+ */
+export const useWriteRayanChainDaoInitialize =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: rayanChainDaoAbi,
+    functionName: 'initialize',
+  })
+
+/**
  * Wraps __{@link useWriteContract}__ with `abi` set to __{@link rayanChainDaoAbi}__ and `functionName` set to `"renounceOwnership"`
  */
 export const useWriteRayanChainDaoRenounceOwnership =
@@ -2782,6 +3402,15 @@ export const useWriteRayanChainDaoUpdateProposalRiskScore =
   /*#__PURE__*/ createUseWriteContract({
     abi: rayanChainDaoAbi,
     functionName: 'updateProposalRiskScore',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link rayanChainDaoAbi}__ and `functionName` set to `"upgradeToAndCall"`
+ */
+export const useWriteRayanChainDaoUpgradeToAndCall =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: rayanChainDaoAbi,
+    functionName: 'upgradeToAndCall',
   })
 
 /**
@@ -2854,6 +3483,15 @@ export const useSimulateRayanChainDaoExecuteProposal =
   })
 
 /**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link rayanChainDaoAbi}__ and `functionName` set to `"initialize"`
+ */
+export const useSimulateRayanChainDaoInitialize =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: rayanChainDaoAbi,
+    functionName: 'initialize',
+  })
+
+/**
  * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link rayanChainDaoAbi}__ and `functionName` set to `"renounceOwnership"`
  */
 export const useSimulateRayanChainDaoRenounceOwnership =
@@ -2908,6 +3546,15 @@ export const useSimulateRayanChainDaoUpdateProposalRiskScore =
   })
 
 /**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link rayanChainDaoAbi}__ and `functionName` set to `"upgradeToAndCall"`
+ */
+export const useSimulateRayanChainDaoUpgradeToAndCall =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: rayanChainDaoAbi,
+    functionName: 'upgradeToAndCall',
+  })
+
+/**
  * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link rayanChainDaoAbi}__ and `functionName` set to `"vote"`
  */
 export const useSimulateRayanChainDaoVote =
@@ -2921,6 +3568,15 @@ export const useSimulateRayanChainDaoVote =
  */
 export const useWatchRayanChainDaoEvent =
   /*#__PURE__*/ createUseWatchContractEvent({ abi: rayanChainDaoAbi })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link rayanChainDaoAbi}__ and `eventName` set to `"Initialized"`
+ */
+export const useWatchRayanChainDaoInitializedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: rayanChainDaoAbi,
+    eventName: 'Initialized',
+  })
 
 /**
  * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link rayanChainDaoAbi}__ and `eventName` set to `"MilestoneReleased"`
@@ -2977,6 +3633,15 @@ export const useWatchRayanChainDaoProposalStateChangedEvent =
   })
 
 /**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link rayanChainDaoAbi}__ and `eventName` set to `"Upgraded"`
+ */
+export const useWatchRayanChainDaoUpgradedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: rayanChainDaoAbi,
+    eventName: 'Upgraded',
+  })
+
+/**
  * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link rayanChainDaoAbi}__ and `eventName` set to `"Voted"`
  */
 export const useWatchRayanChainDaoVotedEvent =
@@ -2991,6 +3656,15 @@ export const useWatchRayanChainDaoVotedEvent =
 export const useReadRayanChainToken = /*#__PURE__*/ createUseReadContract({
   abi: rayanChainTokenAbi,
 })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link rayanChainTokenAbi}__ and `functionName` set to `"UPGRADE_INTERFACE_VERSION"`
+ */
+export const useReadRayanChainTokenUpgradeInterfaceVersion =
+  /*#__PURE__*/ createUseReadContract({
+    abi: rayanChainTokenAbi,
+    functionName: 'UPGRADE_INTERFACE_VERSION',
+  })
 
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link rayanChainTokenAbi}__ and `functionName` set to `"allowance"`
@@ -3072,6 +3746,15 @@ export const useReadRayanChainTokenPriceFeed =
   })
 
 /**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link rayanChainTokenAbi}__ and `functionName` set to `"proxiableUUID"`
+ */
+export const useReadRayanChainTokenProxiableUuid =
+  /*#__PURE__*/ createUseReadContract({
+    abi: rayanChainTokenAbi,
+    functionName: 'proxiableUUID',
+  })
+
+/**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link rayanChainTokenAbi}__ and `functionName` set to `"rycAmountPerUsd"`
  */
 export const useReadRayanChainTokenRycAmountPerUsd =
@@ -3119,6 +3802,15 @@ export const useWriteRayanChainTokenBuyTokensWithNative =
   /*#__PURE__*/ createUseWriteContract({
     abi: rayanChainTokenAbi,
     functionName: 'buyTokensWithNative',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link rayanChainTokenAbi}__ and `functionName` set to `"initialize"`
+ */
+export const useWriteRayanChainTokenInitialize =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: rayanChainTokenAbi,
+    functionName: 'initialize',
   })
 
 /**
@@ -3194,6 +3886,15 @@ export const useWriteRayanChainTokenTransferOwnership =
   })
 
 /**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link rayanChainTokenAbi}__ and `functionName` set to `"upgradeToAndCall"`
+ */
+export const useWriteRayanChainTokenUpgradeToAndCall =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: rayanChainTokenAbi,
+    functionName: 'upgradeToAndCall',
+  })
+
+/**
  * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link rayanChainTokenAbi}__
  */
 export const useSimulateRayanChainToken =
@@ -3215,6 +3916,15 @@ export const useSimulateRayanChainTokenBuyTokensWithNative =
   /*#__PURE__*/ createUseSimulateContract({
     abi: rayanChainTokenAbi,
     functionName: 'buyTokensWithNative',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link rayanChainTokenAbi}__ and `functionName` set to `"initialize"`
+ */
+export const useSimulateRayanChainTokenInitialize =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: rayanChainTokenAbi,
+    functionName: 'initialize',
   })
 
 /**
@@ -3290,6 +4000,15 @@ export const useSimulateRayanChainTokenTransferOwnership =
   })
 
 /**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link rayanChainTokenAbi}__ and `functionName` set to `"upgradeToAndCall"`
+ */
+export const useSimulateRayanChainTokenUpgradeToAndCall =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: rayanChainTokenAbi,
+    functionName: 'upgradeToAndCall',
+  })
+
+/**
  * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link rayanChainTokenAbi}__
  */
 export const useWatchRayanChainTokenEvent =
@@ -3302,6 +4021,15 @@ export const useWatchRayanChainTokenApprovalEvent =
   /*#__PURE__*/ createUseWatchContractEvent({
     abi: rayanChainTokenAbi,
     eventName: 'Approval',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link rayanChainTokenAbi}__ and `eventName` set to `"Initialized"`
+ */
+export const useWatchRayanChainTokenInitializedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: rayanChainTokenAbi,
+    eventName: 'Initialized',
   })
 
 /**
@@ -3332,11 +4060,29 @@ export const useWatchRayanChainTokenTransferEvent =
   })
 
 /**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link rayanChainTokenAbi}__ and `eventName` set to `"Upgraded"`
+ */
+export const useWatchRayanChainTokenUpgradedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: rayanChainTokenAbi,
+    eventName: 'Upgraded',
+  })
+
+/**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link stakingAbi}__
  */
 export const useReadStaking = /*#__PURE__*/ createUseReadContract({
   abi: stakingAbi,
 })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link stakingAbi}__ and `functionName` set to `"UPGRADE_INTERFACE_VERSION"`
+ */
+export const useReadStakingUpgradeInterfaceVersion =
+  /*#__PURE__*/ createUseReadContract({
+    abi: stakingAbi,
+    functionName: 'UPGRADE_INTERFACE_VERSION',
+  })
 
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link stakingAbi}__ and `functionName` set to `"delegatedPower"`
@@ -3401,6 +4147,14 @@ export const useReadStakingLastUpdateTime = /*#__PURE__*/ createUseReadContract(
 export const useReadStakingOwner = /*#__PURE__*/ createUseReadContract({
   abi: stakingAbi,
   functionName: 'owner',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link stakingAbi}__ and `functionName` set to `"proxiableUUID"`
+ */
+export const useReadStakingProxiableUuid = /*#__PURE__*/ createUseReadContract({
+  abi: stakingAbi,
+  functionName: 'proxiableUUID',
 })
 
 /**
@@ -3485,6 +4239,14 @@ export const useWriteStakingFundRewards = /*#__PURE__*/ createUseWriteContract({
 })
 
 /**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link stakingAbi}__ and `functionName` set to `"initialize"`
+ */
+export const useWriteStakingInitialize = /*#__PURE__*/ createUseWriteContract({
+  abi: stakingAbi,
+  functionName: 'initialize',
+})
+
+/**
  * Wraps __{@link useWriteContract}__ with `abi` set to __{@link stakingAbi}__ and `functionName` set to `"renounceOwnership"`
  */
 export const useWriteStakingRenounceOwnership =
@@ -3536,6 +4298,15 @@ export const useWriteStakingUnstake = /*#__PURE__*/ createUseWriteContract({
 })
 
 /**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link stakingAbi}__ and `functionName` set to `"upgradeToAndCall"`
+ */
+export const useWriteStakingUpgradeToAndCall =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: stakingAbi,
+    functionName: 'upgradeToAndCall',
+  })
+
+/**
  * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link stakingAbi}__
  */
 export const useSimulateStaking = /*#__PURE__*/ createUseSimulateContract({
@@ -3567,6 +4338,15 @@ export const useSimulateStakingFundRewards =
   /*#__PURE__*/ createUseSimulateContract({
     abi: stakingAbi,
     functionName: 'fundRewards',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link stakingAbi}__ and `functionName` set to `"initialize"`
+ */
+export const useSimulateStakingInitialize =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: stakingAbi,
+    functionName: 'initialize',
   })
 
 /**
@@ -3623,6 +4403,15 @@ export const useSimulateStakingUnstake =
   })
 
 /**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link stakingAbi}__ and `functionName` set to `"upgradeToAndCall"`
+ */
+export const useSimulateStakingUpgradeToAndCall =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: stakingAbi,
+    functionName: 'upgradeToAndCall',
+  })
+
+/**
  * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link stakingAbi}__
  */
 export const useWatchStakingEvent = /*#__PURE__*/ createUseWatchContractEvent({
@@ -3636,6 +4425,15 @@ export const useWatchStakingDelegatedEvent =
   /*#__PURE__*/ createUseWatchContractEvent({
     abi: stakingAbi,
     eventName: 'Delegated',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link stakingAbi}__ and `eventName` set to `"Initialized"`
+ */
+export const useWatchStakingInitializedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: stakingAbi,
+    eventName: 'Initialized',
   })
 
 /**
@@ -3702,11 +4500,29 @@ export const useWatchStakingUnstakedEvent =
   })
 
 /**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link stakingAbi}__ and `eventName` set to `"Upgraded"`
+ */
+export const useWatchStakingUpgradedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: stakingAbi,
+    eventName: 'Upgraded',
+  })
+
+/**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link userProfileAbi}__
  */
 export const useReadUserProfile = /*#__PURE__*/ createUseReadContract({
   abi: userProfileAbi,
 })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link userProfileAbi}__ and `functionName` set to `"UPGRADE_INTERFACE_VERSION"`
+ */
+export const useReadUserProfileUpgradeInterfaceVersion =
+  /*#__PURE__*/ createUseReadContract({
+    abi: userProfileAbi,
+    functionName: 'UPGRADE_INTERFACE_VERSION',
+  })
 
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link userProfileAbi}__ and `functionName` set to `"metadataURIs"`
@@ -3726,11 +4542,29 @@ export const useReadUserProfileOwner = /*#__PURE__*/ createUseReadContract({
 })
 
 /**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link userProfileAbi}__ and `functionName` set to `"proxiableUUID"`
+ */
+export const useReadUserProfileProxiableUuid =
+  /*#__PURE__*/ createUseReadContract({
+    abi: userProfileAbi,
+    functionName: 'proxiableUUID',
+  })
+
+/**
  * Wraps __{@link useWriteContract}__ with `abi` set to __{@link userProfileAbi}__
  */
 export const useWriteUserProfile = /*#__PURE__*/ createUseWriteContract({
   abi: userProfileAbi,
 })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link userProfileAbi}__ and `functionName` set to `"initialize"`
+ */
+export const useWriteUserProfileInitialize =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: userProfileAbi,
+    functionName: 'initialize',
+  })
 
 /**
  * Wraps __{@link useWriteContract}__ with `abi` set to __{@link userProfileAbi}__ and `functionName` set to `"renounceOwnership"`
@@ -3769,11 +4603,29 @@ export const useWriteUserProfileTransferOwnership =
   })
 
 /**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link userProfileAbi}__ and `functionName` set to `"upgradeToAndCall"`
+ */
+export const useWriteUserProfileUpgradeToAndCall =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: userProfileAbi,
+    functionName: 'upgradeToAndCall',
+  })
+
+/**
  * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link userProfileAbi}__
  */
 export const useSimulateUserProfile = /*#__PURE__*/ createUseSimulateContract({
   abi: userProfileAbi,
 })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link userProfileAbi}__ and `functionName` set to `"initialize"`
+ */
+export const useSimulateUserProfileInitialize =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: userProfileAbi,
+    functionName: 'initialize',
+  })
 
 /**
  * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link userProfileAbi}__ and `functionName` set to `"renounceOwnership"`
@@ -3812,10 +4664,28 @@ export const useSimulateUserProfileTransferOwnership =
   })
 
 /**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link userProfileAbi}__ and `functionName` set to `"upgradeToAndCall"`
+ */
+export const useSimulateUserProfileUpgradeToAndCall =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: userProfileAbi,
+    functionName: 'upgradeToAndCall',
+  })
+
+/**
  * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link userProfileAbi}__
  */
 export const useWatchUserProfileEvent =
   /*#__PURE__*/ createUseWatchContractEvent({ abi: userProfileAbi })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link userProfileAbi}__ and `eventName` set to `"Initialized"`
+ */
+export const useWatchUserProfileInitializedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: userProfileAbi,
+    eventName: 'Initialized',
+  })
 
 /**
  * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link userProfileAbi}__ and `eventName` set to `"OwnershipTransferred"`
@@ -3833,4 +4703,13 @@ export const useWatchUserProfileProfileUpdatedEvent =
   /*#__PURE__*/ createUseWatchContractEvent({
     abi: userProfileAbi,
     eventName: 'ProfileUpdated',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link userProfileAbi}__ and `eventName` set to `"Upgraded"`
+ */
+export const useWatchUserProfileUpgradedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: userProfileAbi,
+    eventName: 'Upgraded',
   })

@@ -1,15 +1,17 @@
-// src/contracts/Staking.sol - FINAL, COMPILABLE VERSION
-
+// src/contracts/Staking.sol - نسخه نهایی و قابل ارتقاء (UPGRADEABLE)
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+
 import "./interfaces/IStaking.sol";
 
-contract Staking is IStaking, Ownable, ReentrancyGuard {
-    IERC20 public immutable rycToken;
+contract Staking is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, UUPSUpgradeable, IStaking {
+    IERC20 public rycToken;
     uint256 private _totalStaked;
     mapping(address => uint256) private _stakedBalances;
     mapping(address => address) public delegates;
@@ -20,6 +22,16 @@ contract Staking is IStaking, Ownable, ReentrancyGuard {
     mapping(address => uint256) public userRewardPerTokenPaid;
     mapping(address => uint256) public rewards;
     
+  // --- Initializer ---
+    function initialize(address _tokenAddress, address _initialOwner) external initializer {
+        __Ownable_init(_initialOwner); // تنظیم مالک اولیه
+        __ReentrancyGuard_init();     // مقداردهی محافظ امنیت تراکنش
+        
+        rycToken = IERC20(_tokenAddress); // مقداردهی آدرس توکن RYC
+    }
+    // --- UUPS Upgrade Authorization ---
+    function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
+
     modifier updateReward(address account) {
         rewardPerTokenStored = rewardPerToken();
         lastUpdateTime = block.timestamp;
@@ -28,10 +40,6 @@ contract Staking is IStaking, Ownable, ReentrancyGuard {
             userRewardPerTokenPaid[account] = rewardPerTokenStored;
         }
         _;
-    }
-
-    constructor(address _tokenAddress, address _initialOwner) Ownable(_initialOwner) {
-        rycToken = IERC20(_tokenAddress);
     }
 
     function totalSupply() external view override returns (uint256) {

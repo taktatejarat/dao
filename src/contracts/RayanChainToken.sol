@@ -1,28 +1,30 @@
-// src/contracts/RayanChainToken.sol - FINAL, ROBUST VERSION with Chainlink Oracle
-
+// src/contracts/RayanChainToken.sol - نسخه نهایی و قابل ارتقاء (UPGRADEABLE)
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
 
-contract RayanChainToken is ERC20, Ownable {
+
+contract RayanChainToken is Initializable, ERC20Upgradeable, OwnableUpgradeable, UUPSUpgradeable {
     AggregatorV3Interface public priceFeed;
-    // نشان می‌دهد به ازای هر 1 دلار (با 18 رقم اعشار)، چه مقدار RYC داده می‌شود
     uint256 public rycAmountPerUsd;
+    bool public mintingActive;
 
-    bool public mintingActive = true; 
+    // --- Initializer ---
+    function initialize(address initialOwner, uint256 initialSupply) public initializer {
+        __ERC20_init("RayanChain Token", "RYC");
+        __Ownable_init(initialOwner);
 
-    constructor(
-        address initialOwner, 
-        uint256 initialSupply
-    ) 
-        ERC20("RayanChain Token", "RYC") 
-        Ownable(initialOwner) 
-    {
+        mintingActive = true;
         _mint(initialOwner, initialSupply);
     }
+
+    // --- UUPS Upgrade Authorization ---
+    function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
 
     /**
      * @notice پارامترهای قیمت‌گذاری را تنظیم می‌کند. فقط یک بار توسط مالک قابل اجراست.
@@ -94,8 +96,5 @@ contract RayanChainToken is ERC20, Ownable {
     }
 
     event TokensPurchased(address indexed buyer, uint256 nativeAmount, uint256 rycAmount);
-
-    receive() external payable {
-        _buyTokensLogic();
-    }
+        
 }

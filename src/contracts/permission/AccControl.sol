@@ -1,15 +1,22 @@
-// src/contracts/permission/AccControl.sol - اصلاح شده برای نقش‌های جدید
+// src/contracts/permission/AccControl.sol - نسخه نهایی و قابل ارتقاء (UPGRADEABLE)
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import "@openzeppelin/contracts/access/AccessControl.sol";
+import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
-/**
- * @title Access Control Contract
- * @dev Manages roles and permissions for the entire DAO-VC platform.
- *      New roles (PAUSER, AUDITOR) added for enhanced security and compliance.
- */
-contract AccControl is AccessControl {
+
+contract AccControl is Initializable, AccessControlUpgradeable, UUPSUpgradeable {
+
+    // --- Initializer ---
+    function initialize(address initialOwner) public initializer {
+        __AccessControl_init();
+        _grantRole(DEFAULT_ADMIN_ROLE, initialOwner);
+    }
+
+    // --- UUPS Upgrade Authorization ---
+    function _authorizeUpgrade(address newImplementation) internal override onlyRole(DEFAULT_ADMIN_ROLE) {}
 
     /**
      * @dev Constructor that grants the deployer the default admin role.

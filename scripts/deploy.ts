@@ -1,6 +1,6 @@
-// scripts/deploy.ts - FINAL, FULLY INTEGRATED VERSION with Multisig Deployment
+// scripts/deploy.ts - FINAL, FULLY UPGRADEABLE DEPLOYMENT SCRIPT
 
-import { ethers, network } from "hardhat";
+import { ethers, upgrades, network } from "hardhat";
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -23,122 +23,104 @@ function updateEnvFile(key: string, value: string) {
     fs.writeFileSync(envPath, envContent, 'utf8');
 }
 
-async function main() {
-    console.log(`🚀 Starting full DAO deployment on network: ${network.name}...`);
-    
-    const [deployer] = await ethers.getSigners();
-    
-    // AI Oracle Role is assigned to the Deployer (Admin) as requested
-    const aiOracleAddress = deployer.address; 
-    const adminPrivateKey = process.env.PRIVATE_KEY; 
-    
-    // ⚠️ NEW LOGIC: آدرس‌های موقت برای نقش‌های جدید
-    // برای سادگی، deployer را PAUSER و AUDITOR قرار می‌دهیم تا پس از Deploy، مالکیت به Timelock منتقل شود.
-    const pauserAddresses = [deployer.address]; 
-    const executorAddresses = [deployer.address]; // Timelock به عنوان Executor عمل خواهد کرد
-    const adminAddress = deployer.address;
-    
-    console.log("👤 Deploying contracts with the account:", deployer.address);
-    console.log("🤖 AI Oracle Address (Using Deployer's Address):", aiOracleAddress);
-    const balance = await ethers.provider.getBalance(deployer.address);
-    console.log("💰 Account balance:", ethers.formatEther(balance), "ETH/MATIC");
 
-    // 0. Deploy DAORegistry
-    console.log("\n[0/9] Deploying DAORegistry (Contract address book)...");
-    const registry = await ethers.deployContract("DAORegistry", [deployer.address]);
+async function main() {
+    console.log(`🚀 Starting FULLY UPGRADEABLE DAO deployment on network: ${network.name}...`);
+
+    const [deployer] = await ethers.getSigners();
+    const aiOracleAddress = deployer.address;
+    const adminPrivateKey = process.env.PRIVATE_KEY;
+
+    console.log("👤 Deploying contracts with the account:", deployer.address);
+    console.log("💰 Account balance:", ethers.formatEther(await ethers.provider.getBalance(deployer.address)));
+
+    // --- DEPLOYMENT ---
+
+    // 0. Deploy DAORegistry (این قرارداد ساده و غیرقابل ارتقاء باقی می‌ماند)
+    console.log("\n[0/9] Deploying DAORegistry...");
+    const DAORegistryFactory = await ethers.getContractFactory("DAORegistry");
+    const registry = await DAORegistryFactory.deploy(deployer.address);
     await registry.waitForDeployment();
     const registryAddress = await registry.getAddress();
     console.log("✅ DAORegistry deployed to:", registryAddress);
 
-    // 1. Deploy AccControl (Now includes PAUSER, AUDITOR, EXECUTOR roles)
-    console.log("\n[1/9] Deploying AccControl contract...");
-    const accControl = await ethers.deployContract("AccControl", [deployer.address]);
+    // ✅✅✅ تمام قراردادهای اصلی بعدی با متد upgrades.deployProxy مستقر می‌شوند ✅✅✅
+
+    // 1. Deploy AccControl (Upgradeable)
+    console.log("\n[1/9] Deploying AccControl (Upgradeable)...");
+    const AccControlFactory = await ethers.getContractFactory("AccControl");
+    const accControl = await upgrades.deployProxy(AccControlFactory, [deployer.address], { initializer: 'initialize', kind: 'uups' });
     await accControl.waitForDeployment();
     const accControlAddress = await accControl.getAddress();
-    console.log("✅ AccControl deployed to:", accControlAddress);
+    console.log("✅ AccControl (Proxy) deployed to:", accControlAddress);
 
-    // 2. Deploy RayanChainToken and Initialize
+    // 2. Deploy RayanChainToken (Upgradeable)
+    console.log("\n[2/9] Deploying RayanChainToken (Upgradeable)...");
+    const RayanChainTokenFactory = await ethers.getContractFactory("RayanChainToken");
     const initialTokenSupply = ethers.parseUnits("1000000000", 18);
-    console.log(`\n[2/9] Deploying RayanChainToken contract...`);
-    
-    const rayanChainToken = await ethers.deployContract("RayanChainToken", [
-        deployer.address, 
-        initialTokenSupply
-    ]);
+    const rayanChainToken = await upgrades.deployProxy(RayanChainTokenFactory, [deployer.address, initialTokenSupply], { initializer: 'initialize', kind: 'uups' });
     await rayanChainToken.waitForDeployment();
     const tokenAddress = await rayanChainToken.getAddress();
-    console.log(`✅ RayanChainToken deployed to: ${tokenAddress}`);
+    console.log("✅ RayanChainToken (Proxy) deployed to:", tokenAddress);
 
-    console.log("   - Initializing dynamic pricing parameters...");
-    
-    // ✅ FIX: تبدیل آدرس Price Feed به Checksum Address
-    const maticUsdPriceFeedAmoy = ethers.getAddress("0x001382149eBa3441043c1c66972b4772963f5D43");
-    const initialRycAmountPerUsd = ethers.parseUnits("100000", 18);
-
-    const initTx = await rayanChainToken.initializePricing(
-        maticUsdPriceFeedAmoy,
-        initialRycAmountPerUsd
-    );
-    await initTx.wait();
-    console.log("   ✅ Dynamic pricing initialized successfully.");
-
-    // 3. Deploy Staking Contract
-    console.log("\n[3/9] Deploying Staking contract...");
-    const staking = await ethers.deployContract("Staking", [tokenAddress, deployer.address]);
+    // 3. Deploy Staking (Upgradeable)
+    console.log("\n[3/9] Deploying Staking (Upgradeable)...");
+    const StakingFactory = await ethers.getContractFactory("Staking");
+    const staking = await upgrades.deployProxy(StakingFactory, [tokenAddress, deployer.address], { initializer: 'initialize', kind: 'uups' });
     await staking.waitForDeployment();
     const stakingAddress = await staking.getAddress();
-    console.log("✅ Staking contract deployed to:", stakingAddress);
-    
-    // 4. Deploy Finance (Vault) Contract (Now accepts AccControl Address)
-    console.log("\n[4/9] Deploying Finance (Vault) contract...");
-    const platformFeeBps = 250; 
-    // ✅ CHANGE: Added accControlAddress to Finance constructor
-    const finance = await ethers.deployContract("Finance", [deployer.address, tokenAddress, platformFeeBps, accControlAddress]); 
+    console.log("✅ Staking (Proxy) deployed to:", stakingAddress);
+
+    // 4. Deploy Finance (Upgradeable)
+    console.log("\n[4/9] Deploying Finance (Upgradeable)...");
+    const FinanceFactory = await ethers.getContractFactory("Finance");
+    const platformFeeBps = 250;
+    const finance = await upgrades.deployProxy(FinanceFactory, [deployer.address, tokenAddress, platformFeeBps, accControlAddress], { initializer: 'initialize', kind: 'uups' });
     await finance.waitForDeployment();
     const financeAddress = await finance.getAddress();
-    console.log(`✅ Finance (Vault) deployed to: ${financeAddress} with a ${platformFeeBps / 100}% platform fee.`);
-    
-  // 5. Deploy Timelock Controller (NEW CRITICAL STEP)
+    console.log("✅ Finance (Proxy) deployed to:", financeAddress);
+
+    // 5. Deploy TimelockController (این قرارداد از OpenZeppelin است و قابل ارتقاء نیست)
+    console.log("\n[5/9] Deploying TimelockController...");
+    const TimelockFactory = await ethers.getContractFactory("RayanChainTimelockController");
     const minDelayInSeconds = 72 * 60 * 60; // 72 hours
-    console.log(`\n[5/9] Deploying TimelockController with min delay of ${minDelayInSeconds} seconds...`);
-    
-    // ✅ FIX: استفاده از Constructor استاندارد TimelockController
-    // Proposers و Executors را خالی می‌گذاریم و در مراحل بعدی به صورت دستی به DAO اعطا می‌کنیم.
-    const timelock = await ethers.deployContract("TimelockController", [
-        minDelayInSeconds,
-        [], // proposers (ابتدا خالی)
-        [], // executors (ابتدا خالی)
-        deployer.address // admin (موقت)
-    ]);
+    const timelock = await TimelockFactory.deploy(minDelayInSeconds, [], [], deployer.address);
     await timelock.waitForDeployment();
     const timelockAddress = await timelock.getAddress();
     console.log("✅ TimelockController deployed to:", timelockAddress);
-    
-    // 6. Deploy UserProfile Contract
-    console.log("\n[6/9] Deploying UserProfile contract...");
-    const userProfile = await ethers.deployContract("UserProfile", [deployer.address]);
+
+    // 6. Deploy UserProfile (Upgradeable)
+    console.log("\n[6/9] Deploying UserProfile (Upgradeable)...");
+    const UserProfileFactory = await ethers.getContractFactory("UserProfile");
+    const userProfile = await upgrades.deployProxy(UserProfileFactory, [deployer.address], { initializer: 'initialize', kind: 'uups' });
     await userProfile.waitForDeployment();
     const userProfileAddress = await userProfile.getAddress();
-    console.log("✅ UserProfile contract deployed to:", userProfileAddress);
-    
-    // 7. Deploy RayanChainDAO Contract (The Core)
-    const votingPeriodInSeconds = 7 * 24 * 60 * 60; // 7 days
-    const quorumPercentage = 10; 
-    const approvalThreshold = 51; 
-    console.log("\n[7/9] Deploying RayanChainDAO contract...");
- // ✅ FIX: اطمینان از ارسال آدرس صحیح Timelock
-    const dao = await ethers.deployContract("RayanChainDAO", [
-        accControlAddress,
-        stakingAddress,
-        financeAddress,
-        timelockAddress,
-        votingPeriodInSeconds,
-        quorumPercentage,
-        approvalThreshold
-    ]);
+    console.log("✅ UserProfile (Proxy) deployed to:", userProfileAddress);
+
+    // 7. Deploy RayanChainDAO (Upgradeable)
+    console.log("\n[7/9] Deploying RayanChainDAO (Upgradeable)...");
+    const RayanChainDAOFactory = await ethers.getContractFactory("RayanChainDAO");
+    const votingPeriodInSeconds = 7 * 24 * 60 * 60;
+    const quorumPercentage = 10;
+    const approvalThreshold = 51;
+    const dao = await upgrades.deployProxy(RayanChainDAOFactory, [
+        deployer.address, accControlAddress, stakingAddress, financeAddress, timelockAddress,
+        votingPeriodInSeconds, quorumPercentage, approvalThreshold
+    ], { initializer: 'initialize', kind: 'uups' });
     await dao.waitForDeployment();
     const daoAddress = await dao.getAddress();
-    console.log("✅ RayanChainDAO deployed to:", daoAddress);
+    console.log("✅ RayanChainDAO (Proxy) deployed to:", daoAddress);
+
+    // --- CONFIGURATION & OWNERSHIP TRANSFER ---
+    console.log("\n--- Starting Configuration & Ownership Transfer ---");
+
+    // مقداردهی اولیه قیمت در توکن
+    console.log("   - Initializing RayanChainToken pricing...");
+    const tokenContract = await ethers.getContractAt("RayanChainToken", tokenAddress);
+    const maticUsdPriceFeedAmoy = "0x001382149eBa3441043c1c66972b4772963f5D43";
+    const initialRycAmountPerUsd = ethers.parseUnits("100000", 18);
+    await (await tokenContract.initializePricing(maticUsdPriceFeedAmoy, initialRycAmountPerUsd)).wait();
+    console.log("   ✅ Token pricing initialized.");
 
     // 8. Timelock Role Finalization
     console.log("\n[8/9] Finalizing Timelock Roles...");
@@ -294,7 +276,7 @@ async function main() {
     // --- END AUTOMATIC ENV CONFIGURATION ---
 
 
-    console.log("\n🏁 Full DAO Deployment Successful!");
+    console.log("\n🏁 Full Upgradeable DAO Deployment Successful!");
     console.log("\n--- DEPLOYMENT_SUMMARY_START ---");
     console.log(JSON.stringify({
         registryAddress,

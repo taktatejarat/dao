@@ -1,11 +1,11 @@
 // hardhat.config.cts
-// hardhat.config.ts
-
 import { HardhatUserConfig } from "hardhat/config";
 import "dotenv/config"; // Use import instead of require for consistency
 import "@nomicfoundation/hardhat-toolbox";
 import "hardhat-abi-exporter"; // ✅ ۱. پلاگین جدید را import می‌کنیم
 import "@nomicfoundation/hardhat-ethers"; // ✅✅ این خط بسیار مهم است ✅✅
+require("@openzeppelin/hardhat-upgrades");
+  
 
 // --- Environment Variables ---
 const privateKey = process.env.PRIVATE_KEY;
