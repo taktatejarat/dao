@@ -17,14 +17,7 @@ contract AccControl is Initializable, AccessControlUpgradeable, UUPSUpgradeable 
 
     // --- UUPS Upgrade Authorization ---
     function _authorizeUpgrade(address newImplementation) internal override onlyRole(DEFAULT_ADMIN_ROLE) {}
-
-    /**
-     * @dev Constructor that grants the deployer the default admin role.
-     */
-    constructor(address initialOwner) {
-        _grantRole(DEFAULT_ADMIN_ROLE, initialOwner);
-    }
-    
+  
     function VALIDATOR_ROLE() public pure returns (bytes32) {
         return keccak256("VALIDATOR_ROLE");
     }
