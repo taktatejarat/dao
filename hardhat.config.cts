@@ -45,7 +45,10 @@ const config: HardhatUserConfig = {
       url: amoyRpcUrl || "https://rpc-amoy.polygon.technology",
       accounts: accounts,
     },
-  },
+      forking: {
+        url: `https://polygon-amoy.infura.io/v3/${process.env.INFURA_API_KEY}`,
+      }
+    },
   etherscan: {
     apiKey: {
       sepolia: process.env.ETHERSCAN_API_KEY || "",

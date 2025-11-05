@@ -310,8 +310,8 @@
       ]
     },
     "/home/errick/dao/src/contracts/RayanChainDAO.sol": {
-      "lastModificationDate": 1762169486236,
-      "contentHash": "ab1fc509fd62fdfbbb1104e2e365e5cb",
+      "lastModificationDate": 1762267171552,
+      "contentHash": "d9b6e64674da4770d1e472f6907a834d",
       "sourceName": "src/contracts/RayanChainDAO.sol",
       "solcConfig": {
         "version": "0.8.24",

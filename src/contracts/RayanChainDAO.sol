@@ -2,6 +2,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
+
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "./permission/AccControl.sol";
@@ -81,8 +86,9 @@ contract RayanChainDAO is Ownable, ReentrancyGuard {
         _;
     }
 
-   // --- Constructor ---
-    constructor(
+    // --- ✅✅✅ INITIALIZER FUNCTION (جایگزین constructor) ✅✅✅ ---
+    function initialize(
+        address _initialOwner,
         address _accControlAddress,
         address _stakingAddress,
         address _financeAddress,
@@ -90,7 +96,12 @@ contract RayanChainDAO is Ownable, ReentrancyGuard {
         uint256 _votingPeriod,
         uint256 _quorumPercentage,
         uint256 _approvalThreshold
-    ) Ownable(msg.sender) {
+    ) public initializer {
+        // فراخوانی initializer های قراردادهای والد
+        __Ownable_init(_initialOwner);
+        __ReentrancyGuard_init();
+        __UUPSUpgradeable_init();
+
         accControl = AccControl(_accControlAddress);
         stakingContract = IStaking(_stakingAddress);
         financeContract = IFinance(_financeAddress);
@@ -101,28 +112,32 @@ contract RayanChainDAO is Ownable, ReentrancyGuard {
         nextProposalId = 1;
     }
 
+    // --- ✅✅✅ UUPS UPGRADE AUTHORIZATION ✅✅✅ ---
+    function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
+
     // --- Proposal Creation ---
     function createFundingProposal(
         bytes32 _descriptionHash,
         address payable _recipient,
-        // ✅✅✅ FIX 2: تابع اکنون آرایه‌ای از Struct جدید را می‌پذیرد ✅✅✅
         Milestone[] memory _milestones
     ) external {
         require(stakingContract.getStakedAmount(msg.sender) > 0, "DAO: Must have RYC staked to propose.");
         require(_milestones.length > 0, "At least one milestone is required");
         require(_descriptionHash != bytes32(0), "Description hash cannot be zero");
-
+        
         uint256 proposalId = _createProposal(
             ProposalType.Funding, _descriptionHash, _recipient, 0, TokenType.RYC
         );
 
-        // ✅✅✅ FIX 3: ذخیره کردن Milestone های جدید به درستی ✅✅✅
+      // ✅✅✅ FIX: استفاده از storage pointer برای جلوگیری از خطای Stack Too Deep
+        Proposal storage newProposal = proposals[proposalId];
+
         for (uint i = 0; i < _milestones.length; i++) {
             require(_milestones[i].amount > 0, "Milestone amount must be > 0");
             require(_milestones[i].durationDays > 0, "Milestone duration must be > 0");
             require(bytes(_milestones[i].name).length > 0, "Milestone name cannot be empty");
 
-            proposals[proposalId].milestones.push(Milestone({
+            newProposal.milestones.push(Milestone({
                 name: _milestones[i].name,
                 durationDays: _milestones[i].durationDays,
                 amount: _milestones[i].amount,
@@ -199,29 +214,26 @@ contract RayanChainDAO is Ownable, ReentrancyGuard {
 
     function _createProposal(
         ProposalType _pType,
-        // ✅ CHANGE: Accepts only the hash
-        bytes32 _descriptionHash, 
+        bytes32 _descriptionHash,
         address payable _recipient,
         uint256 _amount,
         TokenType _tokenType
     ) private returns (uint256) {
         uint256 proposalId = nextProposalId++;
-        // bytes32 descriptionHash = abi.encodePacked(_description).keccak256WithSalt(keccak256("proposal")); // Removed: Hash computed off-chain
-        
+        // ✅✅✅ FIX: استفاده از storage pointer
         Proposal storage newProposal = proposals[proposalId];
         newProposal.id = proposalId;
         newProposal.pType = _pType;
         newProposal.proposer = msg.sender;
-        // newProposal.description = _description; // Removed
-        newProposal.descriptionHash = _descriptionHash; // ✅ ASSIGN: Use the provided hash
+        newProposal.descriptionHash = _descriptionHash;
         newProposal.recipient = _recipient;
         newProposal.amount = _amount;
         newProposal.tokenType = _tokenType;
         newProposal.creationTime = block.timestamp;
         newProposal.votingDeadline = block.timestamp + votingPeriod;
-        newProposal.state = ProposalState.Voting; // Directly to voting
+        newProposal.state = ProposalState.Voting;
 
-        emit ProposalCreated(proposalId, msg.sender, _pType, _descriptionHash); // ✅ CHANGE: Event uses hash
+        emit ProposalCreated(proposalId, msg.sender, _pType, _descriptionHash);
         emit ProposalStateChanged(proposalId, ProposalState.Voting);
         return proposalId;
     }

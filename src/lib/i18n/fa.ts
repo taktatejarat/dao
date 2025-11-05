@@ -536,7 +536,7 @@ export const fa = {
     plans_for_role: "پلن‌های استیکینگ برای نقش",
     plans_for_role_desc: "حداقل میزان سپرده گذاری برای تأمین الزامات امنیتی و دسترسی به قابلیت‌های نقش شما.",
     current_delegatee: "نماینده فعلی",
-    no_delegatee: "عدم واگذاری",
+    no_delegatee: "بدون نماینده",
     plan_voter_title: "پلن رأی‌دهنده (پایه)",
     plan_startup_title: "پلن استارتاپ (تولید پیشنهاد)",
     plan_delegate_title: "پلن نماینده (حاکمیت)",
