@@ -68,8 +68,8 @@ export default function NewProposalPage() {
         return <AppLayout><div className="flex justify-center pt-20"><p>{t('new_proposal_page.redirecting')}</p></div></AppLayout>;
     }
     
-    const onFormSubmit = (e: React.FormEvent) => handleSubmit(e, address); 
-
+    const onFormSubmit = (e: React.FormEvent) => handleSubmit(e);
+    
     return (
         <AppLayout>
             <form onSubmit={onFormSubmit}> 
