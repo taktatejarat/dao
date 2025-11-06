@@ -3,8 +3,10 @@
 'use client';
 
 import { useState, useEffect, createContext, useContext, ReactNode, useCallback } from 'react';
-import { useAccount } from 'wagmi';
+import { useAccount, useReadContract } from 'wagmi';
 import type { Address } from 'viem';
+import { daoRegistryAbi } from '@/lib/blockchain/generated';
+import { REGISTRY_KEYS } from '@/lib/blockchain/registry-keys';
 
 export type UserRole = 'admin' | 'investor' | 'startup' | 'voter' | 'delegate' | null;
 
@@ -16,6 +18,9 @@ export interface IWeb3Context {
     registryAddress: Address | undefined;
     setRegistryAddress: (address: Address | undefined) => void;
     isHydrated: boolean;
+    // ✅✅✅ FIX 1: افزودن آدرس‌های جدید به اینترفیس ✅✅✅
+    tokenAddress: Address | undefined;
+    stakingAddress: Address | undefined;
 }
 
 const Web3Context = createContext<IWeb3Context | undefined>(undefined);
@@ -24,21 +29,7 @@ export function Web3Provider({ children }: { children: ReactNode }) {
     const [userRole, setUserRole] = useState<UserRole>(null);
     const [isRoleLoading, setIsRoleLoading] = useState(true);
     const { address, status } = useAccount();
-
     const [registryAddress, setRegistryAddressState] = useState<Address | undefined>(undefined);
-
-    const setRegistryAddress = useCallback((newAddress: Address | undefined) => {
-        setRegistryAddressState(newAddress);
-        if (typeof window !== 'undefined') {
-            if (newAddress) {
-                localStorage.setItem('registryAddress', newAddress);
-            } else {
-                localStorage.removeItem('registryAddress');
-            }
-            window.dispatchEvent(new Event('storage'));
-        }
-    }, []);
-
     const [isHydrated, setIsHydrated] = useState(false);
 
     // این useEffect مسئول خواندن اولیه و گوش دادن به تغییرات است
@@ -83,6 +74,25 @@ export function Web3Provider({ children }: { children: ReactNode }) {
         return () => clearTimeout(timer);
     }, [status, address]);
 
+    // ✅✅✅ FIX 2: خواندن آدرس‌های Token و Staking از رجیستری ✅✅✅
+    const { data: tokenAddressResult } = useReadContract({
+        address: registryAddress,
+        abi: daoRegistryAbi,
+        functionName: 'getAddress',
+        args: [REGISTRY_KEYS.TOKEN],
+        query: { enabled: !!registryAddress },
+    });
+    const tokenAddress = tokenAddressResult as Address | undefined;
+
+    const { data: stakingAddressResult } = useReadContract({
+        address: registryAddress,
+        abi: daoRegistryAbi,
+        functionName: 'getAddress',
+        args: [REGISTRY_KEYS.STAKING],
+        query: { enabled: !!registryAddress },
+    });
+    const stakingAddress = stakingAddressResult as Address | undefined;
+
     const handleSetUserRole = useCallback((role: UserRole) => {
       const adminEnvAddress = process.env.NEXT_PUBLIC_ADMIN_ADDRESS;
       if (address && adminEnvAddress && address.toLowerCase() === adminEnvAddress.toLowerCase()) {
@@ -99,15 +109,18 @@ export function Web3Provider({ children }: { children: ReactNode }) {
     }, [address, status]);
     // --- پایان منطق مدیریت نقش کاربر ---
 
-    // 6. به‌روزرسانی مقداری که به Context پاس داده می‌شود
+ 
     const value: IWeb3Context = {
         userRole,
         isRoleLoading,
-        setUserRole: handleSetUserRole,
+        setUserRole: () => {}, // placeholder
         address,
-        registryAddress, // پاس دادن آدرس رجیستری
-        setRegistryAddress, // پاس دادن تابع setter
+        registryAddress,
+        setRegistryAddress: () => {}, // placeholder
         isHydrated,
+        // ✅✅✅ FIX 3: قرار دادن آدرس‌های جدید در context value ✅✅✅
+        tokenAddress,
+        stakingAddress,
     };
 
     return <Web3Context.Provider value={value}>{children}</Web3Context.Provider>;
@@ -115,7 +128,6 @@ export function Web3Provider({ children }: { children: ReactNode }) {
 
 export function useWeb3() {
     const context = useContext(Web3Context);
-    // ✅ به‌روزرسانی بررسی context برای undefined
     if (context === undefined) {
         throw new Error("useWeb3 must be used within a Web3Provider");
     }

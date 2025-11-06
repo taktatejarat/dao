@@ -1,15 +1,36 @@
-// src/app/api/contract-creation/route.ts - FINAL FIX: HASH ONLY (NO SYSTEM TX)
+// src/app/api/contract-creation/route.ts - FINAL FIX WITH BIGINT SERIALIZATION
 
 import { NextRequest, NextResponse } from 'next/server';
 import { Address, Hex, keccak256, encodePacked, parseEther } from 'viem';
-import { getDb } from '@/lib/mongodb'; // ✅ NEW: وارد کردن getDb
-import { logEvent } from '@/lib/logger';  // ✅ NEW: وارد کردن logger
+import { getDb } from '@/lib/mongodb';
+import { logEvent } from '@/lib/logger';
 
-// ✅ تعریف اینترفیس برای داده‌های ورودی برای افزایش خوانایی
 interface MilestoneInput {
     name: string;
     durationDays: string;
     amount: string;
+}
+
+// Helper to serialize BigInts in an object before sending as JSON
+function serializeBigInts(obj: any): any {
+    if (obj === null || typeof obj !== 'object') {
+        return obj;
+    }
+    if (Array.isArray(obj)) {
+        return obj.map(item => serializeBigInts(item));
+    }
+    const newObj: { [key: string]: any } = {};
+    for (const key in obj) {
+        if (Object.prototype.hasOwnProperty.call(obj, key)) {
+            const value = obj[key];
+            if (typeof value === 'bigint') {
+                newObj[key] = value.toString();
+            } else {
+                newObj[key] = serializeBigInts(value);
+            }
+        }
+    }
+    return newObj;
 }
 
 // Helper to compute hash using viem
@@ -19,18 +40,18 @@ function computeProposalHash(description: string): Hex {
     return keccak256(data);
 }
 
+
 export async function POST(req: NextRequest) {
     try {
         const {
             proposerAddress,
             description,
             recipientAddress,
-            milestones, 
+            milestones,
             aiFeatures
         } = await req.json();
 
         if (!description || !recipientAddress || !milestones || !Array.isArray(milestones) || milestones.length === 0) {
-            await logEvent('WARN', 'USER_ACTION', 'Proposal creation failed: Missing fields.', { proposerAddress });
             return NextResponse.json({ message: 'Missing required fields.' }, { status: 400 });
         }
 
@@ -52,45 +73,34 @@ export async function POST(req: NextRequest) {
         const result = await proposalsCollection.insertOne(offChainData);
         await logEvent('INFO', 'USER_ACTION', 'Off-chain proposal data saved.', { mongoId: result.insertedId.toString() });
 
-        // ✅✅✅ THE FIX IS HERE: تبدیل دقیق انواع داده برای قرارداد هوشمند ✅✅✅
+        // ۱. ساخت آرگومان‌ها با نوع داده صحیح BigInt برای قرارداد
         const txArgs = [
             descriptionHash,
             recipientAddress as Address,
-            milestones.map((m: MilestoneInput) => {
-                // تمام فیلدهای struct باید به ترتیب و با نوع صحیح ارسال شوند
-                return {
-                    name: m.name,
-                    // ✅ FIX: تبدیل رشته به BigInt برای uint256
-                    durationDays: BigInt(m.durationDays || '0'),
-                    // ✅ FIX: تبدیل رشته به BigInt (wei) برای uint256
-                    amount: parseEther(m.amount || '0'),
-                    // مقادیر پیش‌فرض برای فیلدهایی که در زمان ساخت تنظیم می‌شوند
-                    state: 0, // Enum ProposalState.Pending
-                    proofOfProgressHash: '0x0000000000000000000000000000000000000000000000000000000000000000' as Hex,
-                    released: false,
-                };
-            }),
+            milestones.map((m: MilestoneInput) => ({
+                name: m.name,
+                durationDays: BigInt(m.durationDays || '0'),
+                amount: parseEther(m.amount || '0'),
+                state: 0,
+                proofOfProgressHash: '0x0000000000000000000000000000000000000000000000000000000000000000' as Hex,
+                released: false,
+            })),
         ];
 
-        // --- دیباگینگ پیشرفته برای تأیید نهایی ---
-        const replacer = (key: any, value: any) =>typeof value === 'bigint' ? value.toString() : value;
-        console.log("📦 [API DEBUG] Final txArgs with correct types:", JSON.stringify(txArgs, replacer, 2));
+        // ✅✅✅ THE FIX IS HERE ✅✅✅
+        // ۲. ساخت یک نسخه سریالایز شده از آرگومان‌ها برای ارسال به فرانت‌اند
+        const jsonSafeTxArgs = serializeBigInts(txArgs);
 
-              // ساخت پاسخ JSON با استفاده از replacer
-        const body = JSON.stringify({
+        // لاگ کردن آرگومان‌ها برای دیباگ (این لاگ اکنون باید در ترمینال شما نمایش داده شود)
+        console.log("📦 [API DEBUG] Final txArgs prepared for contract call:", JSON.stringify(jsonSafeTxArgs, null, 2));
+
+        return NextResponse.json({
             success: true,
             message: 'Off-chain data saved. Ready for on-chain submission.',
             descriptionHash,
-            txArgs, // txArgs همچنان حاوی BigInt است
-        }, replacer); // replacer را به stringify پاس می‌دهیم
+            txArgs: jsonSafeTxArgs, // ✅ ارسال نسخه امن برای JSON
+        }, { status: 200 });
 
-        // بازگرداندن پاسخ به صورت دستی با هدر صحیح
-        return new Response(body, {
-            status: 200,
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        });
         
     } catch (error) {
         await logEvent('ERROR', 'USER_ACTION', 'Error in contract-creation API.', { 
