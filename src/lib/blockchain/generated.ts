@@ -1043,26 +1043,16 @@ export const rayanChainDaoAbi = [
     inputs: [
       { name: '_descriptionHash', internalType: 'bytes32', type: 'bytes32' },
       { name: '_recipient', internalType: 'address payable', type: 'address' },
+      { name: '_milestoneNames', internalType: 'string[]', type: 'string[]' },
       {
-        name: '_milestones',
-        internalType: 'struct RayanChainDAO.Milestone[]',
-        type: 'tuple[]',
-        components: [
-          { name: 'name', internalType: 'string', type: 'string' },
-          { name: 'durationDays', internalType: 'uint256', type: 'uint256' },
-          { name: 'amount', internalType: 'uint256', type: 'uint256' },
-          {
-            name: 'state',
-            internalType: 'enum RayanChainDAO.ProposalState',
-            type: 'uint8',
-          },
-          {
-            name: 'proofOfProgressHash',
-            internalType: 'bytes32',
-            type: 'bytes32',
-          },
-          { name: 'released', internalType: 'bool', type: 'bool' },
-        ],
+        name: '_milestoneDurations',
+        internalType: 'uint256[]',
+        type: 'uint256[]',
+      },
+      {
+        name: '_milestoneAmounts',
+        internalType: 'uint256[]',
+        type: 'uint256[]',
       },
     ],
     name: 'createFundingProposal',
