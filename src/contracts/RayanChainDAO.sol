@@ -116,28 +116,24 @@ contract RayanChainDAO is Initializable, OwnableUpgradeable, ReentrancyGuardUpgr
     function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
 
     // --- Proposal Creation ---
-  // --- ✅✅✅ THE FINAL SOLUTION IS HERE ✅✅✅ ---
+    // --- ✅✅✅ THE FINAL, CORRECT SOLUTION IS HERE ✅✅✅ ---
     function createFundingProposal(
         bytes32 _descriptionHash,
         address payable _recipient,
-        // به جای یک آرایه از struct، سه آرایه ساده دریافت می‌کنیم
         string[] memory _milestoneNames,
         uint256[] memory _milestoneDurations,
         uint256[] memory _milestoneAmounts
     ) external {
         require(stakingContract.getStakedAmount(msg.sender) > 0, "DAO: Must have RYC staked to propose.");
         require(_descriptionHash != bytes32(0), "Description hash cannot be zero");
-        // اطمینان از اینکه تمام آرایه‌ها طول یکسانی دارند
         require(_milestoneNames.length == _milestoneDurations.length && _milestoneNames.length == _milestoneAmounts.length, "Milestone arrays length mismatch");
         require(_milestoneNames.length > 0, "At least one milestone is required");
 
         uint256 proposalId = _createProposal(
             ProposalType.Funding, _descriptionHash, _recipient, 0, TokenType.RYC
         );
-
         Proposal storage newProposal = proposals[proposalId];
 
-        // حلقه for اکنون روی آرایه‌های ساده اجرا می‌شود که بسیار بهینه‌تر است
         for (uint i = 0; i < _milestoneNames.length; i++) {
             require(_milestoneAmounts[i] > 0, "Milestone amount must be > 0");
             require(_milestoneDurations[i] > 0, "Milestone duration must be > 0");

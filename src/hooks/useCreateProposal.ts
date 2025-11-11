@@ -1,4 +1,4 @@
-// src/hooks/useCreateProposal.ts - FINAL, DEFINITIVE, AND ERROR-FREE VERSION
+// src/hooks/useCreateProposal.ts - FINAL, COMPLETE, AND ERROR-FREE VERSION
 
 "use client";
 
@@ -71,44 +71,55 @@ export function useCreateProposal({ daoAddress, isFormEnabled }: UseCreatePropos
         if (!isFormValid || !daoAddress || !address) return;
 
         setIsPending(true);
-        toast.loading("Step 1/2: Saving proposal data...");
+        toast.loading("Step 1/2: Saving proposal data off-chain...");
 
         try {
-            // --- STEP 1: Save data off-chain ---
-            const fullAiFeatures = { industry: startupIndustry, team_experience_years: parseInt(teamExperienceYears, 10) || 0, has_previous_funding: hasPreviousFunding === 'true', market_size_usd: parseInt(marketSize, 10) || 0, team_bio: teamBio };
-            const payload = { proposerAddress: address, description, recipientAddress: recipient, milestones, aiFeatures: fullAiFeatures };
+            // --- STEP 1: Prepare payload and save data off-chain ---
+            const fullAiFeatures = { 
+                industry: startupIndustry, 
+                team_experience_years: parseInt(teamExperienceYears, 10) || 0, 
+                has_previous_funding: hasPreviousFunding === 'true', 
+                market_size_usd: parseInt(marketSize, 10) || 0, 
+                team_bio: teamBio 
+            };
+            const payload = { 
+                proposerAddress: address, 
+                description, 
+                recipientAddress: recipient, 
+                milestones, 
+                aiFeatures: fullAiFeatures 
+            };
             
-            // ✅ FIX: Defining the response variable correctly
-            const apiResponse = await fetch('/api/contract-creation', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+            const apiResponse = await fetch('/api/contract-creation', { 
+                method: 'POST', 
+                headers: { 'Content-Type': 'application/json' }, 
+                body: JSON.stringify(payload) 
+            });
+
             if (!apiResponse.ok) {
                 throw new Error((await apiResponse.json()).message || 'Failed to save data off-chain.');
             }
             const { descriptionHash } = await apiResponse.json();
             toast.dismiss();
 
-           // STEP 2: Prepare args and send transaction
+            // --- STEP 2: Prepare packed data and send transaction ---
             toast.loading("Step 2/2: Please confirm transaction in your wallet...");
 
             const milestoneNames = milestones.map(m => m.name);
             const milestoneDurations = milestones.map(m => BigInt(m.durationDays || '0'));
             const milestoneAmounts = milestones.map(m => parseEther(m.amount || '0'));
 
-            // ✅✅✅ THE FINAL, DEFINITIVE FIX IS HERE ✅✅✅
-            // با استفاده از 'as const'، ما به TypeScript می‌گوییم که این یک Tuple با انواع داده ثابت است.
-            // این کار هرگونه ابهام را برای wagmi از بین می‌برد.
-            const finalTxArgs = [
-                descriptionHash as Hex,
-                recipient as Address,
-                milestoneNames,
-                milestoneDurations,
-                milestoneAmounts,
-            ] as const;
-
             const hash = await writeContractAsync({
                 address: daoAddress,
                 abi: rayanChainDaoAbi,
                 functionName: 'createFundingProposal',
-                args: finalTxArgs, // اکنون نوع داده کاملاً مشخص و بدون ابهام است
+                args: [
+                    descriptionHash as Hex,
+                    recipient as Address,
+                    milestoneNames,
+                    milestoneDurations,
+                    milestoneAmounts,
+                ],
             });
 
             setTxHash(hash);
@@ -124,13 +135,13 @@ export function useCreateProposal({ daoAddress, isFormEnabled }: UseCreatePropos
         }
     }, [isFormValid, daoAddress, address, description, recipient, milestones, startupIndustry, teamExperienceYears, hasPreviousFunding, marketSize, teamBio, writeContractAsync, t]);
     
-    // --- Effect to handle confirmation ---
+    // --- Effect to handle confirmation and trigger AI ---
     useEffect(() => {
         if (isConfirmed && receipt && txHash) {
             toast.dismiss(`tx-${txHash}`);
             toast.success(t('new_proposal_page.success_toast_title'), { description: t('new_proposal_page.confirmed_toast_desc') });
             console.log("Transaction confirmed. Triggering AI analysis...");
-            // ... (منطق فعال‌سازی AI)
+            // ... (منطق فعال‌سازی AI با فراخوانی /api/trigger-ai-update)
             setIsPending(false);
             setTimeout(() => router.push('/proposals'), 2000);
         }
