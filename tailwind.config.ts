@@ -1,5 +1,6 @@
 
 import type { Config } from "tailwindcss"
+import plugin from 'tailwindcss/plugin';
 
 const config = {
   darkMode: ["class"],
@@ -103,7 +104,15 @@ const config = {
       },
     },
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [
+    require("tailwindcss-animate"),
+    require("tailwindcss-animate"),
+    require("tailwindcss-rtl"),
+    plugin(function ({ addVariant }) {
+      addVariant('data-open', '&[data-state="open"]');
+      addVariant('data-closed', '&[data-state="closed"]');
+    }),
+  ],
 } satisfies Config
 
 export default config

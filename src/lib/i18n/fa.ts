@@ -354,7 +354,7 @@ export const fa = {
     financials_doc: "فایل پیش‌بینی‌های مالی (PDF, XLSX)",
     legal_doc: "اسناد حقوقی (اختیاری)",
     submit_for_review: "ارسال برای بررسی",
-    form_incomplete_title: "فرم ناقص است",
+    form_incomplete_title: "اطلاعات وارد شده در فرم ناقص است",
     form_incomplete_tooltip: "لطفاً تمام فیلدهای الزامی در تمام بخش‌ها را پر کنید.",
     access_denied_title: "دسترسی غیرمجاز",
     access_denied_desc: "شما برای ثبت پروپوزال باید نقش 'استارتاپ' را داشته باشید.",

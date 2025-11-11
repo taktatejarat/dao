@@ -257,9 +257,7 @@ export default function NewProposalPage() {
                             </TabsContent>
                         </Tabs>
 
-                        {!isFormValid && canSubmitProposal && (
-                            <Alert variant="default" className="mt-6">{/* ... */}</Alert>
-                        )}
+                        {!isFormValid && canSubmitProposal && (<Alert variant="default" className="mt-6"><AlertTriangle className="h-4 w-4" /><AlertTitle>{t('new_proposal_page.form_incomplete_title')}</AlertTitle><AlertDescription>{t('new_proposal_page.form_incomplete_tooltip')}</AlertDescription></Alert>)}
                     </CardContent>
                     <CardFooter className="border-t pt-6">
                         <Button type="submit" className="w-full sm:w-auto" disabled={isButtonDisabled}>
