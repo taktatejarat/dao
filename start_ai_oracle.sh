@@ -7,7 +7,7 @@ VENV_DIR="$ROOT_DIR/.venv_ai_oracle"
 AI_ENGINE_DIR="$ROOT_DIR/ai-engine"
 LOG_FILE="$AI_ENGINE_DIR/ai_oracle_service.log"
 PID_FILE="$AI_ENGINE_DIR/ai_oracle.pid"
-PYTHON_EXECUTABLE="$VENV_DIR/bin/python3"
+python3_EXECUTABLE="$VENV_DIR/bin/python3"
 REQUIREMENTS_FILE="$AI_ENGINE_DIR/requirements.txt"
 
 # --- Helper Functions ---
@@ -17,24 +17,42 @@ log() {
 
 setup_environment() {
     log "--- [AI Oracle] Starting Setup and Activation ---"
+    
+    # ایجاد یا بررسی وجود venv
     if [ ! -d "$VENV_DIR" ]; then
         log "Creating virtual environment: $VENV_DIR"
-        python3 -m venv "$VENV_DIR"
+        python3 -m venv "$VENV_DIR" || {
+            log "CRITICAL ERROR: Failed to create virtual environment."
+            exit 1
+        }
     fi
 
-    if [ ! -f "$PYTHON_EXECUTABLE" ]; then
-        log "CRITICAL ERROR: VENV Python executable not found at $PYTHON_EXECUTABLE."
+    # بررسی وجود pip داخل venv
+    if [ ! -f "$VENV_DIR/bin/pip" ]; then
+        log "Installing pip inside virtual environment..."
+        "$VENV_DIR/bin/python3" -m ensurepip --upgrade || {
+            log "CRITICAL ERROR: Failed to install pip."
+            exit 1
+        }
+        "$VENV_DIR/bin/python3" -m pip install --upgrade pip setuptools wheel
+    fi
+
+    # فعال‌سازی محیط مجازی در اسکریپت (اختیاری اما مفید)
+    source "$VENV_DIR/bin/activate"
+
+    # نصب پکیج‌های مورد نیاز
+    log "Installing/Updating python3 dependencies..."
+    "$VENV_DIR/bin/pip" install -q -r "$REQUIREMENTS_FILE" || {
+        log "CRITICAL ERROR: Failed to install dependencies."
         exit 1
-    fi
+    }
 
-    log "Installing/Updating Python dependencies..."
-    "$PYTHON_EXECUTABLE" -m pip install -q -r "$REQUIREMENTS_FILE"
-    log "Dependencies installed."
+    log "Dependencies installed successfully."
 }
 
 prepare_training_data() {
     log "--- [AI Oracle] Preparing Training Data ---"
-    "$PYTHON_EXECUTABLE" "$AI_ENGINE_DIR/training/prepare_data.py"
+    "$python3_EXECUTABLE" "$AI_ENGINE_DIR/training/prepare_data.py"
     if [ $? -ne 0 ]; then
         log "CRITICAL ERROR: Data preparation failed."
         exit 1
@@ -44,7 +62,7 @@ prepare_training_data() {
 
 train_ai_model() {
     log "--- [AI Oracle] Training AI Risk Model ---"
-    "$PYTHON_EXECUTABLE" "$AI_ENGINE_DIR/training/train_risk_model.py"
+    "$python3_EXECUTABLE" "$AI_ENGINE_DIR/training/train_risk_model.py"
     if [ $? -ne 0 ]; then
         log "CRITICAL ERROR: Model training failed."
         exit 1
@@ -76,7 +94,7 @@ start_fastapi_service() {
     # ✅ FIX: از مسیر مطلق برای اجرای uvicorn استفاده می‌کنیم
     # وارد پوشه ai-engine می‌شویم تا uvicorn بتواند main:app را پیدا کند.
     cd "$AI_ENGINE_DIR"
-    nohup "$PYTHON_EXECUTABLE" -m uvicorn main:app --host 0.0.0.0 --port 8000 --log-level info > "$LOG_FILE" 2>&1 &
+    nohup "$python3_EXECUTABLE" -m uvicorn main:app --host 0.0.0.0 --port 8000 --log-level info > "$LOG_FILE" 2>&1 &
     
     echo $! > "$PID_FILE"
     cd "$ROOT_DIR" # بازگشت به دایرکتوری اصلی

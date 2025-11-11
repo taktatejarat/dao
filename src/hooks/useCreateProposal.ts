@@ -104,23 +104,40 @@ export function useCreateProposal({ daoAddress, isFormEnabled }: UseCreatePropos
 
         try {
             const fullAiFeatures = { industry: startupIndustry, team_experience_years: parseInt(teamExperienceYears, 10) || 0, has_previous_funding: hasPreviousFunding === 'true', market_size_usd: parseInt(marketSize, 10) || 0, team_bio: teamBio };
-            const payload = { proposerAddress: address, daoAddress, description, recipientAddress: recipient, milestones, aiFeatures: fullAiFeatures };
+             const payload = { proposerAddress: address, description, recipientAddress: recipient, milestones, aiFeatures: fullAiFeatures };
 
             const response = await fetch('/api/contract-creation', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+            
             if (!response.ok) {
-                throw new Error((await response.json()).message || 'API call to /api/contract-creation failed');
+                throw new Error((await response.json()).message || 'API call failed');
             }
             
             const { txArgs: txArgsFromApi } = await response.json();
-            const typedArgs = txArgsFromApi as CreateProposalArgs;
-            console.log("Transaction arguments received. Starting simulation...", typedArgs);
-            setTxArgsForSim(typedArgs);
+            
+            // ✅✅✅ THE FINAL, CRITICAL FIX IS HERE ✅✅✅
+            // ما باید داده‌های رشته‌ای دریافتی از API را به نوع داده صحیح BigInt برای wagmi تبدیل کنیم.
+            const finalTxArgs = [
+                txArgsFromApi[0], // descriptionHash (is already a Hex string)
+                txArgsFromApi[1], // recipientAddress (is already an Address string)
+                txArgsFromApi[2].map((m: any) => ({
+                    // فیلدهای قرارداد را به درستی نگاشت می‌کنیم
+                    name: m.name,
+                    durationDays: BigInt(m.durationDays), // String -> BigInt
+                    amount: BigInt(m.amount),          // String -> BigInt
+                    state: 0, // مقدار پیش‌فرض
+                    proofOfProgressHash: '0x0000000000000000000000000000000000000000000000000000000000000000',
+                    released: false,
+                }))
+            ] as const;
 
-            console.log("✅ API call successful. Received args for simulation:", txArgsFromApi);
-            setTxArgsForSim(txArgsFromApi); // This triggers the useSimulateContract hook
+            console.log("✅ API call successful. Arguments re-hydrated with BigInts. Starting simulation...", finalTxArgs);
+            
+            // اکنون آرگومان‌های با نوع داده صحیح را به شبیه‌ساز ارسال می‌کنیم.
+            setTxArgsForSim(finalTxArgs);
+
         } catch (err) {
-            console.error("❌ Error during API call:", err);
-            toast.error("API Error", { description: (err as Error).message });
+            console.error("❌ Error during API call or argument preparation:", err);
+            toast.error("Error", { description: (err as Error).message });
         }
     }, [isFormValid, daoAddress, address, rycBalance, stakedAmount, description, recipient, startupIndustry, teamExperienceYears, hasPreviousFunding, marketSize, teamBio, milestones]);
 
