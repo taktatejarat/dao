@@ -335,6 +335,12 @@ export const fa = {
     competitors: "تحلیل رقبا",
     competitors_placeholder: "رقبای اصلی شما چه کسانی هستند و مزیت رقابتی شما چیست؟",
     has_previous_funding_label: "آیا سابقه جذب سرمایه دارید؟",
+    industries: {
+      defi: "مدل مالی غیرمتمرکز / وب ۳",
+      ai: "هوش مصنوعی / یادگیری ماشین",
+      gaming: "بازی / متاورس",
+      saas: "نرم‌افزار به عنوان سرویس (SaaS)"
+    },
     funding_details: "جزئیات جذب سرمایه قبلی",
     funding_details_placeholder: "مبلغ، تاریخ و نام سرمایه‌گذاران قبلی را ذکر کنید...",
     recipient_address: "آدرس کیف پول دریافت‌کننده وجوه",

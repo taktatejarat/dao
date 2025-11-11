@@ -2,7 +2,7 @@
 
 "use client";
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react'; // useMemo اضافه شد
 import { AppLayout } from '@/components/layout/app-layout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -16,7 +16,7 @@ import { useRouter } from 'next/navigation';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertTriangle, PlusCircle, Trash2 } from 'lucide-react';
 import { useAccount } from 'wagmi';
-import { useCreateProposal, Milestone } from '@/hooks/useCreateProposal'; // Assuming Milestone is exported
+import { useCreateProposal, Milestone } from '@/hooks/useCreateProposal';
 import { useCurrencyConverter } from '@/hooks/useCurrencyConverter';
 import { toast } from 'sonner';
 
@@ -24,19 +24,20 @@ import { toast } from 'sonner';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { FileInput } from '@/components/ui/file-input'; // Ensure this component exists
+import { FileInput } from '@/components/ui/file-input';
 
 export default function NewProposalPage() {
     const { t } = useTranslation();
     const router = useRouter();
-    const { userRole, address, isHydrated, registryAddress } = useWeb3(); // registryAddress added
+    const { locale } = useTranslation(); // ما به زبان فعلی نیاز داریم
+    const { userRole, address, isHydrated, registryAddress } = useWeb3();
     const { isConnected } = useAccount();
     const { convertRycToLocalCurrency } = useCurrencyConverter();
 
     const canAccessPage = userRole === 'startup' || userRole === 'admin';
     const canSubmitProposal = canAccessPage && isConnected;
 
-    // --- State for NEW comprehensive fields ---
+    // --- State for NEW comprehensive fields (ادغام شده با هوک) ---
     const [projectName, setProjectName] = useState('');
     const [tagline, setTagline] = useState('');
     const [website, setWebsite] = useState('');
@@ -48,25 +49,35 @@ export default function NewProposalPage() {
     const [pitchDeckFile, setPitchDeckFile] = useState<File | null>(null);
     const [financialsFile, setFinancialsFile] = useState<File | null>(null);
     const [legalFile, setLegalFile] = useState<File | null>(null);
+    
+    // ✅✅✅ FIX: ما دیگر از useCreateProposal استفاده نمی‌کنیم و منطق آن را به صورت محلی مدیریت می‌کنیم ✅✅✅
+    // این کار از پیچیدگی و ناسازگاری جلوگیری می‌کند.
+    const [description, setDescription] = useState('');
+    const [recipient, setRecipient] = useState<string>('');
+    const [milestones, setMilestones] = useState<Milestone[]>([{ name: '', durationDays: '', amount: '' }]);
+    const [startupIndustry, setStartupIndustry] = useState('');
+    const [teamExperienceYears, setTeamExperienceYears] = useState('');
+    const [hasPreviousFunding, setHasPreviousFunding] = useState('false');
+    const [marketSize, setMarketSize] = useState('');
+    const [teamBio, setTeamBio] = useState('');
+    const [isPending, setIsPending] = useState(false);
 
-    // --- Using your existing useCreateProposal hook for core logic ---
-    const {
-        description, setDescription,
-        recipient, setRecipient,
-        milestones,
-        handleAddMilestone,
-        handleMilestoneChange,
-        handleRemoveMilestone,
-        startupIndustry, setStartupIndustry,
-        teamExperienceYears, setTeamExperienceYears,
-        hasPreviousFunding, setHasPreviousFunding,
-        marketSize, setMarketSize,
-        teamBio, setTeamBio,
-        handleSubmit,
-        isPending,
-        isButtonDisabled,
-        isFormValid
-    } = useCreateProposal({ daoAddress: registryAddress, isFormEnabled: canSubmitProposal });
+    // --- Handlers (اکنون به صورت محلی تعریف شده‌اند) ---
+    const handleAddMilestone = useCallback(() => setMilestones(prev => [...prev, { name: '', durationDays: '', amount: '' }]), []);
+    const handleMilestoneChange = useCallback((index: number, field: keyof Milestone, value: string) => {
+        const newMilestones = [...milestones];
+        if ((field === 'amount' || field === 'durationDays') && value !== '' && !/^\d*\.?\d*$/.test(value)) return;
+        newMilestones[index][field] = value;
+        setMilestones(newMilestones);
+    }, [milestones]);
+    const handleRemoveMilestone = useCallback((index: number) => {
+        if (milestones.length > 1) setMilestones(prev => prev.filter((_, i) => i !== index));
+    }, [milestones.length]);
+
+    // --- Form Validation ---
+    const isFormValid = useMemo(() => {
+        return projectName.trim() !== '' && description.trim() !== '' && recipient.trim() !== '';
+    }, [projectName, description, recipient]);
 
     // --- Effects for Redirection (بدون تغییر) ---
     useEffect(() => {
@@ -83,23 +94,89 @@ export default function NewProposalPage() {
         return <AppLayout><div className="flex justify-center pt-20"><p>{t('new_proposal_page.redirecting')}</p></div></AppLayout>;
     }
     
-   // This will be replaced with the multi-step upload + submit logic
-    const onFormSubmit = (e: React.FormEvent) => {
+    // ✅✅✅ داده‌های جدید برای لیست‌های کشویی ✅✅✅
+    const industries = [
+        { value: "DeFi", label: t('new_proposal_page.industries.defi') },
+        { value: "AI", label: t('new_proposal_page.industries.ai') },
+        { value: "Gaming", label: t('new_proposal_page.industries.gaming') },
+        { value: "SaaS", label: t('new_proposal_page.industries.saas') },
+    ];
+    const businessModels = [
+        { value: "B2B", label: "B2B" },
+        { value: "B2C", label: "B2C" },
+        { value: "SaaS", label: "SaaS" },
+        { value: "Marketplace", label: "Marketplace" },
+    ];
+
+    const handleSubmit = useCallback(async (e: React.FormEvent) => {
         e.preventDefault();
-        console.log("Form submitted. Upload logic to be implemented.");
-        // We will call the final handleSubmit from the hook here after uploads.
-        handleSubmit(e); 
-    };
-    
+        if (!isFormValid) {
+            toast.warning("Please fill out all required fields.");
+            return;
+        }
+        setIsPending(true);
+
+        const uploadFile = async (file: File | null, fieldName: string): Promise<string | null> => {
+            if (!file) return null;
+            const formData = new FormData();
+            formData.append('file', file);
+            const response = await fetch('/api/upload', { method: 'POST', body: formData });
+            if (!response.ok) throw new Error(`Failed to upload ${fieldName}`);
+            const data = await response.json();
+            return data.ipfsHash;
+        };
+
+        try {
+            toast.loading("Uploading documents...", { id: 'submit-toast' });
+            const [pitchDeckHash, financialsHash, legalHash] = await Promise.all([
+                uploadFile(pitchDeckFile, 'Pitch Deck'),
+                uploadFile(financialsFile, 'Financials'),
+                uploadFile(legalFile, 'Legal Docs'),
+            ]);
+
+            toast.loading("Saving proposal data...", { id: 'submit-toast' });
+            const fullProposalData = {
+                proposerAddress: address,
+                projectName, tagline, website, description, problem, solution, businessModel,
+                startupIndustry, teamExperienceYears, teamBio, marketSize, competitors,
+                hasPreviousFunding, fundingHistoryDetails, recipient, milestones,
+                documents: { pitchDeck: pitchDeckHash, financials: financialsHash, legal: legalHash },
+            };
+
+            const finalResponse = await fetch('/api/proposals/submit', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(fullProposalData),
+            });
+
+            if (!finalResponse.ok) throw new Error((await finalResponse.json()).message || 'Failed to save proposal data.');
+            
+            toast.success("Proposal submitted successfully!", { id: 'submit-toast' });
+            setTimeout(() => router.push('/proposals'), 2000);
+
+        } catch (error) {
+            toast.error("Submission Failed", { id: 'submit-toast', description: (error as Error).message });
+        } finally {
+            setIsPending(false);
+        }
+    }, [
+        isFormValid, address, router,
+        projectName, tagline, website, description, problem, solution, businessModel,
+        startupIndustry, teamExperienceYears, teamBio, marketSize, competitors,
+        hasPreviousFunding, fundingHistoryDetails, recipient, milestones,
+        pitchDeckFile, financialsFile, legalFile
+    ]);
+    const isButtonDisabled = !isFormValid || isPending;
+
     return (
         <AppLayout>
-            <form onSubmit={onFormSubmit}>
+            <form onSubmit={handleSubmit}>
                 <header className="mb-6">
                     <h1 className="text-3xl font-bold font-headline">{t('new_proposal_page.title')}</h1>
                     <p className="text-muted-foreground">{t('new_proposal_page.subtitle_professional')}</p>
                 </header>
 
-                <Card className="max-w-4xl mx-auto">
+                <Card className="max-w-5xl mx-auto">
                     <CardHeader>
                         <CardTitle>{t('new_proposal_page.card_title')}</CardTitle>
                         <CardDescription>{t('new_proposal_page.card_desc_professional')}</CardDescription>
@@ -124,7 +201,7 @@ export default function NewProposalPage() {
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div className="space-y-2"><Label htmlFor="project-name">{t('new_proposal_page.project_name')}</Label><Input id="project-name" value={projectName} onChange={e => setProjectName(e.target.value)} disabled={isPending} /></div>
                                     <div className="space-y-2"><Label htmlFor="tagline">{t('new_proposal_page.tagline')}</Label><Input id="tagline" value={tagline} onChange={e => setTagline(e.target.value)} disabled={isPending} /></div>
-                                    <div className="space-y-2"><Label htmlFor="industry">{t('new_proposal_page.industry')}</Label><Select onValueChange={setStartupIndustry} value={startupIndustry} disabled={isPending}><SelectTrigger><SelectValue placeholder={t('new_proposal_page.industry_placeholder')} /></SelectTrigger><SelectContent>{/* ...SelectItems... */}</SelectContent></Select></div>
+                                    <div className="space-y-2"><Label htmlFor="industry">{t('new_proposal_page.industry')}</Label><Select onValueChange={setStartupIndustry} value={startupIndustry} disabled={isPending}><SelectTrigger><SelectValue placeholder={t('new_proposal_page.industry_placeholder')} /></SelectTrigger><SelectContent>{industries.map(item =>(<SelectItem key={item.value} value={item.value}>{item.label}</SelectItem>))}</SelectContent></Select></div>
                                     <div className="space-y-2"><Label htmlFor="website">{t('new_proposal_page.website')}</Label><Input id="website" type="url" placeholder="https://" value={website} onChange={e => setWebsite(e.target.value)} disabled={isPending} /></div>
                                 </div>
                             </TabsContent>
@@ -134,7 +211,7 @@ export default function NewProposalPage() {
                                 <div className="space-y-2"><Label htmlFor="proposal-description">{t('new_proposal_page.full_description')}</Label><Textarea id="proposal-description" value={description} onChange={e => setDescription(e.target.value)} className="min-h-[120px]" disabled={isPending} /></div>
                                 <div className="space-y-2"><Label htmlFor="problem">{t('new_proposal_page.problem')}</Label><Textarea id="problem" value={problem} onChange={e => setProblem(e.target.value)} className="min-h-[100px]" disabled={isPending} /></div>
                                 <div className="space-y-2"><Label htmlFor="solution">{t('new_proposal_page.solution')}</Label><Textarea id="solution" value={solution} onChange={e => setSolution(e.target.value)} className="min-h-[100px]" disabled={isPending} /></div>
-                                <div className="space-y-2"><Label htmlFor="business-model">{t('new_proposal_page.business_model')}</Label><Select onValueChange={setBusinessModel} value={businessModel} disabled={isPending}><SelectTrigger><SelectValue placeholder="..." /></SelectTrigger><SelectContent>{/* ...SelectItems... */}</SelectContent></Select></div>
+                                <div className="space-y-2"><Label htmlFor="business-model">{t('new_proposal_page.business_model')}</Label><Select onValueChange={setBusinessModel} value={businessModel} disabled={isPending}><SelectTrigger><SelectValue placeholder={t('new_proposal_page.business_model_placeholder')} /></SelectTrigger><SelectContent>{businessModels.map(item =>(<SelectItem key={item.value} value={item.value}>{item.label}</SelectItem>))}</SelectContent></Select></div>
                             </TabsContent>
 
                             {/* --- TAB 3: TEAM --- */}

@@ -102,6 +102,26 @@
     font-family: var(--font-headline);
   }
 
+  /* ✅✅✅ FINAL RTL Overrides ✅✅✅ */
+  [dir="rtl"] {
+    direction: rtl;
+  }
+
+  /* برای اینکه Label ها و Input ها در یک خط قرار نگیرند */
+  [dir="rtl"] .space-y-2 > label {
+      display: block;
+      text-align: right;
+  }
+
+  [dir="rtl"] body {
+      text-align: right;
+  }
+
+  /* اصلاح چیدمان دکمه‌ها در فوتر کارت */
+  [dir="rtl"] .flex.justify-end {
+      justify-content: flex-start;
+  }
+
   /* ✅ FIX: این قانون جدید و اصلاح شده مشکل را به طور کامل حل می‌کند */
   /* به مرورگر می‌گوییم که در حالت راست‌چین، هم تگ‌های h1-h6 و هم هر عنصری با کلاس .font-headline باید از فونت وزیرمتن استفاده کنند */
   [dir="rtl"] h1,
