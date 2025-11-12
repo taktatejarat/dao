@@ -697,4 +697,15 @@ export const fa = {
     start_analysis: "شروع تحلیل",
     proposal_report_title: "گزارش تحلیلی برای پروپوزال شماره {id}",
   },
+    toasts: {
+    uploading_docs: "در حال بارگذاری اسناد...",
+    saving_proposal: "در حال ذخیره اطلاعات پروپوزال...",
+    confirm_in_wallet: "لطفاً تراکنش را در کیف پول خود تأیید کنید...",
+    tx_submitted: "تراکنش ارسال شد. در انتظار تأیید...",
+    submission_failed: "ثبت ناموفق بود",
+    proposal_created_success: "پروپوزال با موفقیت ایجاد شد!",
+    proposal_created_desc: "پروپوزال شما اکنون روی بلاکچین ثبت شده و تحلیل هوش مصنوعی آغاز شده است.",
+    ai_trigger_failed: "خطا در فعال‌سازی AI",
+    ai_trigger_failed_desc: "پروپوزال ثبت شد، اما در شروع تحلیل هوش مصنوعی خطایی رخ داد. لطفاً با پشتیبانی تماس بگیرید."
+  }
 };

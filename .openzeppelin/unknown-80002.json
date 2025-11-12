@@ -120,6 +120,61 @@
       "address": "0x42a2c794E483B977c6A91DE932c897CAFc0B0e95",
       "txHash": "0x9e237846470863c74a453ee5d589a2db5323a20fb9d43cdd87d5a3f75d87191d",
       "kind": "uups"
+    },
+    {
+      "address": "0x7a087130a41Ab93E404d2Ff3A3d7EF5aF3C712Ef",
+      "txHash": "0x7fee610c1c0a2d493877392789a3dc184998891074f2985fdeb62764dc1297c9",
+      "kind": "uups"
+    },
+    {
+      "address": "0x92BcF0bEd4eC385f18E9160B4379D330caDdf3e5",
+      "txHash": "0xcdbea64d0df286c4978fffd653f25009a1c82eae46d41071bf79bf4ff30a4f04",
+      "kind": "uups"
+    },
+    {
+      "address": "0xed124B9c0787dDa0b3c861B97b791648E33ed815",
+      "txHash": "0xbd7fa67d6b9a673ccad5798dd40c4d74fc44a3750af16fc1683e533832f7c590",
+      "kind": "uups"
+    },
+    {
+      "address": "0x46F08C0eED0932b317b320608438acE0CE1D3db7",
+      "txHash": "0x047e23e840692f6a83bb5a6868fe0d45582659ce583fc16e3f5ee8cd68fb3268",
+      "kind": "uups"
+    },
+    {
+      "address": "0x50CfDDCc8e015fdAbBc6658Dc6843D7585a8bF52",
+      "txHash": "0xf861bf4b95dd024bf1c443a3edf5320c75aab67bd3ea67fdc37f9466019cd09f",
+      "kind": "uups"
+    },
+    {
+      "address": "0xcf8d3f5117D629c2665B968a23E1a0C655D0fE5c",
+      "txHash": "0xf729da8855c3592ddb7d86921bbbc81a93c00be5ed5d579cef6e6eab5a3c50d9",
+      "kind": "uups"
+    },
+    {
+      "address": "0x5fAb52FC4A2858c23C4B27336E3864e7AA3CdC55",
+      "txHash": "0x473b013aa0f55382b7c3421fda8184b092df83f9965efc2fa7ba365ab70ef09c",
+      "kind": "uups"
+    },
+    {
+      "address": "0xB9012Be8994b689d8b12beC87472bBb5F83029c1",
+      "txHash": "0x1b3b5c74fbb81c748236b83eebdee5f0871fc46beffee05ef08d4fc94dc923f8",
+      "kind": "uups"
+    },
+    {
+      "address": "0xC58EA61464a93be96D154a370705645cB47119cB",
+      "txHash": "0x1542ed2c8aa857c553413d25f9e636c7db7629f2b690fb262f166f5ad592bda0",
+      "kind": "uups"
+    },
+    {
+      "address": "0xD08A9a140C1E64B3475B31398134C4B3e1397C98",
+      "txHash": "0x5d59275f74fa8d4599684e690f7beefffd82d59703cf403a7bccff0bd884a996",
+      "kind": "uups"
+    },
+    {
+      "address": "0xd3FAaA092C796ED70D928344BAefd3Ca2A03dCA6",
+      "txHash": "0x0e064bdf4bd0b8b333c64dfa7575fe66b7eb4f864bba0cb62019e03c1e91e79a",
+      "kind": "uups"
     }
   ],
   "impls": {
@@ -1130,6 +1185,447 @@
             "numberOfBytes": "20"
           },
           "t_contract(IStaking)5431": {
+            "label": "contract IStaking",
+            "numberOfBytes": "20"
+          },
+          "t_contract(TimelockController)2626": {
+            "label": "contract TimelockController",
+            "numberOfBytes": "20"
+          },
+          "t_enum(ProposalState)3628": {
+            "label": "enum RayanChainDAO.ProposalState",
+            "members": [
+              "Pending",
+              "Validation",
+              "Voting",
+              "Approved",
+              "Rejected",
+              "Executed",
+              "Expired",
+              "Cancelled"
+            ],
+            "numberOfBytes": "1"
+          },
+          "t_enum(ProposalType)3633": {
+            "label": "enum RayanChainDAO.ProposalType",
+            "members": [
+              "Funding",
+              "TreasuryAction",
+              "GrantRole",
+              "MilestoneRelease"
+            ],
+            "numberOfBytes": "1"
+          },
+          "t_enum(TokenType)3639": {
+            "label": "enum RayanChainDAO.TokenType",
+            "members": [
+              "Native",
+              "RYC"
+            ],
+            "numberOfBytes": "1"
+          },
+          "t_mapping(t_address,t_bool)": {
+            "label": "mapping(address => bool)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint256,t_mapping(t_address,t_bool))": {
+            "label": "mapping(uint256 => mapping(address => bool))",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint256,t_struct(Proposal)3695_storage)": {
+            "label": "mapping(uint256 => struct RayanChainDAO.Proposal)",
+            "numberOfBytes": "32"
+          },
+          "t_string_storage": {
+            "label": "string",
+            "numberOfBytes": "32"
+          },
+          "t_struct(Milestone)3653_storage": {
+            "label": "struct RayanChainDAO.Milestone",
+            "members": [
+              {
+                "label": "name",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "durationDays",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "amount",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "state",
+                "type": "t_enum(ProposalState)3628",
+                "offset": 0,
+                "slot": "3"
+              },
+              {
+                "label": "proofOfProgressHash",
+                "type": "t_bytes32",
+                "offset": 0,
+                "slot": "4"
+              },
+              {
+                "label": "released",
+                "type": "t_bool",
+                "offset": 0,
+                "slot": "5"
+              }
+            ],
+            "numberOfBytes": "192"
+          },
+          "t_struct(Proposal)3695_storage": {
+            "label": "struct RayanChainDAO.Proposal",
+            "members": [
+              {
+                "label": "id",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "pType",
+                "type": "t_enum(ProposalType)3633",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "proposer",
+                "type": "t_address",
+                "offset": 1,
+                "slot": "1"
+              },
+              {
+                "label": "descriptionHash",
+                "type": "t_bytes32",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "recipient",
+                "type": "t_address_payable",
+                "offset": 0,
+                "slot": "3"
+              },
+              {
+                "label": "amount",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "4"
+              },
+              {
+                "label": "tokenType",
+                "type": "t_enum(TokenType)3639",
+                "offset": 0,
+                "slot": "5"
+              },
+              {
+                "label": "creationTime",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "6"
+              },
+              {
+                "label": "votingDeadline",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "7"
+              },
+              {
+                "label": "forVotes",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "8"
+              },
+              {
+                "label": "againstVotes",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "9"
+              },
+              {
+                "label": "state",
+                "type": "t_enum(ProposalState)3628",
+                "offset": 0,
+                "slot": "10"
+              },
+              {
+                "label": "executed",
+                "type": "t_bool",
+                "offset": 1,
+                "slot": "10"
+              },
+              {
+                "label": "milestones",
+                "type": "t_array(t_struct(Milestone)3653_storage)dyn_storage",
+                "offset": 0,
+                "slot": "11"
+              },
+              {
+                "label": "currentMilestoneIndex",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "12"
+              },
+              {
+                "label": "aiRiskScore",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "13"
+              },
+              {
+                "label": "requiredApprovalThreshold",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "14"
+              },
+              {
+                "label": "roleToGrant",
+                "type": "t_bytes32",
+                "offset": 0,
+                "slot": "15"
+              }
+            ],
+            "numberOfBytes": "512"
+          }
+        },
+        "namespaces": {
+          "erc7201:openzeppelin.storage.ReentrancyGuard": [
+            {
+              "contract": "ReentrancyGuardUpgradeable",
+              "label": "_status",
+              "type": "t_uint256",
+              "src": "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol:43",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Ownable": [
+            {
+              "contract": "OwnableUpgradeable",
+              "label": "_owner",
+              "type": "t_address",
+              "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:24",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Initializable": [
+            {
+              "contract": "Initializable",
+              "label": "_initialized",
+              "type": "t_uint64",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:69",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "Initializable",
+              "label": "_initializing",
+              "type": "t_bool",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:73",
+              "offset": 8,
+              "slot": "0"
+            }
+          ]
+        }
+      }
+    },
+    "1a2f64400a7b8bf4546a86bb10f6be5bc77aab51903a16e378f0359f7456ef04": {
+      "address": "0x6460535f77062D91c934901bA1F52882d7b4D891",
+      "txHash": "0xdf08a9fe23e399cfa00ea84c87c1d715476dee498c0d4bc57a7811a2d72da301",
+      "layout": {
+        "solcVersion": "0.8.24",
+        "storage": [
+          {
+            "label": "accControl",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_contract(AccControl)5543",
+            "contract": "RayanChainDAO",
+            "src": "src/contracts/RayanChainDAO.sol:59"
+          },
+          {
+            "label": "stakingContract",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_contract(IStaking)5445",
+            "contract": "RayanChainDAO",
+            "src": "src/contracts/RayanChainDAO.sol:60"
+          },
+          {
+            "label": "financeContract",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_contract(IFinance)5343",
+            "contract": "RayanChainDAO",
+            "src": "src/contracts/RayanChainDAO.sol:60"
+          },
+          {
+            "label": "timelock",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_contract(TimelockController)2626",
+            "contract": "RayanChainDAO",
+            "src": "src/contracts/RayanChainDAO.sol:61"
+          },
+          {
+            "label": "startupAccessTokenAddress",
+            "offset": 0,
+            "slot": "4",
+            "type": "t_address",
+            "contract": "RayanChainDAO",
+            "src": "src/contracts/RayanChainDAO.sol:62"
+          },
+          {
+            "label": "proposals",
+            "offset": 0,
+            "slot": "5",
+            "type": "t_mapping(t_uint256,t_struct(Proposal)3695_storage)",
+            "contract": "RayanChainDAO",
+            "src": "src/contracts/RayanChainDAO.sol:64"
+          },
+          {
+            "label": "nextProposalId",
+            "offset": 0,
+            "slot": "6",
+            "type": "t_uint256",
+            "contract": "RayanChainDAO",
+            "src": "src/contracts/RayanChainDAO.sol:64"
+          },
+          {
+            "label": "hasVoted",
+            "offset": 0,
+            "slot": "7",
+            "type": "t_mapping(t_uint256,t_mapping(t_address,t_bool))",
+            "contract": "RayanChainDAO",
+            "src": "src/contracts/RayanChainDAO.sol:65"
+          },
+          {
+            "label": "participationScores",
+            "offset": 0,
+            "slot": "8",
+            "type": "t_mapping(t_address,t_uint256)",
+            "contract": "RayanChainDAO",
+            "src": "src/contracts/RayanChainDAO.sol:66"
+          },
+          {
+            "label": "votingPeriod",
+            "offset": 0,
+            "slot": "9",
+            "type": "t_uint256",
+            "contract": "RayanChainDAO",
+            "src": "src/contracts/RayanChainDAO.sol:70"
+          },
+          {
+            "label": "quorumPercentage",
+            "offset": 0,
+            "slot": "10",
+            "type": "t_uint256",
+            "contract": "RayanChainDAO",
+            "src": "src/contracts/RayanChainDAO.sol:72"
+          },
+          {
+            "label": "approvalThresholdPercentage",
+            "offset": 0,
+            "slot": "11",
+            "type": "t_uint256",
+            "contract": "RayanChainDAO",
+            "src": "src/contracts/RayanChainDAO.sol:73"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_struct(InitializableStorage)213_storage": {
+            "label": "struct Initializable.InitializableStorage",
+            "members": [
+              {
+                "label": "_initialized",
+                "type": "t_uint64",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_initializing",
+                "type": "t_bool",
+                "offset": 8,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(OwnableStorage)153_storage": {
+            "label": "struct OwnableUpgradeable.OwnableStorage",
+            "members": [
+              {
+                "label": "_owner",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(ReentrancyGuardStorage)366_storage": {
+            "label": "struct ReentrancyGuardUpgradeable.ReentrancyGuardStorage",
+            "members": [
+              {
+                "label": "_status",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint64": {
+            "label": "uint64",
+            "numberOfBytes": "8"
+          },
+          "t_address_payable": {
+            "label": "address payable",
+            "numberOfBytes": "20"
+          },
+          "t_array(t_struct(Milestone)3653_storage)dyn_storage": {
+            "label": "struct RayanChainDAO.Milestone[]",
+            "numberOfBytes": "32"
+          },
+          "t_bytes32": {
+            "label": "bytes32",
+            "numberOfBytes": "32"
+          },
+          "t_contract(AccControl)5543": {
+            "label": "contract AccControl",
+            "numberOfBytes": "20"
+          },
+          "t_contract(IFinance)5343": {
+            "label": "contract IFinance",
+            "numberOfBytes": "20"
+          },
+          "t_contract(IStaking)5445": {
             "label": "contract IStaking",
             "numberOfBytes": "20"
           },

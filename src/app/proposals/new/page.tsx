@@ -27,9 +27,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FileInput } from '@/components/ui/file-input';
 
 export default function NewProposalPage() {
-    const { t } = useTranslation();
+    const { t, locale } = useTranslation();
     const router = useRouter();
-    const { locale } = useTranslation(); // ما به زبان فعلی نیاز داریم
     const { userRole, address, isHydrated, registryAddress } = useWeb3();
     const { isConnected } = useAccount();
     const { convertRycToLocalCurrency } = useCurrencyConverter();
@@ -61,7 +60,7 @@ export default function NewProposalPage() {
     const [marketSize, setMarketSize] = useState('');
     const [teamBio, setTeamBio] = useState('');
     const [isPending, setIsPending] = useState(false);
-
+    const direction = (locale === 'fa' || locale === 'ar') ? 'rtl' : 'ltr';
     // --- Handlers (اکنون به صورت محلی تعریف شده‌اند) ---
     const handleAddMilestone = useCallback(() => setMilestones(prev => [...prev, { name: '', durationDays: '', amount: '' }]), []);
     const handleMilestoneChange = useCallback((index: number, field: keyof Milestone, value: string) => {
@@ -183,11 +182,14 @@ export default function NewProposalPage() {
                     </CardHeader>
                     <CardContent>
                         {!isConnected && (
-                            <Alert variant="destructive">{/* ... */}</Alert>
+                            <Alert variant="destructive" className="mb-6">
+                                <AlertTriangle className="h-4 w-4" />
+                                <AlertTitle>{t('dashboard.connect_to_see_data_title')}</AlertTitle>
+                                <AlertDescription>{t('new_proposal_page.connect_to_submit')}</AlertDescription>
+                            </Alert>
                         )}
-                        
-                        <Tabs defaultValue="overview" className="w-full">
-                            <TabsList className="grid w-full grid-cols-6 mb-6">
+                        <Tabs defaultValue="overview" className="w-full" dir={direction}>
+                            <TabsList className="mb-6 h-auto p-1">
                                 <TabsTrigger value="overview">{t('new_proposal_page.tabs.overview')}</TabsTrigger>
                                 <TabsTrigger value="details">{t('new_proposal_page.tabs.details')}</TabsTrigger>
                                 <TabsTrigger value="team">{t('new_proposal_page.tabs.team')}</TabsTrigger>
@@ -198,12 +200,10 @@ export default function NewProposalPage() {
 
                             {/* --- TAB 1: OVERVIEW --- */}
                             <TabsContent value="overview" className="space-y-6">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div className="space-y-2"><Label htmlFor="project-name">{t('new_proposal_page.project_name')}</Label><Input id="project-name" value={projectName} onChange={e => setProjectName(e.target.value)} disabled={isPending} /></div>
                                     <div className="space-y-2"><Label htmlFor="tagline">{t('new_proposal_page.tagline')}</Label><Input id="tagline" value={tagline} onChange={e => setTagline(e.target.value)} disabled={isPending} /></div>
                                     <div className="space-y-2"><Label htmlFor="industry">{t('new_proposal_page.industry')}</Label><Select onValueChange={setStartupIndustry} value={startupIndustry} disabled={isPending}><SelectTrigger><SelectValue placeholder={t('new_proposal_page.industry_placeholder')} /></SelectTrigger><SelectContent>{industries.map(item =>(<SelectItem key={item.value} value={item.value}>{item.label}</SelectItem>))}</SelectContent></Select></div>
                                     <div className="space-y-2"><Label htmlFor="website">{t('new_proposal_page.website')}</Label><Input id="website" type="url" placeholder="https://" value={website} onChange={e => setWebsite(e.target.value)} disabled={isPending} /></div>
-                                </div>
                             </TabsContent>
 
                             {/* --- TAB 2: DETAILS --- */}

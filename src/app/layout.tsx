@@ -36,20 +36,21 @@ export const metadata: Metadata = {
 };
 
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <html suppressHydrationWarning>
-      <body className={cn(
-          "min-h-screen bg-background font-sans antialiased",
-          fontSans.variable, 
-          fontHeadline.variable,
-          fontVazir.variable
-        )}
-      >
-        <Providers>
-          <ClientRoot>{children}</ClientRoot>
-        </Providers>
-      </body>
-    </html>
-  );
+export default function RootLayout({children,params: { locale }}: {children: React.ReactNode;params: { locale: string };}) {
+  const direction = (locale === 'fa' || locale === 'ar') ? 'rtl' : 'ltr';
+    return (
+      <html lang={locale} dir={direction} suppressHydrationWarning>
+        <body className={cn(
+            "min-h-screen bg-background font-sans antialiased",
+            fontSans.variable, 
+            fontHeadline.variable,
+            fontVazir.variable
+          )}
+        >
+          <Providers>
+            <ClientRoot>{children}</ClientRoot>
+          </Providers>
+        </body>
+      </html>
+    );
 }
