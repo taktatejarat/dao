@@ -39,6 +39,7 @@
     "@tanstack/react-query": "5.45.1",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
+    "date-fns": "^4.1.0",
     "embla-carousel-react": "^8.1.6",
     "encoding": "^0.1.13",
     "hardhat-verify": "^1.0.0",

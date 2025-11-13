@@ -15,16 +15,18 @@ import { DaoLoadingSpinner } from '@/components/icons/dao-loading-spinner';
 import { useRouter } from 'next/navigation';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertTriangle, PlusCircle, Trash2 } from 'lucide-react';
-import { useAccount } from 'wagmi';
+import { useAccount,useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { useCreateProposal, Milestone } from '@/hooks/useCreateProposal';
 import { useCurrencyConverter } from '@/hooks/useCurrencyConverter';
 import { toast } from 'sonner';
-
+import { Address, Hex, decodeEventLog, encodeEventTopics, AbiEvent } from 'viem';
+import { rayanChainDaoAbi } from '@/lib/blockchain/generated';
 // --- New UI Components ---
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FileInput } from '@/components/ui/file-input';
+
 
 export default function NewProposalPage() {
     const { t, locale } = useTranslation();
@@ -32,11 +34,11 @@ export default function NewProposalPage() {
     const { userRole, address, isHydrated, registryAddress } = useWeb3();
     const { isConnected } = useAccount();
     const { convertRycToLocalCurrency } = useCurrencyConverter();
-
+    const direction = (locale === 'fa' || locale === 'ar') ? 'rtl' : 'ltr';
     const canAccessPage = userRole === 'startup' || userRole === 'admin';
     const canSubmitProposal = canAccessPage && isConnected;
 
-    // --- State for NEW comprehensive fields (ادغام شده با هوک) ---
+    // --- State های محلی ---
     const [projectName, setProjectName] = useState('');
     const [tagline, setTagline] = useState('');
     const [website, setWebsite] = useState('');
@@ -48,9 +50,6 @@ export default function NewProposalPage() {
     const [pitchDeckFile, setPitchDeckFile] = useState<File | null>(null);
     const [financialsFile, setFinancialsFile] = useState<File | null>(null);
     const [legalFile, setLegalFile] = useState<File | null>(null);
-    
-    // ✅✅✅ FIX: ما دیگر از useCreateProposal استفاده نمی‌کنیم و منطق آن را به صورت محلی مدیریت می‌کنیم ✅✅✅
-    // این کار از پیچیدگی و ناسازگاری جلوگیری می‌کند.
     const [description, setDescription] = useState('');
     const [recipient, setRecipient] = useState<string>('');
     const [milestones, setMilestones] = useState<Milestone[]>([{ name: '', durationDays: '', amount: '' }]);
@@ -60,7 +59,12 @@ export default function NewProposalPage() {
     const [marketSize, setMarketSize] = useState('');
     const [teamBio, setTeamBio] = useState('');
     const [isPending, setIsPending] = useState(false);
-    const direction = (locale === 'fa' || locale === 'ar') ? 'rtl' : 'ltr';
+    const [txHash, setTxHash] = useState<Hex | undefined>();
+
+    // --- هوک‌های wagmi ---
+    const { writeContractAsync } = useWriteContract();
+    const { data: receipt, isSuccess: isConfirmed } = useWaitForTransactionReceipt({ hash: txHash });
+
     // --- Handlers (اکنون به صورت محلی تعریف شده‌اند) ---
     const handleAddMilestone = useCallback(() => setMilestones(prev => [...prev, { name: '', durationDays: '', amount: '' }]), []);
     const handleMilestoneChange = useCallback((index: number, field: keyof Milestone, value: string) => {
@@ -110,30 +114,33 @@ export default function NewProposalPage() {
     const handleSubmit = useCallback(async (e: React.FormEvent) => {
         e.preventDefault();
         if (!isFormValid) {
-            toast.warning("Please fill out all required fields.");
+            toast.warning(t('toasts.fill_all_fields'));
             return;
         }
         setIsPending(true);
+        const toastId = 'submit-toast';
 
         const uploadFile = async (file: File | null, fieldName: string): Promise<string | null> => {
             if (!file) return null;
             const formData = new FormData();
             formData.append('file', file);
             const response = await fetch('/api/upload', { method: 'POST', body: formData });
-            if (!response.ok) throw new Error(`Failed to upload ${fieldName}`);
+            if (!response.ok) throw new Error(`${t('toasts.upload_failed')}: ${fieldName}`);
             const data = await response.json();
             return data.ipfsHash;
         };
 
         try {
-            toast.loading("Uploading documents...", { id: 'submit-toast' });
+            // 1. آپلود فایل‌ها
+            toast.loading(t('toasts.uploading_docs'), { id: toastId });
             const [pitchDeckHash, financialsHash, legalHash] = await Promise.all([
                 uploadFile(pitchDeckFile, 'Pitch Deck'),
                 uploadFile(financialsFile, 'Financials'),
                 uploadFile(legalFile, 'Legal Docs'),
             ]);
 
-            toast.loading("Saving proposal data...", { id: 'submit-toast' });
+            // 2. ذخیره در MongoDB و دریافت txArgs
+            toast.loading(t('toasts.saving_proposal'), { id: toastId });
             const fullProposalData = {
                 proposerAddress: address,
                 projectName, tagline, website, description, problem, solution, businessModel,
@@ -147,24 +154,125 @@ export default function NewProposalPage() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(fullProposalData),
             });
+            if (!finalResponse.ok) throw new Error((await finalResponse.json()).message);
+            const { txArgs } = await finalResponse.json();
 
-            if (!finalResponse.ok) throw new Error((await finalResponse.json()).message || 'Failed to save proposal data.');
-            
-            toast.success("Proposal submitted successfully!", { id: 'submit-toast' });
-            setTimeout(() => router.push('/proposals'), 2000);
+            // 3. ارسال تراکنش آن‌چین
+            toast.loading(t('toasts.confirm_in_wallet'), { id: toastId });
+            const hash = await writeContractAsync({
+                address: registryAddress as Address, // آدرس DAO شما
+                abi: rayanChainDaoAbi,
+                functionName: 'createFundingProposal',
+                args: txArgs,
+            });
+            setTxHash(hash);
+            toast.loading(t('toasts.tx_submitted'), { id: toastId });
 
         } catch (error) {
-            toast.error("Submission Failed", { id: 'submit-toast', description: (error as Error).message });
-        } finally {
+            toast.error(t('toasts.submission_failed'), { id: toastId, description: (error as Error).message });
             setIsPending(false);
         }
     }, [
-        isFormValid, address, router,
+        isFormValid, address, router, writeContractAsync, registryAddress, t,
         projectName, tagline, website, description, problem, solution, businessModel,
         startupIndustry, teamExperienceYears, teamBio, marketSize, competitors,
         hasPreviousFunding, fundingHistoryDetails, recipient, milestones,
         pitchDeckFile, financialsFile, legalFile
     ]);
+    
+    // --- Effect برای فعال‌سازی AI پس از تایید تراکنش ---
+    useEffect(() => {
+        // این effect فقط زمانی اجرا می‌شود که تراکنش تأیید شده باشد.
+        if (isConfirmed && receipt && txHash) {
+            const toastId = 'submit-toast';
+            
+            try {
+                // --- STEP 1: پیدا کردن رویداد 'ProposalCreated' در ABI ---
+                const proposalCreatedEvent = rayanChainDaoAbi.find(
+                    (item) => item.type === 'event' && item.name === 'ProposalCreated'
+                ) as AbiEvent | undefined;
+
+                if (!proposalCreatedEvent) {
+                    throw new Error(t('toasts.error_abi_event_not_found'));
+                }
+
+                // --- STEP 2: پیدا کردن لاگ مربوطه در رسید تراکنش (receipt) ---
+                const proposalCreatedLog = receipt.logs.find(
+                    (log) => log.topics[0] === encodeEventTopics({ abi: [proposalCreatedEvent] })[0]
+                );
+
+                if (!proposalCreatedLog) {
+                    throw new Error(t('toasts.error_tx_log_not_found'));
+                }
+
+                // --- STEP 3: Decode کردن لاگ برای استخراج شناسه پروپوزال (proposalId) ---
+                const decodedLog = decodeEventLog({
+                    abi: rayanChainDaoAbi,
+                    data: proposalCreatedLog.data,
+                    topics: proposalCreatedLog.topics,
+                });
+
+                if (decodedLog.eventName !== 'ProposalCreated' || !('id' in decodedLog.args)) {
+                    throw new Error(t('toasts.error_decode_proposal_id_failed'));
+                }
+                
+                const proposalId = decodedLog.args.id;
+                
+                // --- STEP 4: ساخت آبجکت کامل aiFeatures برای ارسال ---
+                const fullAiFeatures = {
+                    industry: startupIndustry,
+                    team_experience_years: parseInt(teamExperienceYears, 10) || 0,
+                    has_previous_funding: hasPreviousFunding === 'true',
+                    market_size_usd: parseInt(marketSize, 10) || 0,
+                    team_bio: teamBio,
+                };
+                
+                // --- STEP 5: فراخوانی API برای فعال‌سازی تحلیل هوش مصنوعی ---
+                fetch('/api/trigger-ai-update', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        proposalId: Number(proposalId), // تبدیل BigInt به Number برای JSON
+                        aiFeatures: fullAiFeatures,
+                        // در صورت نیاز می‌توانید داده‌های دیگر را نیز ارسال کنید
+                        // milestones: milestones, 
+                    }),
+                }).then(res => {
+                    if (!res.ok) {
+                        // حتی اگر AI فیل شد، ثبت پروپوزال موفق بوده است
+                        toast.warning(t('toasts.ai_trigger_failed'), {
+                            id: toastId,
+                            description: t('toasts.ai_trigger_failed_desc')
+                        });
+                    }
+                });
+                
+                // --- STEP 6: اطلاع‌رسانی نهایی به کاربر و هدایت ---
+                toast.success(t('toasts.proposal_created_success'), {
+                    id: toastId,
+                    description: t('toasts.proposal_created_desc')
+                });
+                
+                setIsPending(false);
+                // هدایت کاربر به صفحه جزئیات پروپوزال جدید
+                setTimeout(() => router.push(`/proposals/${proposalId.toString()}`), 3000);
+
+            } catch (error) {
+                // اگر خطایی در پردازش receipt (که بسیار بعید است) رخ دهد
+                console.error("Error processing transaction receipt:", error);
+                toast.error(t('toasts.submission_failed'), {
+                    id: toastId,
+                    description: (error as Error).message
+                });
+                setIsPending(false);
+            }
+        }
+    }, [
+        isConfirmed, receipt, txHash, router, t,
+        // افزودن تمام state های مورد نیاز برای ارسال به AI
+        startupIndustry, teamExperienceYears, hasPreviousFunding, marketSize, teamBio
+    ]);
+
     const isButtonDisabled = !isFormValid || isPending;
 
     return (

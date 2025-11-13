@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from 'react';
+import { useMemo, useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { AppLayout } from '@/components/layout/app-layout';
 import { useWeb3 } from '@/context/Web3Provider';
@@ -8,7 +8,9 @@ import { useTranslation } from '@/hooks/use-translation';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertTriangle, Banknote, Calendar, Check, Clock, Info, ShieldCheck, User, Users, X } from 'lucide-react';
+import { BrainCircuit, Scale, LineChart, Users as TeamIcon,
+         AlertTriangle, Banknote, Calendar, Check, Clock, 
+         Info, ShieldCheck, User, Users, X } from 'lucide-react';
 import { formatNumber, formatLocaleDate, formatAddress } from '@/lib/utils';
 import { formatEther, type Address } from 'viem';
 import { Progress } from '@/components/ui/progress';
@@ -70,6 +72,8 @@ export default function ProposalDetailPage() {
     const { registryAddress, isHydrated } = useWeb3();
     const params = useParams();
     const proposalId = useMemo(() => BigInt(params.id as string), [params.id]);
+    const [offChainData, setOffChainData] = useState<any | null>(null); // any برای سادگی، بعداً تایپ دقیق تعریف شود
+    const [isLoadingOffChain, setIsLoadingOffChain] = useState(true);
 
     const { data: daoAddressResult, isLoading: isDaoAddressLoading } = useReadContract({
         address: (registryAddress || undefined) as Address | undefined,
@@ -144,23 +148,26 @@ export default function ProposalDetailPage() {
     return (
         <AppLayout>
             <header className="mb-6">
-                <div className="flex items-center gap-3">
-                     <Badge className={`${statusColor} hover:${statusColor} flex items-center gap-2`}>
-                        <StatusIcon className="w-4 h-4" />
-                        <span>{statusText}</span>
-                    </Badge>
-                    <h1 className="text-3xl font-bold font-headline">{proposal.title}</h1>
-                </div>
-                <p className="text-muted-foreground mt-2">
-                    {t('proposal_detail.proposal_id_prefix')} <span className="font-mono">#{proposal.id.toString()}</span>
-                </p>
+                {/* ✅ FIX: نمایش عنوان و تگ‌لاین از آف‌چین */}
+                <h1 className="text-3xl font-bold font-headline">{offChainData.projectName}</h1>
+                <p className="text-muted-foreground mt-1">{offChainData.tagline}</p>
             </header>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="lg:col-span-2 space-y-6">
+                    {/* ✅ NEW: کارت تحلیل هوش مصنوعی */}
+                    <Card>
+                        <CardHeader><CardTitle className="flex items-center gap-2"><BrainCircuit /> {t('proposal_detail.ai_analysis')}</CardTitle></CardHeader>
+                        <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <InfoCard icon={LineChart} title={t('proposal_detail.ai_risk_score')} value={`${onChainData.aiRiskScore.toString()} / 100`} />
+                            <InfoCard icon={Scale} title={t('proposal_detail.market_sentiment')} value={offChainData.aiAnalysis?.marketSentiment || 'N/A'} />
+                            <InfoCard icon={TeamIcon} title={t('proposal_detail.team_competency')} value={`${offChainData.aiAnalysis?.teamCompetency || 'N/A'} / 100`} />
+                        </CardContent>
+                    </Card>
+
                     <Card>
                         <CardHeader><CardTitle>{t('proposal_detail.description')}</CardTitle></CardHeader>
-                        <CardContent><p className="text-muted-foreground">{proposal.description}</p></CardContent>
+                        <CardContent><p className="text-muted-foreground whitespace-pre-wrap">{offChainData.description}</p></CardContent>
                     </Card>
 
                     <Card>

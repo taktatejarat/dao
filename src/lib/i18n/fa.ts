@@ -706,6 +706,10 @@ export const fa = {
     proposal_created_success: "پروپوزال با موفقیت ایجاد شد!",
     proposal_created_desc: "پروپوزال شما اکنون روی بلاکچین ثبت شده و تحلیل هوش مصنوعی آغاز شده است.",
     ai_trigger_failed: "خطا در فعال‌سازی AI",
-    ai_trigger_failed_desc: "پروپوزال ثبت شد، اما در شروع تحلیل هوش مصنوعی خطایی رخ داد. لطفاً با پشتیبانی تماس بگیرید."
+    ai_trigger_failed_desc: "پروپوزال ثبت شد، اما در شروع تحلیل هوش مصنوعی خطایی رخ داد. لطفاً با پشتیبانی تماس بگیرید.",
+    critical_error: "خطای بحرانی",
+    error_abi_event_not_found: "رویداد 'ProposalCreated' در ABI یافت نشد. این یک خطای سیستمی است.",
+    error_tx_log_not_found: "تراکنش تأیید شد، اما رویداد آن یافت نشد. لطفاً با پشتیبانی تماس بگیرید.",
+    error_decode_proposal_id_failed: "در استخراج شناسه پروپوزال از رویداد خطایی رخ داد."
   }
 };

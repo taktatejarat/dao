@@ -1,8 +1,7 @@
 // src/lib/logger.ts - نسخه نهایی و تکمیل شده
-
 import { getDb } from './mongodb';
 
-// ✅✅✅ FIX: افزودن دسته‌بندی‌های جدید برای پوشش تمام سناریوها ✅✅✅
+// FIX: افزودن دسته‌بندی‌های جدید برای پوشش تمام سناریوها
 export type LogLevel = 'INFO' | 'WARN' | 'ERROR' | 'FATAL';
 export type LogCategory = 
   // دسته‌بندی‌های اصلی
@@ -16,6 +15,7 @@ export type LogCategory =
   | 'API_REQUEST'   // درخواست‌های ورودی به API
   | 'API_VALIDATION'// خطاهای اعتبارسنجی در API
   | 'API_ERROR'     // خطاهای عمومی در API
+  | 'API_FETCH'     // درخواست‌های خروجی از API
   
   // دسته‌بندی‌های جدید برای فرآیندهای خاص
   | 'PROPOSAL_SUBMIT' // فرآیند ثبت پروپوزال
