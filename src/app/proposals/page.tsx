@@ -6,6 +6,7 @@ import { ProposalsList } from '@/components/dashboard/proposals-list';
 import { useTranslation } from '@/hooks/use-translation';
 
 export default function ProposalsPage() {
+    console.log("--- RENDERING: ProposalsPage (Parent) ---");
     const { t } = useTranslation();
     
     return (

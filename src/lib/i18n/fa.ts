@@ -241,6 +241,14 @@ export const fa = {
     vote_success_title: "رأی شما ثبت شد!",
     vote_success_desc: "تراکنش شما با موفقیت ارسال شد. هش: {hash}",
     vote_error_title: "خطا در ثبت رأی",
+    view_details: "مشاهده جزئیات",
+    status: {
+      pending_submission: "در انتظار ارسال",
+      confirmed: "تأیید شد",
+      voting: "در حال رأی گیری",
+      approved: "تصویب شد",
+      rejected: "رد شد",
+    },
   },
   
   proposals: {
