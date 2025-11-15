@@ -1042,27 +1042,6 @@ export const rayanChainDaoAbi = [
     type: 'function',
     inputs: [
       { name: '_descriptionHash', internalType: 'bytes32', type: 'bytes32' },
-      { name: '_recipient', internalType: 'address payable', type: 'address' },
-      { name: '_milestoneNames', internalType: 'string[]', type: 'string[]' },
-      {
-        name: '_milestoneDurations',
-        internalType: 'uint256[]',
-        type: 'uint256[]',
-      },
-      {
-        name: '_milestoneAmounts',
-        internalType: 'uint256[]',
-        type: 'uint256[]',
-      },
-    ],
-    name: 'createFundingProposal',
-    outputs: [],
-    stateMutability: 'nonpayable',
-  },
-  {
-    type: 'function',
-    inputs: [
-      { name: '_descriptionHash', internalType: 'bytes32', type: 'bytes32' },
       { name: '_recipient', internalType: 'address', type: 'address' },
       { name: '_roleToGrant', internalType: 'bytes32', type: 'bytes32' },
     ],
@@ -1251,6 +1230,37 @@ export const rayanChainDaoAbi = [
     name: 'startupAccessTokenAddress',
     outputs: [{ name: '', internalType: 'address', type: 'address' }],
     stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: '_descriptionHash', internalType: 'bytes32', type: 'bytes32' },
+      { name: '_recipient', internalType: 'address payable', type: 'address' },
+      {
+        name: '_milestones',
+        internalType: 'struct RayanChainDAO.Milestone[]',
+        type: 'tuple[]',
+        components: [
+          { name: 'name', internalType: 'string', type: 'string' },
+          { name: 'durationDays', internalType: 'uint256', type: 'uint256' },
+          { name: 'amount', internalType: 'uint256', type: 'uint256' },
+          {
+            name: 'state',
+            internalType: 'enum RayanChainDAO.ProposalState',
+            type: 'uint8',
+          },
+          {
+            name: 'proofOfProgressHash',
+            internalType: 'bytes32',
+            type: 'bytes32',
+          },
+          { name: 'released', internalType: 'bool', type: 'bool' },
+        ],
+      },
+    ],
+    name: 'submitFundingProposal',
+    outputs: [],
+    stateMutability: 'nonpayable',
   },
   {
     type: 'function',
@@ -3271,15 +3281,6 @@ export const useWriteRayanChainDao = /*#__PURE__*/ createUseWriteContract({
 })
 
 /**
- * Wraps __{@link useWriteContract}__ with `abi` set to __{@link rayanChainDaoAbi}__ and `functionName` set to `"createFundingProposal"`
- */
-export const useWriteRayanChainDaoCreateFundingProposal =
-  /*#__PURE__*/ createUseWriteContract({
-    abi: rayanChainDaoAbi,
-    functionName: 'createFundingProposal',
-  })
-
-/**
  * Wraps __{@link useWriteContract}__ with `abi` set to __{@link rayanChainDaoAbi}__ and `functionName` set to `"createGrantRoleProposal"`
  */
 export const useWriteRayanChainDaoCreateGrantRoleProposal =
@@ -3352,6 +3353,15 @@ export const useWriteRayanChainDaoSetStartupAccessTokenAddress =
   })
 
 /**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link rayanChainDaoAbi}__ and `functionName` set to `"submitFundingProposal"`
+ */
+export const useWriteRayanChainDaoSubmitFundingProposal =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: rayanChainDaoAbi,
+    functionName: 'submitFundingProposal',
+  })
+
+/**
  * Wraps __{@link useWriteContract}__ with `abi` set to __{@link rayanChainDaoAbi}__ and `functionName` set to `"tallyVotes"`
  */
 export const useWriteRayanChainDaoTallyVotes =
@@ -3410,15 +3420,6 @@ export const useWriteRayanChainDaoVote = /*#__PURE__*/ createUseWriteContract({
 export const useSimulateRayanChainDao = /*#__PURE__*/ createUseSimulateContract(
   { abi: rayanChainDaoAbi },
 )
-
-/**
- * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link rayanChainDaoAbi}__ and `functionName` set to `"createFundingProposal"`
- */
-export const useSimulateRayanChainDaoCreateFundingProposal =
-  /*#__PURE__*/ createUseSimulateContract({
-    abi: rayanChainDaoAbi,
-    functionName: 'createFundingProposal',
-  })
 
 /**
  * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link rayanChainDaoAbi}__ and `functionName` set to `"createGrantRoleProposal"`
@@ -3490,6 +3491,15 @@ export const useSimulateRayanChainDaoSetStartupAccessTokenAddress =
   /*#__PURE__*/ createUseSimulateContract({
     abi: rayanChainDaoAbi,
     functionName: 'setStartupAccessTokenAddress',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link rayanChainDaoAbi}__ and `functionName` set to `"submitFundingProposal"`
+ */
+export const useSimulateRayanChainDaoSubmitFundingProposal =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: rayanChainDaoAbi,
+    functionName: 'submitFundingProposal',
   })
 
 /**

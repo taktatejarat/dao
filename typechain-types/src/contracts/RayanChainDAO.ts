@@ -57,7 +57,6 @@ export interface RayanChainDAOInterface extends Interface {
       | "UPGRADE_INTERFACE_VERSION"
       | "accControl"
       | "approvalThresholdPercentage"
-      | "createFundingProposal"
       | "createGrantRoleProposal"
       | "createMilestoneReleaseProposal"
       | "createTreasuryActionProposal"
@@ -76,6 +75,7 @@ export interface RayanChainDAOInterface extends Interface {
       | "setStartupAccessTokenAddress"
       | "stakingContract"
       | "startupAccessTokenAddress"
+      | "submitFundingProposal"
       | "tallyVotes"
       | "timelock"
       | "transferOwnership"
@@ -114,10 +114,6 @@ export interface RayanChainDAOInterface extends Interface {
   encodeFunctionData(
     functionFragment: "approvalThresholdPercentage",
     values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "createFundingProposal",
-    values: [BytesLike, AddressLike, RayanChainDAO.MilestoneStruct[]]
   ): string;
   encodeFunctionData(
     functionFragment: "createGrantRoleProposal",
@@ -198,6 +194,10 @@ export interface RayanChainDAOInterface extends Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
+    functionFragment: "submitFundingProposal",
+    values: [BytesLike, AddressLike, RayanChainDAO.MilestoneStruct[]]
+  ): string;
+  encodeFunctionData(
     functionFragment: "tallyVotes",
     values: [BigNumberish]
   ): string;
@@ -238,10 +238,6 @@ export interface RayanChainDAOInterface extends Interface {
   decodeFunctionResult(functionFragment: "accControl", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "approvalThresholdPercentage",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "createFundingProposal",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -302,6 +298,10 @@ export interface RayanChainDAOInterface extends Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "startupAccessTokenAddress",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "submitFundingProposal",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "tallyVotes", data: BytesLike): Result;
@@ -527,16 +527,6 @@ export interface RayanChainDAO extends BaseContract {
 
   approvalThresholdPercentage: TypedContractMethod<[], [bigint], "view">;
 
-  createFundingProposal: TypedContractMethod<
-    [
-      _descriptionHash: BytesLike,
-      _recipient: AddressLike,
-      _milestones: RayanChainDAO.MilestoneStruct[]
-    ],
-    [void],
-    "nonpayable"
-  >;
-
   createGrantRoleProposal: TypedContractMethod<
     [
       _descriptionHash: BytesLike,
@@ -673,6 +663,16 @@ export interface RayanChainDAO extends BaseContract {
 
   startupAccessTokenAddress: TypedContractMethod<[], [string], "view">;
 
+  submitFundingProposal: TypedContractMethod<
+    [
+      _descriptionHash: BytesLike,
+      _recipient: AddressLike,
+      _milestones: RayanChainDAO.MilestoneStruct[]
+    ],
+    [void],
+    "nonpayable"
+  >;
+
   tallyVotes: TypedContractMethod<
     [_proposalId: BigNumberish],
     [void],
@@ -729,17 +729,6 @@ export interface RayanChainDAO extends BaseContract {
   getFunction(
     nameOrSignature: "approvalThresholdPercentage"
   ): TypedContractMethod<[], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "createFundingProposal"
-  ): TypedContractMethod<
-    [
-      _descriptionHash: BytesLike,
-      _recipient: AddressLike,
-      _milestones: RayanChainDAO.MilestoneStruct[]
-    ],
-    [void],
-    "nonpayable"
-  >;
   getFunction(
     nameOrSignature: "createGrantRoleProposal"
   ): TypedContractMethod<
@@ -878,6 +867,17 @@ export interface RayanChainDAO extends BaseContract {
   getFunction(
     nameOrSignature: "startupAccessTokenAddress"
   ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "submitFundingProposal"
+  ): TypedContractMethod<
+    [
+      _descriptionHash: BytesLike,
+      _recipient: AddressLike,
+      _milestones: RayanChainDAO.MilestoneStruct[]
+    ],
+    [void],
+    "nonpayable"
+  >;
   getFunction(
     nameOrSignature: "tallyVotes"
   ): TypedContractMethod<[_proposalId: BigNumberish], [void], "nonpayable">;

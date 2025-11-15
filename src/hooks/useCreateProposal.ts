@@ -1,59 +1,56 @@
-// src/hooks/useCreateProposal.ts - FINAL, COMPLETE, AND ERROR-FREE VERSION
 
 "use client";
 
-import { useState, useMemo, useEffect, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
-import { toast } from 'sonner';
-import { useTranslation } from '@/hooks/use-translation';
-import { useAccount, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
+import { useState, useMemo, useCallback } from 'react';
 import { Address, isAddress, parseEther, BaseError, Hex } from 'viem';
+import { useAccount, useWriteContract } from 'wagmi';
+import { useTranslation } from '@/hooks/use-translation';
 import { rayanChainDaoAbi } from '@/lib/blockchain/generated';
+import { toast } from 'sonner';
 
 // --- Type Definitions ---
 export interface Milestone { name: string; durationDays: string; amount: string; }
-interface UseCreateProposalProps { daoAddress: Address | undefined; isFormEnabled: boolean; }
+interface UseCreateProposalProps { daoAddress: Address | undefined; }
 
-// --- The Custom Hook ---
-export function useCreateProposal({ daoAddress, isFormEnabled }: UseCreateProposalProps) {
+export function useCreateProposal({ daoAddress }: UseCreateProposalProps) {
     const { address } = useAccount();
     const { t } = useTranslation();
-    const router = useRouter();
+    const { writeContractAsync } = useWriteContract();
 
-    // --- Form State ---
+    // --- All Form States ---
+    const [projectName, setProjectName] = useState('');
+    const [tagline, setTagline] = useState('');
+    const [website, setWebsite] = useState('');
     const [description, setDescription] = useState('');
-    const [recipient, setRecipient] = useState<string>('');
-    const [milestones, setMilestones] = useState<Milestone[]>([{ name: '', durationDays: '', amount: '' }]);
+    const [problem, setProblem] = useState('');
+    const [solution, setSolution] = useState('');
+    const [businessModel, setBusinessModel] = useState('');
     const [startupIndustry, setStartupIndustry] = useState('');
     const [teamExperienceYears, setTeamExperienceYears] = useState('');
-    const [hasPreviousFunding, setHasPreviousFunding] = useState('false');
-    const [marketSize, setMarketSize] = useState('');
     const [teamBio, setTeamBio] = useState('');
-
-    // --- Transaction Flow State ---
+    const [marketSize, setMarketSize] = useState('');
+    const [competitors, setCompetitors] = useState('');
+    const [hasPreviousFunding, setHasPreviousFunding] = useState('false');
+    const [fundingHistoryDetails, setFundingHistoryDetails] = useState('');
+    const [recipient, setRecipient] = useState<string>('');
+    const [milestones, setMilestones] = useState<Milestone[]>([{ name: '', durationDays: '', amount: '' }]);
+    const [pitchDeckFile, setPitchDeckFile] = useState<File | null>(null);
+    const [financialsFile, setFinancialsFile] = useState<File | null>(null);
+    const [legalFile, setLegalFile] = useState<File | null>(null);
     const [isPending, setIsPending] = useState(false);
-    const [txHash, setTxHash] = useState<Hex | undefined>();
 
-    const { writeContractAsync } = useWriteContract();
-    const { data: receipt, isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({ hash: txHash });
-
-    // --- Form Validation (Memoized) ---
+    // --- Form Validation ---
     const isFormValid = useMemo(() => {
-        const areMilestonesValid = milestones.every(m =>
-            m.name.trim() !== '' &&
-            m.durationDays.trim() !== '' && parseInt(m.durationDays, 10) > 0 &&
-            m.amount.trim() !== '' && parseFloat(m.amount) > 0
-        );
-        return description.trim() !== '' &&
+        const areMilestonesValid = milestones.every(m => m.name.trim() && m.durationDays.trim() && m.amount.trim());
+        return projectName.trim() !== '' &&
+               description.trim().length >= 50 &&
+               problem.trim().length >= 50 &&
+               solution.trim().length >= 50 &&
                isAddress(recipient) &&
-               startupIndustry.trim() !== '' &&
-               teamExperienceYears.trim() !== '' &&
-               marketSize.trim() !== '' &&
-               teamBio.trim() !== '' &&
                areMilestonesValid;
-    }, [description, recipient, startupIndustry, teamExperienceYears, marketSize, teamBio, milestones]);
-    
-    // --- Form Handlers (Correctly Implemented) ---
+    }, [projectName, description, problem, solution, recipient, milestones]);
+
+    // --- Form Handlers ---
     const handleAddMilestone = useCallback(() => setMilestones(prev => [...prev, { name: '', durationDays: '', amount: '' }]), []);
     const handleMilestoneChange = useCallback((index: number, field: keyof Milestone, value: string) => {
         const newMilestones = [...milestones];
@@ -66,102 +63,106 @@ export function useCreateProposal({ daoAddress, isFormEnabled }: UseCreatePropos
     }, [milestones.length]);
 
     // --- Main Submission Logic ---
-    const handleSubmit = useCallback(async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!isFormValid || !daoAddress || !address) return;
-
+    const handleSubmit = useCallback(async (e: React.FormEvent): Promise<Hex | undefined> => {
+        e.preventDefault(); // جلوگیری از رفرش شدن صفحه
+        if (!isFormValid) {
+            toast.warning(t('toasts.fill_all_fields'));
+            return;
+        }
         setIsPending(true);
-        toast.loading("Step 1/2: Saving proposal data off-chain...");
+        const toastId = 'submit-toast';;
+
+        const uploadFile = async (file: File | null, fieldName: string): Promise<string | null> => {
+            if (!file) return null;
+            const formData = new FormData();
+            formData.append('file', file);
+            const response = await fetch('/api/upload', { method: 'POST', body: formData });
+            if (!response.ok) throw new Error(`${t('toasts.upload_failed')}: ${fieldName}`);
+            const data = await response.json();
+            return data.ipfsHash;
+        };
 
         try {
-            // --- STEP 1: Prepare payload and save data off-chain ---
-            const fullAiFeatures = { 
-                industry: startupIndustry, 
-                team_experience_years: parseInt(teamExperienceYears, 10) || 0, 
-                has_previous_funding: hasPreviousFunding === 'true', 
-                market_size_usd: parseInt(marketSize, 10) || 0, 
-                team_bio: teamBio 
+            // STEP 1: Upload files
+            toast.loading(t('toasts.uploading_docs'), { id: toastId });
+            const [pitchDeckHash, financialsHash, legalHash] = await Promise.all([
+                uploadFile(pitchDeckFile, 'Pitch Deck'),
+                uploadFile(financialsFile, 'Financials'),
+                uploadFile(legalFile, 'Legal Docs'),
+            ]);
+
+            // STEP 2: Save data off-chain and get transaction arguments
+            toast.loading(t('toasts.saving_proposal'), { id: toastId });
+            const fullProposalData = {
+                proposerAddress: address, projectName, tagline, website, description, problem, solution, businessModel,
+                startupIndustry, teamExperienceYears, teamBio, marketSize, competitors,
+                hasPreviousFunding, fundingHistoryDetails, recipient, milestones,
+                documents: { pitchDeck: pitchDeckHash, financials: financialsHash, legal: legalHash },
             };
-            const payload = { 
-                proposerAddress: address, 
-                description, 
-                recipientAddress: recipient, 
-                milestones, 
-                aiFeatures: fullAiFeatures 
-            };
+
+            const apiResponse = await fetch('/api/proposals/submit', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(fullProposalData),
+            });
             
-            const apiResponse = await fetch('/api/contract-creation', { 
-                method: 'POST', 
-                headers: { 'Content-Type': 'application/json' }, 
-                body: JSON.stringify(payload) 
-            });
-
+            const responseData = await apiResponse.json();
             if (!apiResponse.ok) {
-                throw new Error((await apiResponse.json()).message || 'Failed to save data off-chain.');
+                // مدیریت خطای اعتبارسنجی از Zod
+                if (responseData.errors) {
+                    const fieldErrors = responseData.errors.fieldErrors;
+                    const firstErrorField = Object.keys(fieldErrors)[0];
+                    const errorMessage = fieldErrors[firstErrorField][0];
+                    const finalMessage = `${t(`new_proposal_page.${firstErrorField}`)}: ${errorMessage}`;
+                    throw new Error(finalMessage);
+                }
+                throw new Error(responseData.message || 'API submission failed.');
             }
-            const { descriptionHash } = await apiResponse.json();
-            toast.dismiss();
+            
+            const { txArgs } = responseData;
+            if (!txArgs) {
+                throw new Error("API did not return transaction arguments.");
+            }
 
-            // --- STEP 2: Prepare packed data and send transaction ---
-            toast.loading("Step 2/2: Please confirm transaction in your wallet...");
-
-            const milestoneNames = milestones.map(m => m.name);
-            const milestoneDurations = milestones.map(m => BigInt(m.durationDays || '0'));
-            const milestoneAmounts = milestones.map(m => parseEther(m.amount || '0'));
-
+            // STEP 3: Send on-chain transaction
+            toast.loading(t('toasts.confirm_in_wallet'), { id: toastId });
             const hash = await writeContractAsync({
-                address: daoAddress,
+                address: daoAddress!,
                 abi: rayanChainDaoAbi,
-                functionName: 'createFundingProposal',
-                args: [
-                    descriptionHash as Hex,
-                    recipient as Address,
-                    milestoneNames,
-                    milestoneDurations,
-                    milestoneAmounts,
-                ],
+                functionName: 'submitFundingProposal',
+                args: txArgs,
             });
 
-            setTxHash(hash);
-            toast.dismiss();
-            toast.loading("Transaction sent. Waiting for confirmation...", { id: `tx-${hash}`, description: hash });
-
-        } catch (err) {
-            toast.dismiss();
-            console.error("--- ❌ TRANSACTION FAILED ❌ ---", err);
-            const errorDetails = err instanceof BaseError ? err.shortMessage : (err as Error).message;
-            toast.error("Transaction Failed", { description: errorDetails });
+            // هش را برمی‌گردانیم تا کامپوننت والد از آن استفاده کند
+            return hash;
+            
+        } catch (error) {
+            toast.error(t('toasts.submission_failed'), { id: toastId, description: (error as Error).message });
             setIsPending(false);
+            return undefined;
         }
-    }, [isFormValid, daoAddress, address, description, recipient, milestones, startupIndustry, teamExperienceYears, hasPreviousFunding, marketSize, teamBio, writeContractAsync, t]);
-    
-    // --- Effect to handle confirmation and trigger AI ---
-    useEffect(() => {
-        if (isConfirmed && receipt && txHash) {
-            toast.dismiss(`tx-${txHash}`);
-            toast.success(t('new_proposal_page.success_toast_title'), { description: t('new_proposal_page.confirmed_toast_desc') });
-            console.log("Transaction confirmed. Triggering AI analysis...");
-            // ... (منطق فعال‌سازی AI با فراخوانی /api/trigger-ai-update)
-            setIsPending(false);
-            setTimeout(() => router.push('/proposals'), 2000);
-        }
-    }, [isConfirmed, receipt, txHash, router, t]);
+    }, [
+        // ... لیست کامل وابستگی‌ها
+        isFormValid, address, daoAddress, writeContractAsync, t,
+        projectName, tagline, website, description, problem, solution, businessModel,
+        startupIndustry, teamExperienceYears, teamBio, marketSize, competitors,
+        hasPreviousFunding, fundingHistoryDetails, recipient, milestones,
+        pitchDeckFile, financialsFile, legalFile
+    ]);
 
     return {
-        description, setDescription,
-        recipient, setRecipient,
-        milestones,
-        startupIndustry, setStartupIndustry,
-        teamExperienceYears, setTeamExperienceYears,
-        hasPreviousFunding, setHasPreviousFunding,
-        marketSize, setMarketSize,
-        teamBio, setTeamBio,
-        handleAddMilestone,
-        handleMilestoneChange,
-        handleRemoveMilestone,
+        // ... (تمام state ها و توابع setter)
+        projectName, setProjectName, tagline, setTagline, website, setWebsite,
+        description, setDescription, problem, setProblem, solution, setSolution,
+        businessModel, setBusinessModel, startupIndustry, setStartupIndustry,
+        teamExperienceYears, setTeamExperienceYears, teamBio, setTeamBio,
+        marketSize, setMarketSize, competitors, setCompetitors,
+        hasPreviousFunding, setHasPreviousFunding, fundingHistoryDetails, setFundingHistoryDetails,
+        recipient, setRecipient, milestones,
+        pitchDeckFile, setPitchDeckFile, financialsFile, setFinancialsFile, legalFile, setLegalFile,
+        isPending, setIsPending, isFormValid,
+        // Handlers
+        handleAddMilestone, handleMilestoneChange, handleRemoveMilestone,
         handleSubmit,
-        isPending: isPending || isConfirming,
-        isButtonDisabled: !isFormValid || !isFormEnabled || isPending || isConfirming,
-        isFormValid,
     };
 }

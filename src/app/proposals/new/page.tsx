@@ -1,102 +1,64 @@
-// src/app/proposals/new/page.tsx - FINAL, COMPLETE, AND INTEGRATED VERSION
+// src/app/proposals/new/page.tsx - FINAL, CLEANED, AND HOOK-DRIVEN VERSION
 
 "use client";
 
-import { useEffect, useState, useCallback, useMemo } from 'react'; // useMemo اضافه شد
+import { useEffect, useState } from 'react';
 import { AppLayout } from '@/components/layout/app-layout';
+// --- تمام کامپوننت‌های UI شما در اینجا ایمپورت می‌شوند ---
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { useTranslation } from '@/hooks/use-translation';
-import { useWeb3 } from '@/context/Web3Provider';
-import { DaoLoadingSpinner } from '@/components/icons/dao-loading-spinner';
-import { useRouter } from 'next/navigation';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertTriangle, PlusCircle, Trash2 } from 'lucide-react';
-import { useAccount,useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
-import { useCreateProposal, Milestone } from '@/hooks/useCreateProposal';
-import { useCurrencyConverter } from '@/hooks/useCurrencyConverter';
-import { toast } from 'sonner';
-import { Address, Hex, decodeEventLog, encodeEventTopics, AbiEvent } from 'viem';
-import { rayanChainDaoAbi } from '@/lib/blockchain/generated';
-// --- New UI Components ---
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FileInput } from '@/components/ui/file-input';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { DaoLoadingSpinner } from '@/components/icons/dao-loading-spinner';
+import { AlertTriangle, PlusCircle, Trash2 } from 'lucide-react';
+// --- ایمپورت‌های اصلی منطق ---
+import { useTranslation } from '@/hooks/use-translation';
+import { useWeb3 } from '@/context/Web3Provider';
+import { useRouter } from 'next/navigation';
+import { useAccount, useWaitForTransactionReceipt } from 'wagmi';
+import { useCreateProposal } from '@/hooks/useCreateProposal'; // ✅ فقط این هوک برای منطق فرم
+import { useCurrencyConverter } from '@/hooks/useCurrencyConverter';
+import { toast } from 'sonner';
+import { Hex, decodeEventLog, encodeEventTopics, AbiEvent } from 'viem';
+import { rayanChainDaoAbi } from '@/lib/blockchain/generated';
 
 
 export default function NewProposalPage() {
     const { t, locale } = useTranslation();
     const router = useRouter();
-    const { userRole, address, isHydrated, registryAddress } = useWeb3();
+    const { userRole, isHydrated, registryAddress } = useWeb3();
     const { isConnected } = useAccount();
     const { convertRycToLocalCurrency } = useCurrencyConverter();
     const direction = (locale === 'fa' || locale === 'ar') ? 'rtl' : 'ltr';
     const canAccessPage = userRole === 'startup' || userRole === 'admin';
     const canSubmitProposal = canAccessPage && isConnected;
 
-    // --- State های محلی ---
-    const [projectName, setProjectName] = useState('');
-    const [tagline, setTagline] = useState('');
-    const [website, setWebsite] = useState('');
-    const [problem, setProblem] = useState('');
-    const [solution, setSolution] = useState('');
-    const [businessModel, setBusinessModel] = useState('');
-    const [competitors, setCompetitors] = useState('');
-    const [fundingHistoryDetails, setFundingHistoryDetails] = useState('');
-    const [pitchDeckFile, setPitchDeckFile] = useState<File | null>(null);
-    const [financialsFile, setFinancialsFile] = useState<File | null>(null);
-    const [legalFile, setLegalFile] = useState<File | null>(null);
-    const [description, setDescription] = useState('');
-    const [recipient, setRecipient] = useState<string>('');
-    const [milestones, setMilestones] = useState<Milestone[]>([{ name: '', durationDays: '', amount: '' }]);
-    const [startupIndustry, setStartupIndustry] = useState('');
-    const [teamExperienceYears, setTeamExperienceYears] = useState('');
-    const [hasPreviousFunding, setHasPreviousFunding] = useState('false');
-    const [marketSize, setMarketSize] = useState('');
-    const [teamBio, setTeamBio] = useState('');
-    const [isPending, setIsPending] = useState(false);
-    const [txHash, setTxHash] = useState<Hex | undefined>();
+    // ✅✅✅ تمام منطق فرم اکنون از یک هوک مرکزی و تمیز می‌آید ✅✅✅
+    const {
+        // States
+        projectName, setProjectName, tagline, setTagline, website, setWebsite,
+        description, setDescription, problem, setProblem, solution, setSolution,
+        businessModel, setBusinessModel, startupIndustry, setStartupIndustry,
+        teamExperienceYears, setTeamExperienceYears, teamBio, setTeamBio,
+        marketSize, setMarketSize, competitors, setCompetitors,
+        hasPreviousFunding, setHasPreviousFunding, fundingHistoryDetails, setFundingHistoryDetails,
+        recipient, setRecipient, milestones,
+        setPitchDeckFile, setFinancialsFile, setLegalFile,
+        isPending, setIsPending, isFormValid,
+        // Handlers
+        handleAddMilestone, handleMilestoneChange, handleRemoveMilestone, handleSubmit,
+    } = useCreateProposal({ daoAddress: registryAddress as Hex });
 
-    // --- هوک‌های wagmi ---
-    const { writeContractAsync } = useWriteContract();
+    // --- State های محلی فقط برای مدیریت جریان تراکنش ---
+    const [txHash, setTxHash] = useState<Hex | undefined>();
     const { data: receipt, isSuccess: isConfirmed } = useWaitForTransactionReceipt({ hash: txHash });
 
-    // --- Handlers (اکنون به صورت محلی تعریف شده‌اند) ---
-    const handleAddMilestone = useCallback(() => setMilestones(prev => [...prev, { name: '', durationDays: '', amount: '' }]), []);
-    const handleMilestoneChange = useCallback((index: number, field: keyof Milestone, value: string) => {
-        const newMilestones = [...milestones];
-        if ((field === 'amount' || field === 'durationDays') && value !== '' && !/^\d*\.?\d*$/.test(value)) return;
-        newMilestones[index][field] = value;
-        setMilestones(newMilestones);
-    }, [milestones]);
-    const handleRemoveMilestone = useCallback((index: number) => {
-        if (milestones.length > 1) setMilestones(prev => prev.filter((_, i) => i !== index));
-    }, [milestones.length]);
-
-    // --- Form Validation ---
-    const isFormValid = useMemo(() => {
-        return projectName.trim() !== '' && description.trim() !== '' && recipient.trim() !== '';
-    }, [projectName, description, recipient]);
-
-    // --- Effects for Redirection (بدون تغییر) ---
-    useEffect(() => {
-        if (isHydrated && !canAccessPage) {
-            toast.error(t('new_proposal_page.access_denied_title'), { description: t('new_proposal_page.access_denied_desc') });
-            router.push('/dashboard');
-        }
-    }, [isHydrated, canAccessPage, router, t]);
-
-    if (!isHydrated) {
-        return <AppLayout><div className="flex justify-center pt-20"><DaoLoadingSpinner /></div></AppLayout>;
-    }
-    if (!canAccessPage) {
-        return <AppLayout><div className="flex justify-center pt-20"><p>{t('new_proposal_page.redirecting')}</p></div></AppLayout>;
-    }
-    
     // ✅✅✅ داده‌های جدید برای لیست‌های کشویی ✅✅✅
     const industries = [
         { value: "DeFi", label: t('new_proposal_page.industries.defi') },
@@ -107,144 +69,40 @@ export default function NewProposalPage() {
     const businessModels = [
         { value: "B2B", label: "B2B" },
         { value: "B2C", label: "B2C" },
+        { value: "B2B2C", label: "B2B2C" },
         { value: "SaaS", label: "SaaS" },
         { value: "Marketplace", label: "Marketplace" },
     ];
 
-    const handleSubmit = useCallback(async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!isFormValid) {
-            toast.warning(t('toasts.fill_all_fields'));
-            return;
+    // --- Handler wrapper for form submission ---
+    const handleFormSubmit = async (e: React.FormEvent) => {
+        // handleSubmit از هوک فراخوانی می‌شود و رویداد به آن پاس داده می‌شود
+        const resultHash = await handleSubmit(e);
+        if (resultHash) {
+            setTxHash(resultHash); // نتیجه (که خود هش است) در state قرار می‌گیرد
         }
-        setIsPending(true);
-        const toastId = 'submit-toast';
+    };
 
-        const uploadFile = async (file: File | null, fieldName: string): Promise<string | null> => {
-            if (!file) return null;
-            const formData = new FormData();
-            formData.append('file', file);
-            const response = await fetch('/api/upload', { method: 'POST', body: formData });
-            if (!response.ok) throw new Error(`${t('toasts.upload_failed')}: ${fieldName}`);
-            const data = await response.json();
-            return data.ipfsHash;
-        };
-
-        try {
-            // 1. آپلود فایل‌ها
-            toast.loading(t('toasts.uploading_docs'), { id: toastId });
-            const [pitchDeckHash, financialsHash, legalHash] = await Promise.all([
-                uploadFile(pitchDeckFile, 'Pitch Deck'),
-                uploadFile(financialsFile, 'Financials'),
-                uploadFile(legalFile, 'Legal Docs'),
-            ]);
-
-            // 2. ذخیره در MongoDB و دریافت txArgs
-            toast.loading(t('toasts.saving_proposal'), { id: toastId });
-            const fullProposalData = {
-                proposerAddress: address,
-                projectName, tagline, website, description, problem, solution, businessModel,
-                startupIndustry, teamExperienceYears, teamBio, marketSize, competitors,
-                hasPreviousFunding, fundingHistoryDetails, recipient, milestones,
-                documents: { pitchDeck: pitchDeckHash, financials: financialsHash, legal: legalHash },
-            };
-
-            const finalResponse = await fetch('/api/proposals/submit', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(fullProposalData),
-            });
-            if (!finalResponse.ok) {
-                // اگر سرور خطایی برگرداند (مثلاً خطای اعتبارسنجی 400)
-                const errorData = await finalResponse.json();
-                if (errorData.errors) {
-                    // اگر جزئیات خطا از Zod وجود دارد
-                    const fieldErrors = errorData.errors.fieldErrors;
-                    // اولین خطا را پیدا کرده و نمایش می‌دهیم
-                    const firstErrorField = Object.keys(fieldErrors)[0];
-                    const errorMessage = fieldErrors[firstErrorField][0];
-                    
-                    // یک پیام معنادار می‌سازیم
-                    const finalMessage = `${t(`new_proposal_page.${firstErrorField}`)}: ${errorMessage}`;
-                    throw new Error(finalMessage);
-                }
-                // اگر خطای عمومی‌تری باشد
-                throw new Error(errorData.message || t('toasts.unknown_server_error'));
-            }
-            
-            const { txArgs } = await finalResponse.json();
-
-            // ✅✅✅ DEBUGGING CRITICAL SECTION ✅✅✅
-            console.log("--- DEBUGGING TRANSACTION SUBMISSION ---");
-            console.log("DAO Address being used:", registryAddress); // آدرس DAO که به آن تراکنش ارسال می‌شود
-            console.log("Function being called:", "createFundingProposal");
-            console.log("Arguments (txArgs) being sent:", txArgs);
-            console.log("Number of arguments being sent:", txArgs.length);
-            // لاگ کردن ABI که wagmi/viem از آن استفاده می‌کند
-            const targetFunctionAbi = rayanChainDaoAbi.find(item => item.type === 'function' && item.name === 'createFundingProposal');
-            console.log("ABI definition for createFundingProposal:", targetFunctionAbi);
-            console.log("Number of inputs in ABI definition:", targetFunctionAbi?.inputs?.length);
-            console.log("-----------------------------------------");
-            // ✅✅✅ END DEBUGGING SECTION ✅✅✅
-
-            // 3. ارسال تراکنش آن‌چین
-            toast.loading(t('toasts.confirm_in_wallet'), { id: toastId });
-            const hash = await writeContractAsync({
-                address: registryAddress as Address, // آدرس DAO شما
-                abi: rayanChainDaoAbi,
-                functionName: 'createFundingProposal',
-                args: txArgs,
-            });
-            setTxHash(hash);
-            toast.loading(t('toasts.tx_submitted'), { id: toastId });
-
-        } catch (error) {
-            toast.error(t('toasts.submission_failed'), { id: toastId, description: (error as Error).message });
-            setIsPending(false);
-        }
-    }, [
-        isFormValid, address, router, writeContractAsync, registryAddress, t,
-        projectName, tagline, website, description, problem, solution, businessModel,
-        startupIndustry, teamExperienceYears, teamBio, marketSize, competitors,
-        hasPreviousFunding, fundingHistoryDetails, recipient, milestones,
-        pitchDeckFile, financialsFile, legalFile
-    ]);
-    
-    // --- Effect برای فعال‌سازی AI پس از تایید تراکنش ---
+    // --- Effects for Redirection & AI Trigger ---
     useEffect(() => {
-        // این effect فقط زمانی اجرا می‌شود که تراکنش تأیید شده باشد.
+        if (isHydrated && !canAccessPage) {
+            toast.error(t('new_proposal_page.access_denied_title'), { description: t('new_proposal_page.access_denied_desc') });
+            router.push('/dashboard');
+        }
+    }, [isHydrated, canAccessPage, router, t]);
+
+    useEffect(() => {
         if (isConfirmed && receipt && txHash) {
             const toastId = 'submit-toast';
-            
             try {
-                // --- STEP 1: پیدا کردن رویداد 'ProposalCreated' در ABI ---
-                const proposalCreatedEvent = rayanChainDaoAbi.find(
-                    (item) => item.type === 'event' && item.name === 'ProposalCreated'
-                ) as AbiEvent | undefined;
+                const proposalCreatedEvent = rayanChainDaoAbi.find(item => item.type === 'event' && item.name === 'ProposalCreated') as AbiEvent | undefined;
+                if (!proposalCreatedEvent) throw new Error(t('toasts.error_abi_event_not_found'));
 
-                if (!proposalCreatedEvent) {
-                    throw new Error(t('toasts.error_abi_event_not_found'));
-                }
-
-                // --- STEP 2: پیدا کردن لاگ مربوطه در رسید تراکنش (receipt) ---
-                const proposalCreatedLog = receipt.logs.find(
-                    (log) => log.topics[0] === encodeEventTopics({ abi: [proposalCreatedEvent] })[0]
-                );
-
-                if (!proposalCreatedLog) {
-                    throw new Error(t('toasts.error_tx_log_not_found'));
-                }
-
-                // --- STEP 3: Decode کردن لاگ برای استخراج شناسه پروپوزال (proposalId) ---
-                const decodedLog = decodeEventLog({
-                    abi: rayanChainDaoAbi,
-                    data: proposalCreatedLog.data,
-                    topics: proposalCreatedLog.topics,
-                });
-
-                if (decodedLog.eventName !== 'ProposalCreated' || !('id' in decodedLog.args)) {
-                    throw new Error(t('toasts.error_decode_proposal_id_failed'));
-                }
+                const proposalCreatedLog = receipt.logs.find(log => log.topics[0] === encodeEventTopics({ abi: [proposalCreatedEvent] })[0]);
+                if (!proposalCreatedLog) throw new Error(t('toasts.error_tx_log_not_found'));
+                
+                const decodedLog = decodeEventLog({ abi: rayanChainDaoAbi, data: proposalCreatedLog.data, topics: proposalCreatedLog.topics });
+                if (decodedLog.eventName !== 'ProposalCreated' || !('id' in decodedLog.args)) throw new Error(t('toasts.error_decode_proposal_id_failed'));
                 
                 const proposalId = decodedLog.args.id;
                 
@@ -307,7 +165,7 @@ export default function NewProposalPage() {
 
     return (
         <AppLayout>
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleFormSubmit}>
                 <header className="mb-6">
                     <h1 className="text-3xl font-bold font-headline">{t('new_proposal_page.title')}</h1>
                     <p className="text-muted-foreground">{t('new_proposal_page.subtitle_professional')}</p>
@@ -395,7 +253,13 @@ export default function NewProposalPage() {
                             </TabsContent>
                         </Tabs>
 
-                        {!isFormValid && canSubmitProposal && (<Alert variant="default" className="mt-6"><AlertTriangle className="h-4 w-4" /><AlertTitle>{t('new_proposal_page.form_incomplete_title')}</AlertTitle><AlertDescription>{t('new_proposal_page.form_incomplete_tooltip')}</AlertDescription></Alert>)}
+                        {!isFormValid && canSubmitProposal && (
+                            <Alert variant="default" className="mt-6">
+                                <AlertTriangle className="h-4 w-4" />
+                                <AlertTitle>{t('new_proposal_page.form_incomplete_title')}</AlertTitle>
+                                <AlertDescription>{t('new_proposal_page.form_incomplete_tooltip')}</AlertDescription>
+                            </Alert>
+                        )}
                     </CardContent>
                     <CardFooter className="border-t pt-6">
                         <Button type="submit" className="w-full sm:w-auto" disabled={isButtonDisabled}>

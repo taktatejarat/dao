@@ -116,12 +116,14 @@ contract RayanChainDAO is Initializable, OwnableUpgradeable, ReentrancyGuardUpgr
     // --- ✅✅✅ UUPS UPGRADE AUTHORIZATION ✅✅✅ ---
     function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
 
-   // --- ✅✅✅ PROPOSAL CREATION ✅✅✅ ---
-    function createFundingProposal(
+    // --- ✅✅✅ PROPOSAL CREATION ✅✅✅ ---
+    // --- ✅ RENAMED FUNCTION ---
+    function submitFundingProposal( // نام به submitFundingProposal تغییر یافت
         bytes32 _descriptionHash,
         address payable _recipient,
-        Milestone[] memory _milestones // ✅ FIX: استفاده از ساختار بهینه با ۳ پارامتر
+        Milestone[] memory _milestones
     ) external {
+        // منطق داخلی تابع دقیقاً همان کدی است که قبلاً داشتیم
         require(stakingContract.getStakedAmount(msg.sender) > 0, "DAO: Must have RYC staked to propose.");
         require(_descriptionHash != bytes32(0), "Description hash cannot be zero");
         require(_milestones.length > 0, "At least one milestone is required");
@@ -139,6 +141,7 @@ contract RayanChainDAO is Initializable, OwnableUpgradeable, ReentrancyGuardUpgr
             newProposal.milestones.push(_milestones[i]);
         }
     }
+
 
     /**
      * @notice Creates a proposal to release the next milestone for an existing funding project.

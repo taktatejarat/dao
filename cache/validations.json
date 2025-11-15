@@ -1741,9 +1741,9 @@
       "src/contracts/RayanChainDAO.sol:RayanChainDAO": {
         "src": "src/contracts/RayanChainDAO.sol:15",
         "version": {
-          "withMetadata": "308d317a2c8363f894b372d87667c26f29c26a31ed3b448f1000f6915d6062e7",
-          "withoutMetadata": "36b69b7008659210e18953df7f36cde0e5e4d7907ca74c5399fdfb1eddaebbde",
-          "linkedWithoutMetadata": "36b69b7008659210e18953df7f36cde0e5e4d7907ca74c5399fdfb1eddaebbde"
+          "withMetadata": "a9a09d634d44f2035cef1497960a9519a5aa78e4e17f3db419db564932342d20",
+          "withoutMetadata": "c1e3a61c1633f40265723a7b324aa20b4563dc5cc8e55316c2278d4af58e63ee",
+          "linkedWithoutMetadata": "c1e3a61c1633f40265723a7b324aa20b4563dc5cc8e55316c2278d4af58e63ee"
         },
         "inherit": [
           "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol:UUPSUpgradeable",
@@ -1756,7 +1756,7 @@
         "libraries": [],
         "methods": [
           "initialize(address,address,address,address,address,uint256,uint256,uint256)",
-          "createFundingProposal(bytes32,address payable,struct RayanChainDAO.Milestone[])",
+          "submitFundingProposal(bytes32,address payable,struct RayanChainDAO.Milestone[])",
           "createMilestoneReleaseProposal(uint256,bytes32,bytes32)",
           "createGrantRoleProposal(bytes32,address,bytes32)",
           "createTreasuryActionProposal(bytes32,address payable,uint256,uint8)",
