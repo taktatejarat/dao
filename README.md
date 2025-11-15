@@ -47,12 +47,15 @@ Clone the project from its GitHub repository into a directory named dao.
 
     
 # Navigate to your home directory
+bash
 cd ~
 
 # Clone the repository
+bash
 git clone YOUR_GITHUB_REPOSITORY_URL dao
 
 # Enter the project directory
+bash
 cd dao
 
   
