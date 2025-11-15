@@ -29,7 +29,6 @@ This guide details the step-by-step process to deploy the entire RayanChain plat
 
 First, connect to your server via SSH and ensure the system is up-to-date.
 
-```bash
 # Connect to your server
 ssh your_username@your_server_ip
 
@@ -45,7 +44,6 @@ sudo apt install -y git curl build-essential
 Step 2: Clone Project Repository
 
 Clone the project from its GitHub repository into a directory named dao.
-code Bash
 
     
 # Navigate to your home directory
@@ -66,7 +64,6 @@ We will install MongoDB and create a secure database with a dedicated user.
 
     Install MongoDB Server:
     (This example uses pre-downloaded .deb packages. Adjust if using a repository.)
-    code Bash
 
     
 # (Assuming .deb files are in the current directory)
@@ -81,7 +78,6 @@ sudo systemctl enable mongod
 
 Create Database and User:
 Connect to the MongoDB shell to create the application database and user.
-code Bash
 
     
 mongosh
@@ -111,7 +107,6 @@ exit;
 
 Enable Authentication:
 For security, enforce authentication in the MongoDB configuration file.
-code Bash
 
     
 sudo nano /etc/mongod.conf
@@ -119,7 +114,6 @@ sudo nano /etc/mongod.conf
   
 
 Uncomment the security section and enable authorization:
-code Yaml
 
     
 security:
@@ -128,7 +122,6 @@ security:
   
 
 Save the file (Ctrl+X, Y, Enter) and restart the MongoDB service.
-code Bash
 
         
     sudo systemctl restart mongod
@@ -141,7 +134,6 @@ Step 4: Setup AI Oracle (Python)
 The AI Oracle is a critical component that runs as a separate Python service.
 
     Install Python and Virtual Environment:
-    code Bash
 
     
 sudo apt install -y python3 python3.12-venv
@@ -150,7 +142,6 @@ sudo apt install -y python3 python3.12-venv
 
 Run the AI Oracle Startup Script:
 The project includes a script to automate the setup of the Python environment and start the AI service.
-code Bash
 
         
     # Make sure you are in the project's root directory (`~/dao`)
@@ -164,7 +155,6 @@ Step 5: Setup Node.js Environment
 We'll use NVM (Node Version Manager) for flexibility.
 
     Install NVM and Node.js:
-    code Bash
 
     
 # Install NVM
@@ -180,7 +170,6 @@ nvm install --lts
 
 Configure Environment Variables:
 Create a .env file from the example template and fill in the necessary values.
-code Bash
 
     
 # Make sure you are in the project's root directory (`~/dao`)
@@ -190,7 +179,6 @@ nano .env
   
 
 Ensure the following variables are set correctly:
-code Env
 
     
 # Example .env configuration
@@ -204,7 +192,6 @@ PINATA_SECRET_API_KEY=YOUR_PINATA_SECRET
   
 
 Install NPM Packages:
-code Bash
 
         
     npm install
@@ -217,7 +204,6 @@ Step 6: Deploy Smart Contracts
 With the environment ready, compile and deploy the smart contracts to the blockchain.
 
     Compile Contracts:
-    code Bash
 
     
 npx hardhat compile
@@ -226,7 +212,6 @@ npx hardhat compile
 
 Run Deployment Script:
 Deploy to your target network (e.g., amoy). Ensure your wallet has enough funds for gas fees.
-code Bash
 
         
     npx hardhat run scripts/deploy.ts --network amoy
@@ -239,7 +224,6 @@ code Bash
 Step 7: Run the Application
 
 Finally, build and start the application server.
-code Bash
 
     
 # Build the Next.js application for production
