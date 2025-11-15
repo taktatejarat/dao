@@ -84,7 +84,7 @@ contract RayanChainDAO is Initializable, OwnableUpgradeable, ReentrancyGuardUpgr
         _;
     }
 
-    // --- ✅ INITIALIZER FUNCTION ---
+   // --- ✅✅✅ INITIALIZER FUNCTION ✅✅✅ ---
     function initialize(
         address _initialOwner,
         address _accControlAddress,
@@ -97,6 +97,7 @@ contract RayanChainDAO is Initializable, OwnableUpgradeable, ReentrancyGuardUpgr
     ) public initializer {
         __Ownable_init(_initialOwner);
         __ReentrancyGuard_init();
+        __UUPSUpgradeable_init();
 
         // تنظیم دستی مالک اولیه
         transferOwnership(_initialOwner); // تنظیم مالک اولیه به آدرس ارائه‌شده
@@ -115,38 +116,27 @@ contract RayanChainDAO is Initializable, OwnableUpgradeable, ReentrancyGuardUpgr
     // --- ✅✅✅ UUPS UPGRADE AUTHORIZATION ✅✅✅ ---
     function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
 
-    // --- Proposal Creation ---
-    // --- ✅✅✅ THE FINAL, CORRECT SOLUTION IS HERE ✅✅✅ ---
+   // --- ✅✅✅ PROPOSAL CREATION ✅✅✅ ---
     function createFundingProposal(
         bytes32 _descriptionHash,
         address payable _recipient,
-        string[] memory _milestoneNames,
-        uint256[] memory _milestoneDurations,
-        uint256[] memory _milestoneAmounts
+        Milestone[] memory _milestones // ✅ FIX: استفاده از ساختار بهینه با ۳ پارامتر
     ) external {
         require(stakingContract.getStakedAmount(msg.sender) > 0, "DAO: Must have RYC staked to propose.");
         require(_descriptionHash != bytes32(0), "Description hash cannot be zero");
-        require(_milestoneNames.length == _milestoneDurations.length && _milestoneNames.length == _milestoneAmounts.length, "Milestone arrays length mismatch");
-        require(_milestoneNames.length > 0, "At least one milestone is required");
+        require(_milestones.length > 0, "At least one milestone is required");
 
         uint256 proposalId = _createProposal(
             ProposalType.Funding, _descriptionHash, _recipient, 0, TokenType.RYC
         );
         Proposal storage newProposal = proposals[proposalId];
 
-        for (uint i = 0; i < _milestoneNames.length; i++) {
-            require(_milestoneAmounts[i] > 0, "Milestone amount must be > 0");
-            require(_milestoneDurations[i] > 0, "Milestone duration must be > 0");
-            require(bytes(_milestoneNames[i]).length > 0, "Milestone name cannot be empty");
+        for (uint i = 0; i < _milestones.length; i++) {
+            require(_milestones[i].amount > 0, "Milestone amount must be > 0");
+            require(_milestones[i].durationDays > 0, "Milestone duration must be > 0");
+            require(bytes(_milestones[i].name).length > 0, "Milestone name cannot be empty");
 
-            newProposal.milestones.push(Milestone({
-                name: _milestoneNames[i],
-                durationDays: _milestoneDurations[i],
-                amount: _milestoneAmounts[i],
-                state: ProposalState.Pending,
-                proofOfProgressHash: bytes32(0),
-                released: false
-            }));
+            newProposal.milestones.push(_milestones[i]);
         }
     }
 

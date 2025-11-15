@@ -23,6 +23,33 @@ import type {
   TypedContractMethod,
 } from "../../common";
 
+export declare namespace RayanChainDAO {
+  export type MilestoneStruct = {
+    name: string;
+    durationDays: BigNumberish;
+    amount: BigNumberish;
+    state: BigNumberish;
+    proofOfProgressHash: BytesLike;
+    released: boolean;
+  };
+
+  export type MilestoneStructOutput = [
+    name: string,
+    durationDays: bigint,
+    amount: bigint,
+    state: bigint,
+    proofOfProgressHash: string,
+    released: boolean
+  ] & {
+    name: string;
+    durationDays: bigint;
+    amount: bigint;
+    state: bigint;
+    proofOfProgressHash: string;
+    released: boolean;
+  };
+}
+
 export interface RayanChainDAOInterface extends Interface {
   getFunction(
     nameOrSignature:
@@ -90,7 +117,7 @@ export interface RayanChainDAOInterface extends Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "createFundingProposal",
-    values: [BytesLike, AddressLike, string[], BigNumberish[], BigNumberish[]]
+    values: [BytesLike, AddressLike, RayanChainDAO.MilestoneStruct[]]
   ): string;
   encodeFunctionData(
     functionFragment: "createGrantRoleProposal",
@@ -504,9 +531,7 @@ export interface RayanChainDAO extends BaseContract {
     [
       _descriptionHash: BytesLike,
       _recipient: AddressLike,
-      _milestoneNames: string[],
-      _milestoneDurations: BigNumberish[],
-      _milestoneAmounts: BigNumberish[]
+      _milestones: RayanChainDAO.MilestoneStruct[]
     ],
     [void],
     "nonpayable"
@@ -710,9 +735,7 @@ export interface RayanChainDAO extends BaseContract {
     [
       _descriptionHash: BytesLike,
       _recipient: AddressLike,
-      _milestoneNames: string[],
-      _milestoneDurations: BigNumberish[],
-      _milestoneAmounts: BigNumberish[]
+      _milestones: RayanChainDAO.MilestoneStruct[]
     ],
     [void],
     "nonpayable"
