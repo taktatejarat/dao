@@ -1,35 +1,35 @@
-RayanChain DAO-VC Platform
+    
+# RayanChain DAO-VC Platform
 
-![alt text](https://raw.githubusercontent.com/Erfan-s-s/DAO-VC/main/public/logo-light.svg)
+![RayanChain DAO Banner](https://raw.githubusercontent.com/Erfan-s-s/DAO-VC/main/public/logo-light.svg)
 
-RayanChain DAO-VC is a decentralized, AI-enhanced venture capital platform designed to revolutionize the funding landscape for startups. By leveraging a hybrid AIPoX consensus mechanism on a blockchain architecture, the platform ensures transparent, secure, and democratic investment decisions.
+**RayanChain DAO-VC** is a decentralized, AI-enhanced venture capital platform designed to revolutionize the funding landscape for startups. By leveraging a hybrid **AIPoX** consensus mechanism on a blockchain architecture, the platform ensures transparent, secure, and democratic investment decisions.
 
 This document provides a comprehensive guide for setting up the development and production environment from a clean server instance.
-🚀 Getting Started: Full Server Setup Guide
+
+---
+
+## 🚀 Getting Started: Full Server Setup Guide
 
 This guide details the step-by-step process to deploy the entire RayanChain platform, including the Node.js backend, React frontend, AI Oracle, and MongoDB database on a fresh Ubuntu server.
-Table of Contents
 
-    Prerequisites
+### **Table of Contents**
 
-    Clone Project Repository
+1.  [Prerequisites](#-step-1-prerequisites-and-system-update)
+2.  [Clone Project Repository](#-step-2-clone-project-repository)
+3.  [Install & Configure MongoDB](#-step-3-install--configure-mongodb)
+4.  [Setup AI Oracle (Python)](#-step-4-setup-ai-oracle-python)
+5.  [Setup Node.js Environment](#-step-5-setup-nodejs-environment)
+6.  [Deploy Smart Contracts](#-step-6-deploy-smart-contracts)
+7.  [Run the Application](#-step-7-run-the-application)
 
-    Install & Configure MongoDB
+---
 
-    Setup AI Oracle (Python)
-
-    Setup Node.js Environment
-
-    Deploy Smart Contracts
-
-    Run the Application
-
-Step 1: Prerequisites and System Update
+### **Step 1: Prerequisites and System Update**
 
 First, connect to your server via SSH and ensure the system is up-to-date.
-code Bash
 
-    
+```bash
 # Connect to your server
 ssh your_username@your_server_ip
 
@@ -184,10 +184,15 @@ code Bash
 
     
 # Make sure you are in the project's root directory (`~/dao`)
-cp .env.example .env
+cp . .env.example .env
 nano .env
-```    Ensure the following variables are set correctly:
-```env
+
+  
+
+Ensure the following variables are set correctly:
+code Env
+
+    
 # Example .env configuration
 MONGODB_URI=mongodb://daovc_admin:YOUR_SECURE_PASSWORD@127.0.0.1:27017/dao-vc
 PRIVATE_KEY=YOUR_ETHEREUM_WALLET_PRIVATE_KEY
