@@ -154,8 +154,38 @@ export default function NewProposalPage() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(fullProposalData),
             });
-            if (!finalResponse.ok) throw new Error((await finalResponse.json()).message);
+            if (!finalResponse.ok) {
+                // اگر سرور خطایی برگرداند (مثلاً خطای اعتبارسنجی 400)
+                const errorData = await finalResponse.json();
+                if (errorData.errors) {
+                    // اگر جزئیات خطا از Zod وجود دارد
+                    const fieldErrors = errorData.errors.fieldErrors;
+                    // اولین خطا را پیدا کرده و نمایش می‌دهیم
+                    const firstErrorField = Object.keys(fieldErrors)[0];
+                    const errorMessage = fieldErrors[firstErrorField][0];
+                    
+                    // یک پیام معنادار می‌سازیم
+                    const finalMessage = `${t(`new_proposal_page.${firstErrorField}`)}: ${errorMessage}`;
+                    throw new Error(finalMessage);
+                }
+                // اگر خطای عمومی‌تری باشد
+                throw new Error(errorData.message || t('toasts.unknown_server_error'));
+            }
+            
             const { txArgs } = await finalResponse.json();
+
+            // ✅✅✅ DEBUGGING CRITICAL SECTION ✅✅✅
+            console.log("--- DEBUGGING TRANSACTION SUBMISSION ---");
+            console.log("DAO Address being used:", registryAddress); // آدرس DAO که به آن تراکنش ارسال می‌شود
+            console.log("Function being called:", "createFundingProposal");
+            console.log("Arguments (txArgs) being sent:", txArgs);
+            console.log("Number of arguments being sent:", txArgs.length);
+            // لاگ کردن ABI که wagmi/viem از آن استفاده می‌کند
+            const targetFunctionAbi = rayanChainDaoAbi.find(item => item.type === 'function' && item.name === 'createFundingProposal');
+            console.log("ABI definition for createFundingProposal:", targetFunctionAbi);
+            console.log("Number of inputs in ABI definition:", targetFunctionAbi?.inputs?.length);
+            console.log("-----------------------------------------");
+            // ✅✅✅ END DEBUGGING SECTION ✅✅✅
 
             // 3. ارسال تراکنش آن‌چین
             toast.loading(t('toasts.confirm_in_wallet'), { id: toastId });

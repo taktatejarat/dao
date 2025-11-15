@@ -14,6 +14,8 @@ export const en = {
   investor: "Investor",
   startup: "Startup",
   voter: "Voter",
+  yes: "Yes",
+  no: "No",
 
   // Header
   header: {
@@ -23,7 +25,7 @@ export const en = {
     my_account: "My Account",
     profile: "Profile",
   },
-  
+
   // Sidebar
   sidebar: {
     dashboard: "Dashboard",
@@ -80,7 +82,7 @@ export const en = {
     coming_soon: "Coming Soon",
     finished: "Finished",
   },
-  
+
   // Role Selection Page
   role_selection: {
     welcome: "Welcome to RayanChain!",
@@ -88,6 +90,11 @@ export const en = {
     investor: "Investor",
     startup: "Startup",
     voter: "Voter",
+    delegate: "Delegate",
+    investor_desc_short: "A short description for the investor role.",
+    continue_to_staking_cta: "Continue to Select Investment Plan",
+    delegate_title: "Become a Delegate",
+    delegate_desc: "Delegate your voting power to trusted representatives.",
     investor_title: "Choose Your Investment Plan",
     investor_subtitle: "Stake RYC tokens to enjoy special benefits.",
     startup_title: "Are you a Startup?",
@@ -119,6 +126,7 @@ export const en = {
     plan_gold_feat3: "Advanced AI analysis",
     plan_gold_feat4: "Dedicated account manager",
     select_plan: "Select Plan",
+    redirecting: "Redirecting...",
   },
 
   // Dashboard Page
@@ -199,6 +207,20 @@ export const en = {
     total_staked_desc: "Total RYC tokens staked",
     burned_tokens: "Burned Tokens",
     burned_tokens_desc: "Tokens sent to the zero address",
+    admin_overview_title: "Admin Overview",
+    admin_overview_desc: "An overview for the system administrator.",
+    loading_contracts: "Loading contract information from the blockchain...",
+    partial_setup_title: "Incomplete Setup",
+    partial_setup_desc: "The registry contract is deployed, but the following contract addresses were not found:",
+    treasury: "Treasury",
+    go_to_setup: "Go to Setup Page",
+    ai_oracle_status_title: "AI Engine Status",
+    ai_status_online: "Active and Available",
+    ai_status_offline: "Inactive/Disconnected",
+    ai_status_error: "Internal Service Error",
+    ai_status_loading: "Checking...",
+    last_checked: "Last Checked",
+    checking_now: "Checking status now",
   },
 
   // Proposals Page
@@ -206,6 +228,7 @@ export const en = {
     title: "Proposals List",
     subtitle: "Here is a list of all proposals. Filter and sort proposals, and view the details of each.",
     proposal_name: "Proposal Name",
+    active_proposals: "Active Proposals",
     voting_progress: "Voting Progress",
     in_voting: "In Voting",
     approved: "Approved",
@@ -216,8 +239,19 @@ export const en = {
     expired: "Expired",
     cancelled: "Cancelled",
     unknown: "Unknown",
+    vote_success_title: "Your vote has been cast!",
+    vote_success_desc: "Your transaction was submitted successfully. Hash: {hash}",
+    vote_error_title: "Error casting vote",
+    no_proposals_found: "No proposals found",
+    status: {
+      pending_submission: "Pending Submission",
+      confirmed: "Confirmed",
+      voting: "Voting",
+      approved: "Approved",
+      rejected: "Rejected",
+      },
   },
-  
+
   proposals: {
     network_upgrade: "Network Infrastructure Upgrade",
     marketing_project: "New Marketing Project",
@@ -226,15 +260,63 @@ export const en = {
     community_fund: "Community Reserve Fund Creation",
     platform_x_partnership: "Partnership with Platform X",
   },
-  
+
   // New Proposal Page
   new_proposal_page: {
     title: "Submit New Proposal",
     subtitle: "Complete the form below to register your project and raise funds.",
+    subtitle_professional: "Submit your project information in several steps for review by investors and AI.",
     card_title: "Proposal Details",
     card_desc: "Detailed information helps investors in their decision-making.",
+    card_desc_professional: "Please fill out all sections carefully and completely.",
+    tabs: {
+        overview: "Overview",
+        details: "Project Details",
+        team: "Team",
+        market: "Market",
+        financials: "Financials",
+        documents: "Documents"
+    },
     project_title: "Project Title",
     project_title_placeholder: "e.g., Web3 Educational Platform",
+    project_name: "Project Name",
+    project_name_placeholder: "e.g., RayanChain DAO",
+    tagline: "Tagline (One-line summary)",
+    tagline_placeholder: "e.g., Decentralized venture capital platform",
+    industry: "Industry",
+    industry_placeholder: "Select the project's industry",
+    website: "Website",
+    summary: "Executive Summary",
+    summary_placeholder: "Provide a general and compelling description of your project...",
+    problem: "Problem",
+    problem_placeholder: "What problem have you identified in the market and intend to solve?",
+    solution: "Solution",
+    solution_placeholder: "How does your product or service solve this problem?",
+    business_model: "Business Model",
+    business_model_placeholder: "Select your revenue model",
+    team_experience_years_label: "Combined experience of the core team (years)",
+    team_bio_label: "Team Background and Bios",
+    team_bio_placeholder: "Describe the experiences, successes, and roles of each key member...",
+    market_size_label: "Target Market Size (in USD)",
+    competitors: "Competitor Analysis",
+    competitors_placeholder: "Who are your main competitors and what is your competitive advantage?",
+    has_previous_funding_label: "Do you have a history of fundraising?",
+    industries: {
+        defi: "DeFi / Web3",
+        ai: "Artificial Intelligence / Machine Learning",
+        gaming: "Gaming / Metaverse",
+        saas: "Software as a Service (SaaS)"
+    },
+    funding_details: "Previous Funding Details",
+    funding_details_placeholder: "Mention the amount, date, and names of previous investors...",
+    milestone_name: "Milestone Name",
+    milestone_name_placeholder: "e.g., MVP Development",
+    duration_days: "Duration (in days)",
+    pitch_deck: "Pitch Deck (PDF)",
+    financials_doc: "Financial Projections (PDF, XLSX)",
+    legal_doc: "Legal Documents (Optional)",
+    submit_for_review: "Submit for Review",
+    connect_to_submit: "Please connect your wallet to submit a proposal.",
     full_description: "Full Description",
     full_description_placeholder: "Describe the goals, solution, and competitive advantage of your project...",
     funding_goal: "Funding Goal (RYC)",
@@ -253,6 +335,7 @@ export const en = {
     contract_not_deployed_desc: "The DAO contract is not yet deployed. Please contact an administrator.",
     loading: "Loading...",
     back_to_dashboard: "Back to Dashboard",
+    description: "Enter the description of tasks for each milestone.",
     description_required: "Please provide a detailed description of your project.",
     invalid_address: "Please enter a valid Ethereum address (0x followed by 40 characters).",
     valid_address: "Valid Ethereum address.",
@@ -271,6 +354,15 @@ export const en = {
     grant_role_info_title: "Role Request Sent",
     grant_role_info_desc: "Your role request has been sent. An administrator will review and grant the required permissions.",
     contract_write_error: "Failed to submit proposal to the blockchain. Please try again.",
+    ai_check_triggered: "AI risk assessment process has been initiated.",
+    ai_check_failed_title: "AI Activation Failed",
+    ai_check_failed_desc: "The AI risk assessment failed to start. The system will review it manually.",
+    startup_industry_label: "Startup Industry",
+    startup_industry_placeholder: "e.g., HealthTech, Fintech AI",
+    team_experience_label: "Team and Founders' Background",
+    team_experience_placeholder: "A summary of the core team's professional and technical background (for AI analysis).",
+    off_chain_note: "The full description is stored securely in an off-chain database, and only its hash is recorded on the blockchain.",
+    redirecting: "Redirecting...",
   },
 
   // Profile Page
@@ -345,6 +437,7 @@ export const en = {
     deploy_success_message: "Contract deployed successfully at address: {address}! This has been automatically saved to your .env file.",
     go_to_dashboard: "Go to Dashboard",
     deploy_failed_message: "Deployment failed. Please check the logs.",
+    go_to_setup_to_reset: "Go to the setup page to reset.",
     logs: {
         saving_config: "Saving configuration to .env file...",
         save_success: "Configuration saved successfully. Please restart the server to apply changes.",
@@ -385,7 +478,7 @@ export const en = {
     analysis_error: "Error analyzing proposal.",
     summary_title: "Analysis Summary",
   },
-  
+
   // Contract Analyzer Page
   contract_analyzer_page: {
     title: "Smart Contract Improvement",
@@ -396,14 +489,14 @@ export const en = {
     placeholder: "Enter your Solidity code here...",
     analyze_button: "Analyze Contract",
   },
-  
+
   // Not Found Page
   not_found: {
     title: "404 - Page Not Found",
     message: "Sorry, the page you are looking for does not exist or has been moved.",
     go_home: "Go to Dashboard",
   },
-  
+
   // Logs Page
   logs_page: {
     title: "Event Logs",
@@ -448,8 +541,10 @@ export const en = {
   staking_page: {
     title: "Staking & Rewards",
     subtitle: "Stake your RYC tokens, participate in governance, and earn rewards.",
+    subtitle_for_role: "Staking management page for the role:",
     ryc_balance: "RYC Balance",
     staked_balance: "Staked Balance",
+    staked_balance_desc: "Your staked tokens",
     earned_rewards: "Earned Rewards",
     stake_tokens_title: "Stake Tokens",
     stake_tokens_desc: "Lock your RYC tokens to earn rewards and voting power.",
@@ -470,6 +565,51 @@ export const en = {
     claim_error: "Error claiming rewards",
     staking_plans_title: "Staking Plans",
     staking_plans_desc: "Choose one of the plans below to stake quickly.",
+    approve_button: "Approve Withdrawal",
+    approve_success: "Approval successful",
+    approve_error: "Error during approval",
+    delegate_title: "Delegate Voting Power",
+    delegate_desc: "Delegate your voting rights to a trusted representative (Delegatee) to increase Proof-of-Participation (PoP) score and network security.",
+    delegate_error: "Error delegating role",
+    delegatee_address: "Address of the desired delegatee",
+    delegate_cta: "Delegate",
+    undelegate_cta: "Undelegate",
+    plans_for_role: "Staking plans for the role",
+    plans_for_role_desc: "Minimum stake amount to meet security requirements and access role features.",
+    current_delegatee: "Current Delegatee",
+    no_delegatee: "No Delegatee",
+    plan_voter_title: "Voter Plan (Basic)",
+    plan_startup_title: "Startup Plan (Proposal Creation)",
+    plan_delegate_title: "Delegate Plan (Governance)",
+    voter_feat1: "Ability to vote on proposals",
+    voter_feat2: "Earn Proof-of-Participation (PoP) rewards",
+    startup_feat1: "Access to the new proposal submission form",
+    startup_feat2: "Initial AI validation for proposals",
+    delegate_feat1: "Earn delegated voting power from other users",
+    delegate_feat2: "Ability to be appointed as a Validator",
+    plan_voter_desc: "Minimum stake required for platform security and voting rights.",
+    plan_startup_desc: "Minimum stake required to earn proposal submission rights.",
+    plan_delegate_desc: "Stake amount required to join the delegates and maximize governance impact.",
+    tx_success_title: "Transaction Successful",
+    tx_success_desc: "Your operation was confirmed on the blockchain.",
+    approve_in_progress: "Approval transaction is processing. Please wait for confirmation.",
+    revert_reason_approve: "Not enough tokens to approve or invalid access.",
+    revert_reason_stake_zero: "Stake amount must be greater than zero.",
+    revert_reason_delegate_stake: "To delegate voting power, you must first stake RYC tokens.",
+    plan_selected_toast: "Plan selected. Now click the 'Stake' button.",
+    contract_addresses_missing: "Essential contract addresses (Token/Staking) have not yet been loaded. Please wait.",
+    buy_ryc_desc: "Each RYC token is priced at approximately",
+    buy_ryc_title: "Buy RYC Token",
+    buy_ryc_cta: "Buy RYC",
+    amount_of_matic_to_spend: "Amount of currency to spend",
+    buy_ryc_warning: "The final cost is calculated based on the live oracle price on the blockchain.",
+    buy_in_progress: "Purchase transaction is being sent. Please confirm in your wallet.",
+    buy_amount_error: "Purchase amount must be greater than zero.",
+    buy_success_title: "Purchase Successful",
+    buy_success_desc: "RYC tokens have been added to your wallet. Please check your balance.",
+    you_will_receive: "Number of tokens to receive",
+    manage_stake_title: "Manage Stake",
+    manage_stake_desc: "Withdraw your stake or claim earned rewards.",
   },
 
   // Treasury Page
@@ -492,8 +632,13 @@ export const en = {
     fund_button: "Fund Treasury",
     deposit_success: "Treasury funded successfully",
     deposit_error: "Error funding treasury",
+    simulation_failed_desc: "Transaction simulation failed. Please check your inputs and try again.",
+    public_view_title: "Public View",
+    public_view_desc: "This is a public view of the treasury. Only admins can withdraw funds.",
+    native_token: "Native Currency",
+    withdraw_funds_desc_admin: "As an admin, you can withdraw funds (native currency or RYC tokens) from the treasury to any specified wallet address.",
   },
-  
+
   // Proposal Detail Page
   proposal_detail: {
     proposal_id: "Proposal ID",
@@ -515,7 +660,7 @@ export const en = {
     vote_for: "Vote For",
     vote_against: "Vote Against",
   },
-  
+
   // Dynamic Content
   users: {
     user1: "User 1",
@@ -528,6 +673,14 @@ export const en = {
     transferred_tokens: "transferred 25 RYC tokens to your wallet.",
     created_proposal: "created the {proposal} proposal.",
     voted_negative: "voted negative on {proposal} proposal.",
+    staked_tokens: "staked tokens.",
+    unstaked_tokens: "unstaked tokens.",
+    claimed_rewards: "claimed rewards.",
+    staked_tokens_desc: "Staked tokens",
+    unstaked_tokens_desc: "Unstaked tokens",
+    claimed_rewards_desc: "Claimed rewards",
+    participation_score: "Participation Score",
+    participation_score_desc: "Score based on your activity",
   },
   time: {
     minutes_ago: "5 minutes ago",
@@ -535,4 +688,32 @@ export const en = {
     hours_ago: "3 hours ago",
     yesterday: "Yesterday",
   },
+  
+  // New Sections
+  reports_page: {
+    no_proposals_found: "No proposals found.",
+    ai_risk_score: "AI Risk Score",
+    ai_risk_score_desc: "Score between 0 and 100",
+    subtitle: "In-depth analysis and AI-based predictions for each proposal.",
+    card_title: "Intelligent Proposal Analysis",
+    card_desc: "Enter the ID of the desired proposal to receive a complete analytical report from the AI engine.",
+    input_placeholder: "Enter Proposal ID...",
+    start_analysis: "Start Analysis",
+    proposal_report_title: "Analytical Report for Proposal #{id}",
+  },
+  toasts: {
+    uploading_docs: "Uploading documents...",
+    saving_proposal: "Saving proposal information...",
+    confirm_in_wallet: "Please confirm the transaction in your wallet...",
+    tx_submitted: "Transaction submitted. Awaiting confirmation...",
+    submission_failed: "Submission failed.",
+    proposal_created_success: "Proposal created successfully!",
+    proposal_created_desc: "Your proposal is now registered on the blockchain and AI analysis has begun.",
+    ai_trigger_failed: "AI Trigger Failed",
+    ai_trigger_failed_desc: "The proposal was submitted, but an error occurred while starting the AI analysis. Please contact support.",
+    critical_error: "Critical Error",
+    error_abi_event_not_found: "The 'ProposalCreated' event was not found in the ABI. This is a system error.",
+    error_tx_log_not_found: "The transaction was confirmed, but its event was not found. Please contact support.",
+    error_decode_proposal_id_failed: "An error occurred while extracting the proposal ID from the event.",
+  }
 };

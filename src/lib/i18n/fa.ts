@@ -242,6 +242,7 @@ export const fa = {
     vote_success_desc: "تراکنش شما با موفقیت ارسال شد. هش: {hash}",
     vote_error_title: "خطا در ثبت رأی",
     view_details: "مشاهده جزئیات",
+    no_proposals_found: "هیچ پیشنهادی یافت نشد",
     status: {
       pending_submission: "در انتظار ارسال",
       confirmed: "تأیید شد",
@@ -710,7 +711,7 @@ export const fa = {
     saving_proposal: "در حال ذخیره اطلاعات پروپوزال...",
     confirm_in_wallet: "لطفاً تراکنش را در کیف پول خود تأیید کنید...",
     tx_submitted: "تراکنش ارسال شد. در انتظار تأیید...",
-    submission_failed: "ثبت ناموفق بود",
+    submission_failed: "ثبت پروپوزال ناموفق بود",
     proposal_created_success: "پروپوزال با موفقیت ایجاد شد!",
     proposal_created_desc: "پروپوزال شما اکنون روی بلاکچین ثبت شده و تحلیل هوش مصنوعی آغاز شده است.",
     ai_trigger_failed: "خطا در فعال‌سازی AI",
