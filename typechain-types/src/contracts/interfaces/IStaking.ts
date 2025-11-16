@@ -32,11 +32,14 @@ export interface IStakingInterface extends Interface {
       | "earned"
       | "fundRewards"
       | "getStakedAmount"
+      | "getStakedBalance"
       | "setRewardRate"
       | "stake"
       | "totalSupply"
+      | "totalVotingPower"
       | "undelegate"
       | "unstake"
+      | "votingPower"
   ): FunctionFragment;
 
   getEvent(
@@ -48,6 +51,7 @@ export interface IStakingInterface extends Interface {
       | "Staked"
       | "Undelegated"
       | "Unstaked"
+      | "VotingPowerUpdated"
   ): EventFragment;
 
   encodeFunctionData(
@@ -72,6 +76,10 @@ export interface IStakingInterface extends Interface {
     values: [AddressLike]
   ): string;
   encodeFunctionData(
+    functionFragment: "getStakedBalance",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
     functionFragment: "setRewardRate",
     values: [BigNumberish]
   ): string;
@@ -81,12 +89,20 @@ export interface IStakingInterface extends Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
+    functionFragment: "totalVotingPower",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "undelegate",
     values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "unstake",
     values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "votingPower",
+    values: [AddressLike]
   ): string;
 
   decodeFunctionResult(
@@ -108,6 +124,10 @@ export interface IStakingInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "getStakedBalance",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "setRewardRate",
     data: BytesLike
   ): Result;
@@ -116,8 +136,16 @@ export interface IStakingInterface extends Interface {
     functionFragment: "totalSupply",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "totalVotingPower",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "undelegate", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "unstake", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "votingPower",
+    data: BytesLike
+  ): Result;
 }
 
 export namespace DelegatedEvent {
@@ -228,6 +256,19 @@ export namespace UnstakedEvent {
   export type LogDescription = TypedLogDescription<Event>;
 }
 
+export namespace VotingPowerUpdatedEvent {
+  export type InputTuple = [user: AddressLike, newVotingPower: BigNumberish];
+  export type OutputTuple = [user: string, newVotingPower: bigint];
+  export interface OutputObject {
+    user: string;
+    newVotingPower: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
 export interface IStaking extends BaseContract {
   connect(runner?: ContractRunner | null): IStaking;
   waitForDeployment(): Promise<this>;
@@ -295,6 +336,8 @@ export interface IStaking extends BaseContract {
 
   getStakedAmount: TypedContractMethod<[user: AddressLike], [bigint], "view">;
 
+  getStakedBalance: TypedContractMethod<[user: AddressLike], [bigint], "view">;
+
   setRewardRate: TypedContractMethod<
     [_rewardRate: BigNumberish],
     [void],
@@ -305,9 +348,13 @@ export interface IStaking extends BaseContract {
 
   totalSupply: TypedContractMethod<[], [bigint], "view">;
 
+  totalVotingPower: TypedContractMethod<[], [bigint], "view">;
+
   undelegate: TypedContractMethod<[], [void], "nonpayable">;
 
   unstake: TypedContractMethod<[amount: BigNumberish], [void], "nonpayable">;
+
+  votingPower: TypedContractMethod<[user: AddressLike], [bigint], "view">;
 
   getFunction<T extends ContractMethod = ContractMethod>(
     key: string | FunctionFragment
@@ -332,6 +379,9 @@ export interface IStaking extends BaseContract {
     nameOrSignature: "getStakedAmount"
   ): TypedContractMethod<[user: AddressLike], [bigint], "view">;
   getFunction(
+    nameOrSignature: "getStakedBalance"
+  ): TypedContractMethod<[user: AddressLike], [bigint], "view">;
+  getFunction(
     nameOrSignature: "setRewardRate"
   ): TypedContractMethod<[_rewardRate: BigNumberish], [void], "nonpayable">;
   getFunction(
@@ -341,11 +391,17 @@ export interface IStaking extends BaseContract {
     nameOrSignature: "totalSupply"
   ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
+    nameOrSignature: "totalVotingPower"
+  ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
     nameOrSignature: "undelegate"
   ): TypedContractMethod<[], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "unstake"
   ): TypedContractMethod<[amount: BigNumberish], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "votingPower"
+  ): TypedContractMethod<[user: AddressLike], [bigint], "view">;
 
   getEvent(
     key: "Delegated"
@@ -395,6 +451,13 @@ export interface IStaking extends BaseContract {
     UnstakedEvent.InputTuple,
     UnstakedEvent.OutputTuple,
     UnstakedEvent.OutputObject
+  >;
+  getEvent(
+    key: "VotingPowerUpdated"
+  ): TypedContractEvent<
+    VotingPowerUpdatedEvent.InputTuple,
+    VotingPowerUpdatedEvent.OutputTuple,
+    VotingPowerUpdatedEvent.OutputObject
   >;
 
   filters: {
@@ -473,6 +536,17 @@ export interface IStaking extends BaseContract {
       UnstakedEvent.InputTuple,
       UnstakedEvent.OutputTuple,
       UnstakedEvent.OutputObject
+    >;
+
+    "VotingPowerUpdated(address,uint256)": TypedContractEvent<
+      VotingPowerUpdatedEvent.InputTuple,
+      VotingPowerUpdatedEvent.OutputTuple,
+      VotingPowerUpdatedEvent.OutputObject
+    >;
+    VotingPowerUpdated: TypedContractEvent<
+      VotingPowerUpdatedEvent.InputTuple,
+      VotingPowerUpdatedEvent.OutputTuple,
+      VotingPowerUpdatedEvent.OutputObject
     >;
   };
 }

@@ -1554,7 +1554,7 @@
               "label": "accControl",
               "offset": 0,
               "slot": "2",
-              "type": "t_contract(AccControl)8283",
+              "type": "t_contract(AccControl)8387",
               "contract": "Finance",
               "src": "src/contracts/Finance.sol:17"
             },
@@ -1634,7 +1634,7 @@
               "label": "uint64",
               "numberOfBytes": "8"
             },
-            "t_contract(AccControl)8283": {
+            "t_contract(AccControl)8387": {
               "label": "contract AccControl",
               "numberOfBytes": "20"
             },
@@ -1741,9 +1741,9 @@
       "src/contracts/RayanChainDAO.sol:RayanChainDAO": {
         "src": "src/contracts/RayanChainDAO.sol:15",
         "version": {
-          "withMetadata": "a9a09d634d44f2035cef1497960a9519a5aa78e4e17f3db419db564932342d20",
-          "withoutMetadata": "c1e3a61c1633f40265723a7b324aa20b4563dc5cc8e55316c2278d4af58e63ee",
-          "linkedWithoutMetadata": "c1e3a61c1633f40265723a7b324aa20b4563dc5cc8e55316c2278d4af58e63ee"
+          "withMetadata": "13e3eb8374f24d5145d7b5489443d7a3f8de3637b114c2d3d12a5ee0b3d7902e",
+          "withoutMetadata": "b9b7e19f95affe8363a0462de57fa468b44027d3bed8ff1af3138aed08832531",
+          "linkedWithoutMetadata": "b9b7e19f95affe8363a0462de57fa468b44027d3bed8ff1af3138aed08832531"
         },
         "inherit": [
           "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol:UUPSUpgradeable",
@@ -1776,7 +1776,7 @@
               "label": "accControl",
               "offset": 0,
               "slot": "0",
-              "type": "t_contract(AccControl)8283",
+              "type": "t_contract(AccControl)8387",
               "contract": "RayanChainDAO",
               "src": "src/contracts/RayanChainDAO.sol:59"
             },
@@ -1784,7 +1784,7 @@
               "label": "stakingContract",
               "offset": 0,
               "slot": "1",
-              "type": "t_contract(IStaking)8164",
+              "type": "t_contract(IStaking)8268",
               "contract": "RayanChainDAO",
               "src": "src/contracts/RayanChainDAO.sol:60"
             },
@@ -1792,7 +1792,7 @@
               "label": "financeContract",
               "offset": 0,
               "slot": "2",
-              "type": "t_contract(IFinance)7997",
+              "type": "t_contract(IFinance)8076",
               "contract": "RayanChainDAO",
               "src": "src/contracts/RayanChainDAO.sol:60"
             },
@@ -1940,15 +1940,15 @@
               "label": "bytes32",
               "numberOfBytes": "32"
             },
-            "t_contract(AccControl)8283": {
+            "t_contract(AccControl)8387": {
               "label": "contract AccControl",
               "numberOfBytes": "20"
             },
-            "t_contract(IFinance)7997": {
+            "t_contract(IFinance)8076": {
               "label": "contract IFinance",
               "numberOfBytes": "20"
             },
-            "t_contract(IStaking)8164": {
+            "t_contract(IStaking)8268": {
               "label": "contract IStaking",
               "numberOfBytes": "20"
             },
@@ -2448,9 +2448,9 @@
       "src/contracts/Staking.sol:Staking": {
         "src": "src/contracts/Staking.sol:13",
         "version": {
-          "withMetadata": "5ab3476be4dea68708691b71124a13533d4ab8ef0b3b45aeb506029de21033a6",
-          "withoutMetadata": "2cb136139e5a17534d0163bba9f182fee0dc1d5cfb685b35c331e11005f0c4f8",
-          "linkedWithoutMetadata": "2cb136139e5a17534d0163bba9f182fee0dc1d5cfb685b35c331e11005f0c4f8"
+          "withMetadata": "d28a0a263aabd567bea033dc78ea2d60fc4f4f273f9b38dbd338850e76101770",
+          "withoutMetadata": "bbffef4aa4bc5fbf5a55e7c333e18824654c344268bb8582b3f1475a3c852d7c",
+          "linkedWithoutMetadata": "bbffef4aa4bc5fbf5a55e7c333e18824654c344268bb8582b3f1475a3c852d7c"
         },
         "inherit": [
           "src/contracts/interfaces/IStaking.sol:IStaking",
@@ -2471,6 +2471,8 @@
           "delegate(address)",
           "undelegate()",
           "getStakedAmount(address)",
+          "votingPower(address)",
+          "totalVotingPower()",
           "claimReward()",
           "earned(address)",
           "setRewardRate(uint256)",
@@ -2560,6 +2562,22 @@
               "type": "t_mapping(t_address,t_uint256)",
               "contract": "Staking",
               "src": "src/contracts/Staking.sol:23"
+            },
+            {
+              "label": "_votingPower",
+              "offset": 0,
+              "slot": "10",
+              "type": "t_mapping(t_address,t_uint256)",
+              "contract": "Staking",
+              "src": "src/contracts/Staking.sol:24"
+            },
+            {
+              "label": "_totalVotingPower",
+              "offset": 0,
+              "slot": "11",
+              "type": "t_uint256",
+              "contract": "Staking",
+              "src": "src/contracts/Staking.sol:25"
             }
           ],
           "types": {
@@ -2985,6 +3003,9 @@
           "undelegate()",
           "earned(address)",
           "getStakedAmount(address)",
+          "getStakedBalance(address)",
+          "votingPower(address)",
+          "totalVotingPower()",
           "totalSupply()",
           "setRewardRate(uint256)",
           "fundRewards(uint256)",

@@ -1955,6 +1955,20 @@ export const stakingAbi = [
     name: 'Upgraded',
   },
   {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: 'user', internalType: 'address', type: 'address', indexed: true },
+      {
+        name: 'newVotingPower',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+    ],
+    name: 'VotingPowerUpdated',
+  },
+  {
     type: 'function',
     inputs: [],
     name: 'UPGRADE_INTERFACE_VERSION',
@@ -2113,6 +2127,13 @@ export const stakingAbi = [
   },
   {
     type: 'function',
+    inputs: [],
+    name: 'totalVotingPower',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
     inputs: [{ name: 'newOwner', internalType: 'address', type: 'address' }],
     name: 'transferOwnership',
     outputs: [],
@@ -2146,6 +2167,13 @@ export const stakingAbi = [
     type: 'function',
     inputs: [{ name: '', internalType: 'address', type: 'address' }],
     name: 'userRewardPerTokenPaid',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: 'user', internalType: 'address', type: 'address' }],
+    name: 'votingPower',
     outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
     stateMutability: 'view',
   },
@@ -4192,6 +4220,15 @@ export const useReadStakingTotalSupply = /*#__PURE__*/ createUseReadContract({
 })
 
 /**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link stakingAbi}__ and `functionName` set to `"totalVotingPower"`
+ */
+export const useReadStakingTotalVotingPower =
+  /*#__PURE__*/ createUseReadContract({
+    abi: stakingAbi,
+    functionName: 'totalVotingPower',
+  })
+
+/**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link stakingAbi}__ and `functionName` set to `"userRewardPerTokenPaid"`
  */
 export const useReadStakingUserRewardPerTokenPaid =
@@ -4199,6 +4236,14 @@ export const useReadStakingUserRewardPerTokenPaid =
     abi: stakingAbi,
     functionName: 'userRewardPerTokenPaid',
   })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link stakingAbi}__ and `functionName` set to `"votingPower"`
+ */
+export const useReadStakingVotingPower = /*#__PURE__*/ createUseReadContract({
+  abi: stakingAbi,
+  functionName: 'votingPower',
+})
 
 /**
  * Wraps __{@link useWriteContract}__ with `abi` set to __{@link stakingAbi}__
@@ -4499,6 +4544,15 @@ export const useWatchStakingUpgradedEvent =
   /*#__PURE__*/ createUseWatchContractEvent({
     abi: stakingAbi,
     eventName: 'Upgraded',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link stakingAbi}__ and `eventName` set to `"VotingPowerUpdated"`
+ */
+export const useWatchStakingVotingPowerUpdatedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: stakingAbi,
+    eventName: 'VotingPowerUpdated',
   })
 
 /**

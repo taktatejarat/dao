@@ -13,12 +13,15 @@ import { DaoLoadingSpinner } from '@/components/icons/dao-loading-spinner';
 import { useWeb3 } from '@/context/Web3Provider';
 import { useRouter } from 'next/navigation';
 import { DeploymentLog } from '@/components/setup/deployment-log'; // ✅ NEW IMPORT
+import { useAccount } from 'wagmi';
+import { toast } from 'sonner';
 
 export default function SetupPage() {
     const { t } = useTranslation();
-    // معماری جدید: فقط با آدرس رجیستری کار می‌کنیم
-    const { setRegistryAddress, registryAddress, address } = useWeb3();
     const router = useRouter();
+    // ✅ FIX: setUserRole را دریافت می‌کنیم، setRegistryAddress حذف شده است
+    const { registryAddress, setUserRole, userRole } = useWeb3();
+    const { isConnected, address } = useAccount();
 
     // وضعیت استقرار بر اساس وجود آدرس رجیستری تعیین می‌شود
     const isSetupCompleted = !!registryAddress;
@@ -29,20 +32,13 @@ export default function SetupPage() {
             
             if (!response.ok) {
                 throw new Error('Failed to reset setup on server');
-            }
+            }            
+            toast.success(t('setup_page.logs.reset_success'));
+            setTimeout(() => window.location.reload(), 1500);
             
-            if (typeof window !== 'undefined') {
-                localStorage.removeItem('registryAddress');
-            }
-            setRegistryAddress(undefined);
-            
-            // صفحه را رفرش می‌کنیم تا مقادیر از حافظه پاک شوند
-            setTimeout(() => {
-                window.location.reload();
-            }, 100);
         } catch (error) {
             console.error("Failed to reset setup:", error);
-            alert("Failed to reset setup."); // Fallback alert
+            toast.error((error as Error).message);
         }
     };
 
@@ -157,15 +153,11 @@ export default function SetupPage() {
                 const deployedRegistryAddress = lastSuccessData.addresses.registryAddress;
                 console.log("SetupPage: Received Registry Address from API:", deployedRegistryAddress);
                                 
-                // تنها آدرس رجیستری را ذخیره می‌کنیم
-                if (typeof window !== 'undefined') {
-                    localStorage.setItem('registryAddress', deployedRegistryAddress);
-                }
-                setRegistryAddress(deployedRegistryAddress);
-                
-                // تاخیر کوتاه برای نمایش پیام موفقیت قبل از انتقال
+                toast.success(t('setup_page.deploy_success_message'));
                 setTimeout(() => {
-                    router.push('/dashboard');
+                    // رفرش کردن صفحه باعث می‌شود Web3Provider با .env جدید مقداردهی شود
+                    // و سپس به طور خودکار به داشبورد هدایت شود
+                    window.location.reload();
                 }, 3000);
             } else {
                 throw new Error(t('setup_page.deploy_failed_message'));
@@ -180,10 +172,11 @@ export default function SetupPage() {
         }
     };
     
-    // در این نسخه، ما یک API Route برای `/api/setup` نداریم،
-    // بلکه APIهای مجزا برای هر عمل داریم.
-    // اگر می‌خواهید همچنان از یک API استفاده کنید، باید منطق سمت سرور را تغییر دهید.
-    // من فرض را بر استفاده از APIهای مجزا گذاشته‌ام.
+    useEffect(() => {
+        if (isSetupCompleted && !userRole) {
+            router.push('/role-selection'); // یا هر صفحه‌ای که برای انتخاب نقش دارید
+        }
+    }, [isSetupCompleted, userRole, router]);
 
     return (
         <AppLayout>

@@ -4,23 +4,27 @@ import { ethers, upgrades, network } from "hardhat";
 import * as fs from 'fs';
 import * as path from 'path';
 
-// Helper function to read/write env file (simple append/replace)
 function updateEnvFile(key: string, value: string) {
-    const envPath = path.resolve(__dirname, '..', '.env');
-    let envContent = fs.readFileSync(envPath, 'utf8');
+    // مسیر را از ریشه پروژه محاسبه می‌کنیم
+    const envPath = path.resolve(process.cwd(), '.env');
     
-    // Check if the key exists and replace its value
-    // The regex looks for the key at the start of a line (m flag)
+    // اطمینان از وجود فایل
+    if (!fs.existsSync(envPath)) {
+        console.warn(`   ⚠️ .env file not found at ${envPath}. Skipping update.`);
+        return;
+    }
+
+    let envContent = fs.readFileSync(envPath, 'utf8');
     const regex = new RegExp(`^${key}=.*$`, 'm');
+
     if (envContent.match(regex)) {
-        // Replace existing line
         envContent = envContent.replace(regex, `${key}=${value}`);
     } else {
-        // If the key does not exist, append it
         envContent += `\n${key}=${value}`;
     }
     
     fs.writeFileSync(envPath, envContent, 'utf8');
+    console.log(`   - Updated .env with: ${key}`);
 }
 
 

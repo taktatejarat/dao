@@ -124,7 +124,7 @@ contract RayanChainDAO is Initializable, OwnableUpgradeable, ReentrancyGuardUpgr
         Milestone[] memory _milestones
     ) external {
         // منطق داخلی تابع دقیقاً همان کدی است که قبلاً داشتیم
-        require(stakingContract.getStakedAmount(msg.sender) > 0, "DAO: Must have RYC staked to propose.");
+        require(stakingContract.getStakedBalance(msg.sender) > 0, "DAO: Must have RYC staked to propose.");
         require(_descriptionHash != bytes32(0), "Description hash cannot be zero");
         require(_milestones.length > 0, "At least one milestone is required");
 
@@ -240,41 +240,61 @@ contract RayanChainDAO is Initializable, OwnableUpgradeable, ReentrancyGuardUpgr
         require(block.timestamp <= p.votingDeadline, "Voting period has ended");
         require(!hasVoted[_proposalId][msg.sender], "Already voted");
 
-        uint256 stakedAmount = stakingContract.getStakedAmount(msg.sender);
-        require(stakedAmount > 0, "Must have staked tokens to vote");
+        // baseVotingPower: مقدار رسمیِ رأی از قرارداد استیکینگ (staked + delegated مطابق قرارداد استیکینگ)
+        uint256 baseVotingPower = IStaking(stakingContract).votingPower(msg.sender);
+        require(baseVotingPower > 0, "Must have voting power to vote");
 
-        uint256 participationScore = participationScores[msg.sender]; //Reading PoP score
-        // Simple formula: voting power = staked tokens * (1 + participation score / 100)
-        // This makes a score of 100, double the voting power. This formula is adjustable.
-        uint256 votingPower = stakedAmount * (100 + participationScore) / 100;
+        uint256 participationScore = participationScores[msg.sender]; // PoP score
+        // اعمال modifier مشارکت بر روی کل توان رأی
+        uint256 effectiveVotingPower = baseVotingPower * (100 + participationScore) / 100;
 
         hasVoted[_proposalId][msg.sender] = true;
 
         if (_voteType == VoteType.For) {
-            p.forVotes += votingPower;
+            p.forVotes += effectiveVotingPower;
         } else {
-            p.againstVotes += votingPower;
+            p.againstVotes += effectiveVotingPower;
         }
-        
-        emit Voted(_proposalId, msg.sender, _voteType, votingPower);
+
+        emit Voted(_proposalId, msg.sender, _voteType, effectiveVotingPower);
     }
     
     // --- Proposal Execution ---
     function tallyVotes(uint256 _proposalId) public {
         Proposal storage p = proposals[_proposalId];
+
         require(p.state == ProposalState.Voting, "Proposal not in voting state");
         require(block.timestamp > p.votingDeadline, "Voting period not yet ended");
 
-        uint256 totalStaked = IStaking(stakingContract).totalSupply();
+        // *** اصلاح اول: استفاده از مجموع واقعی قدرت رأی ***
+        uint256 totalVotingPower = IStaking(stakingContract).totalVotingPower();
+
+        // *** جلوگیری از تقسیم بر صفر ***
+        require(totalVotingPower > 0, "DAO: No voting power in system");
+
         uint256 totalVotes = p.forVotes + p.againstVotes;
 
-        if (totalVotes * 100 / totalStaked < quorumPercentage) {
+        // اگر حتی یک رأی هم ثبت نشده باشد → رد شود
+        if (totalVotes == 0) {
             p.state = ProposalState.Rejected;
             emit ProposalStateChanged(_proposalId, ProposalState.Rejected);
             return;
         }
 
-        if (p.forVotes * 100 / totalVotes >= approvalThresholdPercentage) {
+        // *** اصلاح دوم: محاسبه صحیح quorum ***
+        // quorum: درصد حداقل مشارکت نسبت به کل voting power
+        uint256 participationPercent = (totalVotes * 100) / totalVotingPower;
+
+        if (participationPercent < quorumPercentage) {
+            p.state = ProposalState.Rejected;
+            emit ProposalStateChanged(_proposalId, ProposalState.Rejected);
+            return;
+        }
+
+        // *** اصلاح سوم: محاسبه approval threshold با اطمینان از تقسیم صحیح ***
+        uint256 approvalPercent = (p.forVotes * 100) / totalVotes;
+
+        if (approvalPercent >= approvalThresholdPercentage) {
             p.state = ProposalState.Approved;
             emit ProposalStateChanged(_proposalId, ProposalState.Approved);
         } else {
@@ -282,6 +302,7 @@ contract RayanChainDAO is Initializable, OwnableUpgradeable, ReentrancyGuardUpgr
             emit ProposalStateChanged(_proposalId, ProposalState.Rejected);
         }
     }
+
 
       
    // --- Proposal Execution (اصلی‌ترین تغییر) ---

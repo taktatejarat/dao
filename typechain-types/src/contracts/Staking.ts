@@ -48,11 +48,13 @@ export interface StakingInterface extends Interface {
       | "setRewardRate"
       | "stake"
       | "totalSupply"
+      | "totalVotingPower"
       | "transferOwnership"
       | "undelegate"
       | "unstake"
       | "upgradeToAndCall"
       | "userRewardPerTokenPaid"
+      | "votingPower"
   ): FunctionFragment;
 
   getEvent(
@@ -67,6 +69,7 @@ export interface StakingInterface extends Interface {
       | "Undelegated"
       | "Unstaked"
       | "Upgraded"
+      | "VotingPowerUpdated"
   ): EventFragment;
 
   encodeFunctionData(
@@ -146,6 +149,10 @@ export interface StakingInterface extends Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
+    functionFragment: "totalVotingPower",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "transferOwnership",
     values: [AddressLike]
   ): string;
@@ -163,6 +170,10 @@ export interface StakingInterface extends Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "userRewardPerTokenPaid",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "votingPower",
     values: [AddressLike]
   ): string;
 
@@ -228,6 +239,10 @@ export interface StakingInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "totalVotingPower",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "transferOwnership",
     data: BytesLike
   ): Result;
@@ -239,6 +254,10 @@ export interface StakingInterface extends Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "userRewardPerTokenPaid",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "votingPower",
     data: BytesLike
   ): Result;
 }
@@ -388,6 +407,19 @@ export namespace UpgradedEvent {
   export type LogDescription = TypedLogDescription<Event>;
 }
 
+export namespace VotingPowerUpdatedEvent {
+  export type InputTuple = [user: AddressLike, newVotingPower: BigNumberish];
+  export type OutputTuple = [user: string, newVotingPower: bigint];
+  export interface OutputObject {
+    user: string;
+    newVotingPower: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
 export interface Staking extends BaseContract {
   connect(runner?: ContractRunner | null): Staking;
   waitForDeployment(): Promise<this>;
@@ -495,6 +527,8 @@ export interface Staking extends BaseContract {
 
   totalSupply: TypedContractMethod<[], [bigint], "view">;
 
+  totalVotingPower: TypedContractMethod<[], [bigint], "view">;
+
   transferOwnership: TypedContractMethod<
     [newOwner: AddressLike],
     [void],
@@ -516,6 +550,8 @@ export interface Staking extends BaseContract {
     [bigint],
     "view"
   >;
+
+  votingPower: TypedContractMethod<[user: AddressLike], [bigint], "view">;
 
   getFunction<T extends ContractMethod = ContractMethod>(
     key: string | FunctionFragment
@@ -592,6 +628,9 @@ export interface Staking extends BaseContract {
     nameOrSignature: "totalSupply"
   ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
+    nameOrSignature: "totalVotingPower"
+  ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
     nameOrSignature: "transferOwnership"
   ): TypedContractMethod<[newOwner: AddressLike], [void], "nonpayable">;
   getFunction(
@@ -610,6 +649,9 @@ export interface Staking extends BaseContract {
   getFunction(
     nameOrSignature: "userRewardPerTokenPaid"
   ): TypedContractMethod<[arg0: AddressLike], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "votingPower"
+  ): TypedContractMethod<[user: AddressLike], [bigint], "view">;
 
   getEvent(
     key: "Delegated"
@@ -680,6 +722,13 @@ export interface Staking extends BaseContract {
     UpgradedEvent.InputTuple,
     UpgradedEvent.OutputTuple,
     UpgradedEvent.OutputObject
+  >;
+  getEvent(
+    key: "VotingPowerUpdated"
+  ): TypedContractEvent<
+    VotingPowerUpdatedEvent.InputTuple,
+    VotingPowerUpdatedEvent.OutputTuple,
+    VotingPowerUpdatedEvent.OutputObject
   >;
 
   filters: {
@@ -791,6 +840,17 @@ export interface Staking extends BaseContract {
       UpgradedEvent.InputTuple,
       UpgradedEvent.OutputTuple,
       UpgradedEvent.OutputObject
+    >;
+
+    "VotingPowerUpdated(address,uint256)": TypedContractEvent<
+      VotingPowerUpdatedEvent.InputTuple,
+      VotingPowerUpdatedEvent.OutputTuple,
+      VotingPowerUpdatedEvent.OutputObject
+    >;
+    VotingPowerUpdated: TypedContractEvent<
+      VotingPowerUpdatedEvent.InputTuple,
+      VotingPowerUpdatedEvent.OutputTuple,
+      VotingPowerUpdatedEvent.OutputObject
     >;
   };
 }

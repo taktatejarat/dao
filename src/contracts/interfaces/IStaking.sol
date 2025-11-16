@@ -12,6 +12,7 @@ interface IStaking {
     event RewardFunded(address indexed funder, uint256 amount);
     event Delegated(address indexed delegator, address indexed delegatee, uint256 power);
     event Undelegated(address indexed delegator, address indexed previousDelegatee, uint256 power);
+    event VotingPowerUpdated(address indexed user, uint256 newVotingPower);
 
     // --- Core User Actions ---
     function stake(uint256 amount) external;
@@ -23,6 +24,9 @@ interface IStaking {
     // --- Core View Functions ---
     function earned(address account) external view returns (uint256);
     function getStakedAmount(address user) external view returns (uint256);
+    function getStakedBalance(address user) external view returns (uint256);
+    function votingPower(address user) external view returns (uint256);
+    function totalVotingPower() external view returns (uint256);
     function totalSupply() external view returns (uint256);
 
     // --- Admin / Governance Functions ---

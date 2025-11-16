@@ -149,6 +149,25 @@ const _abi = [
     type: "event",
   },
   {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "user",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "newVotingPower",
+        type: "uint256",
+      },
+    ],
+    name: "VotingPowerUpdated",
+    type: "event",
+  },
+  {
     inputs: [],
     name: "claimReward",
     outputs: [],
@@ -235,6 +254,25 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "address",
+        name: "user",
+        type: "address",
+      },
+    ],
+    name: "getStakedBalance",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "uint256",
         name: "_rewardRate",
         type: "uint256",
@@ -273,6 +311,19 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "totalVotingPower",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
     name: "undelegate",
     outputs: [],
     stateMutability: "nonpayable",
@@ -289,6 +340,25 @@ const _abi = [
     name: "unstake",
     outputs: [],
     stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "user",
+        type: "address",
+      },
+    ],
+    name: "votingPower",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
     type: "function",
   },
 ] as const;

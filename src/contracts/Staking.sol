@@ -21,11 +21,14 @@ contract Staking is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeabl
     uint256 public rewardPerTokenStored;
     mapping(address => uint256) public userRewardPerTokenPaid;
     mapping(address => uint256) public rewards;
+    mapping(address => uint256) private _votingPower;
+    uint256 private _totalVotingPower;
     
   // --- Initializer ---
     function initialize(address _tokenAddress, address _initialOwner) external initializer {
         __Ownable_init(_initialOwner); // تنظیم مالک اولیه
         __ReentrancyGuard_init();     // مقداردهی محافظ امنیت تراکنش
+        __UUPSUpgradeable_init(); // ✅ این خط برای ارتقاءپذیری ضروری است
         
         rycToken = IERC20(_tokenAddress); // مقداردهی آدرس توکن RYC
     }
@@ -50,83 +53,105 @@ contract Staking is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeabl
         return _stakedBalances[account];
     }
     
-    function stake(uint256 amount) external override nonReentrant updateReward(msg.sender) {
-        require(amount > 0, "Staking: Cannot stake 0");
-
-        // ✅✅✅ THE CRITICAL FIX IS HERE ✅✅✅
-        // اضافه کردن یک require صریح برای بررسی allowance قبل از هر کاری
-        // این باعث می‌شود پیام خطای واضح‌تری دریافت کنیم
-        uint256 allowed = rycToken.allowance(msg.sender, address(this));
-        require(allowed >= amount, "Staking: Check the token allowance");
+    function stake(uint256 amount) external nonReentrant {
+        require(amount > 0, "Stake: amount 0");
+        require(rycToken.transferFrom(msg.sender, address(this), amount), "Transfer failed");
 
         _totalStaked += amount;
         _stakedBalances[msg.sender] += amount;
-        
-        address currentDelegatee = delegates[msg.sender];
-        if (currentDelegatee == address(0)) {
-            currentDelegatee = msg.sender;
-            delegates[msg.sender] = currentDelegatee;
+
+        address delegatee = delegates[msg.sender];
+
+        // اگر user قبلا delegate نکرده (address(0)) treat as self-voting
+        if (delegatee == address(0)) {
+            // voting rights remain with msg.sender
+            _transferVotingPower(address(0), msg.sender, amount);
+        } else {
+            // voting rights go to delegatee
+            _transferVotingPower(address(0), delegatee, amount);
         }
-        delegatedPower[currentDelegatee] += amount;
-        
-        // این فراخوانی اکنون با موفقیت انجام خواهد شد
-        bool success = rycToken.transferFrom(msg.sender, address(this), amount);
-        require(success, "Staking: Token transfer failed");
 
         emit Staked(msg.sender, amount);
-        emit Delegated(msg.sender, currentDelegatee, _stakedBalances[msg.sender]);
     }
 
-    function unstake(uint256 amount) external override nonReentrant updateReward(msg.sender) {
-        require(amount > 0, "Cannot unstake 0");
+    function unstake(uint256 amount) external nonReentrant {
+        require(amount > 0, "Unstake: amount 0");
         require(_stakedBalances[msg.sender] >= amount, "Unstake amount exceeds balance");
 
-        address currentDelegatee = delegates[msg.sender];
-        require(currentDelegatee != address(0), "Staking: Inconsistent delegation state");
+        address currentDelegatee = delegates[msg.sender]; // may be address(0) meaning self-voting
 
         _totalStaked -= amount;
         _stakedBalances[msg.sender] -= amount;
-        delegatedPower[currentDelegatee] -= amount;
 
-        rycToken.transfer(msg.sender, amount);
+        address votingHolder = (currentDelegatee == address(0)) ? msg.sender : currentDelegatee;
+        _transferVotingPower(votingHolder, address(0), amount); // decrease voting power of holder
+
+        require(rycToken.transfer(msg.sender, amount), "Transfer failed");
         emit Unstaked(msg.sender, amount);
-        emit Delegated(msg.sender, currentDelegatee, _stakedBalances[msg.sender]);
     }
     
-    function delegate(address _delegatee) external override nonReentrant {
+    function delegate(address _delegatee) external nonReentrant {
         require(_delegatee != address(0), "Cannot delegate to zero address");
-        address currentDelegatee = delegates[msg.sender];
-        if (currentDelegatee == address(0)) {
-            currentDelegatee = msg.sender;
-        }
+        require(_delegatee != msg.sender, "Use undelegate to self");
 
-        uint256 userStakedBalance = _stakedBalances[msg.sender];
-        if (userStakedBalance > 0 && currentDelegatee != _delegatee) {
-            delegatedPower[currentDelegatee] -= userStakedBalance;
-            delegatedPower[_delegatee] += userStakedBalance;
-        }
+        address previous = delegates[msg.sender];
+        uint256 userStake = _stakedBalances[msg.sender];
+
+        address prevVotingHolder = (previous == address(0)) ? msg.sender : previous;
+        address newVotingHolder = _delegatee;
+
+        // transfer user's stake voting rights from previous holder to new holder
+        _transferVotingPower(prevVotingHolder, newVotingHolder, userStake);
+
         delegates[msg.sender] = _delegatee;
-        
-        emit Delegated(msg.sender, _delegatee, userStakedBalance);
+        emit Delegated(msg.sender, _delegatee, userStake);
     }
 
-    function undelegate() external override nonReentrant {
+    function undelegate() external nonReentrant {
         address currentDelegatee = delegates[msg.sender];
         require(currentDelegatee != address(0) && currentDelegatee != msg.sender, "Not delegated or already self-delegated");
 
         uint256 userStakedBalance = _stakedBalances[msg.sender];
 
-        delegatedPower[currentDelegatee] -= userStakedBalance;
-        delegatedPower[msg.sender] += userStakedBalance;
-        delegates[msg.sender] = msg.sender;
+        // move voting rights back from delegatee to self
+        _transferVotingPower(currentDelegatee, msg.sender, userStakedBalance);
+
+        delegates[msg.sender] = address(0);
 
         emit Undelegated(msg.sender, currentDelegatee, userStakedBalance);
     }
 
     function getStakedAmount(address user) external view override returns (uint256) {
-        return _stakedBalances[user] + delegatedPower[user];
+        return _stakedBalances[user];
     }
-    
+
+    function votingPower(address user) public view returns (uint256) {
+        return _votingPower[user];
+    }
+
+    function totalVotingPower() external view returns (uint256) {
+        return _totalVotingPower;
+    }
+
+    function _transferVotingPower(address from, address to, uint256 amount) internal {
+        if (amount == 0 || from == to) return;
+
+        if (from != address(0)) {
+            require(_votingPower[from] >= amount, "VotingPower underflow");
+            _votingPower[from] -= amount;
+        } else {
+            // mint to totalVotingPower only when from == 0
+            _totalVotingPower += amount;
+        }
+
+        if (to != address(0)) {
+            _votingPower[to] += amount;
+        } else {
+            // burn when to == 0
+            _totalVotingPower -= amount;
+        }
+    }
+
     function claimReward() external override nonReentrant updateReward(msg.sender) {
         uint256 reward = rewards[msg.sender];
         if (reward > 0) {
