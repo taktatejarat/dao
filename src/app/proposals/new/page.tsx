@@ -32,7 +32,14 @@ import { rayanChainDaoAbi } from '@/lib/blockchain/generated';
 export default function NewProposalPage() {
     const { t, locale } = useTranslation();
     const router = useRouter();
-    const { userRole, isHydrated, registryAddress } = useWeb3();
+    const { userRole, isHydrated, daoAddress } = useWeb3();
+    // ✅✅✅ DEBUGGING LOG (مرحله ۲) ✅✅✅
+    useEffect(() => {
+        console.log("--- 2. [NewProposalPage] HOOK INITIALIZATION ---");
+        console.log("   - DAO Address passed to useCreateProposal hook:", daoAddress);
+        console.log("----------------------------------------------------");
+    }, [daoAddress]);
+    // ✅✅✅ DEBUGGING LOG (مرحله ۲)پایان ✅✅✅
     const { isConnected } = useAccount();
     const { convertRycToLocalCurrency } = useCurrencyConverter();
     const direction = (locale === 'fa' || locale === 'ar') ? 'rtl' : 'ltr';
@@ -53,7 +60,7 @@ export default function NewProposalPage() {
         isPending, setIsPending, isFormValid,
         // Handlers
         handleAddMilestone, handleMilestoneChange, handleRemoveMilestone, handleSubmit,
-    } = useCreateProposal({ daoAddress: registryAddress as Hex });
+    } = useCreateProposal({ daoAddress: daoAddress as Hex }); 
 
     // --- State های محلی فقط برای مدیریت جریان تراکنش ---
     const [txHash, setTxHash] = useState<Hex | undefined>();

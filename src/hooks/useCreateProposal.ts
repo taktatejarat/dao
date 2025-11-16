@@ -123,7 +123,15 @@ export function useCreateProposal({ daoAddress }: UseCreateProposalProps) {
             if (!txArgs) {
                 throw new Error("API did not return transaction arguments.");
             }
-
+            // ✅✅✅ DEBUGGING LOG (مرحله نهایی ۳) ✅✅✅
+            console.log("--- 3. [useCreateProposal] PREPARING ON-CHAIN TRANSACTION ---");
+            console.log("   - FINAL DAO Address for transaction:", daoAddress);
+            console.log("   - FINAL Function to call:", 'submitFundingProposal');
+            console.log("   - FINAL Arguments (txArgs) to send:", JSON.stringify(txArgs, (key, value) =>
+                typeof value === 'bigint' ? value.toString() : value, 2
+            ));
+            console.log("----------------------------------------------------------------");
+            // ✅✅✅ DEBUGGING LOG (مرحله نهایی ۳) پایان✅✅✅
             // STEP 3: Send on-chain transaction
             toast.loading(t('toasts.confirm_in_wallet'), { id: toastId });
             const hash = await writeContractAsync({
