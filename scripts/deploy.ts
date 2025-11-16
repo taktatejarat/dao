@@ -264,28 +264,34 @@ async function main() {
     
     // --- AUTOMATIC ENV CONFIGURATION ---
     console.log("   - Starting automatic AI Oracle ENV setup...");
-    
-    // 1. Read the DAO ABI from the artifact file
-    const daoArtifactPath = path.resolve(__dirname, '..', 'artifacts', 'src', 'contracts', 'RayanChainDAO.sol', 'RayanChainDAO.json');
-    const daoArtifact = JSON.parse(fs.readFileSync(daoArtifactPath, 'utf8'));
-    const daoAbiJson = JSON.stringify(daoArtifact.abi).replace(/"/g, '\\"'); 
-    
-    // 2. Inject AI Oracle Private Key (Using Admin's Private Key)
+      
+    // 1. Inject AI Oracle Private Key (Using Admin's Private Key)
     if (adminPrivateKey) {
         updateEnvFile('AI_ORACLE_PRIVATE_KEY', adminPrivateKey); 
     }
     
-    // 3. Inject DAO ABI
-    updateEnvFile('RAYAN_CHAIN_DAO_ABI', `"${daoAbiJson}"`);
-    
-    // ⚠️ NEW: Inject Timelock Address for the Front-End/Backend to check execution status
+    // 2. آدرس‌های مورد نیاز برای اسکریپت‌ها یا بک‌اند
+    updateEnvFile('NEXT_PUBLIC_REGISTRY_ADDRESS', registryAddress);
+    updateEnvFile('NEXT_PUBLIC_DAO_ADDRESS', daoAddress);
+    updateEnvFile('NEXT_PUBLIC_TOKEN_ADDRESS', tokenAddress);
+    updateEnvFile('NEXT_PUBLIC_STAKING_ADDRESS', stakingAddress);
+    updateEnvFile('NEXT_PUBLIC_FINANCE_ADDRESS', financeAddress);
+    updateEnvFile('NEXT_PUBLIC_USER_PROFILE_ADDRESS', userProfileAddress);
+    updateEnvFile('NEXT_PUBLIC_ACC_CONTROL_ADDRESS', accControlAddress);
     updateEnvFile('TIMELOCK_ADDRESS', timelockAddress);
+    updateEnvFile('NEXT_PUBLIC_ADMIN_ADDRESS', deployer.address);
+  
+    // 3. اطلاعات ABI و کلید خصوصی برای AI Oracle
+    const daoArtifactPath = path.resolve(__dirname, '..', 'artifacts', 'src', 'contracts', 'RayanChainDAO.sol', 'RayanChainDAO.json');
+    const daoArtifact = JSON.parse(fs.readFileSync(daoArtifactPath, 'utf8'));
+    // 4.یک فرمت امن‌تر برای ذخیره JSON در .env
+    const daoAbiJson = JSON.stringify(JSON.stringify(daoArtifact.abi)); 
+    updateEnvFile('RAYAN_CHAIN_DAO_ABI', daoAbiJson);
     
     console.log("   - AI Oracle ENV setup complete. Done\n");
     // --- END AUTOMATIC ENV CONFIGURATION ---
 
-
-    console.log("\n🏁 Full Upgradeable DAO Deployment Successful!");
+    console.log("\n🏁 Full DAO Deployment Successful!");
     console.log("\n--- DEPLOYMENT_SUMMARY_START ---");
     console.log(JSON.stringify({
         registryAddress,
@@ -295,8 +301,8 @@ async function main() {
         financeAddress,
         userProfileAddress,
         accControlAddress,
-        timelockAddress, // ✅ NEW FIELD
-        aiOracleAddress,
+        timelockAddress,
+        aiOracleAddress: deployer.address,
     }));
     console.log("--- DEPLOYMENT_SUMMARY_END ---");
 }
