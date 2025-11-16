@@ -438,17 +438,20 @@ export const de = {
     go_to_dashboard: "Zum Dashboard gehen",
     deploy_failed_message: "Bereitstellung fehlgeschlagen. Bitte überprüfen Sie die Protokolle.",
     go_to_setup_to_reset: "Gehen Sie zur Einrichtungsseite, um zurückzusetzen.",
-    logs: {
-        saving_config: "Konfiguration wird in .env-Datei gespeichert...",
-        save_success: "Konfiguration erfolgreich gespeichert. Bitte starten Sie den Server neu, um die Änderungen zu übernehmen.",
-        save_failed: "Speichern der Konfiguration fehlgeschlagen.",
-        deploy_start: "Start des Vertragsbereitstellungsprozesses...",
-        deploy_success: "Bereitstellungsprozess erfolgreich abgeschlossen.",
-        deploy_failed: "Bereitstellungsprozess fehlgeschlagen.",
-        already_setup_title: "Plattform bereits eingerichtet",
-        already_setup_desc: "Es scheint, dass die Smart Contracts bereits bereitgestellt wurden. Wenn Sie die Plattform neu einrichten möchten, können Sie die Bereitstellungsinformationen zurücksetzen.",
+      logs: {
+        saving_config: "Speichere Konfiguration in .env-Datei...",
+        save_success: "Konfiguration erfolgreich gespeichert. Bitte starten Sie den Server neu, um die Änderungen anzuwenden.",
+        save_failed: "Beim Speichern der Konfiguration ist ein Fehler aufgetreten.",
+        deploy_start: "Der Vertragsbereitstellungsprozess wurde gestartet...",
+        deploy_success: "Der Bereitstellungsprozess wurde erfolgreich abgeschlossen.",
+        reset_success: "Der Server-Reset-Prozess war erfolgreich.",
+        deploy_failed: "Der Bereitstellungsprozess ist auf einen Fehler gestoßen.",
+        already_setup_title: "Die Plattform ist bereits eingerichtet.",
+        already_setup_desc: "Die Smart Contracts wurden anscheinend bereits bereitgestellt. Wenn Sie die Plattform neu starten möchten, können Sie die Bereitstellungsinformationen zurücksetzen.",
         reset_setup_button: "Einrichtung zurücksetzen",
-    }
+        reset_confirm: "Möchten Sie die Verträge wirklich zurücksetzen? Dadurch werden alle Transaktionen gelöscht.",
+        resetting_in_progress: "Verträge werden zurückgesetzt in Fortschritt",
+      }
   },
 
   // Analytics Page

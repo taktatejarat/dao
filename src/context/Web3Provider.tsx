@@ -37,8 +37,6 @@ export function Web3Provider({ children }: { children: ReactNode }) {
 
     useEffect(() => {
         setIsHydrated(true);
-        // ✅ پاک کردن مقدار قدیمی از localStorage برای جلوگیری از مشکلات آینده
-        localStorage.removeItem('registryAddress');
     }, []);
 
     // --- منطق مدیریت نقش کاربر (بدون تغییر) ---

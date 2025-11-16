@@ -438,17 +438,20 @@ export const tr = {
     go_to_dashboard: "Gösterge Paneline Git",
     deploy_failed_message: "Dağıtım başarısız oldu. Lütfen kayıtları kontrol edin.",
     go_to_setup_to_reset: "Sıfırlamak için kurulum sayfasına gidin.",
-    logs: {
+      logs: {
         saving_config: "Yapılandırma .env dosyasına kaydediliyor...",
         save_success: "Yapılandırma başarıyla kaydedildi. Değişiklikleri uygulamak için lütfen sunucuyu yeniden başlatın.",
-        save_failed: "Yapılandırma kaydedilemedi.",
-        deploy_start: "Sözleşme dağıtım süreci başlatılıyor...",
-        deploy_success: "Dağıtım süreci başarıyla tamamlandı.",
-        deploy_failed: "Dağıtım süreci başarısız oldu.",
-        already_setup_title: "Platform Zaten Kurulmuş",
-        already_setup_desc: "Akıllı sözleşmelerin zaten dağıtılmış olduğu görünüyor. Platformu yeniden kurmak isterseniz, dağıtım bilgilerini sıfırlayabilirsiniz.",
+        save_failed: "Yapılandırma kaydedilirken bir hatayla karşılaşıldı.",
+        deploy_start: "Sözleşme dağıtım işlemi başladı...",
+        deploy_success: "Dağıtım işlemi başarıyla tamamlandı.",
+        reset_success: "Sunucu sıfırlama işlemi başarılı oldu.",
+        deploy_failed: "Dağıtım işlemi bir hatayla karşılaştı.",
+        already_setup_title: "Platform zaten kurulmuş.",
+        already_setup_desc: "Akıllı sözleşmelerin zaten dağıtılmış gibi görünüyor. Platformu yeniden başlatmak istiyorsanız, dağıtım bilgilerini sıfırlayabilirsiniz.",
         reset_setup_button: "Kurulumu Sıfırla",
-    }
+        reset_confirm: "Sözleşmeleri sıfırlamak istediğinizden emin misiniz? Bu, tüm İşlemleri sıfırlayacaktır,'kayıp'",
+        resetting_in_progress:"Sözleşmeler sıfırlanıyor",
+      }
   },
 
   // Analytics Page
