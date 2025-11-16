@@ -1,5 +1,3 @@
-// src/components/auth/auth-guard.tsx - FINAL, CORRECTED VERSION
-
 "use client";
 
 import { useRouter, usePathname } from 'next/navigation';
@@ -10,106 +8,93 @@ import { DaoLoadingSpinner } from '@/components/icons/dao-loading-spinner';
 import { useTranslation } from '@/hooks/use-translation';
 
 export function AuthGuard({ children }: { children: React.ReactNode }) {
+    // ✅ Step 1: Replace contractAddress with registryAddress
     const { userRole, isRoleLoading, registryAddress, isHydrated } = useWeb3();
     const { status, isConnecting, isReconnecting } = useAccount();
     const router = useRouter();
     const pathname = usePathname();
     const { t } = useTranslation();
     
+    // The loading state correctly depends on wagmi's connection status and our context's hydration
     const isLoading = isConnecting || isReconnecting || isRoleLoading || !isHydrated;
     const isConnected = status === 'connected';
 
-    // ✅ FIX 1: تعریف دقیق وضعیت استقرار پلتفرم
-    const isPlatformDeployed = !!registryAddress;
-
+    // Define page types once
+    const isPublicPage = pathname === '/landing';
     const isSetupPage = pathname === '/setup';
     const isRoleSelectionPage = pathname === '/role-selection';
-    
-    // ادمین می‌تواند همیشه به صفحه setup دسترسی داشته باشد
-    const isAdmin = userRole === 'admin';
 
     useEffect(() => {
-        if (isLoading) return; // تا زمان بارگذاری کامل، هیچ اقدامی نکن
-
-        // --- Rule 1: پلتفرم هنوز مستقر نشده است ---
-        // هر کاربری (حتی متصل) باید به صفحه setup هدایت شود.
-        if (!isPlatformDeployed) {
-            if (!isSetupPage) {
-                console.log("[AuthGuard] Redirecting to /setup (platform not deployed).");
-                router.replace('/setup');
-            }
-            return; // اجرای useEffect را متوقف کن
+        // Don't perform any redirects until all initial state is loaded
+        if (isLoading) {
+            return;
         }
-        
-        // --- از اینجا به بعد، می‌دانیم که پلتفرم مستقر شده است (isPlatformDeployed = true) ---
 
-        // --- Rule 2: کاربر متصل نیست ---
-        // اگر پلتفرم مستقر شده ولی کاربر متصل نیست، باید به صفحه‌ای برای اتصال کیف پول برود.
-        // می‌توانیم او را به همان role-selection بفرستیم که دکمه Connect را دارد.
+        // --- Rule 1: Not Connected ---
+        // If the user is not connected, they must be on the public landing page.
         if (!isConnected) {
-            if (!isRoleSelectionPage) {
-                 console.log("[AuthGuard] Redirecting to /role-selection (user not connected).");
-                 router.replace('/role-selection');
-            }
-            return;
-        }
-
-        // --- از اینجا به بعد، می‌دانیم پلتفرم مستقر و کاربر متصل است ---
-
-        // --- Rule 3: کاربر نقش ندارد ---
-        // باید به صفحه انتخاب نقش هدایت شود.
-        if (!userRole) {
-            // ادمین نیازی به انتخاب نقش ندارد
-            if (!isAdmin && !isRoleSelectionPage) {
-                console.log("[AuthGuard] Redirecting to /role-selection (user has no role).");
-                router.replace('/role-selection');
+            if (!isPublicPage) {
+                router.push('/landing');
             }
             return;
         }
         
-        // --- Rule 4: کاربر نقش دارد و در صفحات اولیه (setup/role-selection) است ---
-        // او را به داشبورد هدایت کن.
-        if (userRole) {
-            if (isRoleSelectionPage) {
-                console.log("[AuthGuard] Redirecting to /dashboard (user already has a role).");
-                router.replace('/dashboard');
+        // --- From here, we know the user is connected ---
+
+        // ✅ Step 2: Check for registryAddress to see if the platform is deployed.
+        // --- Rule 2: Platform Not Deployed ---
+        // If connected, but no registry contract is found, force the user to the setup page.
+        if (!registryAddress && !isSetupPage) {
+            router.push('/setup');
+            return;
+        }
+        
+        // --- From here, we know the platform is deployed (registry exists) ---
+
+        // ✅ Step 3: Use registryAddress as the condition for subsequent logic.
+        if (registryAddress) {
+            // --- Rule 3: No Role Selected ---
+            // If the platform is deployed but the user hasn't selected a role, force them to the role selection page.
+            if (!userRole && !isRoleSelectionPage) {
+                router.push('/role-selection');
             }
-            // ادمین می‌تواند در صفحه setup بماند
-            if (isSetupPage && !isAdmin) {
-                 console.log("[AuthGuard] Redirecting non-admin to /dashboard from /setup.");
-                 router.replace('/dashboard');
+            // --- Rule 4: Role Selected, but on a Public/Auth Page ---
+            // If the user has a role, they should be in the app. Redirect them from public/auth pages to the dashboard.
+            // BUT: Allow them to stay on setup page if they want to reset or redeploy
+            else if (userRole && !isSetupPage && (isPublicPage || pathname === '/')) {router.push('/dashboard');
             }
         }
 
-    }, [isConnected, userRole, isLoading, pathname, router, registryAddress, isPlatformDeployed, isAdmin]);
+    }, [isConnected, userRole, isLoading, pathname, router, registryAddress]);
 
-    // --- منطق رندر ---
+    // --- Render Logic ---
+    const isAuthPage = pathname === '/role-selection' || pathname === '/setup';
+
+    // During the initial loading phase, always show a full-screen spinner.
     if (isLoading) {
        return (
-           <div className="flex items-center justify-center min-h-screen">
-               <DaoLoadingSpinner className="w-12 h-12" />
+           <div className="flex flex-col items-center justify-center min-h-screen bg-background">
+               <DaoLoadingSpinner className="w-16 h-16 mb-4" />
+               <p className="text-muted-foreground">{t('auth_guard.loading')}</p>
            </div>
        );
     }
-
-    // اگر پلتفرم مستقر نشده، فقط به صفحه setup اجازه دسترسی بده
-    if (!isPlatformDeployed) {
-        return isSetupPage ? <>{children}</> : null;
-    }
-
-    // اگر پلتفرم مستقر شده، به صفحات setup (فقط برای ادمین) و role-selection (برای همه) اجازه دسترسی بده
-    if (isSetupPage && isAdmin) return <>{children}</>;
-    if (isRoleSelectionPage) return <>{children}</>;
     
-    // اگر کاربر نقش دارد و در صفحه دیگری است، محتوا را نمایش بده
-    if (userRole) {
+    // Allow access to public pages (if not connected) or auth pages (if connected but not fully set up).
+    if (isPublicPage || (isConnected && isAuthPage)) {
         return <>{children}</>;
     }
-    
-    // بازگشت به لودینگ برای حالت‌های گذار
+
+    // If the user is fully authenticated (connected + has a role), show the protected content.
+    if (isConnected && userRole) {
+        return <>{children}</>;
+    }
+
+    // This fallback spinner handles edge cases during state transitions, ensuring no blank screens appear.
     return (
-        <div className="flex items-center justify-center min-h-screen">
-            <DaoLoadingSpinner className="w-12 h-12" />
+        <div className="flex flex-col items-center justify-center min-h-screen bg-background">
+            <DaoLoadingSpinner className="w-16 h-16 mb-4" />
+            <p className="text-muted-foreground">{t('auth_guard.loading')}</p>
         </div>
     );
 }

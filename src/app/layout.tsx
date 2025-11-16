@@ -6,7 +6,6 @@ import localFont from 'next/font/local';
 import { cn } from '@/lib/utils';
 import { ClientRoot } from '@/components/layout/client-root';
 import { AuthGuard } from '@/components/auth/auth-guard.tsx';
-import { PageLayout } from '@/components/layout/page-layout'; // ✅ ایمپورت کامپوننت جدید
 
 // فونت Exo 2 برای بدنه متن انگلیسی
 const fontSans = localFont({
@@ -49,12 +48,12 @@ export default function RootLayout({children,params: { locale }}: {children: Rea
             fontVazir.variable
           )}
         >
-         <Providers>
-          <AuthGuard>
-            <PageLayout>
+        <Providers>
+          <ClientRoot>
+            <AuthGuard>
               {children}
-            </PageLayout>
-          </AuthGuard>
+            </AuthGuard>
+          </ClientRoot>
         </Providers>
         </body>
       </html>
