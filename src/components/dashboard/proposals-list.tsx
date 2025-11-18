@@ -2,11 +2,14 @@
 
 "use client";
 
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
+import { Button } from "@/components/ui/button"; 
 import { useTranslation } from "@/hooks/use-translation";
-import { ProposalItem } from "./proposal-item";
 import { DaoLoadingSpinner } from "../icons/dao-loading-spinner";
-import { useProposals } from "@/hooks/useProposals"; // ✅ ایمپورت هوک جدید
+import { useProposals, type ProposalListData } from "@/hooks/useProposals";
+import { ClipboardCopy } from "lucide-react";
+import { toast } from "sonner";
+import Link from "next/link"; 
 
 export function ProposalsList() {
     console.log("--- RENDERING: ProposalsList ---");
@@ -28,12 +31,35 @@ export function ProposalsList() {
                 ) : proposals.length === 0 ? (
                     <p className="text-muted-foreground text-center">{t('proposals_page.no_proposals_found')}</p>
                 ) : (
-                    <div>
-                        {proposals.map(proposal => (
-                            <ProposalItem
-                                key={proposal._id}
-                                proposalData={proposal}
-                            />
+                    <div className="space-y-4">
+                        {proposals.map((proposal: ProposalListData) => (
+                            // ✅ IMPROVEMENT: کل کارت را به یک لینک تبدیل می‌کنیم
+                            <Link href={`/proposals/${proposal.proposalIdOnChain || proposal._id}`} key={proposal._id}>
+                                <Card className="hover:bg-muted/50 transition-colors cursor-pointer">
+                                    <CardHeader>
+                                        <div className="flex justify-between items-center">
+                                            <CardTitle className="text-lg">{proposal.projectName}</CardTitle>
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-xs text-muted-foreground font-mono" title="Off-chain ID">{proposal._id}</span>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    className="h-6 w-6"
+                                                    // جلوگیری از propagate شدن کلیک به لینک والد
+                                                    onClick={(e) => {
+                                                        e.preventDefault(); 
+                                                        navigator.clipboard.writeText(proposal._id);
+                                                        toast.success(t('toasts.id_copied'));
+                                                    }}
+                                                >
+                                                    <ClipboardCopy className="h-4 w-4" />
+                                                </Button>
+                                            </div>
+                                        </div>
+                                        <CardDescription>{proposal.tagline}</CardDescription>
+                                    </CardHeader>
+                                </Card>
+                            </Link>
                         ))}
                     </div>
                 )}

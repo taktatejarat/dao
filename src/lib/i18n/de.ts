@@ -221,6 +221,8 @@ export const de = {
     ai_status_loading: "Wird geprüft...",
     last_checked: "Zuletzt geprüft",
     checking_now: "Status wird jetzt geprüft",
+    staked_balance: "Gestaktes Guthaben",
+    staked_balance_desc: "Ihre gestaketen Token",
   },
 
   // Proposals Page
@@ -694,6 +696,7 @@ export const de = {
 
   // New Sections
   reports_page: {
+    title: "Bewertung künstlicher Intelligenz",
     no_proposals_found: "Keine Vorschläge gefunden.",
     ai_risk_score: "KI-Risikowert",
     ai_risk_score_desc: "Wert zwischen 0 und 100",
@@ -703,6 +706,20 @@ export const de = {
     input_placeholder: "Vorschlags-ID eingeben...",
     start_analysis: "Analyse starten",
     proposal_report_title: "Analytischer Bericht für Vorschlag #{id}",
+    ai_summary_title: "Zusammenfassung der KI-Analyse",
+    investability_score: "Investitionsstabilität",
+    overall_risk_level: "Gesamtrisiko",
+    ai_recommendation: "KI-Empfehlung",
+    financial_analysis_title: "Finanz- und Teamanalyse",
+    success_probability: "Erfolgswahrscheinlichkeit",
+    financial_risk_score: "Finanzrisiko",
+    team_competency: "Teamkompetenz",
+    market_sentiment: "Marktstimmung",
+    error_title: "Fehler",
+    success_probability_desc: "Dieser Wert gibt das Vertrauen der KI in den langfristigen Erfolg des Projekts auf Basis historischer Daten und Projektmerkmale an.",
+    financial_risk_score_desc: "Dieser Wert bewertet das finanzielle Risiko des Projekts. Ein niedrigerer Wert bedeutet ein geringeres Risiko.",
+    team_competency_desc: "Dieser Wert basiert auf der gesamten Erfahrung und den bisherigen Erfolgen des Kernteams.",
+    market_sentiment_desc: "Dieser Wert gibt die allgemeine Marktstimmung und -meinung gegenüber der Branche und der Technologie dieses Projekts an (wird in zukünftigen Versionen verfügbar sein).",
   },
   toasts: {
     uploading_docs: "Dokumente werden hochgeladen...",
@@ -718,5 +735,6 @@ export const de = {
     error_abi_event_not_found: "Das Ereignis 'ProposalCreated' wurde im ABI nicht gefunden. Dies ist ein Systemfehler.",
     error_tx_log_not_found: "Die Transaktion wurde bestätigt, aber ihr Ereignis wurde nicht gefunden. Bitte kontaktieren Sie den Support.",
     error_decode_proposal_id_failed: "Beim Extrahieren der Vorschlags-ID aus dem Ereignis ist ein Fehler aufgetreten.",
+    id_copied: "Vorschlags-ID in die Zwischenablage kopiert!",
   }
 };

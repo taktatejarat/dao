@@ -221,6 +221,8 @@ export const ar = {
     ai_status_loading: "جاري التحقق...",
     last_checked: "آخر فحص",
     checking_now: "جاري فحص الحالة الآن",
+    staked_balance: "الرصيد المودع",
+    staked_balance_desc: "الرموز المودعة الخاصة بك",
   },
 
   // Proposals Page
@@ -694,6 +696,7 @@ export const ar = {
   
   // New Sections
   reports_page: {
+    title: "تقييم الذكاء الاصطناعي",
     no_proposals_found: "لم يتم العثور على مقترحات.",
     ai_risk_score: "درجة مخاطر الذكاء الاصطناعي",
     ai_risk_score_desc: "درجة بين 0 و 100",
@@ -703,6 +706,20 @@ export const ar = {
     input_placeholder: "أدخل معرف الاقتراح...",
     start_analysis: "بدء التحليل",
     proposal_report_title: "تقرير تحليلي للاقتراح #{id}",
+    ai_summary_title: "ملخص تحليل الذكاء الاصطناعي",
+    investability_score: "درجة قابلية الاستثمار",
+    overall_risk_level: "مستوى المخاطرة الإجمالي",
+    ai_recommendation: "توصية الذكاء الاصطناعي",
+    financial_analysis_title: "التحليل المالي وتحليل الفريق",
+    success_probability: "احتمالية النجاح",
+    financial_risk_score: "درجة المخاطرة المالية",
+    team_competencey: "كفاءة الفريق",
+    market_sentiment: "مشاعر السوق",
+    error_title: "خطأ",
+    success_probability_desc: "تشير هذه النتيجة إلى ثقة الذكاء الاصطناعي في نجاح المشروع على المدى الطويل بناءً على البيانات التاريخية وخصائص المشروع.",
+    financial_risk_score_desc: "تقيّم هذه النتيجة المخاطر المالية للمشروع. انخفاض النتيجة يعني مخاطر أقل.",
+    team_competence_desc: "تُحسب هذه النتيجة بناءً على إجمالي سنوات الخبرة وسجل إنجازات الفريق الأساسي.", 
+    market_sentiment_desc: "تشير هذه النتيجة إلى معنويات السوق ورأيه العام تجاه قطاع وتكنولوجيا هذا المشروع (سيتم تفعيلها في الإصدارات المستقبلية).",
   },
   toasts: {
     uploading_docs: "جاري تحميل المستندات...",
@@ -718,5 +735,6 @@ export const ar = {
     error_abi_event_not_found: "لم يتم العثور على حدث 'ProposalCreated' في ABI. هذا خطأ في النظام.",
     error_tx_log_not_found: "تم تأكيد المعاملة، ولكن لم يتم العثور على حدثها. يرجى الاتصال بالدعم.",
     error_decode_proposal_id_failed: "حدث خطأ أثناء استخراج معرف الاقتراح من الحدث.",
+    id_copied: "تم نسخ معرف الاقتراح إلى الحافظة!",
   }
 };

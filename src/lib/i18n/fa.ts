@@ -220,6 +220,8 @@ export const fa = {
     ai_status_loading: "در حال بررسی...",
     last_checked: "آخرین بررسی",
     checking_now: "در حال بررسی وضعیت",
+    staked_balance: "موجودی سپرده‌گذاری شده",
+    staked_balance_desc: "توکن‌های سپرده‌گذاری شده شما",
   },
 
   // Proposals Page
@@ -699,6 +701,7 @@ export const fa = {
     yesterday: "دیروز",
   },
   reports_page: {
+    title: "ارزیابی هوش مصنوعی",
     no_proposals_found: "هیچ پیشنهادی یافت نشد",
     ai_risk_score: "نمره ریسک AI",
     ai_risk_score_desc: "نمره بین ۰ تا ۱۰۰",
@@ -708,6 +711,20 @@ export const fa = {
     input_placeholder: "شناسه پروپوزال را وارد کنید...",
     start_analysis: "شروع تحلیل",
     proposal_report_title: "گزارش تحلیلی برای پروپوزال شماره {id}",
+    ai_summary_title: "خلاصه تحلیل هوش مصنوعی",
+    investability_score: "امتیاز قابلیت سرمایه‌گذاری",
+    overall_risk_level: "سطح ریسک کلی",
+    ai_recommendation: "توصیه هوش مصنوعی",
+    financial_analysis_title: "تحلیل مالی و تیم",
+    success_probability: "احتمال موفقیت",
+    financial_risk_score: "امتیاز ریسک مالی",
+    team_competency: "شایستگی تیم",
+    market_sentiment: "احساسات بازار",
+    error_title: "خطا",
+    success_probability_desc: "این امتیاز، اطمینان هوش مصنوعی به موفقیت بلندمدت پروژه را بر اساس داده‌های تاریخی و ویژگی‌های پروژه نشان می‌دهد.",
+    financial_risk_score_desc: "این امتیاز، ریسک مالی پروژه را ارزیابی می‌کند. امتیاز پایین‌تر به معنای ریسک کمتر است.",
+    team_competency_desc: "این امتیاز، بر اساس مجموع سال‌های تجربه و سوابق تیم اصلی محاسبه شده است.",
+    market_sentiment_desc: "این امتیاز، دیدگاه و احساسات کلی بازار نسبت به صنعت و فناوری این پروژه را نشان می‌دهد (در نسخه‌های آینده فعال خواهد شد)."
   },
     toasts: {
     uploading_docs: "در حال بارگذاری اسناد...",
@@ -722,6 +739,7 @@ export const fa = {
     critical_error: "خطای بحرانی",
     error_abi_event_not_found: "رویداد 'ProposalCreated' در ABI یافت نشد. این یک خطای سیستمی است.",
     error_tx_log_not_found: "تراکنش تأیید شد، اما رویداد آن یافت نشد. لطفاً با پشتیبانی تماس بگیرید.",
-    error_decode_proposal_id_failed: "در استخراج شناسه پروپوزال از رویداد خطایی رخ داد."
+    error_decode_proposal_id_failed: "در استخراج شناسه پروپوزال از رویداد خطایی رخ داد.",
+    id_copied: "شناسه پروپوزال در کلیپ‌بورد کپی شد!",
   }
 };

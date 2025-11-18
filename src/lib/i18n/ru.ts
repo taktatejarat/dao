@@ -221,6 +221,8 @@ export const ru = {
     ai_status_loading: "Проверка...",
     last_checked: "Последняя проверка",
     checking_now: "Проверка статуса",
+    staked_balance: "Баланс в стейкинге",
+    staked_balance_desc: "Ваши токены в стейкинге",
   },
 
   // Proposals Page
@@ -694,6 +696,7 @@ export const ru = {
 
   // New Sections
   reports_page: {
+    title: "Оценка искусственного интеллекта",
     no_proposals_found: "Предложений не найдено.",
     ai_risk_score: "Оценка риска ИИ",
     ai_risk_score_desc: "Оценка от 0 до 100",
@@ -703,6 +706,20 @@ export const ru = {
     input_placeholder: "Введите ID предложения...",
     start_analysis: "Начать анализ",
     proposal_report_title: "Аналитический отчет по предложению #{id}",
+    ai_summary_title: "Краткий анализ AI",
+    investability_score: "Оценка инвестиционной привлекательности",
+    overall_risk_level: "Общий уровень риска",
+    ai_recommendation: "Рекомендация AI",
+    financial_analysis_title: "Финансовый и командный анализ",
+    success_probability: "Вероятность успеха",
+    financial_risk_score: "Оценка финансового риска",
+    team_competency: "Компетентность команды",
+    market_sentiment: "Настроения рынка",
+    error_title: "Ошибка",
+    success_probability_desc: "Эта оценка отражает уверенность ИИ в долгосрочном успехе проекта, основанную на исторических данных и характеристиках проекта.",
+    financial_risk_score_desc: "Эта оценка оценивает финансовый риск проекта. Более низкий балл означает меньший риск.",
+    team_competence_desc: "Эта оценка рассчитывается на основе общего опыта и достижений основной команды.",
+    market_sentiment_desc: "Эта оценка отражает общее мнение и настроения рынка в отношении отрасли и технологии данного проекта (будет включено в будущих версиях).",
   },
   toasts: {
     uploading_docs: "Загрузка документов...",
@@ -718,5 +735,6 @@ export const ru = {
     error_abi_event_not_found: "Событие 'ProposalCreated' не найдено в ABI. Это системная ошибка.",
     error_tx_log_not_found: "Транзакция была подтверждена, но ее событие не найдено. Пожалуйста, свяжитесь с поддержкой.",
     error_decode_proposal_id_failed: "Произошла ошибка при извлечении ID предложения из события.",
+    id_copied: "Идентификатор предложения скопирован в буфер обмена!",
   }
 };

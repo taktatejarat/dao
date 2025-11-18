@@ -2,16 +2,18 @@
 
 "use client";
 
+
 import { useState } from 'react';
 import { AppLayout } from '@/components/layout/app-layout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { StatCard } from '@/components/dashboard/stat-card';
 import { useTranslation } from '@/hooks/use-translation';
 import { DaoLoadingSpinner } from '@/components/icons/dao-loading-spinner';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertTriangle, TrendingUp, Users, Bot, BarChart } from 'lucide-react';
-import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip } from 'recharts';
+import { ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 
 // --- Type Definition for the AI Report Data ---
 interface AiReport {
@@ -68,17 +70,6 @@ const GaugeChart = ({ value, label, color }: { value: number; label: string, col
         </div>
     );
 };
-
-// --- Helper Component: Stat Card ---
-const StatCard = ({ icon: Icon, title, value, unit }: { icon: React.ElementType, title: string, value: string | number, unit?: string }) => (
-    <div className="flex items-center gap-4 p-4 bg-muted/20 rounded-lg border">
-        <Icon className="w-6 h-6 text-primary" />
-        <div>
-            <p className="text-sm text-muted-foreground">{title}</p>
-            <p className="text-xl font-semibold">{value}{unit && <span className="text-sm font-normal text-muted-foreground ml-1">{unit}</span>}</p>
-        </div>
-    </div>
-);
 
 // --- Main Page Component ---
 export default function ReportsPage() {
@@ -151,7 +142,8 @@ export default function ReportsPage() {
             {error && (
                 <Alert variant="destructive" className="mt-6 max-w-4xl mx-auto">
                     <AlertTriangle className="h-4 w-4" />
-                    <AlertTitle>Error</AlertTitle>
+                    {/* ✅ FIX: استفاده از ترجمه */}
+                    <AlertTitle>{t('reports_page.error_title')}</AlertTitle>
                     <AlertDescription>{error}</AlertDescription>
                 </Alert>
             )}
@@ -159,19 +151,20 @@ export default function ReportsPage() {
             {report && (
                 <div className="mt-8 space-y-6">
                     <h2 className="text-2xl font-bold text-center">
-                        {t('reports_page.proposal_report_title', { id: report.proposalId })}: <span className="text-primary">{report.projectName}</span>
+                        {t('reports_page.proposal_report_title').replace('{id}', report.proposalId)}: 
+                        <span className="text-primary ml-2">{report.projectName}</span>
                     </h2>
 
                     {/* Summary Section */}
                     <Card className="bg-muted/30">
                         <CardHeader>
-                            <CardTitle className="flex items-center gap-2"><Bot /> AI Summary</CardTitle>
+                            <CardTitle className="flex items-center gap-2"><Bot /> {t('reports_page.ai_summary_title')}</CardTitle>
                         </CardHeader>
                         <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
-                            <GaugeChart value={report.summary.investability_score} label="Investability Score" color="hsl(var(--primary))" />
+                            <GaugeChart value={report.summary.investability_score} label={t('reports_page.investability_score')} color="hsl(var(--primary))" />
                             <div className="md:col-span-2 space-y-4">
-                                <p><strong>Overall Risk Level:</strong> <span className={`font-bold ${getRiskColor(report.summary.overall_risk_level)}`}>{report.summary.overall_risk_level}</span></p>
-                                <p><strong>AI Recommendation:</strong> <span className="text-muted-foreground">{report.summary.ai_recommendation}</span></p>
+                                <p><strong>{t('reports_page.overall_risk_level')}:</strong> <span className={`font-bold ${getRiskColor(report.summary.overall_risk_level)}`}>{report.summary.overall_risk_level}</span></p>
+                                <p><strong>{t('reports_page.ai_recommendation')}:</strong> <span className="text-muted-foreground">{report.summary.ai_recommendation}</span></p>
                             </div>
                         </CardContent>
                     </Card>
@@ -179,13 +172,40 @@ export default function ReportsPage() {
                     {/* Financial & Team Analysis */}
                     <Card>
                         <CardHeader>
-                            <CardTitle className="flex items-center gap-2"><TrendingUp /> Financial & Team Analysis</CardTitle>
+                            <CardTitle className="flex items-center gap-2"><TrendingUp /> {t('reports_page.financial_analysis_title')}</CardTitle>
                         </CardHeader>
                         <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                            <StatCard icon={BarChart} title="Success Probability" value={report.financialAnalysis.success_probability} unit="%" />
-                            <StatCard icon={AlertTriangle} title="Financial Risk Score" value={report.financialAnalysis.risk_score} unit="/ 100" />
-                            <StatCard icon={Users} title="Team Competency" value={report.financialAnalysis.team_competency_score} unit="/ 100" />
-                            <StatCard icon={TrendingUp} title="Market Sentiment" value={(report.financialAnalysis.market_sentiment_score * 100).toFixed(0)} unit="%" />
+                            <StatCard 
+                                icon={BarChart} 
+                                title={t('reports_page.success_probability')} 
+                                value={`${report.financialAnalysis.success_probability}%`} 
+                                description={t('reports_page.success_probability_desc')} 
+                                variant="positive"
+                                isLoading={isLoading} // ✅ پاس دادن وضعیت لودینگ
+                            />
+                            <StatCard 
+                                icon={AlertTriangle} 
+                                title={t('reports_page.financial_risk_score')} 
+                                value={`${report.financialAnalysis.risk_score} / 100`}
+                                description={t('reports_page.financial_risk_score_desc')} 
+                                variant={report.financialAnalysis.risk_score > 60 ? "negative" : "default"} // ✅ رنگ‌بندی شرطی
+                                isLoading={isLoading}
+                            />
+                            <StatCard 
+                                icon={Users} 
+                                title={t('reports_page.team_competency')} 
+                                value={`${report.financialAnalysis.team_competency_score} / 100`}
+                                description={t('reports_page.team_competency_desc')} 
+                                variant="neutral"
+                                isLoading={isLoading}
+                            />
+                            <StatCard 
+                                icon={TrendingUp} 
+                                title={t('reports_page.market_sentiment')} 
+                                value={isNaN(report.financialAnalysis.market_sentiment_score) ? 'N/A' : `${(report.financialAnalysis.market_sentiment_score * 100).toFixed(0)}%`}
+                                description={t('reports_page.market_sentiment_desc')} 
+                                isLoading={isLoading}
+                            />
                         </CardContent>
                     </Card>
                 </div>

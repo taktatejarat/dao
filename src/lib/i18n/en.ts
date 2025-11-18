@@ -221,6 +221,8 @@ export const en = {
     ai_status_loading: "Checking...",
     last_checked: "Last Checked",
     checking_now: "Checking status now",
+    staked_balance: "Staked Balance",
+    staked_balance_desc: "Your staked tokens",
   },
 
   // Proposals Page
@@ -448,6 +450,8 @@ export const en = {
         already_setup_title: "Platform Already Setup",
         already_setup_desc: "It seems the smart contracts are already deployed. If you want to re-setup the platform, you can reset the deployment information.",
         reset_setup_button: "Reset Setup",
+        reset_confirm: "Are you sure you want to reset the contracts? This will erase all transactions",
+        resetting_in_progress: "Resetting the contracts is in progress",
     }
   },
 
@@ -691,6 +695,7 @@ export const en = {
   
   // New Sections
   reports_page: {
+    title: "AI Assessment",
     no_proposals_found: "No proposals found.",
     ai_risk_score: "AI Risk Score",
     ai_risk_score_desc: "Score between 0 and 100",
@@ -700,6 +705,20 @@ export const en = {
     input_placeholder: "Enter Proposal ID...",
     start_analysis: "Start Analysis",
     proposal_report_title: "Analytical Report for Proposal #{id}",
+    ai_summary_title: "AI Analysis Summary",
+    investability_score: "Investability Score",
+    overall_risk_level: "Overall Risk Level",
+    ai_recommendation: "AI Recommendation",
+    financial_analysis_title: "Financial and Team Analysis",
+    success_probability: "Probability of Success",
+    financial_risk_score: "Financial Risk Score",
+    team_competence: "Team Competency",
+    market_sentiment: "Market Sentiment",
+    error_title: "Error",
+    success_probability_desc: "This score indicates the AI's confidence in the long-term success of the project based on historical data and project characteristics.",
+    financial_risk_score_desc: "This score assesses the financial risk of the project. A lower score means less risk.",
+    team_competence_desc: "This score is calculated based on the total years of experience and track record of the core team.",
+    market_sentiment_desc: "This score indicates the overall market sentiment and opinion towards the industry and technology of this project (will be enabled in future releases)."
   },
   toasts: {
     uploading_docs: "Uploading documents...",
@@ -715,5 +734,6 @@ export const en = {
     error_abi_event_not_found: "The 'ProposalCreated' event was not found in the ABI. This is a system error.",
     error_tx_log_not_found: "The transaction was confirmed, but its event was not found. Please contact support.",
     error_decode_proposal_id_failed: "An error occurred while extracting the proposal ID from the event.",
+    id_copied: "Proposal ID copied to clipboard!",
   }
 };

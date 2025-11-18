@@ -221,6 +221,8 @@ export const tr = {
     ai_status_loading: "Kontrol ediliyor...",
     last_checked: "Son Kontrol",
     checking_now: "Durum şimdi kontrol ediliyor",
+    staked_balance: "Stake Edilen Bakiye",
+    staked_balance_desc: "Stake edilmiş tokenlarınız",
   },
 
   // Proposals Page
@@ -694,6 +696,7 @@ export const tr = {
   
   // New Sections
   reports_page: {
+    title: "Yapay Zeka Değerlendirmesi",
     no_proposals_found: "Hiç teklif bulunamadı.",
     ai_risk_score: "Yapay Zeka Risk Puanı",
     ai_risk_score_desc: "0 ile 100 arasında puan",
@@ -703,6 +706,20 @@ export const tr = {
     input_placeholder: "Teklif ID'sini girin...",
     start_analysis: "Analizi Başlat",
     proposal_report_title: "#{id} Numaralı Teklif için Analitik Rapor",
+    ai_summary_title: "Yapay Zeka Analiz Özeti",
+    investability_score: "Yatırım Yapılabilirlik Puanı",
+    overall_risk_level: "Genel Risk Seviyesi",
+    ai_recommendation: "Yapay Zeka Önerisi",
+    financial_analysis_title: "Finansal ve Ekip Analizi",
+    success_probability: "Başarı Olasılığı",
+    financial_risk_score: "Finansal Risk Puanı",
+    team_competency: "Ekip Yetkinliği",
+    market_sentiment: "Piyasa Duygusu",
+    error_title: "Hata",
+    success_probability_desc: "Bu puan, yapay zekanın geçmiş verilere ve proje özelliklerine dayanarak projenin uzun vadeli başarısına olan güvenini gösterir.",
+    financial_risk_score_desc: "Bu puan, projenin finansal riskini değerlendirir. Daha düşük bir puan, daha az risk anlamına gelir.",
+    team_competence_desc: "Bu puan, çekirdek ekibin toplam deneyim yılı ve geçmiş performansına göre hesaplanır.",
+    market_sentiment_desc: "Bu puan, bu projenin sektörüne ve teknolojisine yönelik genel piyasa duyarlılığını ve görüşünü gösterir (gelecek sürümlerde etkinleştirilecektir)."
   },
   toasts: {
     uploading_docs: "Belgeler yükleniyor...",
@@ -718,5 +735,6 @@ export const tr = {
     error_abi_event_not_found: "'ProposalCreated' olayı ABI'de bulunamadı. Bu bir sistem hatasıdır.",
     error_tx_log_not_found: "İşlem onaylandı, ancak olayı bulunamadı. Lütfen destekle iletişime geçin.",
     error_decode_proposal_id_failed: "Olaydan teklif ID'si çıkarılırken bir hata oluştu.",
+    id_copied: "Teklif kimliği panoya kopyalandı!",
   }
 };
