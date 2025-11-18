@@ -53,28 +53,30 @@ export default function LandingPage() {
             </header>
             
             <main className="flex-1">
-                {/* ✅✅✅ Hero Section (بازطراحی شده) ✅✅✅ */}
-                <section className="relative container flex flex-col items-center justify-center text-center py-20 sm:py-32 overflow-hidden">
-                    
-                    {/* 2. قرار دادن Entropy به عنوان پس‌زمینه مطلق */}
-                    <div className="absolute inset-0 -z-10 flex items-center justify-center opacity-20 dark:opacity-30">
-                        <Entropy size={600} />
+                <section 
+                    className="relative container flex flex-col items-center justify-center text-center py-20 sm:py-32 overflow-hidden"
+                >
+                    {/* ✅✅✅ THE FIX IS HERE ✅✅✅ */}
+                    {/* div والد دیگر نیازی به استایل‌های موقعیت‌دهی ندارد */}
+                    <div className="absolute inset-0 -z-10 opacity-20 dark:opacity-30">
+                        {/* کامپوننت Entropy دیگر prop 'size' را نیاز ندارد */}
+                        <Entropy />
                     </div>
                     
-                    {/* 3. ایجاد یک لایه گرادینت برای محو شدن لبه‌های انیمیشن */}
                     <div className="absolute inset-0 -z-10 bg-gradient-to-t from-background via-background/80 to-background" />
-
-                    {/* محتوای Hero (اکنون روی پس‌زمینه پویا قرار دارد) */}
-                    <h1 className="text-4xl md:text-6xl font-extrabold tracking-tighter font-headline mb-4 text-gradient leading-tight">
-                        {t('landing_page.hero_title')}
-                    </h1>
-                    <p className="max-w-2xl mx-auto text-lg text-muted-foreground mb-8">
-                        {t('landing_page.hero_subtitle')}
-                    </p>
-                    <div className="flex justify-center gap-4">
-                       <Button size="lg" onClick={openConnectModal} className="shadow-lg shadow-primary/20">
-                           {t('landing_page.get_started')} <Zap className="mx-2" />
-                       </Button>
+                    {/* محتوای Hero (بدون تغییر) */}
+                    <div className="relative z-10"> {/* ✅ محتوا را در یک لایه بالاتر قرار می‌دهیم */}
+                        <h1 className="text-4xl md:text-6xl font-extrabold tracking-tighter font-headline mb-4 text-gradient leading-tight">
+                            {t('landing_page.hero_title')}
+                        </h1>
+                        <p className="max-w-2xl mx-auto text-lg text-muted-foreground mb-8">
+                            {t('landing_page.hero_subtitle')}
+                        </p>
+                        <div className="flex justify-center gap-4">
+                           <Button size="lg" onClick={openConnectModal} className="shadow-lg shadow-primary/20">
+                               {t('landing_page.get_started')} <Zap className="mx-2" />
+                           </Button>
+                        </div>
                     </div>
                 </section>
 
