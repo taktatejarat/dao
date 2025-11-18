@@ -58,21 +58,21 @@ export default function ReportsPage() {
     const [error, setError] = useState<string | null>(null);
     const [report, setReport] = useState<AiReport | null>(null);
 
-    // ✅✅✅ THE FIX IS HERE: استفاده از useCallback و پذیرش آرگومان ✅✅✅
+    // ✅✅✅ THE CRITICAL FIX IS HERE: حذف وابستگی 't' ✅✅✅
     const handleAnalysis = useCallback(async (idToAnalyze: string) => {
         if (!idToAnalyze) return;
         
         setIsLoading(true);
         setError(null);
         setReport(null);
-        // اگر کاربر ID جدیدی وارد کرد، URL را هم آپدیت می‌کنیم (اختیاری اما UX خوبی است)
         window.history.replaceState(null, '', `/reports?id=${idToAnalyze}`);
 
         try {
             const response = await fetch(`/api/ai-report/${idToAnalyze}`);
             if (!response.ok) {
                 const errorData = await response.json();
-                throw new Error(errorData.message || 'Failed to fetch report.');
+                // استفاده از پیام خطای عمومی به جای t()
+                throw new Error(errorData.message || 'Failed to fetch AI report.');
             }
             const data: AiReport = await response.json();
             setReport(data);
@@ -81,18 +81,15 @@ export default function ReportsPage() {
         } finally {
             setIsLoading(false);
         }
-    }, [t]); // `t` به عنوان وابستگی اضافه شد چون در پیام خطا استفاده می‌شود
+    }, []); // <--- آرایه وابستگی اکنون خالی است و تابع پایدار است
 
-    // ✅✅✅ FIX: useEffect اکنون به درستی از handleAnalysis استفاده می‌کند ✅✅✅
     useEffect(() => {
         const idFromUrl = searchParams.get('id');
         if (idFromUrl) {
-            // ما ID را در state هم تنظیم می‌کنیم تا Input هم آپدیت شود
             setProposalId(idFromUrl); 
-            // تحلیل را با ID دریافتی از URL فراخوانی می‌کنیم
             handleAnalysis(idFromUrl);
         }
-    }, [searchParams, handleAnalysis]); // handleAnalysis اکنون یک وابستگی پایدار است
+    }, [searchParams, handleAnalysis]);
 
    const getRiskColor = (levelKey: string) => {
         if (levelKey.includes('low')) return 'text-green-500';

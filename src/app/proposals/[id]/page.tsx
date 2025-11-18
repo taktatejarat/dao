@@ -183,12 +183,17 @@ export default function ProposalDetailPage() {
                     <p className="text-muted-foreground mt-1">{offChainData.tagline}</p>
                 </div>
                 <div className="flex items-center gap-4">
-                    <Link href={`/reports?id=${offChainData._id}`} passHref>
-                        <Button variant="outline">
-                            <BrainCircuit className="w-4 h-4 mr-2" />
-                            {t('proposal_detail.view_ai_report')}
-                        </Button>
-                    </Link>
+                    {/* ✅✅✅ THE CRITICAL FIX IS HERE ✅✅✅ */}
+                    {/* ما فقط زمانی دکمه را رندر می‌کنیم که شناسه آف-چین موجود باشد */}
+                    {offChainData?._id && (
+                        <Link href={`/reports?id=${offChainData._id}`} passHref>
+                            <Button variant="outline">
+                                <BrainCircuit className="w-4 h-4 mr-2" />
+                                {t('proposal_detail.view_ai_report')}
+                            </Button>
+                        </Link>
+                    )}
+                    
                     {onChainData && (
                         <Badge className={`${statusColor} hover:${statusColor} text-sm px-3 py-1.5`}>
                             <StatusIcon className="w-4 h-4 mr-2" />

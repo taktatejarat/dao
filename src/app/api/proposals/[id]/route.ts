@@ -39,13 +39,15 @@ export async function GET(
             return NextResponse.json({ success: false, message: 'Proposal not found.' }, { status: 404 });
         }
         
-        // حذف _id برای جلوگیری از مشکلات serialize شدن
-        const { _id, ...rest } = proposal;
+        const responseData = {
+            ...proposal,
+            _id: proposal._id.toString(), // تبدیل ObjectId به رشته برای سازگاری با JSON
+        };
 
-        return NextResponse.json({ success: true, data: { ...rest, mongoId: _id.toString() } });
+        return NextResponse.json({ success: true, data: responseData });
 
     } catch (error) {
         console.error(`Error fetching proposal ${params.id}:`, error);
-        return NextResponse.json({ success: false, message: 'An internal server error occurred.' }, { status: 500 });
+        return NextResponse.json({ success: false, message: (error as Error).message }, { status: 500 });
     }
 }

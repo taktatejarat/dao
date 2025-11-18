@@ -12,6 +12,7 @@ import { Logo } from "@/components/icons/logo";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { LanguageSwitcher } from "@/components/layout/language-switcher";
+import { Entropy } from "@/components/ui/entropy"; // ✅ 1. ایمپورت کامپوننت Entropy
 
 export default function LandingPage() {
     const { t } = useTranslation();
@@ -52,8 +53,18 @@ export default function LandingPage() {
             </header>
             
             <main className="flex-1">
-                {/* Hero Section */}
-                <section className="container text-center py-20 sm:py-32">
+                {/* ✅✅✅ Hero Section (بازطراحی شده) ✅✅✅ */}
+                <section className="relative container flex flex-col items-center justify-center text-center py-20 sm:py-32 overflow-hidden">
+                    
+                    {/* 2. قرار دادن Entropy به عنوان پس‌زمینه مطلق */}
+                    <div className="absolute inset-0 -z-10 flex items-center justify-center opacity-20 dark:opacity-30">
+                        <Entropy size={600} />
+                    </div>
+                    
+                    {/* 3. ایجاد یک لایه گرادینت برای محو شدن لبه‌های انیمیشن */}
+                    <div className="absolute inset-0 -z-10 bg-gradient-to-t from-background via-background/80 to-background" />
+
+                    {/* محتوای Hero (اکنون روی پس‌زمینه پویا قرار دارد) */}
                     <h1 className="text-4xl md:text-6xl font-extrabold tracking-tighter font-headline mb-4 text-gradient leading-tight">
                         {t('landing_page.hero_title')}
                     </h1>
@@ -61,7 +72,7 @@ export default function LandingPage() {
                         {t('landing_page.hero_subtitle')}
                     </p>
                     <div className="flex justify-center gap-4">
-                       <Button size="lg" onClick={openConnectModal}>
+                       <Button size="lg" onClick={openConnectModal} className="shadow-lg shadow-primary/20">
                            {t('landing_page.get_started')} <Zap className="mx-2" />
                        </Button>
                     </div>
