@@ -7,7 +7,7 @@ VENV_DIR="$ROOT_DIR/.venv_ai_oracle"
 AI_ENGINE_DIR="$ROOT_DIR/ai-engine"
 LOG_FILE="$AI_ENGINE_DIR/ai_oracle_service.log"
 PID_FILE="$AI_ENGINE_DIR/ai_oracle.pid"
-python3_EXECUTABLE="$VENV_DIR/bin/python3"
+PYTHON_EXECUTABLE="$VENV_DIR/bin/python3" # نام متغیر برای وضوح بیشتر تغییر کرد
 REQUIREMENTS_FILE="$AI_ENGINE_DIR/requirements.txt"
 
 # --- Helper Functions ---
@@ -52,7 +52,7 @@ setup_environment() {
 
 prepare_training_data() {
     log "--- [AI Oracle] Preparing Training Data ---"
-    "$python3_EXECUTABLE" "$AI_ENGINE_DIR/training/prepare_data.py"
+    "$PYTHON_EXECUTABLE" "$AI_ENGINE_DIR/training/prepare_data.py"
     if [ $? -ne 0 ]; then
         log "CRITICAL ERROR: Data preparation failed."
         exit 1
@@ -62,7 +62,7 @@ prepare_training_data() {
 
 train_ai_model() {
     log "--- [AI Oracle] Training AI Risk Model ---"
-    "$python3_EXECUTABLE" "$AI_ENGINE_DIR/training/train_risk_model.py"
+    "$PYTHON_EXECUTABLE" "$AI_ENGINE_DIR/training/train_risk_model.py"
     if [ $? -ne 0 ]; then
         log "CRITICAL ERROR: Model training failed."
         exit 1
@@ -94,7 +94,7 @@ start_fastapi_service() {
     # ✅ FIX: از مسیر مطلق برای اجرای uvicorn استفاده می‌کنیم
     # وارد پوشه ai-engine می‌شویم تا uvicorn بتواند main:app را پیدا کند.
     cd "$AI_ENGINE_DIR"
-    nohup "$python3_EXECUTABLE" -m uvicorn main:app --host 0.0.0.0 --port 8000 --log-level info > "$LOG_FILE" 2>&1 &
+    nohup "$PYTHON_EXECUTABLE" -m uvicorn main:app --host 0.0.0.0 --port 8000 --log-level info > "$LOG_FILE" 2>&1 &
     
     echo $! > "$PID_FILE"
     cd "$ROOT_DIR" # بازگشت به دایرکتوری اصلی

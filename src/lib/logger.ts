@@ -10,6 +10,9 @@ export type LogCategory =
   | 'AI_ORACLE'     // فعالیت‌های مربوط به اوراکل هوش مصنوعی
   | 'USER_ACTION'   // اقدامات کلی کاربر در UI
   | 'SECURITY'      // هشدارهای امنیتی
+  | 'AI_REPORT_FETCH'
+  | 'AI_ENGINE_ERROR'  
+  | 'AI_REPORT_SUCCESS'     
   
   // دسته‌بندی‌های جدید برای API ها
   | 'API_REQUEST'   // درخواست‌های ورودی به API

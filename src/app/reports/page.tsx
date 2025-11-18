@@ -1,110 +1,195 @@
-// src/app/reports/page.tsx - FINAL, CORRECTED VERSION
+// src/app/reports/page.tsx - FINAL, VISUAL DASHBOARD
 
 "use client";
 
 import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { useTranslation } from '@/hooks/use-translation';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { AppLayout } from '@/components/layout/app-layout';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { useTranslation } from '@/hooks/use-translation';
 import { DaoLoadingSpinner } from '@/components/icons/dao-loading-spinner';
-import { StatCard } from '@/components/dashboard/stat-card';
-import { AppLayout } from '@/components/layout/app-layout'; 
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle, TrendingUp, Users, Bot, BarChart } from 'lucide-react';
+import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip } from 'recharts';
 
-// This function remains outside as it doesn't depend on component state
-const fetchAnalysis = async (proposalId: number) => {
-  const response = await fetch(`/api/ai-report/${proposalId}`);
-  if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(errorData.message || 'Failed to fetch AI report.');
-  }
-  return response.json();
+// --- Type Definition for the AI Report Data ---
+interface AiReport {
+    proposalId: string;
+    projectName: string;
+    summary: {
+        investability_score: number;
+        overall_risk_level: 'Low' | 'Medium' | 'High' | 'Very High';
+        ai_recommendation: string;
+    };
+    financialAnalysis: {
+        risk_score: number;
+        success_probability: number;
+        team_competency_score: number;
+        market_sentiment_score: number;
+        summary: string;
+    };
+    securityAnalysis: {
+        trust_score: number;
+        anomaly_detected: boolean;
+        reason: string;
+    };
+}
+
+// --- Helper Component: Gauge Chart ---
+const GaugeChart = ({ value, label, color }: { value: number; label: string, color: string }) => {
+    const data = [
+        { name: 'Value', value: value },
+        { name: 'Remaining', value: 100 - value },
+    ];
+    return (
+        <div className="flex flex-col items-center">
+            <ResponsiveContainer width="100%" height={120}>
+                <PieChart>
+                    <Pie
+                        data={data}
+                        cx="50%"
+                        cy="70%"
+                        startAngle={180}
+                        endAngle={0}
+                        innerRadius={60}
+                        outerRadius={80}
+                        paddingAngle={0}
+                        dataKey="value"
+                        stroke="none"
+                    >
+                        <Cell key="value" fill={color} />
+                        <Cell key="remaining" fill="hsl(var(--muted))" />
+                    </Pie>
+                </PieChart>
+            </ResponsiveContainer>
+            <p className="text-2xl font-bold -mt-16">{value}</p>
+            <p className="text-sm text-muted-foreground mt-1">{label}</p>
+        </div>
+    );
 };
 
+// --- Helper Component: Stat Card ---
+const StatCard = ({ icon: Icon, title, value, unit }: { icon: React.ElementType, title: string, value: string | number, unit?: string }) => (
+    <div className="flex items-center gap-4 p-4 bg-muted/20 rounded-lg border">
+        <Icon className="w-6 h-6 text-primary" />
+        <div>
+            <p className="text-sm text-muted-foreground">{title}</p>
+            <p className="text-xl font-semibold">{value}{unit && <span className="text-sm font-normal text-muted-foreground ml-1">{unit}</span>}</p>
+        </div>
+    </div>
+);
+
+// --- Main Page Component ---
 export default function ReportsPage() {
     const { t } = useTranslation();
-    const [proposalIdInput, setProposalIdInput] = useState<string>("1");
-    const [queryId, setQueryId] = useState<number | null>(null);
+    const [proposalId, setProposalId] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const [report, setReport] = useState<AiReport | null>(null);
 
-    const { data, isLoading, isError, error, isFetching } = useQuery({
-        queryKey: ['proposalAnalysis', queryId],
-        queryFn: () => fetchAnalysis(queryId!),
-        enabled: !!queryId,
-    });
+    const handleAnalysis = async () => {
+        if (!proposalId) return;
+        setIsLoading(true);
+        setError(null);
+        setReport(null);
+
+        try {
+            const response = await fetch(`/api/ai-report/${proposalId}`);
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Failed to fetch report.');
+            }
+            const data: AiReport = await response.json();
+            setReport(data);
+        } catch (err) {
+            setError((err as Error).message);
+        } finally {
+            setIsLoading(false);
+        }
+    };
     
-    const handleStartAnalysis = () => {
-        const id = parseInt(proposalIdInput, 10);
-        if (!isNaN(id) && id > 0) {
-            setQueryId(id);
+    const getRiskColor = (level: string) => {
+        switch (level) {
+            case 'Low': return 'text-green-500';
+            case 'Medium': return 'text-yellow-500';
+            case 'High': return 'text-orange-500';
+            case 'Very High': return 'text-red-500';
+            default: return 'text-muted-foreground';
         }
     };
 
+
     return (
         <AppLayout>
-            <div className="space-y-6">
-                <header>
-                    <h1 className="text-3xl font-bold font-headline">{t('sidebar.ai_reports')}</h1>
-                    <p className="text-muted-foreground">{t('reports_page.subtitle')}</p>
-                </header>
+            <header className="mb-6">
+                <h1 className="text-3xl font-bold font-headline">{t('reports_page.title')}</h1>
+                <p className="text-muted-foreground">{t('reports_page.subtitle')}</p>
+            </header>
 
-                <Card>
-                    <CardHeader>
-                        <CardTitle>{t('reports_page.card_title')}</CardTitle>
-                        <CardDescription>{t('reports_page.card_desc')}</CardDescription>
-                    </CardHeader>
-                    <CardContent className="flex items-center gap-4">
-                        <Input 
-                            type="number"
+            <Card className="max-w-4xl mx-auto">
+                <CardHeader>
+                    <CardTitle>{t('reports_page.card_title')}</CardTitle>
+                    <CardDescription>{t('reports_page.card_desc')}</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <div className="flex gap-2">
+                        <Input
                             placeholder={t('reports_page.input_placeholder')}
-                            value={proposalIdInput}
-                            onChange={(e) => setProposalIdInput(e.target.value)}
-                            min="1"
+                            value={proposalId}
+                            onChange={(e) => setProposalId(e.target.value)}
+                            disabled={isLoading}
                         />
-                        <Button onClick={handleStartAnalysis} disabled={isFetching || !proposalIdInput}>
-                            {isFetching ? <DaoLoadingSpinner /> : t('reports_page.start_analysis')}
+                        <Button onClick={handleAnalysis} disabled={isLoading || !proposalId}>
+                            {isLoading && <DaoLoadingSpinner className="me-2" />}
+                            {t('reports_page.start_analysis')}
                         </Button>
-                    </CardContent>
-                </Card>
-
-                {isFetching && (
-                    <div className="flex justify-center p-8">
-                        <DaoLoadingSpinner className="size-12" />
                     </div>
-                )}
-                
-                {isError && !isFetching && (
-                    <Alert variant="destructive">
-                        <AlertTriangle className="h-4 w-4" />
-                        <AlertTitle>Error Fetching Report</AlertTitle>
-                        <AlertDescription>{(error as Error).message}</AlertDescription>
-                    </Alert>
-                )}
+                </CardContent>
+            </Card>
 
-                {data && !isFetching && queryId && (
-                    <Card>
+            {error && (
+                <Alert variant="destructive" className="mt-6 max-w-4xl mx-auto">
+                    <AlertTriangle className="h-4 w-4" />
+                    <AlertTitle>Error</AlertTitle>
+                    <AlertDescription>{error}</AlertDescription>
+                </Alert>
+            )}
+
+            {report && (
+                <div className="mt-8 space-y-6">
+                    <h2 className="text-2xl font-bold text-center">
+                        {t('reports_page.proposal_report_title', { id: report.proposalId })}: <span className="text-primary">{report.projectName}</span>
+                    </h2>
+
+                    {/* Summary Section */}
+                    <Card className="bg-muted/30">
                         <CardHeader>
-                            {/* ✅✅✅ THE FIX IS HERE ✅✅✅ */}
-                            {/* We use string.replace() which is the standard way */}
-                            <CardTitle>{t('reports_page.proposal_report_title').replace('{id}', queryId.toString())}</CardTitle>
+                            <CardTitle className="flex items-center gap-2"><Bot /> AI Summary</CardTitle>
                         </CardHeader>
-                        <CardContent className="space-y-4">
-                            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                                <StatCard title="AI Risk Score" value={data.ai_risk_score?.toFixed(2) || 'N/A'} description="Calculated risk based on project data" />
-                                {/* You can add other stat cards here based on your AI response */}
-                                {/* Example: */}
-                                {/* <StatCard title="Collusion Risk" value={data.collusion_risk || 'Low'} description="Risk of coordinated voting" /> */}
-                            </div>
-                            <div>
-                                <h3 className="font-semibold">Analysis Summary</h3>
-                                <p className="text-sm text-muted-foreground">{data.summary || 'No summary available.'}</p>
+                        <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
+                            <GaugeChart value={report.summary.investability_score} label="Investability Score" color="hsl(var(--primary))" />
+                            <div className="md:col-span-2 space-y-4">
+                                <p><strong>Overall Risk Level:</strong> <span className={`font-bold ${getRiskColor(report.summary.overall_risk_level)}`}>{report.summary.overall_risk_level}</span></p>
+                                <p><strong>AI Recommendation:</strong> <span className="text-muted-foreground">{report.summary.ai_recommendation}</span></p>
                             </div>
                         </CardContent>
                     </Card>
-                )}
-            </div>
+
+                    {/* Financial & Team Analysis */}
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2"><TrendingUp /> Financial & Team Analysis</CardTitle>
+                        </CardHeader>
+                        <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <StatCard icon={BarChart} title="Success Probability" value={report.financialAnalysis.success_probability} unit="%" />
+                            <StatCard icon={AlertTriangle} title="Financial Risk Score" value={report.financialAnalysis.risk_score} unit="/ 100" />
+                            <StatCard icon={Users} title="Team Competency" value={report.financialAnalysis.team_competency_score} unit="/ 100" />
+                            <StatCard icon={TrendingUp} title="Market Sentiment" value={(report.financialAnalysis.market_sentiment_score * 100).toFixed(0)} unit="%" />
+                        </CardContent>
+                    </Card>
+                </div>
+            )}
         </AppLayout>
     );
 }

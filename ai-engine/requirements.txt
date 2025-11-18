@@ -1,10 +1,11 @@
+# requirements.txt
 web3
-requests
 python-dotenv
 numpy
 pandas
 scikit-learn
 fastapi
 uvicorn
-path
 xgboost
+httpx[http2]
+joblib

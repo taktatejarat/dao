@@ -30,7 +30,7 @@ def get_dao_address() -> str:
     dao_address = registry.functions.getAddress(DAO_KEY_HASH).call()
     return dao_address
 
-# یک نمونه全局 (global instance) از DAO برای جلوگیری از فراخوانی‌های تکراری
+# یک  (global instance) از DAO برای جلوگیری از فراخوانی‌های تکراری
 _dao_contract = None
 def get_dao_contract():
     """Returns a cached instance of the DAO contract."""
@@ -71,52 +71,13 @@ def send_transaction(function_name: str, args: List[Any]):
 
 # --- Core AI Oracle Functions ---
 
-def update_proposal_risk(proposal_id: int, ai_features: Dict[str, Any], milestone_amounts: List[str]):
-    """Calculates risk and sends the score to the DAO contract."""
-    risk_score, confidence_score = analyze_risk(ai_features, milestone_amounts)
-    print(f"Proposal {proposal_id} Risk: {risk_score}, Confidence: {confidence_score}")
+
+def update_proposal_risk_score(proposal_id: int, risk_score: int):
+    """فقط امتیاز ریسک را به قرارداد هوشمند ارسال می‌کند."""
+    print(f"Oracle Caller: Sending risk score {risk_score} for proposal {proposal_id}.")
     send_transaction('updateProposalRiskScore', [proposal_id, risk_score])
 
-def update_user_pop_score(user_address: str, user_history: Dict[str, Any]):
-    """Calculates PoP score and sends it to the DAO contract."""
-    pop_score = calculate_pop_score(user_address, user_history)
-    print(f"User {user_address} PoP Score: {pop_score}")
+def update_participation_score(user_address: str, pop_score: int):
+    """فقط امتیاز مشارکت را به قرارداد هوشمند ارسال می‌کند."""
+    print(f"Oracle Caller: Sending PoP score {pop_score} for user {user_address}.")
     send_transaction('updateParticipationScore', [w3.to_checksum_address(user_address), pop_score])
-
-# --- Mock Execution for Testing ---
-if __name__ == '__main__':
-    print("--- AI Oracle (AIPoX) Mock Run ---")
-    
-    # IMPORTANT: You must ensure these variables are exported in your terminal 
-    # before running this script:
-    # export AMOY_RPC_URL="<Your Amoy RPC URL>"
-    # export AI_ORACLE_PRIVATE_KEY="<Private Key of the AI Oracle Address>"
-    # export NEXT_PUBLIC_REGISTRY_ADDRESS="<Your DAORegistry Address>"
-    # export RAYAN_CHAIN_DAO_ABI='<Full JSON ABI of RayanChainDAO.sol>'
-    
-    mock_proposal_id = 1
-    mock_ai_features = {
-        "startupIndustry": "Deep Tech AI",
-        "teamExperience": "Ex-FAANG with 10+ years.",
-    }
-    mock_milestone_amounts = ["500000", "500000", "1000000"]
-
-    mock_user_history = {
-        "num_votes_cast": 15,
-        "vote_accuracy_rate": 0.85, 
-        "delegated_power": 50000000000000000000000, # 50,000 RYC
-        "time_since_last_vote_days": 10,
-    }
-    
-    try:
-        # 1. Update Proposal Risk Score
-        update_proposal_risk(mock_proposal_id, mock_ai_features, mock_milestone_amounts)
-        
-        # 2. Update User PoP Score
-        # For a real test, replace mock_user_address with a user who has staked tokens.
-        update_user_pop_score(AI_ORACLE_ADDRESS, mock_user_history) 
-        
-    except EnvironmentError as e:
-        print(f"Configuration Error: {e}")
-    except Exception as e:
-        print(f"An error occurred during Oracle execution: {e}")
