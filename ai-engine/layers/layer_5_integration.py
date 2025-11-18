@@ -1,33 +1,32 @@
 # ai-engine/layers/layer_5_integration.py (نسخه نهایی و کامل)
 
+
 def generate_xai_report(financial_report: dict) -> dict:
-    """
-    یک گزارش متنی توضیحی (XAI) و توصیه داینامیک بر اساس کلیدهای i18n تولید می‌کند.
-    """
     risk_score = financial_report.get('risk_score', 100)
     team_score = financial_report.get('team_competency_score', 0)
     xai_factors = financial_report.get('xai_factors', [])
 
     strengths = []
     weaknesses = []
+    # ✅✅✅ NEW: یک لیست جدید برای فاکتورهای کلیدی ✅✅✅
+    key_decision_factors = []
 
-    # تحلیل نقاط قوت و ضعف
+    # تحلیل نقاط قوت و ضعف (این بخش می‌تواند باقی بماند)
     if team_score > 75: strengths.append({"key": "xai.strength.strong_team"})
     elif team_score < 40: weaknesses.append({"key": "xai.weakness.inexperienced_team"})
         
     if risk_score < 30: strengths.append({"key": "xai.strength.strong_financials"})
     elif risk_score > 70: weaknesses.append({"key": "xai.weakness.high_financial_risk"})
     
-    # ✅✅✅ THE FIX IS HERE: استفاده از 'key' به جای 'feature' ✅✅✅
-    # افزودن فاکتورهای تأثیرگذار از مدل
+    # ✅✅✅ THE FIX IS HERE: پیمایش تمام فاکتورها به جای فقط اولین مورد ✅✅✅
     if xai_factors:
-        # ما فقط مهم‌ترین فاکتور را به عنوان نقطه قوت در نظر می‌گیریم
-        top_factor = xai_factors[0]
-        strengths.append({
-            "key": "xai.strength.top_factor",
-            # 'values' از قبل در لایه ۳ ساخته شده است
-            "values": {"factor": tVar(top_factor['key'], top_factor['values'])} 
-        })
+        for factor in xai_factors:
+            # ما هر فاکتور را با کلید ترجمه و مقادیرش به لیست جدید اضافه می‌کنیم
+            key_decision_factors.append({
+                "key": factor['key'],
+                "values": factor.get('values', {}),
+                "importance": factor.get('importance', 0)
+            })
 
     # تولید توصیه داینامیک
     if risk_score > 65: recommendation_key = "recommendation.high_risk"
@@ -37,10 +36,11 @@ def generate_xai_report(financial_report: dict) -> dict:
     return {
         "strengths": strengths,
         "weaknesses": weaknesses,
+        "key_decision_factors": key_decision_factors, # ✅ NEW: ارسال لیست جدید به خروجی
         "recommendation_key": recommendation_key
     }
 
-# یک تابع کمکی برای جایگزینی متغیرها (مشابه فرانت‌اند)
+# یک تابع کمکی برای جایگزینی متغیرها
 def tVar(key: str, values: dict) -> str:
     # این یک پیاده‌سازی ساده برای نمایش است
     # مثال: "xai.feature.industry" با "Industry: AI"

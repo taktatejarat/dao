@@ -215,13 +215,13 @@ const GradedGaugeChart = ({ value, label }: { value: number; label:string }) => 
                                 {/* نمایش گزارش متنی XAI */}
                                 <div className="space-y-3">
                                     <h4 className="font-semibold text-sm">{t('reports_page.xai_title')}:</h4>
+                                    {/* ✅✅✅ FIX: نمایش نقاط قوت و ضعف از گزارش XAI ✅✅✅ */}
                                     {report.summary.xai_report.strengths.length > 0 && (
                                         <ul className="space-y-2">
                                             {report.summary.xai_report.strengths.map((item, index) => (
                                                 <li key={`strength-${index}`} className="flex items-start gap-2 text-sm">
                                                     <CheckCircle className="h-4 w-4 text-green-500 mt-0.5 shrink-0" />
-                                                    {/* ✅✅✅ FIX: استفاده از tVar برای نمایش مقادیر داینامیک ✅✅✅ */}
-                                                    <span>{tVar(item.key, item.values )}</span>
+                                                    <span>{tVar(item.key, item.values)}</span>
                                                 </li>
                                             ))}
                                         </ul>

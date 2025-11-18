@@ -23,6 +23,7 @@ import { daoRegistryAbi, rayanChainDaoAbi } from '@/lib/blockchain/generated';
 import { REGISTRY_KEYS } from '@/lib/blockchain/registry-keys';
 import { DaoLoadingSpinner } from '@/components/icons/dao-loading-spinner';
 import { useProposalVote } from '@/hooks/useProposalVote';
+import Link from 'next/link';
 
 // --- Helper Components & Functions ---
 interface OnChainProposal {
@@ -78,11 +79,11 @@ const SkeletonUI = () => (
 
     const PROPOSAL_STATE_VOTING = 2n;
 
-    export default function ProposalDetailPage() {
-        const { t, locale } = useTranslation();
-        const { registryAddress, isHydrated } = useWeb3();
-        const params = useParams();
-        const proposalIdParam = params.id as string;
+export default function ProposalDetailPage() {
+    const { t, locale } = useTranslation();
+    const { daoAddress, isHydrated: isWeb3Hydrated } = useWeb3();
+    const params = useParams();
+    const proposalIdParam = params.id as string;
 
         // --- State های اصلی ---
         const [offChainData, setOffChainData] = useState<any | null>(null);
@@ -108,46 +109,28 @@ const SkeletonUI = () => (
                 .catch(err => setError(err.message))
                 // ✅ ما setIsLoading(false) را اینجا قرار نمی‌دهیم تا منتظر داده‌های آن‌چین هم بمانیم
         }, [proposalIdParam, t]);
-
-        // --- ۲. واکشی داده‌های On-chain (فقط اگر پروپوزال آن‌چین شده باشد) ---
-        const onChainProposalId = useMemo(() => 
-            offChainData?.proposalIdOnChain ? BigInt(offChainData.proposalIdOnChain) : null, [offChainData]);
-
-        const { data: daoAddressResult } = useReadContract({
-            address: (registryAddress || undefined) as Address | undefined,
-            abi: daoRegistryAbi,
-            functionName: 'getAddress',
-            args: [REGISTRY_KEYS.DAO] as const,
-            query: { enabled: !!registryAddress && isHydrated },
-        });
-        const daoAddress = daoAddressResult as Address | undefined;
-
-        const { data: onChainResult, isLoading: isOnChainLoading, isSuccess: isOnChainSuccess,error: onChainError } = useReadContract({
-            address: daoAddress,
-            abi: rayanChainDaoAbi,
-            functionName: 'proposals',
-            args: [onChainProposalId!],
-            query: { enabled: !!daoAddress && !!onChainProposalId },
-        });
+    
+    // --- ۲. واکشی داده‌های On-chain ---
+    // ✅✅✅ THE FIX IS HERE: ما منتظر می‌مانیم تا isWeb3Hydrated و daoAddress آماده شوند ✅✅✅
+    const { data: onChainResult, isLoading: isOnChainLoading, isSuccess: isOnChainSuccess, error: onChainError } = useReadContract({
+        address: daoAddress, // این آدرس اکنون به درستی از Web3Provider می‌آید
+        abi: rayanChainDaoAbi,
+        functionName: 'proposals',
+        args: [onChainProposalId!],
+        query: { 
+            enabled: isWeb3Hydrated && !!daoAddress && !!onChainProposalId,
+        },
+    });
+    
+    // --- مدیریت وضعیت Loading کلی ---
+    useEffect(() => {
+        const isOffChainDone = !!offChainData || !!error;
+        const isOnChainDone = !onChainProposalId || (!!onChainProposalId && (isOnChainSuccess || !!onChainError));
         
-        // --- ترکیب داده‌ها و مدیریت وضعیت Loading ---
-        useEffect(() => {
-            if (!isLoading) return; // جلوگیری از اجرای مجدد
-            
-            // اگر هنوز در حال واکشی آف‌چین هستیم، منتظر بمان
-            if (!offChainData && !error) return;
-            
-            // اگر پروپوزال آن‌چین نشده، کار تمام است
-            if (!onChainProposalId) {
-                setIsLoading(false);
-                return;
-            }
-            
-            // اگر پروپوزال آن‌چین شده، منتظر نتیجه آن می‌مانیم
-            if (!isOnChainSuccess && !onChainError) return;
-
+        if (isOffChainDone && isOnChainDone) {
             setIsLoading(false);
-        }, [offChainData, onChainProposalId, isOnChainSuccess, onChainError, error, isLoading]);
+        }
+    }, [offChainData, error, onChainProposalId, isOnChainSuccess, onChainError]);
 
 
         // --- ۳. پارس کردن امن داده‌های On-chain ---
@@ -195,20 +178,27 @@ const SkeletonUI = () => (
     const forPercentage = (onChainData && totalVotes > 0n) ? Number((onChainData.forVotes * 100n) / totalVotes) : 0;
     const { text: statusText, color: statusColor, icon: StatusIcon } = getStatusInfo(onChainData?.state ?? 0n, t);
 
-    return (
+   return (
         <AppLayout>
-            <header className="mb-6 flex items-center justify-between">
+            <header className="mb-6 flex flex-wrap items-center justify-between gap-4">
                 <div>
                     <h1 className="text-3xl font-bold font-headline">{offChainData.projectName}</h1>
                     <p className="text-muted-foreground mt-1">{offChainData.tagline}</p>
                 </div>
-                {/* ✅ FIX: نمایش Badge فقط در صورت وجود داده آن‌چین */}
-                {onChainData && (
-                     <Badge className={`${statusColor} hover:${statusColor} ...`}>
-                        <StatusIcon className="w-4 h-4" />
-                        <span>{statusText}</span>
-                    </Badge>
-                )}
+                <div className="flex items-center gap-4">
+                     {/* ✅ NEW: دکمه مشاهده گزارش هوشمند */}
+                     <Link href={`/reports?id=${offChainData._id}`} passHref>
+                        <Button variant="outline">
+                            {t('proposal_detail.view_ai_report')}
+                        </Button>
+                    </Link>
+                    {onChainData && (
+                        <Badge className={`${statusColor} hover:${statusColor} text-sm px-3 py-1.5`}>
+                            <StatusIcon className="w-4 h-4 mr-2" />
+                            <span>{statusText}</span>
+                        </Badge>
+                    )}
+                </div>
             </header>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
