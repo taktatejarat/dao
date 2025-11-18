@@ -18,11 +18,16 @@ def generate_xai_report(financial_report: dict) -> dict:
     if risk_score < 30: strengths.append({"key": "xai.strength.strong_financials"})
     elif risk_score > 70: weaknesses.append({"key": "xai.weakness.high_financial_risk"})
     
+    # ✅✅✅ THE FIX IS HERE: استفاده از 'key' به جای 'feature' ✅✅✅
     # افزودن فاکتورهای تأثیرگذار از مدل
-    for factor in xai_factors:
-        # مثال: "Industry: AI"
-        feature_display = factor['feature'].replace("_", ": ").title()
-        strengths.append({"key": "xai.strength.top_factor", "values": {"factor": feature_display}})
+    if xai_factors:
+        # ما فقط مهم‌ترین فاکتور را به عنوان نقطه قوت در نظر می‌گیریم
+        top_factor = xai_factors[0]
+        strengths.append({
+            "key": "xai.strength.top_factor",
+            # 'values' از قبل در لایه ۳ ساخته شده است
+            "values": {"factor": tVar(top_factor['key'], top_factor['values'])} 
+        })
 
     # تولید توصیه داینامیک
     if risk_score > 65: recommendation_key = "recommendation.high_risk"
@@ -34,6 +39,15 @@ def generate_xai_report(financial_report: dict) -> dict:
         "weaknesses": weaknesses,
         "recommendation_key": recommendation_key
     }
+
+# یک تابع کمکی برای جایگزینی متغیرها (مشابه فرانت‌اند)
+def tVar(key: str, values: dict) -> str:
+    # این یک پیاده‌سازی ساده برای نمایش است
+    # مثال: "xai.feature.industry" با "Industry: AI"
+    base_string = key.split('.')[-1].replace('_', ' ').title()
+    if values and 'value' in values:
+        return f"{base_string}: {values['value']}"
+    return base_string
 
 def generate_final_investability_score(financial_report: dict, security_report: dict) -> dict:
     """

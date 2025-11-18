@@ -12,7 +12,13 @@ export type LogCategory =
   | 'SECURITY'      // هشدارهای امنیتی
   | 'AI_REPORT_FETCH'
   | 'AI_ENGINE_ERROR'  
-  | 'AI_REPORT_SUCCESS'     
+  | 'AI_REPORT_SUCCESS'  
+  | 'TRIGGER_AI_START'  
+  | 'TRIGGER_AI_FAIL'  
+  | 'TRIGGER_AI_FORWARD'  
+  | 'AI_ENGINE_FAIL'
+  | 'TRIGGER_AI_SUCCESS'
+  | 'TRIGGER_AI_ERROR'      
   
   // دسته‌بندی‌های جدید برای API ها
   | 'API_REQUEST'   // درخواست‌های ورودی به API
@@ -24,6 +30,10 @@ export type LogCategory =
   | 'PROPOSAL_SUBMIT' // فرآیند ثبت پروپوزال
   | 'FILE_UPLOAD'     // فرآیند آپلود فایل
   | 'DB_CONNECTION' // رویدادهای مربوط به اتصال به پایگاه داده
+
+  // دسته‌بندی‌های جدید برای DB ها
+  | 'DB_UPDATE'   // درخواست‌های ورودی به API
+  | 'DB_UPDATE_FAIL'// خطاهای اعتبارسنجی در API
   ;
 
 interface LogEntry {

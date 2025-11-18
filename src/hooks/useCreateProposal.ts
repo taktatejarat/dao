@@ -1,12 +1,13 @@
 
 "use client";
 
-import { useState, useMemo, useCallback } from 'react';
-import { Address, isAddress, parseEther, BaseError, Hex } from 'viem';
-import { useAccount, useWriteContract } from 'wagmi';
+import { useState, useMemo, useCallback, useEffect } from 'react';
+import { Address, isAddress, parseEther, BaseError, Hex, encodeEventTopics, decodeEventLog, AbiEvent } from 'viem';
+import { useAccount, useWaitForTransactionReceipt, useWriteContract } from 'wagmi';
 import { useTranslation } from '@/hooks/use-translation';
 import { rayanChainDaoAbi } from '@/lib/blockchain/generated';
 import { toast } from 'sonner';
+import router from 'next/router';
 
 // --- Type Definitions ---
 export interface Milestone { name: string; durationDays: string; amount: string; }
@@ -38,6 +39,11 @@ export function useCreateProposal({ daoAddress }: UseCreateProposalProps) {
     const [financialsFile, setFinancialsFile] = useState<File | null>(null);
     const [legalFile, setLegalFile] = useState<File | null>(null);
     const [isPending, setIsPending] = useState(false);
+    const [txHash, setTxHash] = useState<Hex | undefined>(undefined);
+    const [mongoId, setMongoId] = useState<string | null>(null);
+
+    // --- Wagmi Hooks for Transaction Monitoring ---
+    const { data: receipt, isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({ hash: txHash });
 
     // --- Form Validation ---
     const isFormValid = useMemo(() => {
@@ -119,19 +125,12 @@ export function useCreateProposal({ daoAddress }: UseCreateProposalProps) {
                 throw new Error(responseData.message || 'API submission failed.');
             }
             
-            const { txArgs } = responseData;
+            const { txArgs, mongoId: receivedMongoId } = responseData;
+            setMongoId(receivedMongoId); // ✅ ذخیره شناسه MongoDB در state
             if (!txArgs) {
                 throw new Error("API did not return transaction arguments.");
             }
-            // ✅✅✅ DEBUGGING LOG (مرحله نهایی ۳) ✅✅✅
-            console.log("--- 3. [useCreateProposal] PREPARING ON-CHAIN TRANSACTION ---");
-            console.log("   - FINAL DAO Address for transaction:", daoAddress);
-            console.log("   - FINAL Function to call:", 'submitFundingProposal');
-            console.log("   - FINAL Arguments (txArgs) to send:", JSON.stringify(txArgs, (key, value) =>
-                typeof value === 'bigint' ? value.toString() : value, 2
-            ));
-            console.log("----------------------------------------------------------------");
-            // ✅✅✅ DEBUGGING LOG (مرحله نهایی ۳) پایان✅✅✅
+
             // STEP 3: Send on-chain transaction
             toast.loading(t('toasts.confirm_in_wallet'), { id: toastId });
             const hash = await writeContractAsync({
@@ -140,9 +139,7 @@ export function useCreateProposal({ daoAddress }: UseCreateProposalProps) {
                 functionName: 'submitFundingProposal',
                 args: txArgs,
             });
-
-            // هش را برمی‌گردانیم تا کامپوننت والد از آن استفاده کند
-            return hash;
+            setTxHash(hash); // ✅ ذخیره هش تراکنش در state برای مانیتورینگ توسط useEffect
             
         } catch (error) {
             toast.error(t('toasts.submission_failed'), { id: toastId, description: (error as Error).message });
@@ -157,6 +154,63 @@ export function useCreateProposal({ daoAddress }: UseCreateProposalProps) {
         hasPreviousFunding, fundingHistoryDetails, recipient, milestones,
         pitchDeckFile, financialsFile, legalFile
     ]);
+
+       // ✅✅✅ NEW & CRITICAL: useEffect برای مدیریت رویدادهای پس از تأیید تراکنش ✅✅✅
+    useEffect(() => {
+        if (isConfirmed && receipt && mongoId && txHash) {
+            const toastId = 'post-tx-toast';
+            toast.loading(t('toasts.processing_onchain_data'), { id: toastId });
+
+            const processPostTransaction = async () => {
+                try {
+                    // --- STEP 1: استخراج شناسه پروپوزال آن‌چین از رویدادها ---
+                    const proposalCreatedEvent = rayanChainDaoAbi.find(e => e.type === 'event' && e.name === 'ProposalCreated') as AbiEvent | undefined;
+                    if (!proposalCreatedEvent) throw new Error("ABI issue: ProposalCreated event not found.");
+                    
+                    const eventTopic = encodeEventTopics({ abi: [proposalCreatedEvent] })[0];
+                    const log = receipt.logs.find(l => l.topics[0] === eventTopic && l.address.toLowerCase() === daoAddress!.toLowerCase());
+                    if (!log) throw new Error("On-chain ProposalCreated event log not found in receipt.");
+
+                    const decodedLog = decodeEventLog({ abi: rayanChainDaoAbi, data: log.data, topics: log.topics });
+                    if (decodedLog.eventName !== 'ProposalCreated') throw new Error("Decoded log is not the correct event.");
+                    
+                    const onChainId = (decodedLog.args as { id: bigint }).id;
+
+                    // --- STEP 2: آپدیت کردن سند MongoDB با شناسه آن‌چین ---
+                    const updateResponse = await fetch(`/api/proposals/${mongoId}/update-onchain-id`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ onChainId: onChainId.toString() }),
+                    });
+                    if (!updateResponse.ok) throw new Error("Failed to update proposal in database with on-chain ID.");
+                    
+                    toast.success(t('toasts.proposal_submitted_successfully'), { id: toastId, description: `${t('toasts.onchain_id_is')} #${onChainId.toString()}` });
+
+                    // --- STEP 3: فعال‌سازی تحلیل هوش مصنوعی ---
+                    toast.loading(t('toasts.triggering_ai'), { id: toastId });
+                    const aiTriggerResponse = await fetch(`/api/proposals/${mongoId}/trigger-ai`, {
+                        method: 'POST',
+                    });
+                    if (!aiTriggerResponse.ok) throw new Error("Failed to trigger AI analysis.");
+
+                    toast.success(t('toasts.ai_triggered_success'), { id: toastId });
+
+                    // --- FINAL STEP: هدایت کاربر ---
+                    setTimeout(() => router.push('/proposals'), 2000);
+
+                } catch (error) {
+                    toast.error(t('toasts.post_submission_failed'), { id: toastId, description: (error as Error).message });
+                } finally {
+                    setIsPending(false); // پایان کامل فرآیند
+                    // ریست کردن state ها برای جلوگیری از اجرای مجدد
+                    setTxHash(undefined);
+                    setMongoId(null);
+                }
+            };
+
+            processPostTransaction();
+        }
+    }, [isConfirmed, receipt, mongoId, txHash, daoAddress, router, t]);
 
     return {
         // ... (تمام state ها و توابع setter)
