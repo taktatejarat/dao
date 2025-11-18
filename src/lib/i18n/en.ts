@@ -746,6 +746,12 @@ export const en = {
     inexperienced_team: "The experience of the executive team is less than desirable is.",
     high_financial_risk: "Financial risk and return on investment are assessed as high.",
     },
+    feature: { 
+    industry: "Project industry ({{value}})",
+    requested_amount: "Requested amount",
+    milestone_count: "Number of funding stages",
+    team_experience: "Team experience",
+    }, 
   },
   toasts: {
     uploading_docs: "Uploading documents...",

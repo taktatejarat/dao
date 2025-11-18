@@ -747,6 +747,12 @@ export const ar = {
     inexperienced_team: "خبرة الفريق التنفيذي أقل من المستوى المطلوب.",
     high_financial_risk: "تم تقييم المخاطر المالية وعائد الاستثمار على أنهما مرتفعان.",
       },
+      eature: { 
+      industry: "صناعة المشروع ({{value}})", 
+      requested_amount: "المبلغ المطلوب",
+      milestone_count: "عدد مراحل التمويل",
+      team_experience: "خبرة الفريق", 
+      }, 
     },
   toasts: {
     uploading_docs: "جاري تحميل المستندات...",

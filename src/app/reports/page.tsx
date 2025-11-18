@@ -199,51 +199,45 @@ const GradedGaugeChart = ({ value, label }: { value: number; label:string }) => 
                             <CardTitle className="flex items-center gap-2"><Bot /> {t('reports_page.ai_summary_title')}</CardTitle>
                         </CardHeader>
                         <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-                            {/* استفاده از نمودار جدید */}
                             <RiskGaugeChart 
                                 value={report.summary.investability_score} 
                                 label={t('reports_page.investability_score')} 
                             />
-                            <div className="space-y-4">
-                                <div>
-                                    <p className="text-sm font-semibold">{t('reports_page.overall_risk_level')}</p>
-                                    <p className={`font-bold text-lg ${getRiskColor(report.summary.overall_risk_level_key)}`}>
+                            <div className="space-y-6">
+                                {/* ✅✅✅ FIX: نمایش بهبود یافته سطح ریسک و توصیه ✅✅✅ */}
+                                <div className="p-4 rounded-lg bg-muted/50 border">
+                                    <p className="text-sm font-semibold text-muted-foreground">{t('reports_page.overall_risk_level')}</p>
+                                    <p className={`font-bold text-2xl ${getRiskColor(report.summary.overall_risk_level_key)}`}>
                                         {t(report.summary.overall_risk_level_key)}
                                     </p>
-                                </div>
-                                <div>
-                                    <p className="text-sm font-semibold">{t('reports_page.ai_recommendation')}</p>
-                                    <p className="text-muted-foreground">
+                                    <p className="text-sm text-muted-foreground mt-2">
                                         {t(report.summary.xai_report.recommendation_key + '_desc')}
                                     </p>
                                 </div>
-                                {/* نمایش گزارش متنی XAI به صورت بهبود یافته */}
-                                <div className="space-y-3 pt-2">
+                                
+                                {/* نمایش گزارش متنی XAI */}
+                                <div className="space-y-3">
+                                    <h4 className="font-semibold text-sm">{t('reports_page.xai_title')}:</h4>
                                     {report.summary.xai_report.strengths.length > 0 && (
-                                        <div>
-                                            <h4 className="font-semibold text-sm mb-2">{t('reports_page.xai_strengths')}:</h4>
-                                            <ul className="space-y-2">
-                                                {report.summary.xai_report.strengths.map((item, index) => (
-                                                    <li key={`strength-${index}`} className="flex items-start gap-2 text-sm">
-                                                        <CheckCircle className="h-4 w-4 text-green-500 mt-0.5 shrink-0" />
-                                                        <span>{tVar(item.key, item.values)}</span>
-                                                    </li>
-                                                ))}
-                                            </ul>
-                                        </div>
+                                        <ul className="space-y-2">
+                                            {report.summary.xai_report.strengths.map((item, index) => (
+                                                <li key={`strength-${index}`} className="flex items-start gap-2 text-sm">
+                                                    <CheckCircle className="h-4 w-4 text-green-500 mt-0.5 shrink-0" />
+                                                    {/* ✅✅✅ FIX: استفاده از tVar برای نمایش مقادیر داینامیک ✅✅✅ */}
+                                                    <span>{tVar(item.key, item.values )}</span>
+                                                </li>
+                                            ))}
+                                        </ul>
                                     )}
                                     {report.summary.xai_report.weaknesses.length > 0 && (
-                                        <div>
-                                            <h4 className="font-semibold text-sm mb-2">{t('reports_page.xai_weaknesses')}:</h4>
-                                             <ul className="space-y-2">
-                                                {report.summary.xai_report.weaknesses.map((item, index) => (
-                                                    <li key={`weakness-${index}`} className="flex items-start gap-2 text-sm">
-                                                        <XCircle className="h-4 w-4 text-destructive mt-0.5 shrink-0" />
-                                                        <span>{tVar(item.key, item.values)}</span>
-                                                    </li>
-                                                ))}
-                                            </ul>
-                                        </div>
+                                        <ul className="space-y-2 mt-2">
+                                            {report.summary.xai_report.weaknesses.map((item, index) => (
+                                                <li key={`weakness-${index}`} className="flex items-start gap-2 text-sm">
+                                                    <XCircle className="h-4 w-4 text-destructive mt-0.5 shrink-0" />
+                                                    <span>{tVar(item.key, item.values)}</span>
+                                                </li>
+                                            ))}
+                                        </ul>
                                     )}
                                 </div>
                             </div>

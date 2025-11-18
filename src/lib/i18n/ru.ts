@@ -747,6 +747,12 @@ export const ru = {
     inexperienced_team: "Опыт исполнительной команды ниже желаемого",
     high_financial_risk: "Финансовый риск и доходность оцениваются как высокие",
     },
+    feature: {
+     industry: "Отрасль проекта ({{value}})",
+     requested_amount: "Запрашиваемая сумма",
+     milestone_count: "Количество этапов финансирования",
+     team_experience: "Опыт команды",
+    },
 },
   toasts: {
     uploading_docs: "Загрузка документов...",

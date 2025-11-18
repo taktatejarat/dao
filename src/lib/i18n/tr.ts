@@ -747,6 +747,12 @@ export const tr = {
     inexperienced_team: "Yürütücü ekibin deneyimi istenenden düşüktür",
     high_financial_risk: "Finansal risk ve yatırım getirisi yüksek olarak değerlendirilir",
     },
+    feature: {
+      industry: "Proje endüstrisi ({{value}})",
+      requested_amount: "Talep edilen tutar",
+      milestone_count: "Finansman aşamalarının sayısı",
+      team_experience: "Ekip deneyimi",
+    },
 },
   toasts: {
     uploading_docs: "Belgeler yükleniyor...",
