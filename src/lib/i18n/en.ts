@@ -691,20 +691,18 @@ export const en = {
     hour_ago: "1 hour ago",
     hours_ago: "3 hours ago",
     yesterday: "Yesterday",
-  },
-  
-  // New Sections
-  reports_page: {
+},
+    reports_page: {
     title: "AI Assessment",
-    no_proposals_found: "No proposals found.",
+    no_proposals_found: "No proposals found",
     ai_risk_score: "AI Risk Score",
     ai_risk_score_desc: "Score between 0 and 100",
-    subtitle: "In-depth analysis and AI-based predictions for each proposal.",
+    subtitle: "In-depth AI-powered analytics and predictions for each proposal.",
     card_title: "Intelligent Proposal Analysis",
-    card_desc: "Enter the ID of the desired proposal to receive a complete analytical report from the AI engine.",
-    input_placeholder: "Enter Proposal ID...",
+    card_desc: "Enter the ID of your proposal to get a full analysis report from the AI ​​engine.",
+    input_placeholder: "Enter the proposal ID...",
     start_analysis: "Start Analysis",
-    proposal_report_title: "Analytical Report for Proposal #{id}",
+    proposal_report_title: "Analysis Report for Proposal No. {id}",
     ai_summary_title: "AI Analysis Summary",
     investability_score: "Investability Score",
     overall_risk_level: "Overall Risk Level",
@@ -712,13 +710,38 @@ export const en = {
     financial_analysis_title: "Financial and Team Analysis",
     success_probability: "Probability of Success",
     financial_risk_score: "Financial Risk Score",
-    team_competence: "Team Competency",
+    team_competency: "Team Competency",
     market_sentiment: "Market Sentiment",
     error_title: "Error",
     success_probability_desc: "This score indicates the AI's confidence in the long-term success of the project based on historical data and project characteristics.",
     financial_risk_score_desc: "This score assesses the financial risk of the project. A lower score means less risk.",
-    team_competence_desc: "This score is calculated based on the total years of experience and track record of the core team.",
-    market_sentiment_desc: "This score indicates the overall market sentiment and opinion towards the industry and technology of this project (will be enabled in future releases)."
+    team_competency_desc: "This score is calculated based on the total years of experience and track record of the core team.",
+    market_sentiment_desc: "This score indicates the overall market sentiment and outlook for the industry and technology of this project (will be enabled in future releases).",
+    xai_title: "Key Reasons for Scoring",
+    xai_strengths: "Key Strengths",
+    xai_weaknesses: "Key Weaknesses",
+    },
+    risk_level: {
+    low: "low",
+    medium: "medium",
+    high: "high",
+    very_high: "very high",
+    },
+    recommendation: {
+    low_risk_desc: "An attractive investment opportunity with low risk is assessed.",
+    medium_risk_desc: "The project has good potential but is associated with medium risk. Further investigation is recommended.",
+    high_risk_desc: "This investment is associated with high risk and requires very careful and meticulous investigation.",
+    },
+    xai: {
+    strength: {
+    strong_team: "The project team is highly experienced.",
+    strong_financials: "The financial model and economic forecasts of the project are assessed as strong.",
+    top_factor: "Key factor in decision-making: {{factor}}",
+    },
+    weakness: {
+    inexperienced_team: "The experience of the executive team is less than desirable is.",
+    high_financial_risk: "Financial risk and return on investment are assessed as high.",
+    },
   },
   toasts: {
     uploading_docs: "Uploading documents...",
@@ -735,5 +758,5 @@ export const en = {
     error_tx_log_not_found: "The transaction was confirmed, but its event was not found. Please contact support.",
     error_decode_proposal_id_failed: "An error occurred while extracting the proposal ID from the event.",
     id_copied: "Proposal ID copied to clipboard!",
-  }
+  },
 };

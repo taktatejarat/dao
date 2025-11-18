@@ -109,8 +109,56 @@ export default function ReportsPage() {
             default: return 'text-muted-foreground';
         }
     };
+// --- کامپوننت جدید نمودار مدرج ---
+const GradedGaugeChart = ({ value, label }: { value: number; label:string }) => {
+    const percentage = value / 100;
+    const endAngle = 180 - (percentage * 180); // محاسبه زاویه بر اساس مقدار
 
+    // تعریف رنگ‌ها برای طیف
+    const COLORS = ['#ef4444', '#f97316', '#f59e0b', '#84cc16', '#22c55e'];
 
+    const getColor = (val: number) => {
+        if (val < 20) return COLORS[0];
+        if (val < 40) return COLORS[1];
+        if (val < 60) return COLORS[2];
+        if (val < 80) return COLORS[3];
+        return COLORS[4];
+    };
+    return (
+        <div className="relative flex flex-col items-center">
+            <ResponsiveContainer width="100%" height={120}>
+                <PieChart>
+                    {/* بخش پس‌زمینه خاکستری */}
+                    <Pie
+                        data={[{ value: 1 }]}
+                        dataKey="value"
+                        startAngle={180}
+                        endAngle={0}
+                        innerRadius={60}
+                        outerRadius={80}
+                        fill="hsl(var(--muted))"
+                        stroke="none"
+                    />
+                    {/* بخش رنگی که مقدار را نشان می‌دهد */}
+                    <Pie
+                        data={[{ value: 1 }]}
+                        dataKey="value"
+                        startAngle={180}
+                        endAngle={endAngle}
+                        innerRadius={60}
+                        outerRadius={80}
+                        fill={getColor(value)}
+                        stroke="none"
+                    />
+                </PieChart>
+            </ResponsiveContainer>
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/3 text-center">
+                <p className="text-4xl font-bold" style={{ color: getColor(value) }}>{value}</p>
+                <p className="text-sm text-muted-foreground mt-1">{label}</p>
+            </div>
+        </div>
+    );
+};
     return (
         <AppLayout>
             <header className="mb-6">
@@ -154,17 +202,64 @@ export default function ReportsPage() {
                         {t('reports_page.proposal_report_title').replace('{id}', report.proposalId)}: 
                         <span className="text-primary ml-2">{report.projectName}</span>
                     </h2>
-
-                    {/* Summary Section */}
                     <Card className="bg-muted/30">
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2"><Bot /> {t('reports_page.ai_summary_title')}</CardTitle>
                         </CardHeader>
                         <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
-                            <GaugeChart value={report.summary.investability_score} label={t('reports_page.investability_score')} color="hsl(var(--primary))" />
+                            <GradedGaugeChart 
+                                value={report.summary.investability_score} 
+                                label={t('reports_page.investability_score')} 
+                            />
                             <div className="md:col-span-2 space-y-4">
-                                <p><strong>{t('reports_page.overall_risk_level')}:</strong> <span className={`font-bold ${getRiskColor(report.summary.overall_risk_level)}`}>{report.summary.overall_risk_level}</span></p>
-                                <p><strong>{t('reports_page.ai_recommendation')}:</strong> <span className="text-muted-foreground">{report.summary.ai_recommendation}</span></p>
+                                {/* ✅✅✅ FIX: استفاده از مسیر صحیح برای دسترسی به کلیدهای ترجمه ✅✅✅ */}
+                                <p>
+                                    <strong>{t('reports_page.overall_risk_level')}:</strong> 
+                                    <span className={`font-bold ${getRiskColor(report.summary.overall_risk_level_key)}`}>
+                                        {/* ترجمه کلید سطح ریسک */}
+                                        {t(report.summary.overall_risk_level_key)} 
+                                    </span>
+                                </p>
+                                <p>
+                                    <strong>{t('reports_page.ai_recommendation')}:</strong> 
+                                    <span className="text-muted-foreground">
+                                        {/* ترجمه کلید توصیه */}
+                                        {t(report.summary.xai_report.recommendation_key)}
+                                    </span>
+                                </p>
+                                
+                                {/* بخش XAI (گزارش متنی) */}
+                                <div className="p-4 border rounded-md bg-background/50">
+                                    <h4 className="font-semibold mb-2">{t('reports_page.xai_title')}</h4>
+                                    <div className="text-sm text-muted-foreground space-y-2">
+                                        {/* نمایش نقاط قوت */}
+                                        {report.summary.xai_report.strengths.length > 0 && (
+                                            <div>
+                                                <strong className="text-green-500">{t('reports_page.xai_strengths')}:</strong>
+                                                <ul className="list-disc list-inside">
+                                                    {report.summary.xai_report.strengths.map((item, index) => (
+                                                        <li key={`strength-${index}`}>
+                                                            {t(item.key, item.values)}
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            </div>
+                                        )}
+                                        {/* نمایش نقاط ضعف */}
+                                        {report.summary.xai_report.weaknesses.length > 0 && (
+                                            <div>
+                                                <strong className="text-destructive">{t('reports_page.xai_weaknesses')}:</strong>
+                                                <ul className="list-disc list-inside">
+                                                    {report.summary.xai_report.weaknesses.map((item, index) => (
+                                                        <li key={`weakness-${index}`}>
+                                                            {t(item.key, item.values)}
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
                             </div>
                         </CardContent>
                     </Card>
