@@ -77,15 +77,13 @@ export default function ReportsPage() {
         }
     };
     
-    const getRiskColor = (level: string) => {
-        switch (level) {
-            case 'Low': return 'text-green-500';
-            case 'Medium': return 'text-yellow-500';
-            case 'High': return 'text-orange-500';
-            case 'Very High': return 'text-red-500';
-            default: return 'text-muted-foreground';
-        }
+   const getRiskColor = (levelKey: string) => {
+        if (levelKey.includes('low')) return 'text-green-500';
+        if (levelKey.includes('medium')) return 'text-yellow-500';
+        if (levelKey.includes('high')) return 'text-red-500';
+        return 'text-muted-foreground';
     };
+
 // --- کامپوننت جدید نمودار مدرج ---
 const GradedGaugeChart = ({ value, label }: { value: number; label:string }) => {
     const percentage = value / 100;
@@ -137,14 +135,13 @@ const GradedGaugeChart = ({ value, label }: { value: number; label:string }) => 
     );
 };
 
-    // ✅✅✅ FIX: یک هوک سفارشی برای ترجمه با متغیرها ایجاد می‌کنیم ✅✅✅
-    // این کار مشکل "Expected 1 arguments, but got 2" را حل می‌کند
-    const tVar = (key: string, values?: { [key: string]: string | number }) => {
+    // ✅✅✅ FIX: اصلاح تابع tVar برای جایگزینی صحیح ✅✅✅
+    const tVar = (key: string, values?: { [key: string]: any }) => {
         let translation = t(key);
         if (values) {
-            Object.keys(values).forEach(k => {
-                translation = translation.replace(`{{${k}}}`, String(values[k]));
-            });
+            for (const k in values) {
+                translation = translation.replace(`{{${k}}}`, values[k]);
+            }
         }
         return translation;
     };

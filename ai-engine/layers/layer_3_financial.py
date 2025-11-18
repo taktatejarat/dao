@@ -37,6 +37,19 @@ FEATURE_NAME_MAP = {
     "remainder__team_experience_years": "xai.feature.team_experience",
 }
 
+
+def clean_feature_name(name: str) -> str:
+    """_summary_
+
+    Args:
+        name (str): _description_
+
+    Returns:
+        str: _description_
+    """
+    # ✅✅✅ FIX: حذف پیشوندهای اضافی به صورت کامل ✅✅✅
+    return name.replace("cat__industry_", "").replace("remainder__", "")
+
 def generate_financial_report(proposal_features: Dict[str, Any]) -> dict:
     """
     یک گزارش کامل تحلیل ریسک مالی با خروجی‌های ساختاریافته برای i18n تولید می‌کند.
@@ -44,16 +57,19 @@ def generate_financial_report(proposal_features: Dict[str, Any]) -> dict:
     # --- استخراج و پاک‌سازی ویژگی‌ها ---
     team_experience = int(proposal_features.get('teamExperienceYears', '0'))
     industry = proposal_features.get('startupIndustry', 'Unknown')
+   # ✅✅✅ FIX: خواندن مقدار صحیح اندازه بازار از داده‌های پروپوزال ✅✅✅
+    # ما همچنین مبلغ درخواستی را به عنوان یک ویژگی جداگانه در نظر می‌گیریم
     total_requested = sum(int(m.get('amount', '0')) for m in proposal_features.get('milestones', []))
     
     model_features = {
         'industry': proposal_features.get('startupIndustry', 'Unknown'),
+        # این همان مبلغی است که مدل ما با آن آموزش دیده است
         'requested_amount_usd': total_requested, 
         'milestone_count': len(proposal_features.get('milestones', [])),
         'team_experience_years': int(proposal_features.get('teamExperienceYears', '1')),
+        # ✅ NEW: افزودن اندازه بازار به عنوان یک ویژگی بالقوه برای آینده
         'market_size': int(proposal_features.get('marketSize', '0')),
     }
-
     # --- پیش‌بینی مدل ---
     success_probability = 0.5
     feature_importances = {}
@@ -81,21 +97,22 @@ def generate_financial_report(proposal_features: Dict[str, Any]) -> dict:
     market_sentiment_score = INDUSTRY_SENTIMENT_SCORES.get(industry, 0.5)
 
     xai_factors_list = []
-        if isinstance(feature_importances, list) and feature_importances:
-            xai_factors_list = []
-            for name, importance in feature_importances[:3]:
-                # ✅✅✅ FIX: تبدیل نام فنی به کلید i18n ✅✅✅
-                feature_key = FEATURE_NAME_MAP.get(name, name) # اگر نام پیدا نشد، خود نام فنی را برمی‌گرداند
-                # برای ویژگی صنعت، مقدار واقعی آن را نیز ارسال می‌کنیم
-                feature_value = ""
-                if "industry" in name:
-                    feature_value = proposal_features.get('startupIndustry', '')
-                
-                xai_factors_list.append({
-                    "key": feature_key,
-                    "value": feature_value,
-                    "importance": round(float(importance), 2)
-        })
+    if isinstance(feature_importances, list) and feature_importances:
+        for name, importance in feature_importances[:3]:
+            # ✅✅✅ FIX: استفاده از تابع تمیزکننده و نگاشت به کلید i18n ✅✅✅
+            cleaned_name = clean_feature_name(name)
+            feature_key = FEATURE_NAME_MAP.get(name, f"xai.feature.{cleaned_name}") # ایجاد کلید داینامیک
+            
+            feature_value = ""
+            if "industry" in cleaned_name:
+                # مقدار واقعی صنعت را استخراج می‌کنیم
+                feature_value = proposal_features.get('startupIndustry', '')
+            
+            xai_factors_list.append({
+                "key": feature_key,
+                "values": { "value": feature_value } if feature_value else {},
+                "importance": round(float(importance), 2)
+            })
 
     return {
         "risk_score": round(risk_score * 100),

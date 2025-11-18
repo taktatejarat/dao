@@ -1,14 +1,12 @@
-INFO:     Started server process [82841]
+INFO:     Started server process [85652]
 INFO:     Waiting for application startup.
 INFO:     Application startup complete.
 INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
 [CONFIG] AI Oracle configured successfully for address: 0x55138244DC1F785C4b955480Ac70410bC1D85A08
 [AI-LAYER-3] Financial risk model loaded successfully.
-INFO:     127.0.0.1:54310 - "GET /reports/proposal/691a1df8ac31cc88c5456fdd HTTP/1.1" 200 OK
-INFO:     127.0.0.1:43548 - "GET /reports/proposal/691a1df8ac31cc88c5456fdd HTTP/1.1" 200 OK
-INFO:     127.0.0.1:50884 - "GET /reports/proposal/691a1df8ac31cc88c5456fdd HTTP/1.1" 200 OK
-INFO:     127.0.0.1:46712 - "GET /reports/proposal/691a1df8ac31cc88c5456fdd HTTP/1.1" 200 OK
-INFO:     127.0.0.1:34430 - "GET /reports/proposal/691a1df8ac31cc88c5456fdd HTTP/1.1" 200 OK
-INFO:     127.0.0.1:41636 - "GET /reports/proposal/691a1df8ac31cc88c5456fdd HTTP/1.1" 200 OK
-INFO:     127.0.0.1:60042 - "GET /reports/proposal/691a1df8ac31cc88c5456fdd HTTP/1.1" 200 OK
-INFO:     127.0.0.1:33990 - "GET /reports/proposal/691a1df8ac31cc88c5456fdd HTTP/1.1" 200 OK
+ERROR in get_full_proposal_report for proposal 691a1df8ac31cc88c5456fdd: 'feature'
+INFO:     127.0.0.1:60322 - "GET /reports/proposal/691a1df8ac31cc88c5456fdd HTTP/1.1" 500 Internal Server Error
+ERROR in get_full_proposal_report for proposal 691a1df8ac31cc88c5456fdd: 'feature'
+INFO:     127.0.0.1:56670 - "GET /reports/proposal/691a1df8ac31cc88c5456fdd HTTP/1.1" 500 Internal Server Error
+ERROR in get_full_proposal_report for proposal 691a1df8ac31cc88c5456fdd: 'feature'
+INFO:     127.0.0.1:51810 - "GET /reports/proposal/691a1df8ac31cc88c5456fdd HTTP/1.1" 500 Internal Server Error
