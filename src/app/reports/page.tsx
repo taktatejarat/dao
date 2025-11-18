@@ -15,61 +15,38 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertTriangle, TrendingUp, Users, Bot, BarChart } from 'lucide-react';
 import { ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 
-// --- Type Definition for the AI Report Data ---
-interface AiReport {
-    proposalId: string;
-    projectName: string;
-    summary: {
-        investability_score: number;
-        overall_risk_level: 'Low' | 'Medium' | 'High' | 'Very High';
-        ai_recommendation: string;
-    };
-    financialAnalysis: {
-        risk_score: number;
-        success_probability: number;
-        team_competency_score: number;
-        market_sentiment_score: number;
-        summary: string;
-    };
-    securityAnalysis: {
-        trust_score: number;
-        anomaly_detected: boolean;
-        reason: string;
-    };
+ interface XaiFactor {
+  key: string;
+  values?: { [key: string]: string | number }; // برای متغیرهایی مانند {{factor}}
 }
 
-// --- Helper Component: Gauge Chart ---
-const GaugeChart = ({ value, label, color }: { value: number; label: string, color: string }) => {
-    const data = [
-        { name: 'Value', value: value },
-        { name: 'Remaining', value: 100 - value },
-    ];
-    return (
-        <div className="flex flex-col items-center">
-            <ResponsiveContainer width="100%" height={120}>
-                <PieChart>
-                    <Pie
-                        data={data}
-                        cx="50%"
-                        cy="70%"
-                        startAngle={180}
-                        endAngle={0}
-                        innerRadius={60}
-                        outerRadius={80}
-                        paddingAngle={0}
-                        dataKey="value"
-                        stroke="none"
-                    >
-                        <Cell key="value" fill={color} />
-                        <Cell key="remaining" fill="hsl(var(--muted))" />
-                    </Pie>
-                </PieChart>
-            </ResponsiveContainer>
-            <p className="text-2xl font-bold -mt-16">{value}</p>
-            <p className="text-sm text-muted-foreground mt-1">{label}</p>
-        </div>
-    );
-};
+interface XaiReport {
+  strengths: XaiFactor[];
+  weaknesses: XaiFactor[];
+  recommendation_key: string;
+}
+
+interface AiReport {
+  proposalId: string;
+  projectName: string;
+  summary: {
+    investability_score: number;
+    overall_risk_level_key: string; // ✅ FIX: از _key استفاده می‌کنیم
+    xai_report: XaiReport;          // ✅ FIX: افزودن xai_report
+  };
+  financialAnalysis: {
+    risk_score: number;
+    success_probability: number;
+    team_competency_score: number;
+    market_sentiment_score: number;
+    xai_factors: { feature: string; importance: number }[]; // ✅ FIX: تعریف نوع xai_factors
+  };
+  securityAnalysis: {
+    trust_score: number;
+    anomaly_detected: boolean;
+    report_key: string; // ✅ FIX: استفاده از _key
+  };
+}
 
 // --- Main Page Component ---
 export default function ReportsPage() {
@@ -159,6 +136,19 @@ const GradedGaugeChart = ({ value, label }: { value: number; label:string }) => 
         </div>
     );
 };
+
+    // ✅✅✅ FIX: یک هوک سفارشی برای ترجمه با متغیرها ایجاد می‌کنیم ✅✅✅
+    // این کار مشکل "Expected 1 arguments, but got 2" را حل می‌کند
+    const tVar = (key: string, values?: { [key: string]: string | number }) => {
+        let translation = t(key);
+        if (values) {
+            Object.keys(values).forEach(k => {
+                translation = translation.replace(`{{${k}}}`, String(values[k]));
+            });
+        }
+        return translation;
+    };
+
     return (
         <AppLayout>
             <header className="mb-6">
@@ -237,9 +227,10 @@ const GradedGaugeChart = ({ value, label }: { value: number; label:string }) => 
                                             <div>
                                                 <strong className="text-green-500">{t('reports_page.xai_strengths')}:</strong>
                                                 <ul className="list-disc list-inside">
-                                                    {report.summary.xai_report.strengths.map((item, index) => (
+                                                    {report.summary.xai_report.strengths.map((item: XaiFactor, index: number) => (
                                                         <li key={`strength-${index}`}>
-                                                            {t(item.key, item.values)}
+                                                            {/* ✅✅✅ FIX: استفاده از tVar به جای t ✅✅✅ */}
+                                                            {tVar(item.key, item.values)}
                                                         </li>
                                                     ))}
                                                 </ul>
@@ -247,16 +238,17 @@ const GradedGaugeChart = ({ value, label }: { value: number; label:string }) => 
                                         )}
                                         {/* نمایش نقاط ضعف */}
                                         {report.summary.xai_report.weaknesses.length > 0 && (
-                                            <div>
+                                                <div>
                                                 <strong className="text-destructive">{t('reports_page.xai_weaknesses')}:</strong>
-                                                <ul className="list-disc list-inside">
-                                                    {report.summary.xai_report.weaknesses.map((item, index) => (
-                                                        <li key={`weakness-${index}`}>
-                                                            {t(item.key, item.values)}
-                                                        </li>
-                                                    ))}
-                                                </ul>
-                                            </div>
+                                                    <ul className="list-disc list-inside">
+                                                        {report.summary.xai_report.weaknesses.map((item: XaiFactor, index: number) => (
+                                                            <li key={`weakness-${index}`}>
+                                                                {/* ✅✅✅ FIX: استفاده از tVar به جای t ✅✅✅ */}
+                                                                {tVar(item.key, item.values)}
+                                                            </li>
+                                                        ))}
+                                                    </ul>
+                                                </div>
                                         )}
                                     </div>
                                 </div>
