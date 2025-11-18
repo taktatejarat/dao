@@ -36,12 +36,14 @@ def generate_financial_report(proposal_features: Dict[str, Any]) -> dict:
     # --- استخراج و پاک‌سازی ویژگی‌ها ---
     team_experience = int(proposal_features.get('teamExperienceYears', '0'))
     industry = proposal_features.get('startupIndustry', 'Unknown')
+    total_requested = sum(int(m.get('amount', '0')) for m in proposal_features.get('milestones', []))
     
     model_features = {
-        'industry': industry,
-        'requested_amount_usd': int(proposal_features.get('marketSize', '0')),
+        'industry': proposal_features.get('startupIndustry', 'Unknown'),
+        'requested_amount_usd': total_requested, 
         'milestone_count': len(proposal_features.get('milestones', [])),
-        'team_experience_years': team_experience,
+        'team_experience_years': int(proposal_features.get('teamExperienceYears', '1')),
+        'market_size': int(proposal_features.get('marketSize', '0')),
     }
 
     # --- پیش‌بینی مدل ---
