@@ -29,6 +29,14 @@ INDUSTRY_SENTIMENT_SCORES = {
     "HealthTech": 0.65, "SaaS": 0.60, "Fintech": 0.55,
 }
 
+# ✅✅✅ NEW: دیکشنری برای نگاشت نام‌های فنی به کلیدهای i18n ✅✅✅
+FEATURE_NAME_MAP = {
+    "cat__industry": "xai.feature.industry",
+    "remainder__requested_amount_usd": "xai.feature.requested_amount",
+    "remainder__milestone_count": "xai.feature.milestone_count",
+    "remainder__team_experience_years": "xai.feature.team_experience",
+}
+
 def generate_financial_report(proposal_features: Dict[str, Any]) -> dict:
     """
     یک گزارش کامل تحلیل ریسک مالی با خروجی‌های ساختاریافته برای i18n تولید می‌کند.
@@ -72,13 +80,27 @@ def generate_financial_report(proposal_features: Dict[str, Any]) -> dict:
     team_competency_score = min((team_experience * 3) + 10, 100)
     market_sentiment_score = INDUSTRY_SENTIMENT_SCORES.get(industry, 0.5)
 
+    xai_factors_list = []
+        if isinstance(feature_importances, list) and feature_importances:
+            xai_factors_list = []
+            for name, importance in feature_importances[:3]:
+                # ✅✅✅ FIX: تبدیل نام فنی به کلید i18n ✅✅✅
+                feature_key = FEATURE_NAME_MAP.get(name, name) # اگر نام پیدا نشد، خود نام فنی را برمی‌گرداند
+                # برای ویژگی صنعت، مقدار واقعی آن را نیز ارسال می‌کنیم
+                feature_value = ""
+                if "industry" in name:
+                    feature_value = proposal_features.get('startupIndustry', '')
+                
+                xai_factors_list.append({
+                    "key": feature_key,
+                    "value": feature_value,
+                    "importance": round(float(importance), 2)
+        })
+
     return {
         "risk_score": round(risk_score * 100),
         "success_probability": round(success_probability * 100),
         "team_competency_score": round(team_competency_score),
         "market_sentiment_score": market_sentiment_score,
-        "xai_factors": [
-            {"feature": name.replace("cat__industry_", ""), "importance": round(float(importance), 2)}
-            for name, importance in feature_importances[:3] # سه فاکتور تأثیرگذار برتر
-        ]
+        "xai_factors": xai_factors_list,
     }

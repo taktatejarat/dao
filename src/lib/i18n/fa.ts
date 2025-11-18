@@ -754,6 +754,12 @@ export const fa = {
       inexperienced_team: "تجربه تیم اجرایی کمتر از حد مطلوب است.",
       high_financial_risk: "ریسک مالی و بازگشت سرمایه بالا ارزیابی شده است.",
     },
+    feature: {
+      industry: "صنعت پروژه ({{value}})",
+      requested_amount: "مبلغ درخواستی",
+      milestone_count: "تعداد مراحل تأمین مالی",
+      team_experience: "تجربه تیم",
+    },
   },
     toasts: {
     uploading_docs: "در حال بارگذاری اسناد...",

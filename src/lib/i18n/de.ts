@@ -747,6 +747,12 @@ export const de = {
     inexperienced_team: "Die Erfahrung des ausführenden Teams ist geringer als wünschenswert",
     high_financial_risk: "Finanzielles Risiko und Kapitalrendite werden als hoch bewertet",
     },
+    feature: {
+    industry: "Projektbranche ({{value}})",
+    requested_amount: "Angeforderter Betrag",
+    milestone_count: "Anzahl der Finanzierungsmeilensteine",
+    team_experience: "Teamerfahrung",
+    },
   },
   toasts: {
     uploading_docs: "Dokumente werden hochgeladen...",
