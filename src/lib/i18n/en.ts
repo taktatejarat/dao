@@ -663,6 +663,13 @@ export const en = {
     voting_deadline: "Voting Deadline",
     vote_for: "Vote For",
     vote_against: "Vote Against",
+    ai_analysis: "AI assessment",
+    ai_risk_score: "AI risk score",
+    market_sentiment: "market sentiment",
+    team_competency: "team competency",
+    description: "proposal description",
+    proposer: "proposer",
+    view_ai_report: "view AI report",
   },
 
   // Dynamic Content

@@ -664,6 +664,13 @@ export const tr = {
     voting_deadline: "Oylama Son Tarihi",
     vote_for: "Lehine Oy Ver",
     vote_against: "Aleyhine Oy Ver",
+    ai_analysis: "yapay zeka değerlendirmesi",
+    ai_risk_score: "yapay zeka risk puanı",
+    market_sentiment: "piyasa duyarlılığı",
+    team_competency: "ekip yetkinliği",
+    description: "teklif açıklaması",
+    proposer: "öneren kişi",
+    view_ai_report: "yapay zeka raporunu görüntüle",
   },
 
   // Dynamic Content

@@ -670,6 +670,13 @@ export const fa = {
     voting_deadline: "مهلت رای‌گیری",
     vote_for: "رای موافق",
     vote_against: "رای مخالف",
+    ai_analysis: "ارزیابی هوش مصنوعی",
+    ai_risk_score: "امتیاز ریسک هوش مصنوعی",
+    market_sentiment: "احساسات بازار",
+    team_competency: "شایستگی تیمی",
+    description: "توضیحات پروپوزال",
+    proposer: "پیشنهاد دهنده",
+    view_ai_report: "مشاهده گزارش هوش مصنوعی",
   },
   
   // Dynamic Content

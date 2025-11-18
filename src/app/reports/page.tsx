@@ -2,7 +2,7 @@
 
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { AppLayout } from '@/components/layout/app-layout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -13,7 +13,8 @@ import { DaoLoadingSpinner } from '@/components/icons/dao-loading-spinner';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertTriangle, TrendingUp, Users, Bot, BarChart, CheckCircle, XCircle } from 'lucide-react';
 import { ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
-import { RiskGaugeChart } from '@/components/reports/risk-gauge-chart'; 
+import { RiskGaugeChart } from '@/components/reports/risk-gauge-chart';
+import { useSearchParams } from 'next/navigation';
 
  interface XaiFactor {
   key: string;
@@ -51,19 +52,24 @@ interface AiReport {
 // --- Main Page Component ---
 export default function ReportsPage() {
     const { t } = useTranslation();
-    const [proposalId, setProposalId] = useState('');
+    const searchParams = useSearchParams();
+    const [proposalId, setProposalId] = useState(searchParams.get('id') || '');
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [report, setReport] = useState<AiReport | null>(null);
 
-    const handleAnalysis = async () => {
-        if (!proposalId) return;
+    // ✅✅✅ THE FIX IS HERE: استفاده از useCallback و پذیرش آرگومان ✅✅✅
+    const handleAnalysis = useCallback(async (idToAnalyze: string) => {
+        if (!idToAnalyze) return;
+        
         setIsLoading(true);
         setError(null);
         setReport(null);
+        // اگر کاربر ID جدیدی وارد کرد، URL را هم آپدیت می‌کنیم (اختیاری اما UX خوبی است)
+        window.history.replaceState(null, '', `/reports?id=${idToAnalyze}`);
 
         try {
-            const response = await fetch(`/api/ai-report/${proposalId}`);
+            const response = await fetch(`/api/ai-report/${idToAnalyze}`);
             if (!response.ok) {
                 const errorData = await response.json();
                 throw new Error(errorData.message || 'Failed to fetch report.');
@@ -75,8 +81,19 @@ export default function ReportsPage() {
         } finally {
             setIsLoading(false);
         }
-    };
-    
+    }, [t]); // `t` به عنوان وابستگی اضافه شد چون در پیام خطا استفاده می‌شود
+
+    // ✅✅✅ FIX: useEffect اکنون به درستی از handleAnalysis استفاده می‌کند ✅✅✅
+    useEffect(() => {
+        const idFromUrl = searchParams.get('id');
+        if (idFromUrl) {
+            // ما ID را در state هم تنظیم می‌کنیم تا Input هم آپدیت شود
+            setProposalId(idFromUrl); 
+            // تحلیل را با ID دریافتی از URL فراخوانی می‌کنیم
+            handleAnalysis(idFromUrl);
+        }
+    }, [searchParams, handleAnalysis]); // handleAnalysis اکنون یک وابستگی پایدار است
+
    const getRiskColor = (levelKey: string) => {
         if (levelKey.includes('low')) return 'text-green-500';
         if (levelKey.includes('medium')) return 'text-yellow-500';
@@ -166,7 +183,8 @@ const GradedGaugeChart = ({ value, label }: { value: number; label:string }) => 
                             onChange={(e) => setProposalId(e.target.value)}
                             disabled={isLoading}
                         />
-                        <Button onClick={handleAnalysis} disabled={isLoading || !proposalId}>
+                        {/* ✅ FIX: دکمه اکنون handleAnalysis را با ID از state فراخوانی می‌کند */}
+                        <Button onClick={() => handleAnalysis(proposalId)} disabled={isLoading || !proposalId}>
                             {isLoading && <DaoLoadingSpinner className="me-2" />}
                             {t('reports_page.start_analysis')}
                         </Button>

@@ -1,41 +1,31 @@
-// src/app/proposals/[id]/page.tsx - FINAL, ROBUST, AND ERROR-FREE VERSION
+// src/app/proposals/[id]/page.tsx - FINAL, ERROR-FREE AND DEADLOCK-FREE VERSION
 
 "use client";
 
 import { useMemo, useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
+import Link from 'next/link';
 import { AppLayout } from '@/components/layout/app-layout';
 import { useWeb3 } from '@/context/Web3Provider';
 import { useTranslation } from '@/hooks/use-translation';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { BrainCircuit, Scale, LineChart, Users as TeamIcon,
-         AlertTriangle, Banknote, Calendar, Check, Clock,
-         Info, ShieldCheck, User, Users, X } from 'lucide-react';
+import { BrainCircuit, AlertTriangle, 
+        Banknote, Calendar, Check, Clock, Info, 
+        ShieldCheck, User, Users, X, LineChart, Scale } from 'lucide-react';
 import { formatNumber, formatLocaleDate, formatAddress } from '@/lib/utils';
 import { formatEther, type Address } from 'viem';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useReadContract } from 'wagmi';
-import { daoRegistryAbi, rayanChainDaoAbi } from '@/lib/blockchain/generated';
-import { REGISTRY_KEYS } from '@/lib/blockchain/registry-keys';
+import { rayanChainDaoAbi } from '@/lib/blockchain/generated';
 import { DaoLoadingSpinner } from '@/components/icons/dao-loading-spinner';
 import { useProposalVote } from '@/hooks/useProposalVote';
-import Link from 'next/link';
 
-// --- Helper Components & Functions ---
-interface OnChainProposal {
-    id: bigint;
-    proposer: Address;
-    forVotes: bigint;
-    againstVotes: bigint;
-    state: bigint;
-    deadline: bigint;
-    executed: boolean;
-    aiRiskScore: bigint;
-}
+// --- Type Definitions and Helper Components ---
+interface OnChainProposal { id: bigint; proposer: Address; forVotes: bigint; againstVotes: bigint; state: bigint; deadline: bigint; executed: boolean; aiRiskScore: bigint; }
 
 const InfoCard = ({ icon: Icon, title, value }: { icon: React.ElementType, title: string, value: string | number }) => (
     <div className="flex items-center gap-4 p-4 bg-muted/50 rounded-lg">
@@ -77,7 +67,8 @@ const SkeletonUI = () => (
     </div>
 );
 
-    const PROPOSAL_STATE_VOTING = 2n;
+
+const PROPOSAL_STATE_VOTING = 2n;
 
 export default function ProposalDetailPage() {
     const { t, locale } = useTranslation();
@@ -85,100 +76,106 @@ export default function ProposalDetailPage() {
     const params = useParams();
     const proposalIdParam = params.id as string;
 
-        // --- State های اصلی ---
-        const [offChainData, setOffChainData] = useState<any | null>(null);
-        const [error, setError] = useState<string | null>(null);
-        const [isLoading, setIsLoading] = useState(true);
+    // --- State های اصلی ---
+    const [offChainData, setOffChainData] = useState<any | null>(null);
+    const [error, setError] = useState<string | null>(null);
+    const [isFetchingOffChain, setIsFetchingOffChain] = useState(true);
 
-        // --- ۱. واکشی داده‌های Off-chain ---
-        useEffect(() => {
-            if (!proposalIdParam) return;
-            setIsLoading(true);
-            fetch(`/api/proposals/${proposalIdParam}`)
-                .then(res => {
-                    if (!res.ok) throw new Error(t('proposal_detail.error_loading_desc'));
-                    return res.json();
-                })
-                .then(apiData => {
-                    if (apiData.success) {
-                        setOffChainData(apiData.data);
-                    } else {
-                        throw new Error(apiData.message);
-                    }
-                })
-                .catch(err => setError(err.message))
-                // ✅ ما setIsLoading(false) را اینجا قرار نمی‌دهیم تا منتظر داده‌های آن‌چین هم بمانیم
-        }, [proposalIdParam, t]);
-    
+    const onChainProposalId = useMemo(() =>
+        offChainData?.proposalIdOnChain ? BigInt(offChainData.proposalIdOnChain) : null,
+        [offChainData]
+    );
+
+     // --- ۱. واکشی داده‌های Off-chain ---
+    useEffect(() => {
+        if (!proposalIdParam) {
+            setIsFetchingOffChain(false);
+            return;
+        }
+        
+        let isMounted = true;
+        setIsFetchingOffChain(true);
+        setError(null);
+
+        const fetchOffChainData = async () => {
+            try {
+                const response = await fetch(`/api/proposals/${proposalIdParam}`);
+                if (!isMounted) return;
+
+                const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(data.message || "Failed to fetch proposal details.");
+                }
+
+                if (data.success) {
+                    setOffChainData(data.data);
+                } else {
+                    throw new Error(data.message);
+                }
+            } catch (err) {
+                if (isMounted) setError((err as Error).message);
+            } finally {
+                if (isMounted) setIsFetchingOffChain(false);
+            }
+        };
+
+        fetchOffChainData();
+
+        return () => { isMounted = false; };
+
+    }, [proposalIdParam]);
+
     // --- ۲. واکشی داده‌های On-chain ---
-    // ✅✅✅ THE FIX IS HERE: ما منتظر می‌مانیم تا isWeb3Hydrated و daoAddress آماده شوند ✅✅✅
-    const { data: onChainResult, isLoading: isOnChainLoading, isSuccess: isOnChainSuccess, error: onChainError } = useReadContract({
-        address: daoAddress, // این آدرس اکنون به درستی از Web3Provider می‌آید
+    const { data: onChainResult, isLoading: isOnChainLoading, error: onChainError } = useReadContract({
+        address: daoAddress,
         abi: rayanChainDaoAbi,
         functionName: 'proposals',
         args: [onChainProposalId!],
-        query: { 
+        query: {
             enabled: isWeb3Hydrated && !!daoAddress && !!onChainProposalId,
         },
     });
+
+    // --- ۳. پارس کردن داده‌های On-chain ---
+    const onChainData = useMemo((): OnChainProposal | null => {
+        if (!onChainResult || typeof onChainResult !== 'object' || !('id' in onChainResult)) return null;
+        return onChainResult as any;
+    }, [onChainResult]);
+
+    // --- ۴. منطق رأی‌گیری ---
+    const { handleVote, isVotingPending, canVoteFor, canVoteAgainst } = useProposalVote({
+        daoAddress,
+        proposalId: onChainProposalId!,
+        isVotingActive: !!onChainData && onChainData.state === PROPOSAL_STATE_VOTING,
+    });
+
+    // ✅✅✅ THE FIX IS HERE: حذف تعریف‌های تکراری و استفاده از متغیر صحیح ✅✅✅
+    const isLoading = isFetchingOffChain || (isWeb3Hydrated && !!onChainProposalId && isOnChainLoading);
+
+    // --- ۵. رندر کردن UI ---
+    if (isLoading) {
+        return <AppLayout><SkeletonUI /></AppLayout>;
+    }
+
+    // ✅ FIX: ترکیب `error` و `onChainError` برای نمایش خطای جامع
+    const finalError = error || onChainError?.message;
+    if (finalError || !offChainData) {
+        return (
+            <AppLayout>
+                <Alert variant="destructive">
+                    <AlertTriangle className="h-4 w-4" />
+                    <AlertTitle>{t('proposal_detail.error_loading_title')}</AlertTitle>
+                    <AlertDescription>{finalError || t('proposal_detail.error_loading_desc')}</AlertDescription>
+                </Alert>
+            </AppLayout>
+        );
+    }
     
-    // --- مدیریت وضعیت Loading کلی ---
-    useEffect(() => {
-        const isOffChainDone = !!offChainData || !!error;
-        const isOnChainDone = !onChainProposalId || (!!onChainProposalId && (isOnChainSuccess || !!onChainError));
-        
-        if (isOffChainDone && isOnChainDone) {
-            setIsLoading(false);
-        }
-    }, [offChainData, error, onChainProposalId, isOnChainSuccess, onChainError]);
-
-
-        // --- ۳. پارس کردن امن داده‌های On-chain ---
-        const onChainData = useMemo((): OnChainProposal | null => {
-            if (!onChainResult || typeof onChainResult !== 'object' || !('id' in onChainResult)) return null;
-            const resultAsObject = onChainResult as any;
-            return {
-                id: resultAsObject.id,
-                proposer: resultAsObject.proposer,
-                forVotes: resultAsObject.forVotes,
-                againstVotes: resultAsObject.againstVotes,
-                state: resultAsObject.state,
-                deadline: resultAsObject.deadline,
-                executed: resultAsObject.executed,
-                aiRiskScore: resultAsObject.aiRiskScore,
-            };
-        }, [onChainResult]);
-        
-        // --- ۴. منطق رأی‌گیری ---
-        const { handleVote, isVotingPending, canVoteFor, canVoteAgainst } = useProposalVote({
-            daoAddress,
-            proposalId: onChainProposalId!,
-            isVotingActive: !!onChainData && onChainData.state === PROPOSAL_STATE_VOTING,
-        });
-
-        // --- ۵. رندر کردن UI ---
-        if (isLoading) {
-            return <AppLayout><SkeletonUI /></AppLayout>;
-        }
-
-        if (error || !offChainData) {
-            return (
-                <AppLayout>
-                    <Alert variant="destructive">
-                        <AlertTriangle className="h-4 w-4" />
-                        <AlertTitle>{t('proposal_detail.error_loading_title')}</AlertTitle>
-                        <AlertDescription>{error || t('proposal_detail.error_loading_desc')}</AlertDescription>
-                    </Alert>
-                </AppLayout>
-            );
-        }
-    
-    // مقادیر پیش‌فرض برای زمانی که پروپوزال هنوز آن‌چین نشده
     const totalVotes = onChainData ? onChainData.forVotes + onChainData.againstVotes : 0n;
     const forPercentage = (onChainData && totalVotes > 0n) ? Number((onChainData.forVotes * 100n) / totalVotes) : 0;
     const { text: statusText, color: statusColor, icon: StatusIcon } = getStatusInfo(onChainData?.state ?? 0n, t);
 
-   return (
+    return (
         <AppLayout>
             <header className="mb-6 flex flex-wrap items-center justify-between gap-4">
                 <div>
@@ -186,9 +183,9 @@ export default function ProposalDetailPage() {
                     <p className="text-muted-foreground mt-1">{offChainData.tagline}</p>
                 </div>
                 <div className="flex items-center gap-4">
-                     {/* ✅ NEW: دکمه مشاهده گزارش هوشمند */}
-                     <Link href={`/reports?id=${offChainData._id}`} passHref>
+                    <Link href={`/reports?id=${offChainData._id}`} passHref>
                         <Button variant="outline">
+                            <BrainCircuit className="w-4 h-4 mr-2" />
                             {t('proposal_detail.view_ai_report')}
                         </Button>
                     </Link>
@@ -209,7 +206,7 @@ export default function ProposalDetailPage() {
                         <CardContent className="grid grid-cols-2 md:grid-cols-3 gap-4">
                             <InfoCard icon={LineChart} title={t('proposal_detail.ai_risk_score')} value={`${onChainData?.aiRiskScore?.toString() ?? 'N/A'}`} />
                             <InfoCard icon={Scale} title={t('proposal_detail.market_sentiment')} value={offChainData.aiAnalysis?.marketSentiment || 'N/A'} />
-                            <InfoCard icon={TeamIcon} title={t('proposal_detail.team_competency')} value={offChainData.aiAnalysis?.teamCompetency || 'N/A'} />
+                            <InfoCard icon={Users} title={t('proposal_detail.team_competency')} value={offChainData.aiAnalysis?.teamCompetency || 'N/A'} />
                         </CardContent>
                     </Card>
 
@@ -273,7 +270,7 @@ export default function ProposalDetailPage() {
                         <CardHeader><CardTitle>{t('proposal_detail.details')}</CardTitle></CardHeader>
                         <CardContent className="space-y-4">
                             <InfoCard icon={User} title={t('proposal_detail.proposer')} value={formatAddress(onChainData?.proposer || offChainData.proposerAddress)} />
-                            <InfoCard icon={Banknote} title={t('proposal_detail.amount_requested')} value={`${formatNumber(offChainData.milestones.reduce((acc: number, m: any) => acc + parseFloat(m.amount), 0))} RYC`} />
+                            <InfoCard icon={Banknote} title={t('proposal_detail.total_requested')} value={`${formatNumber(offChainData.milestones.reduce((acc: number, m: any) => acc + parseFloat(m.amount), 0))} RYC`} />
                             {onChainData && <InfoCard icon={Calendar} title={t('proposal_detail.voting_deadline')} value={formatLocaleDate(new Date(Number(onChainData.deadline) * 1000), locale)} />}
                             {onChainData && <InfoCard icon={Users} title={t('proposal_detail.total_votes')} value={formatNumber(formatEther(totalVotes), locale)} />}
                         </CardContent>
@@ -282,4 +279,8 @@ export default function ProposalDetailPage() {
             </div>
         </AppLayout>
     );
+}
+
+function setIsFetchingOffChain(arg0: boolean) {
+    throw new Error('Function not implemented.');
 }

@@ -664,6 +664,13 @@ export const ru = {
     voting_deadline: "Крайний срок голосования",
     vote_for: "Голосовать 'За'",
     vote_against: "Голосовать 'Против'",
+    ai_analysis: "оценка искусственного интеллекта",
+    ai_risk_score: "балл риска искусственного интеллекта",
+    market_sentiment: "рыночные настроения",
+    team_competency: "компетентность команды",
+    description: "описание предложения",
+    proposer: "предлагающий",
+    view_ai_report: "просмотр отчета об искусственном интеллекте",
   },
 
   // Dynamic Content

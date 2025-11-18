@@ -664,6 +664,13 @@ export const ar = {
     voting_deadline: "الموعد النهائي للتصويت",
     vote_for: "تصويت مع",
     vote_against: "تصويت ضد",
+    ai_analysis: "تقييم الذكاء الاصطناعي",
+    ai_risk_score: "درجة مخاطر الذكاء الاصطناعي",
+    market_sentiment: "مشاعر السوق",
+    team_competency: "كفاءة الفريق",
+    description: "وصف المقترح",
+    proposer: "مقدم المقترح",
+    view_ai_report: "عرض تقرير الذكاء الاصطناعي",
   },
   
   // Dynamic Content

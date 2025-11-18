@@ -664,6 +664,13 @@ export const de = {
     voting_deadline: "Abstimmungsfrist",
     vote_for: "Dafür stimmen",
     vote_against: "Dagegen stimmen",
+    ai_analysis: "Analyse der künstlichen Intelligenz",
+    ai_risk_score: "Risikobewertung der künstlichen Intelligenz",
+    market_sentiment: "Marktsentiment",
+    team_competency: "Teamkompetenz",
+    description: "Beschreibung des Vorschlags",
+    proposer: "Antragsteller",
+    view_ai_report: "KI Bericht anzeigen",
   },
 
   // Dynamic Content

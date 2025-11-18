@@ -96,7 +96,12 @@ async def get_full_proposal_report(proposal_id: str):
             "securityAnalysis": security_report,
             # در آینده لایه‌های دیگر نیز اضافه می‌شوند
         }
-        
+        async with httpx.AsyncClient() as client:
+        response = await client.post(
+            f"{NODE_API_BASE_URL}/proposals/{proposal_id}/save-ai-report",
+            json=full_report_to_save
+        )
+        response.raise_for_status() # اگر خطا رخ داد، Exception ایجاد می‌کند
         return full_report
 
     except Exception as e:
