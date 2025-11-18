@@ -731,6 +731,10 @@ export const en = {
     low_risk_desc: "An attractive investment opportunity with low risk is assessed.",
     medium_risk_desc: "The project has good potential but is associated with medium risk. Further investigation is recommended.",
     high_risk_desc: "This investment is associated with high risk and requires very careful and meticulous investigation.",
+    low: "low",
+    medium: "medium",
+    high: "high",
+    very_high: "very high",
     },
     xai: {
     strength: {
@@ -758,5 +762,10 @@ export const en = {
     error_tx_log_not_found: "The transaction was confirmed, but its event was not found. Please contact support.",
     error_decode_proposal_id_failed: "An error occurred while extracting the proposal ID from the event.",
     id_copied: "Proposal ID copied to clipboard!",
+  },
+      numbers: {
+    0: "0",
+    50: "50",
+    100: "100",
   },
 };

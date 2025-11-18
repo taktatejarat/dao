@@ -2,7 +2,6 @@
 
 "use client";
 
-
 import { useState } from 'react';
 import { AppLayout } from '@/components/layout/app-layout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,8 +11,9 @@ import { StatCard } from '@/components/dashboard/stat-card';
 import { useTranslation } from '@/hooks/use-translation';
 import { DaoLoadingSpinner } from '@/components/icons/dao-loading-spinner';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertTriangle, TrendingUp, Users, Bot, BarChart } from 'lucide-react';
+import { AlertTriangle, TrendingUp, Users, Bot, BarChart, CheckCircle, XCircle } from 'lucide-react';
 import { ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { RiskGaugeChart } from '@/components/reports/risk-gauge-chart'; 
 
  interface XaiFactor {
   key: string;
@@ -192,65 +192,59 @@ const GradedGaugeChart = ({ value, label }: { value: number; label:string }) => 
                         {t('reports_page.proposal_report_title').replace('{id}', report.proposalId)}: 
                         <span className="text-primary ml-2">{report.projectName}</span>
                     </h2>
-                    <Card className="bg-muted/30">
+
+                    {/* ✅✅✅ بخش خلاصه تحلیل (بازنویسی شده) ✅✅✅ */}
+                    <Card>
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2"><Bot /> {t('reports_page.ai_summary_title')}</CardTitle>
                         </CardHeader>
-                        <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
-                            <GradedGaugeChart 
+                        <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                            {/* استفاده از نمودار جدید */}
+                            <RiskGaugeChart 
                                 value={report.summary.investability_score} 
                                 label={t('reports_page.investability_score')} 
                             />
-                            <div className="md:col-span-2 space-y-4">
-                                {/* ✅✅✅ FIX: استفاده از مسیر صحیح برای دسترسی به کلیدهای ترجمه ✅✅✅ */}
-                                <p>
-                                    <strong>{t('reports_page.overall_risk_level')}:</strong> 
-                                    <span className={`font-bold ${getRiskColor(report.summary.overall_risk_level_key)}`}>
-                                        {/* ترجمه کلید سطح ریسک */}
-                                        {t(report.summary.overall_risk_level_key)} 
-                                    </span>
-                                </p>
-                                <p>
-                                    <strong>{t('reports_page.ai_recommendation')}:</strong> 
-                                    <span className="text-muted-foreground">
-                                        {/* ترجمه کلید توصیه */}
-                                        {t(report.summary.xai_report.recommendation_key)}
-                                    </span>
-                                </p>
-                                
-                                {/* بخش XAI (گزارش متنی) */}
-                                <div className="p-4 border rounded-md bg-background/50">
-                                    <h4 className="font-semibold mb-2">{t('reports_page.xai_title')}</h4>
-                                    <div className="text-sm text-muted-foreground space-y-2">
-                                        {/* نمایش نقاط قوت */}
-                                        {report.summary.xai_report.strengths.length > 0 && (
-                                            <div>
-                                                <strong className="text-green-500">{t('reports_page.xai_strengths')}:</strong>
-                                                <ul className="list-disc list-inside">
-                                                    {report.summary.xai_report.strengths.map((item: XaiFactor, index: number) => (
-                                                        <li key={`strength-${index}`}>
-                                                            {/* ✅✅✅ FIX: استفاده از tVar به جای t ✅✅✅ */}
-                                                            {tVar(item.key, item.values)}
-                                                        </li>
-                                                    ))}
-                                                </ul>
-                                            </div>
-                                        )}
-                                        {/* نمایش نقاط ضعف */}
-                                        {report.summary.xai_report.weaknesses.length > 0 && (
-                                                <div>
-                                                <strong className="text-destructive">{t('reports_page.xai_weaknesses')}:</strong>
-                                                    <ul className="list-disc list-inside">
-                                                        {report.summary.xai_report.weaknesses.map((item: XaiFactor, index: number) => (
-                                                            <li key={`weakness-${index}`}>
-                                                                {/* ✅✅✅ FIX: استفاده از tVar به جای t ✅✅✅ */}
-                                                                {tVar(item.key, item.values)}
-                                                            </li>
-                                                        ))}
-                                                    </ul>
-                                                </div>
-                                        )}
-                                    </div>
+                            <div className="space-y-4">
+                                <div>
+                                    <p className="text-sm font-semibold">{t('reports_page.overall_risk_level')}</p>
+                                    <p className={`font-bold text-lg ${getRiskColor(report.summary.overall_risk_level_key)}`}>
+                                        {t(report.summary.overall_risk_level_key)}
+                                    </p>
+                                </div>
+                                <div>
+                                    <p className="text-sm font-semibold">{t('reports_page.ai_recommendation')}</p>
+                                    <p className="text-muted-foreground">
+                                        {t(report.summary.xai_report.recommendation_key + '_desc')}
+                                    </p>
+                                </div>
+                                {/* نمایش گزارش متنی XAI به صورت بهبود یافته */}
+                                <div className="space-y-3 pt-2">
+                                    {report.summary.xai_report.strengths.length > 0 && (
+                                        <div>
+                                            <h4 className="font-semibold text-sm mb-2">{t('reports_page.xai_strengths')}:</h4>
+                                            <ul className="space-y-2">
+                                                {report.summary.xai_report.strengths.map((item, index) => (
+                                                    <li key={`strength-${index}`} className="flex items-start gap-2 text-sm">
+                                                        <CheckCircle className="h-4 w-4 text-green-500 mt-0.5 shrink-0" />
+                                                        <span>{tVar(item.key, item.values)}</span>
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                    )}
+                                    {report.summary.xai_report.weaknesses.length > 0 && (
+                                        <div>
+                                            <h4 className="font-semibold text-sm mb-2">{t('reports_page.xai_weaknesses')}:</h4>
+                                             <ul className="space-y-2">
+                                                {report.summary.xai_report.weaknesses.map((item, index) => (
+                                                    <li key={`weakness-${index}`} className="flex items-start gap-2 text-sm">
+                                                        <XCircle className="h-4 w-4 text-destructive mt-0.5 shrink-0" />
+                                                        <span>{tVar(item.key, item.values)}</span>
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </CardContent>

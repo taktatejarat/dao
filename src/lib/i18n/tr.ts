@@ -732,6 +732,10 @@ export const tr = {
     low_risk_desc: "Düşük riskli ve çekici bir yatırım fırsatı olarak değerlendirilir",
     medium_risk_desc: "Projenin iyi potansiyeli vardır ancak orta seviyede risk taşır Daha fazla inceleme önerilir",
     high_risk_desc: "Bu yatırım yüksek risk içerir ve son derece dikkatli bir analiz gerektirir",
+    low: "düşük",
+    medium: "orta",
+    high: "yüksek",
+    very_high: "çok yüksek",
     },
     xai: {
     strength: {
@@ -759,5 +763,10 @@ export const tr = {
     error_tx_log_not_found: "İşlem onaylandı, ancak olayı bulunamadı. Lütfen destekle iletişime geçin.",
     error_decode_proposal_id_failed: "Olaydan teklif ID'si çıkarılırken bir hata oluştu.",
     id_copied: "Teklif kimliği panoya kopyalandı!",
+  },
+      numbers: {
+    0: "0",
+    50: "50",
+    100: "100",
   },
 };
