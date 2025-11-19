@@ -3,10 +3,12 @@
 from fastapi import FastAPI, HTTPException
 from typing import Dict, Any
 import httpx # کتابخانه جدید برای ارسال درخواست‌های HTTP
+from pydantic import BaseModel 
 
 # ✅ 1. وارد کردن لایه‌های معماری AI
 from config import AI_ORACLE_ADDRESS
 from layers.layer_1_security import analyze_user_behavior
+from layers.layer_2_optimizer import analyze_for_gas_optimizations 
 from layers.layer_3_financial import generate_financial_report
 from layers.layer_5_integration import generate_final_investability_score
 from services.oracle_caller import update_proposal_risk_score
@@ -60,6 +62,26 @@ async def trigger_risk_analysis(proposal_id: str):
         print(f"ERROR in trigger_risk_analysis for proposal {proposal_id}: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+@app.get("/analytics/user/{user_address}")
+async def get_user_analytics_report(user_address: str):
+    """
+    گزارش تحلیل رفتار برای یک کاربر خاص تولید می‌کند.
+    """
+    try:
+        # TODO: در آینده، اینجا باید داده‌های واقعی تاریخچه کاربر را از دیتابیس یا بلاکچین واکشی کنیم.
+        # برای نسخه فعلی، از داده‌های Mock استفاده می‌کنیم تا پایپ‌لاین کامل شود.
+        mock_user_history = [
+            {'amount': 1500, 'gas_used': 60000, 'type': 'vote'},
+            {'amount': 10000, 'gas_used': 150000, 'type': 'stake'},
+        ]
+        
+        security_report = analyze_user_behavior(mock_user_history)
+        
+        return security_report
+
+    except Exception as e:
+        print(f"ERROR in get_user_analytics_report for {user_address}: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/reports/proposal/{proposal_id}")
 async def get_full_proposal_report(proposal_id: str):
@@ -67,8 +89,8 @@ async def get_full_proposal_report(proposal_id: str):
     یک گزارش تحلیلی کامل و جامع برای نمایش در داشبورد فرانت‌اند تولید می‌کند.
     """
     try:
-        # ۱. دریافت داده‌های کامل پروپوزال از API بک‌اند Node.js
         async with httpx.AsyncClient() as client:
+            # ۱. دریافت داده‌های کامل پروپوزال از API بک‌اند Node.js
             response = await client.get(f"{NODE_API_BASE_URL}/proposals/{proposal_id}")
             response.raise_for_status()
             proposal_data = response.json().get('data', {})
@@ -77,14 +99,9 @@ async def get_full_proposal_report(proposal_id: str):
             raise HTTPException(status_code=404, detail="Proposal not found")
 
         # ۲. اجرای تحلیل‌های لایه‌های مختلف
-        # لایه ۳: تحلیل مالی
         financial_report = generate_financial_report(proposal_data)
-
-        # لایه ۱: تحلیل رفتار (در این نسخه با داده‌های Mock)
-        mock_user_history = [{'amount': 1000, 'gas_used': 50000}]
+        mock_user_history = [{'amount': 1000, 'gas_used': 50000}] # داده موقت
         security_report = analyze_user_behavior(mock_user_history)
-
-        # لایه ۵: تجمیع نتایج
         final_score_report = generate_final_investability_score(financial_report, security_report)
         
         # ۳. ترکیب تمام گزارش‌ها در یک پاسخ جامع
@@ -94,16 +111,27 @@ async def get_full_proposal_report(proposal_id: str):
             "summary": final_score_report,
             "financialAnalysis": financial_report,
             "securityAnalysis": security_report,
-            # در آینده لایه‌های دیگر نیز اضافه می‌شوند
         }
-        async with httpx.AsyncClient() as client:
-        response = await client.post(
-            f"{NODE_API_BASE_URL}/proposals/{proposal_id}/save-ai-report",
-            json=full_report_to_save
-        )
-        response.raise_for_status() # اگر خطا رخ داد، Exception ایجاد می‌کند
+        # ❌ حذف کد اضافی برای ذخیره گزارش. این تابع فقط برای خواندن است.
         return full_report
 
     except Exception as e:
         print(f"ERROR in get_full_proposal_report for proposal {proposal_id}: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+    
+
+# ✅ تعریف مدل ورودی برای اعتبارسنجی
+class ContractCode(BaseModel):
+    code: str
+
+@app.post("/analytics/contract")
+async def analyze_contract_code(contract: ContractCode):
+    """
+    کد Solidity را دریافت کرده و پیشنهاداتی برای بهینه‌سازی برمی‌گرداند.
+    """
+    try:
+        suggestions = analyze_for_gas_optimizations(contract.code)
+        return suggestions
+    except Exception as e:
+        print(f"ERROR in analyze_contract_code: {e}")
         raise HTTPException(status_code=500, detail=str(e))

@@ -17,6 +17,15 @@ export const ar = {
   yes: "نعم",
   no: "لا",
 
+  common:{
+    error: "خطأ",
+    yes: "نعم",
+    no: "لا",
+    high: "عال",
+    medium: "متوسط",
+    low: "منخفض",
+    },
+
   // Header
   header: {
     search: "بحث...",
@@ -464,42 +473,67 @@ export const ar = {
   },
 
   // Analytics Page
-  analytics_page: {
-    title: "تحليلات سلوك المستخدم",
-    subtitle: "وحدة ذكاء اصطناعي لتحليل سلوك المستخدم على المنصة، خاصة في عمليات التصويت.",
-    card_title: "تحليل مدعوم بالذكاء الاصطناعي",
-    card_desc: "تتيح هذه الصفحة لمسؤولي النظام استخدام الذكاء الاصطناعي لتحليل أنماط سلوك المستخدم وتحديد الحالات المشبوهة مثل الاحتيال أو التواطؤ.",
+  analytics_page:{
+    title: "تحليل سلوك المستخدمين",
+    card_title: "تحليل قائم على الذكاء الاصطناعي",
     start_analysis: "بدء التحليل",
-    select_proposal: "اختر اقتراحًا",
-    select_placeholder: "اختر اقتراحًا لتحليله",
-    proposal: "اقتراح",
+    select_proposal: "اختيار المقترح",
+    select_placeholder: "اختر مقترحا",
+    proposal: "المقترح",
     analysis_results: "نتائج التحليل",
     participation_rate: "معدل المشاركة",
-    participation_rate_desc: "نسبة المصوتين النشطين.",
+    participation_rate_desc: "نسبة المصوتين النشطين",
     voter_concentration: "تركيز المصوتين",
-    voter_concentration_desc: "نسبة الأصوات من أفضل 10٪ من المصوتين.",
+    voter_concentration_desc: "نسبة الأصوات من أعلى 10 بالمئة من المصوتين",
     voting_power_distribution: "توزيع قوة التصويت",
-    voting_power_distribution_desc: "معامل جيني لتوزيع الأصوات.",
-    collusion_risk: "خطر التواطؤ",
-    collusion_risk_desc: "احتمالية التنسيق بين المصوتين.",
+    voting_power_distribution_desc: "معامل جيني لتوزيع قوة التصويت",
+    collusion_risk: "مخاطر التواطؤ",
+    collusion_risk_desc: "احتمال التنسيق بين المصوتين",
     gini_low: "منخفض",
-    gini_high: "مرتفع",
+    gini_high: "عال",
     risk_low: "منخفض",
     risk_medium: "متوسط",
-    risk_high: "مرتفع",
-    analysis_error: "خطأ في تحليل الاقتراح.",
+    risk_high: "عال",
+    analysis_error: "خطأ في تحليل المقترح",
     summary_title: "ملخص التحليل",
+    subtitle: "تحليل أنشطة المستخدمين على السلسلة وخارجها للتعرف على الأنماط وتقييم درجة المشاركة",
+    card_desc: "أدخل عنوان محفظة المستخدم للحصول على تقرير تحليلي لسلوكه ودرجة الثقة الخاصة به",
+    label: "عنوان محفظة المستخدم",
+    analyze_button: "بدء التحليل",
+    report_title: "تقرير التحليل السلوكي",
+    report_desc: "عرض نتائج التحليل للمستخدم صاحب العنوان ...{address}",
+    trust_score: "درجة الثقة",
+    trust_score_desc: "درجة تعتمد على النشاط السابق والأصوات والمشاركة في الحوكمة",
+    anomaly_status: "حالة الشذوذ",
+    fetch_error: "خطأ في جلب تقرير تحليل المستخدم",
+    invalid_address_error: "يرجى إدخال عنوان محفظة صالح",
   },
-  
+
+  security_report:{
+    normal_behavior: "لم يتم اكتشاف أي نشاط مريب أو أي شذوذ في أنماط سلوك هذا المستخدم",
+    no_history: "لا توجد سجلات نشاط كافية لإجراء تحليل كامل",
+    },
+    optimizer:{
+      suggestion:{
+      uint_comparison: "تحسين الغاز بالنسبة لمتغيرات unsigned integer فإن استخدام var != 0 أقل تكلفة من var > 0",
+      for_loop_gas: "تحسين الغاز في حلقات for فإن الأسلوب السابق ++i أقل استهلاكا للغاز من الأسلوب اللاحق i++",
+      string_literal: "تحسين الغاز تخزين السلاسل النصية الطويلة التي تتجاوز 32 بايت مباشرة في العقد مكلف جدا ينصح باستخدام constant أو التخزين خارج السلسلة",
+      },
+    },
+      
   // Contract Analyzer Page
   contract_analyzer_page: {
     title: "تحسين العقد الذكي",
-    subtitle: "أدخل كود العقد الذكي الخاص بك للتحليل وتلقي اقتراحات تحسين من الذكاء الاصطناعي.",
+    subtitle: "أدخل كود العقد الذكي الخاص بك لتحليل الذكاء الاصطناعي والحصول على اقتراحات للتحسين",
     card_title: "تحليل كود العقد",
-    card_desc: "يقوم الذكاء الاصطناعي لدينا بفحص الكود الخاص بك بحثًا عن الثغرات الأمنية وتحسين استهلاك الغاز.",
-    label: "كود العقد الذكي",
-    placeholder: "أدخل كود Solidity الخاص بك هنا...",
     analyze_button: "تحليل العقد",
+    card_desc: "ضع كود Solidity الخاص بك في الحقل أدناه للحصول على اقتراحات لتقليل استهلاك الغاز وزيادة الأمان وتحسين قابلية القراءة",
+    label: "كود العقد الذكي (Solidity)",
+    placeholder: "// ضع كود العقد الذكي هنا...\npragma solidity ^0.8.24;\n\ncontract MyContract {\n // ...\n}",
+    suggestions_title: "اقتراحات التحسين",
+    line: "السطر",
+    fetch_error: "حدث خطأ أثناء جلب نتائج التحليل",
+    code_too_short_error: "الكود قصير جدًا للتحليل يرجى إدخال عقد كامل",
   },
   
   // Not Found Page

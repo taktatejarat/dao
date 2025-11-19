@@ -18,7 +18,9 @@ export type LogCategory =
   | 'TRIGGER_AI_FORWARD'  
   | 'AI_ENGINE_FAIL'
   | 'TRIGGER_AI_SUCCESS'
-  | 'TRIGGER_AI_ERROR'      
+  | 'TRIGGER_AI_ERROR' 
+  | 'USER_ANALYTICS_FETCH'
+  | 'CONTRACT_ANALYSIS_FETCH'   
   
   // دسته‌بندی‌های جدید برای API ها
   | 'API_REQUEST'   // درخواست‌های ورودی به API
