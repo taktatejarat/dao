@@ -81,6 +81,13 @@ export const de = {
     investing: "Investieren",
     coming_soon: "Demnächst",
     finished: "Abgeschlossen",
+    no_featured_proposals: "Keine vorgestellten Projekte",
+    status:{
+      under_review: "In Prüfung",
+      not_funded: "Keine Finanzierung erhalten",
+      funded: "Finanziert",
+      voting: "Abstimmung läuft",
+      },
   },
   
   // Role Selection Page

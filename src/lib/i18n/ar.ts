@@ -81,6 +81,13 @@ export const ar = {
     investing: "قيد الاستثمار",
     coming_soon: "قريبا",
     finished: "منتهية",
+    no_featured_proposals: "لا توجد مشاريع مميزة",
+    status:{
+      under_review: "قيد التقييم",
+      not_funded: "لم يتم الحصول على التمويل",
+      funded: "تم الحصول على التمويل",
+      voting: "قيد التصويت",
+      },
   },
   
   // Role Selection Page

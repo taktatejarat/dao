@@ -80,6 +80,13 @@ export const fa = {
     investing: "سرمایه‌پذیری",
     coming_soon: "به زودی",
     finished: "پایان یافته",
+    no_featured_proposals: "پروژه ویژه ای وجود ندارد",
+    status:{
+      under_review: "در حال ارزیابی",
+      not_funded: "عدم جذب سرمایه",
+      funded: "جذب سرمایه",
+      voting: "در حال رأی گیری",
+    },
   },
   
   // Role Selection Page

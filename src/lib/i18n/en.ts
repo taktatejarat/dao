@@ -81,6 +81,13 @@ export const en = {
     investing: "Investing",
     coming_soon: "Coming Soon",
     finished: "Finished",
+    no_featured_proposals: "No featured projects",
+      status:{
+      under_review: "Under review",
+      not_funded: "Not funded",
+      funded: "Funded",
+      voting: "In voting",
+      },
   },
 
   // Role Selection Page

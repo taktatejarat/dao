@@ -1,7 +1,6 @@
-useClient;
+"use client";
 import React, { useRef, useEffect } from 'react';
 import { Renderer, Program, Mesh, Triangle } from 'ogl';
-import { useClient } from 'wagmi';
 
 interface LiquidChromeProps extends React.HTMLAttributes<HTMLDivElement> {
   baseColor?: [number, number, number];
@@ -81,9 +80,9 @@ export const LiquidChrome: React.FC<LiquidChromeProps> = ({
               }
           }
           gl_FragColor = col / float(samples);
-      }
+      }, [baseColor, speed, amplitude, frequencyX, frequencyY, interactive]);
     `;
-
+    
     const geometry = new Triangle(gl);
     const program = new Program(gl, {
       vertex: vertexShader,
@@ -167,7 +166,7 @@ export const LiquidChrome: React.FC<LiquidChromeProps> = ({
     };
   }, [baseColor, speed, amplitude, frequencyX, frequencyY, interactive]);
 
-  return <div ref={containerRef} className="w-full h-full" {...props} />;
+    return <div ref={containerRef} {...props} />;
 };
 
 export default LiquidChrome;

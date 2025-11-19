@@ -81,6 +81,13 @@ export const ru = {
     investing: "Инвестирование",
     coming_soon: "Скоро",
     finished: "Завершено",
+    no_featured_proposals: "Нет избранных проектов",
+    status:{
+      under_review: "На рассмотрении",
+      not_funded: "Финансирование не получено",
+      funded: "Финансирование получено",
+      voting: "Идёт голосование",
+      },
   },
   
   // Role Selection Page

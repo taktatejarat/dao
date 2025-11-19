@@ -81,6 +81,13 @@ export const tr = {
     investing: "Yatırım Alıyor",
     coming_soon: "Yakında",
     finished: "Tamamlandı",
+    no_featured_proposals: "Öne çıkan proje yok",
+    status:{
+      under_review: "Değerlendirme aşamasında",
+      not_funded: "Fon sağlanamadı",
+      funded: "Fon sağlandı",
+      voting: "Oylama aşamasında",
+    },
   },
   
   // Role Selection Page

@@ -1,9 +1,10 @@
+// src/app/landing/page.tsx - FINAL, DYNAMIC VERSION
 
 "use client";
 
 import { Button } from "@/components/ui/button";
 import { ConnectButton, useConnectModal } from "@rainbow-me/rainbowkit";
-import { ArrowRight, Bot, ShieldCheck, TrendingUp, Zap, Languages, Sun, Moon, Link as LinkIcon } from 'lucide-react';
+import { ArrowRight, Bot, ShieldCheck, TrendingUp, Zap, Link as LinkIcon, Sun, Moon } from 'lucide-react';
 import Link from 'next/link';
 import { useTranslation } from "@/hooks/use-translation";
 import { useLanguage } from "@/context/LanguageProvider";
@@ -12,25 +13,92 @@ import { Logo } from "@/components/icons/logo";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { LanguageSwitcher } from "@/components/layout/language-switcher";
-import LiquidChrome from "@/components/ui/liquidchrome";
+
+// ✅✅✅ STEP 1: ایمپورت هوک و کامپوننت‌های لازم ✅✅✅
+import { useProposals, type ProposalListData } from "@/hooks/useProposals";
+import { DaoLoadingSpinner } from "@/components/icons/dao-loading-spinner";
+import { useMemo } from "react";
+
+// --- کامپوننت جدید برای نمایش کارت‌های پروژه‌های منتخب ---
+const FeaturedProposalsSection = () => {
+    const { t } = useTranslation();
+    const { proposals, isLoading, error } = useProposals();
+
+    // ✅✅✅ THE CRITICAL FIX IS HERE: اصلاح منطق فیلتر و انتخاب ✅✅✅
+    const featuredProposals = useMemo(() => {
+        if (!proposals || proposals.length === 0) return [];
+        
+        // منطق انتخاب جدید:
+        // ما دیگر به سختی بر اساس status فیلتر نمی‌کنیم.
+        // در عوض، فقط پروپوزال‌ها را بر اساس جدیدترین (بر اساس شناسه MongoDB) مرتب می‌کنیم.
+        // این تضمین می‌کند که همیشه ۳ پروپوزال آخر نمایش داده می‌شوند.
+        return proposals
+            .slice() // یک کپی از آرایه ایجاد می‌کنیم تا آرایه اصلی تغییر نکند
+            .sort((a, b) => b._id.localeCompare(a._id)) // مرتب‌سازی نزولی بر اساس شناسه (جدیدترین اول)
+            .slice(0, 3); // انتخاب ۳ مورد اول
+    }, [proposals]);
+
+    const getStatusInfo = (status: string | null | undefined): { key: string; variant: "secondary" | "default" | "success" | "destructive" } => {
+        switch (status) {
+            case 'voting': return { key: 'landing_page.status.voting', variant: 'default' };
+            case 'approved':
+            case 'executed': return { key: 'landing_page.status.funded', variant: 'success' };
+            case 'rejected':
+            case 'cancelled': return { key: 'landing_page.status.not_funded', variant: 'destructive' };
+            default: return { key: 'landing_page.status.under_review', variant: 'secondary' };
+        }
+    };
+
+    return (
+        <section className="py-20">
+            <div className="container">
+                <div className="text-center mb-12">
+                    <h2 className="text-3xl font-bold font-headline text-gradient">{t('landing_page.featured_proposals_title')}</h2>
+                    <p className="text-muted-foreground mt-2 max-w-xl mx-auto">{t('landing_page.featured_proposals_subtitle')}</p>
+                </div>
+
+                {isLoading ? (
+                    <div className="flex justify-center"><DaoLoadingSpinner /></div>
+                ) : error ? (
+                    <p className="text-center text-destructive">{error}</p>
+                ) : featuredProposals.length === 0 ? (
+                    <p className="text-center text-muted-foreground">{t('landing_page.no_featured_proposals')}</p>
+                ) : (
+                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {featuredProposals.map((proposal) => {
+                            const statusInfo = getStatusInfo(proposal.onChainStatus);
+                            return (
+                                <Card key={proposal._id} className="flex flex-col card-glow">
+                                    <CardHeader>
+                                        <CardTitle>{proposal.projectName}</CardTitle>
+                                        <CardDescription className="flex-grow pt-2">{proposal.tagline}</CardDescription>
+                                    </CardHeader>
+                                    <CardFooter className="flex justify-between items-center mt-auto pt-4">
+                                        <Badge variant={statusInfo.variant}>
+                                            {t(statusInfo.key)}
+                                        </Badge>
+                                        <Button asChild variant="outline" size="sm">
+                                            <Link href={`/proposals/${proposal._id}`}>
+                                                {t('view_details')}
+                                                <ArrowRight className="mx-2 rtl:rotate-180 size-4" />
+                                            </Link>
+                                        </Button>
+                                    </CardFooter>
+                                </Card>
+                            );
+                        })}
+                    </div>
+                )}
+            </div>
+        </section>
+    );
+};
 
 export default function LandingPage() {
     const { t } = useTranslation();
     const { setTheme, theme } = useTheme();
     const { direction } = useLanguage();
     const { openConnectModal } = useConnectModal();
-
-    const featureList = [
-        { icon: Bot, titleKey: 'landing_page.ai_evaluation_title', descriptionKey: 'landing_page.ai_evaluation_desc' },
-        { icon: ShieldCheck, titleKey: 'landing_page.blockchain_security_title', descriptionKey: 'landing_page.blockchain_security_desc' },
-        { icon: TrendingUp, titleKey: 'landing_page.exclusive_opportunities_title', descriptionKey: 'landing_page.exclusive_opportunities_desc' },
-    ];
-
-    const proposalList = [
-        { titleKey: 'landing_page.next_gen_defi_title', descriptionKey: 'landing_page.next_gen_defi_desc', statusKey: 'landing_page.investing' },
-        { titleKey: 'landing_page.nft_marketplace_title', descriptionKey: 'landing_page.nft_marketplace_desc', statusKey: 'landing_page.coming_soon' },
-        { titleKey: 'landing_page.digital_identity_title', descriptionKey: 'landing_page.digital_identity_desc', statusKey: 'landing_page.finished' },
-    ];
 
     return (
         <div dir={direction} className="bg-background text-foreground min-h-screen flex flex-col">
@@ -52,28 +120,19 @@ export default function LandingPage() {
                 </div>
             </header>
             
-             <main className="flex-1">
+            <main className="flex-1">
                 {/* Hero Section */}
-                {/* ✅✅✅ THE FIX IS HERE: استفاده از relative برای کانتینر اصلی ✅✅✅ */}
-                    <section className="container relative text-center ... overflow-hidden">
-                        <LiquidChrome
-                            className="absolute inset-0 w-full h-full z-[-1] opacity-30 dark:opacity-20"
-                            baseColor={[0.15, 0.1, 0.25]}
-                            speed={0.15}
-                            amplitude={0.4}
-                        />
-                        <div className="relative z-[1]">
-                        <h1 className="text-4xl md:text-6xl font-extrabold tracking-tighter font-headline mb-4 text-gradient leading-tight">
-                            {t('landing_page.hero_title')}
-                        </h1>
-                        <p className="max-w-2xl mx-auto text-lg text-muted-foreground mb-8">
-                            {t('landing_page.hero_subtitle')}
-                        </p>
-                        <div className="flex justify-center gap-4">
-                           <Button size="lg" onClick={openConnectModal}>
-                               {t('landing_page.get_started')} <Zap className="mx-2" />
-                           </Button>
-                        </div>
+                <section className="container text-center py-20 sm:py-32">
+                    <h1 className="text-4xl md:text-6xl font-extrabold tracking-tighter font-headline mb-4 text-gradient leading-tight">
+                        {t('landing_page.hero_title')}
+                    </h1>
+                    <p className="max-w-2xl mx-auto text-lg text-muted-foreground mb-8">
+                        {t('landing_page.hero_subtitle')}
+                    </p>
+                    <div className="flex justify-center gap-4">
+                       <Button size="lg" onClick={openConnectModal}>
+                           {t('landing_page.get_started')} <Zap className="mx-2" />
+                       </Button>
                     </div>
                 </section>
 
@@ -109,34 +168,9 @@ export default function LandingPage() {
                 </section>
                 
                  {/* Featured Projects Section */}
-                <section className="py-20">
-                    <div className="container">
-                        <div className="text-center mb-12">
-                            <h2 className="text-3xl font-bold font-headline text-gradient">{t('landing_page.featured_proposals_title')}</h2>
-                            <p className="text-muted-foreground mt-2 max-w-xl mx-auto">{t('landing_page.featured_proposals_subtitle')}</p>
-                        </div>
-                        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {proposalList.map((proposal) => (
-                                <Card key={proposal.titleKey} className="flex flex-col">
-                                    <CardHeader>
-                                        <CardTitle>{t(proposal.titleKey)}</CardTitle>
-                                        <CardDescription className="flex-grow pt-2">{t(proposal.descriptionKey)}</CardDescription>
-                                    </CardHeader>
-                                    <CardFooter className="flex justify-between items-center mt-auto pt-4">
-                                        <Badge variant={proposal.statusKey === 'landing_page.investing' ? 'success' : 'secondary'}>
-                                            {t(proposal.statusKey)}
-                                        </Badge>
-                                        <Button variant="outline" size="sm">
-                                            {t('view_details')}
-                                            <ArrowRight className="mx-2 rtl:rotate-180 size-4" />
-                                        </Button>
-                                    </CardFooter>
-                                </Card>
-                            ))}
-                        </div>
-                    </div>
-                </section>
-            </main>
+                 {/* ✅✅✅ STEP 4: استفاده از کامپوننت جدید و داینامیک ✅✅✅ */}
+                <FeaturedProposalsSection />
+                </main>
 
             <footer className="py-6 border-t">
                 <div className="container text-center text-muted-foreground">
