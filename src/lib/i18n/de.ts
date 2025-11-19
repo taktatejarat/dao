@@ -518,6 +518,9 @@ export const de = {
       uint_comparison: "Gasoptimierung Für unsigned integer Variablen ist var != 0 gasgünstiger als var > 0",
       for_loop_gas: "Gasoptimierung In for Schleifen ist die Präfixform ++i günstiger als die Postfixform i++",
       string_literal: "Gasoptimierung Das direkte Speichern langer Zeichenketten über 32 Bytes im Vertrag ist teuer Nutzen Sie constant oder erwägen Sie Off Chain Speicherung",
+      external_visibility: "Gasoptimierung Wenn eine public Funktion nie intern aufgerufen wird ändern Sie sie in external um Gas zu sparen",
+      safe_math: "Sicherheitsempfehlung Sie haben direkte arithmetische Operationen (+ - * /) verwendet Für Solidity Versionen vor 0.8 ist die Nutzung der SafeMath Bibliothek zur Vermeidung von Überlauf und Unterlauf notwendig",
+      no_issues_found: "Großartig Es wurden keine offensichtlichen automatischen Optimierungsvorschläge gefunden Ihr Code wirkt sauber",
       },
     },
 

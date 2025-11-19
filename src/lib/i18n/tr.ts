@@ -518,6 +518,9 @@ export const tr = {
         uint_comparison: "Gas optimizasyonu Unsigned integer değişkenlerde var > 0 yerine var != 0 kullanmak daha az gas maliyetine sahiptir",
         for_loop_gas: "Gas optimizasyonu for döngülerinde önek ++i sonek i++ kullanımına göre daha az gas tüketir",
         string_literal: "Gas optimizasyonu Uzun dizelerin 32 bayttan büyük olanların doğrudan sözleşmede saklanması yüksek maliyetlidir constant kullanmayı veya zincir dışı depolamayı değerlendirin",
+        external_visibility: "Gas optimizasyonu Eğer bir public fonksiyon dahili olarak hiç çağrılmıyorsa gas maliyetini azaltmak için onu external olarak değiştirin",
+        safe_math: "Güvenlik önerisi Doğrudan aritmetik işlemler (+ - * /) kullanmışsınız Solidity 0.8 sürümünden önce overflow ve underflow hatalarını önlemek için SafeMath kütüphanesinin kullanılması gereklidir",
+        no_issues_found: "Harika Açık bir otomatik optimizasyon önerisi bulunamadı Kodunuz temiz görünüyor",
         },
     },
   

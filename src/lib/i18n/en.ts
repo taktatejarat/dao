@@ -517,6 +517,9 @@ export const en = {
       uint_comparison: "Gas optimization For unsigned integer variables using var != 0 costs less gas than var > 0",
       for_loop_gas: "Gas optimization In for loops prefix ++i consumes less gas than postfix i++",
       string_literal: "Gas optimization Storing long strings over 32 bytes directly in the contract is expensive Consider using constant or off chain storage",
+      external_visibility: "Gas optimization If a public function is never called internally change it to external to reduce gas costs",
+      safe_math: "Security recommendation You used arithmetic operations (+ - * /) directly For Solidity versions before 0.8 using the SafeMath library is required to avoid overflow and underflow issues",
+      no_issues_found: "Great No clear automatic optimization suggestions were found Your code looks clean",
       },
     },
 

@@ -124,14 +124,29 @@ async def get_full_proposal_report(proposal_id: str):
 class ContractCode(BaseModel):
     code: str
 
+
 @app.post("/analytics/contract")
 async def analyze_contract_code(contract: ContractCode):
     """
     کد Solidity را دریافت کرده و پیشنهاداتی برای بهینه‌سازی برمی‌گرداند.
     """
     try:
+        print(f"--- [AI-ENGINE] Starting contract analysis for code snippet (length: {len(contract.code)}) ---")
+        
+        if not contract.code or len(contract.code) < 50:
+            raise HTTPException(status_code=400, detail="Contract code is too short for analysis.")
+
+        # ✅ FIX: فراخوانی تابع تحلیل با مدیریت خطا
         suggestions = analyze_for_gas_optimizations(contract.code)
+        
+        print(f"--- [AI-ENGINE] Contract analysis complete. Found {len(suggestions)} suggestions. ---")
+        
         return suggestions
+
+    except HTTPException as http_err:
+        # خطاهای HTTP را دوباره throw می‌کنیم
+        raise http_err
     except Exception as e:
-        print(f"ERROR in analyze_contract_code: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        # سایر خطاها را لاگ کرده و یک خطای عمومی برمی‌گردانیم
+        print(f"CRITICAL ERROR in analyze_contract_code: {e}")
+        raise HTTPException(status_code=500, detail="An unexpected error occurred during contract analysis.")
