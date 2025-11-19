@@ -775,6 +775,8 @@ export const en = {
     error_tx_log_not_found: "The transaction was confirmed, but its event was not found. Please contact support.",
     error_decode_proposal_id_failed: "An error occurred while extracting the proposal ID from the event.",
     id_copied: "Proposal ID copied to clipboard!",
+    sending_transaction: "transaction is being sent",
+    transaction_failed: "transaction failed",
   },
       numbers: {
     0: "0",

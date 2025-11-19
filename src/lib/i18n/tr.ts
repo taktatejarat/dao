@@ -776,6 +776,8 @@ export const tr = {
     error_tx_log_not_found: "İşlem onaylandı, ancak olayı bulunamadı. Lütfen destekle iletişime geçin.",
     error_decode_proposal_id_failed: "Olaydan teklif ID'si çıkarılırken bir hata oluştu.",
     id_copied: "Teklif kimliği panoya kopyalandı!",
+    sending_transaction: "işlem gönderiliyor",
+    transaction_failed: "işlem başarısız oldu",
   },
       numbers: {
     0: "0",

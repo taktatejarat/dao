@@ -12,7 +12,6 @@ import { Logo } from "@/components/icons/logo";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { LanguageSwitcher } from "@/components/layout/language-switcher";
-import { Entropy } from "@/components/ui/entropy"; // ✅ 1. ایمپورت کامپوننت Entropy
 
 export default function LandingPage() {
     const { t } = useTranslation();
@@ -53,30 +52,18 @@ export default function LandingPage() {
             </header>
             
             <main className="flex-1">
-                <section 
-                    className="relative container flex flex-col items-center justify-center text-center py-20 sm:py-32 overflow-hidden"
-                >
-                    {/* ✅✅✅ THE FIX IS HERE ✅✅✅ */}
-                    {/* div والد دیگر نیازی به استایل‌های موقعیت‌دهی ندارد */}
-                    <div className="absolute inset-0 -z-10 opacity-20 dark:opacity-30">
-                        {/* کامپوننت Entropy دیگر prop 'size' را نیاز ندارد */}
-                        <Entropy />
-                    </div>
-                    
-                    <div className="absolute inset-0 -z-10 bg-gradient-to-t from-background via-background/80 to-background" />
-                    {/* محتوای Hero (بدون تغییر) */}
-                    <div className="relative z-10"> {/* ✅ محتوا را در یک لایه بالاتر قرار می‌دهیم */}
-                        <h1 className="text-4xl md:text-6xl font-extrabold tracking-tighter font-headline mb-4 text-gradient leading-tight">
-                            {t('landing_page.hero_title')}
-                        </h1>
-                        <p className="max-w-2xl mx-auto text-lg text-muted-foreground mb-8">
-                            {t('landing_page.hero_subtitle')}
-                        </p>
-                        <div className="flex justify-center gap-4">
-                           <Button size="lg" onClick={openConnectModal} className="shadow-lg shadow-primary/20">
-                               {t('landing_page.get_started')} <Zap className="mx-2" />
-                           </Button>
-                        </div>
+                {/* Hero Section */}
+                <section className="container text-center py-20 sm:py-32">
+                    <h1 className="text-4xl md:text-6xl font-extrabold tracking-tighter font-headline mb-4 text-gradient leading-tight">
+                        {t('landing_page.hero_title')}
+                    </h1>
+                    <p className="max-w-2xl mx-auto text-lg text-muted-foreground mb-8">
+                        {t('landing_page.hero_subtitle')}
+                    </p>
+                    <div className="flex justify-center gap-4">
+                       <Button size="lg" onClick={openConnectModal}>
+                           {t('landing_page.get_started')} <Zap className="mx-2" />
+                       </Button>
                     </div>
                 </section>
 

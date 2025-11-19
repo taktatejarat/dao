@@ -1,6 +1,8 @@
+// src/hooks/useTreasury.ts - FINAL, CORRECTED, AND ROBUST VERSION
+
 "use client";
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useAccount, useBalance, useReadContracts, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { toast } from 'sonner';
 import { useTranslation } from '@/hooks/use-translation';
@@ -13,13 +15,9 @@ interface UseTreasuryProps {
     tokenAddress: Address | undefined;
 }
 
-/**
- * A comprehensive custom hook to manage all treasury-related interactions,
- * including data fetching and handling deposits/withdrawals.
- */
 export function useTreasury({ financeAddress, tokenAddress }: UseTreasuryProps) {
     const { t } = useTranslation();
-    const { address } = useAccount();
+    const { address: adminAddress } = useAccount(); // ✅ نام متغیر را برای خوانایی به adminAddress تغییر می‌دهیم
 
     // --- Form State ---
     const [depositAmount, setDepositAmount] = useState('1000');
@@ -30,9 +28,9 @@ export function useTreasury({ financeAddress, tokenAddress }: UseTreasuryProps) 
     const { data: contractData, refetch } = useReadContracts({
         contracts: ([
             { address: tokenAddress as Address, abi: rayanChainTokenAbi, functionName: 'balanceOf', args: [financeAddress as Address] },
-            { address: tokenAddress as Address, abi: rayanChainTokenAbi, functionName: 'balanceOf', args: [address as Address] },
+            { address: tokenAddress as Address, abi: rayanChainTokenAbi, functionName: 'balanceOf', args: [adminAddress as Address] },
         ] as any),
-        query: { enabled: !!financeAddress && !!tokenAddress && !!address }
+        query: { enabled: !!financeAddress && !!tokenAddress && !!adminAddress }
     } as any);
     const { data: nativeTreasuryBalance, refetch: refetchNativeBalance } = useBalance({ address: financeAddress as Address, query: { enabled: !!financeAddress } });
 
@@ -64,50 +62,63 @@ export function useTreasury({ financeAddress, tokenAddress }: UseTreasuryProps) 
     }, [isSuccess, refetch, refetchNativeBalance]);
 
     // --- Action Handlers ---
-    const handleDeposit = async () => {
+   const handleDeposit = async () => {
+        if (!tokenAddress || !financeAddress || !parsedDepositAmount) return;
+        const toastId = 'deposit-toast';
         try {
+            toast.loading(t('toasts.sending_transaction'), { id: toastId });
             const txHash = await writeContractAsync({
-                address: tokenAddress!,
+                address: tokenAddress,
                 abi: rayanChainTokenAbi,
                 functionName: 'transfer',
-                args: [financeAddress!, parsedDepositAmount],
-            } as any);
+                // ✅ FIX: آرگومان‌ها صحیح هستند: (گیرنده، مقدار)
+                args: [financeAddress, parsedDepositAmount],
+            });
             setSubmittedHash(txHash);
-            toast.success(t('treasury_page.deposit_success'));
+            toast.success(t('toasts.tx_submitted'), { id: toastId });
+            setDepositAmount('1000'); // ریست کردن فرم
         } catch (err) {
-            toast.error(t('treasury_page.deposit_error'));
+            toast.error(t('toasts.transaction_failed'), { id: toastId, description: (err as BaseError).shortMessage });
         }
     };
 
     const handleWithdrawRyc = async () => {
+        if (!financeAddress || !adminAddress || !parsedWithdrawRycAmount) return;
+        const toastId = 'withdraw-ryc-toast';
         try {
+            toast.loading(t('toasts.sending_transaction'), { id: toastId });
             const txHash = await writeContractAsync({
-                address: financeAddress!,
+                address: financeAddress,
                 abi: financeAbi,
                 functionName: 'withdrawTokens',
-                args: [parsedWithdrawRycAmount],
-            } as any);
+                // ✅✅✅ THE FIX: افزودن آرگومان 'to' (آدرس دریافت‌کننده) ✅✅✅
+                args: [adminAddress, parsedWithdrawRycAmount],
+            });
             setSubmittedHash(txHash);
-            toast.success(t('treasury_page.withdraw_success'));
+            toast.success(t('toasts.tx_submitted'), { id: toastId });
             setWithdrawRycAmount('');
         } catch (err) {
-            toast.error(t('treasury_page.withdraw_error'));
+            toast.error(t('toasts.transaction_failed'), { id: toastId, description: (err as BaseError).shortMessage });
         }
     };
 
     const handleWithdrawNative = async () => {
+        if (!financeAddress || !adminAddress || !parsedWithdrawNativeAmount) return;
+        const toastId = 'withdraw-native-toast';
         try {
+            toast.loading(t('toasts.sending_transaction'), { id: toastId });
             const txHash = await writeContractAsync({
-                address: financeAddress!,
+                address: financeAddress,
                 abi: financeAbi,
                 functionName: 'withdraw',
-                args: [parsedWithdrawNativeAmount],
-            } as any);
+                // ✅✅✅ THE FIX: افزودن آرگومان 'to' (آدرس دریافت‌کننده) ✅✅✅
+                args: [adminAddress, parsedWithdrawNativeAmount],
+            });
             setSubmittedHash(txHash);
-            toast.success(t('treasury_page.withdraw_success'));
+            toast.success(t('toasts.tx_submitted'), { id: toastId });
             setWithdrawNativeAmount('');
         } catch (err) {
-            toast.error(t('treasury_page.withdraw_error'));
+            toast.error(t('toasts.transaction_failed'), { id: toastId, description: (err as BaseError).shortMessage });
         }
     };
 
@@ -125,8 +136,8 @@ export function useTreasury({ financeAddress, tokenAddress }: UseTreasuryProps) 
         handleWithdrawNative,
         // UI Logic
         isActionPending: isPending || isConfirming,
-        isDepositDisabled: parsedDepositAmount <= 0n || (adminRycBalance ? parsedDepositAmount > adminRycBalance : true),
-        isWithdrawRycDisabled: parsedWithdrawRycAmount <= 0n || (rycTreasuryBalance ? parsedWithdrawRycAmount > rycTreasuryBalance : true),
-        isWithdrawNativeDisabled: parsedWithdrawNativeAmount <= 0n || (nativeTreasuryBalance ? parsedWithdrawNativeAmount > nativeTreasuryBalance.value : true),
+        isDepositDisabled: parsedDepositAmount <= 0n || (adminRycBalance != null && parsedDepositAmount > adminRycBalance),
+        isWithdrawRycDisabled: parsedWithdrawRycAmount <= 0n || (rycTreasuryBalance != null && parsedWithdrawRycAmount > rycTreasuryBalance),
+        isWithdrawNativeDisabled: parsedWithdrawNativeAmount <= 0n || (nativeTreasuryBalance != null && parsedWithdrawNativeAmount > nativeTreasuryBalance.value),
     };
 }

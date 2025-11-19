@@ -776,6 +776,8 @@ export const de = {
     error_tx_log_not_found: "Die Transaktion wurde bestätigt, aber ihr Ereignis wurde nicht gefunden. Bitte kontaktieren Sie den Support.",
     error_decode_proposal_id_failed: "Beim Extrahieren der Vorschlags-ID aus dem Ereignis ist ein Fehler aufgetreten.",
     id_copied: "Vorschlags-ID in die Zwischenablage kopiert!",
+    sending_transaction: "transaktion wird gesendet",
+    transaction_failed: "transaktion ist fehlgeschlagen",
   },
     numbers: {
     0: "0",

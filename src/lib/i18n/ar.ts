@@ -776,6 +776,8 @@ export const ar = {
     error_tx_log_not_found: "تم تأكيد المعاملة، ولكن لم يتم العثور على حدثها. يرجى الاتصال بالدعم.",
     error_decode_proposal_id_failed: "حدث خطأ أثناء استخراج معرف الاقتراح من الحدث.",
     id_copied: "تم نسخ معرف الاقتراح إلى الحافظة!",
+    sending_transaction: "جاري إرسال المعاملة",
+    transaction_failed: "فشلت المعاملة",
   },
     numbers: {
     0: "۰",

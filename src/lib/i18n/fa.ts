@@ -783,6 +783,8 @@ export const fa = {
     error_tx_log_not_found: "تراکنش تأیید شد، اما رویداد آن یافت نشد. لطفاً با پشتیبانی تماس بگیرید.",
     error_decode_proposal_id_failed: "در استخراج شناسه پروپوزال از رویداد خطایی رخ داد.",
     id_copied: "شناسه پروپوزال در کلیپ‌بورد کپی شد!",
+    sending_transaction: "تراکنش در حال ارسال است",
+    transaction_failed: "تراکنش ناموفق بود",
   },
   numbers: {
     0: "۰",
