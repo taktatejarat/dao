@@ -163,7 +163,7 @@ const GradedGaugeChart = ({ value, label }: { value: number; label:string }) => 
     return (
         <AppLayout>
             <header className="mb-6">
-                <h1 className="text-3xl font-bold font-headline">{t('reports_page.title')}</h1>
+                <h1 className="text-3xl font-bold font-headline text-gradient">{t('reports_page.title')}</h1>
                 <p className="text-muted-foreground">{t('reports_page.subtitle')}</p>
             </header>
 

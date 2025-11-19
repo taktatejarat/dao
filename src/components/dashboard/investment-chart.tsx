@@ -61,7 +61,7 @@ export function InvestmentChart() {
     return (
         <Card>
             <CardHeader>
-                <CardTitle className="font-headline">{t('dashboard.investment_analysis')}</CardTitle>
+                <CardTitle className="font-headline text-gradient">{t('dashboard.investment_analysis')}</CardTitle>
                 <CardDescription>{t('dashboard.investment_analysis_desc')}</CardDescription>
             </CardHeader>
             <CardContent>

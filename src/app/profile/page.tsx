@@ -157,7 +157,7 @@ export default function ProfilePage() {
     return (
         <AppLayout>
             <header className="mb-6">
-                <h1 className="text-3xl font-bold font-headline">{t('profile_page.title')}</h1>
+                <h1 className="text-3xl font-bold font-headline text-gradient">{t('profile_page.title')}</h1>
                 <p className="text-muted-foreground">{t('profile_page.subtitle')}</p>
             </header>
 
@@ -176,7 +176,7 @@ export default function ProfilePage() {
                                 <AvatarFallback>{userRole?.substring(0,1).toUpperCase()}</AvatarFallback>
                             </Avatar>
                             <div className="flex-1">
-                                <CardTitle className="text-2xl font-headline">
+                                <CardTitle className="text-2xl font-headline text-gradient">
                                     {userRole ? t('profile_page.user_role').replace('{role}', t(userRole)) : t('auth_guard.loading')}
                                 </CardTitle>
                                 <CardDescription className="break-all mt-1 font-mono text-xs">{address || '0x...'}</CardDescription>

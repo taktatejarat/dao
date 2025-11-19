@@ -100,7 +100,7 @@ export default function TreasuryPage() {
 
     return (
         <AppLayout>
-            <header className="mb-6"><h1 className="text-3xl font-bold font-headline">{t('treasury_page.title')}</h1><p className="text-muted-foreground">{t('treasury_page.subtitle')}</p></header>
+            <header className="mb-6"><h1 className="text-3xl font-bold font-headline text-gradient">{t('treasury_page.title')}</h1><p className="text-muted-foreground">{t('treasury_page.subtitle')}</p></header>
             
             <Card className="mb-8">
                 <CardHeader><CardTitle className="flex items-center gap-2"><Landmark className="text-primary"/> {t('treasury_page.total_assets')}</CardTitle><CardDescription>{t('treasury_page.assets_in_treasury')}</CardDescription></CardHeader>

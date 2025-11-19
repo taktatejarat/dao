@@ -186,7 +186,7 @@ export default function LogsPage() {
     return (
         <AppLayout>
             <header className="mb-6">
-                <h1 className="text-3xl font-bold font-headline">{t('logs_page.title')}</h1>
+                <h1 className="text-3xl font-bold font-headline text-gradient">{t('logs_page.title')}</h1>
                 <p className="text-muted-foreground">{t('logs_page.subtitle')}</p>
             </header>
 

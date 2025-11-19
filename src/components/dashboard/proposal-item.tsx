@@ -41,7 +41,7 @@ export function ProposalItem({ proposalData }: ProposalItemProps) {
     return (
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 border-b last:border-b-0">
             <div className="flex-1 mb-4 sm:mb-0">
-                <p className="font-medium font-headline text-lg">{proposalData.projectName}</p>
+                <p className="font-medium font-headline text-gradient text-lg">{proposalData.projectName}</p>
                 <p className="text-sm text-muted-foreground">{proposalData.tagline}</p>
                 <div className="flex items-center gap-4 mt-2">
                     <Badge variant={getStatusBadgeVariant(proposalData.onChainStatus)}>

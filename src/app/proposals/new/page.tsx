@@ -174,7 +174,7 @@ export default function NewProposalPage() {
         <AppLayout>
             <form onSubmit={handleFormSubmit}>
                 <header className="mb-6">
-                    <h1 className="text-3xl font-bold font-headline">{t('new_proposal_page.title')}</h1>
+                    <h1 className="text-3xl font-bold font-headline text-gradient">{t('new_proposal_page.title')}</h1>
                     <p className="text-muted-foreground">{t('new_proposal_page.subtitle_professional')}</p>
                 </header>
 

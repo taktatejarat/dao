@@ -37,7 +37,7 @@ export default function LandingPage() {
                 <div className="container flex h-16 items-center">
                     <div className="flex items-center gap-2">
                         <Logo className="size-8 text-primary" />
-                        <span className="text-xl font-bold font-headline">RayanChain</span>
+                        <span className="text-xl font-bold font-headline text-gradient">RayanChain</span>
                     </div>
                     <div className="flex flex-1 items-center justify-end space-x-2">
                         <LanguageSwitcher/>
@@ -70,7 +70,7 @@ export default function LandingPage() {
                 {/* How It Works Section */}
                 <section className="py-20 bg-muted/50">
                     <div className="container text-center">
-                        <h2 className="text-3xl font-bold font-headline mb-4">{t('landing_page.how_it_works_title')}</h2>
+                        <h2 className="text-3xl font-bold font-headline text-gradient mb-4">{t('landing_page.how_it_works_title')}</h2>
                         <p className="text-muted-foreground mb-12 max-w-xl mx-auto">{t('landing_page.how_it_works_subtitle')}</p>
                         <div className="grid md:grid-cols-3 gap-8">
                             <div className="flex flex-col items-center">
@@ -102,7 +102,7 @@ export default function LandingPage() {
                 <section className="py-20">
                     <div className="container">
                         <div className="text-center mb-12">
-                            <h2 className="text-3xl font-bold font-headline">{t('landing_page.featured_proposals_title')}</h2>
+                            <h2 className="text-3xl font-bold font-headline text-gradient">{t('landing_page.featured_proposals_title')}</h2>
                             <p className="text-muted-foreground mt-2 max-w-xl mx-auto">{t('landing_page.featured_proposals_subtitle')}</p>
                         </div>
                         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">

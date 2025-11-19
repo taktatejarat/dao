@@ -156,7 +156,7 @@ export function DashboardPageContent() {
         <StatCard title={t('dashboard.latest_proposal_status')} value={t('dashboard.no_proposals_status')} icon={Users} description={t('dashboard.no_proposals_status_desc')} />
       </div>
       <div className="p-6 border rounded-lg bg-card text-card-foreground">
-        <h2 className="text-2xl font-headline mb-4">{t('dashboard.new_project_prompt_title')}</h2>
+        <h2 className="text-2xl font-headline text-gradient mb-4">{t('dashboard.new_project_prompt_title')}</h2>
         <p className="text-muted-foreground mb-4">{t('dashboard.new_project_prompt_desc')}</p>
         <Button asChild><Link href="/proposals/new">{t('dashboard.new_project_prompt_cta')}</Link></Button>
       </div>
@@ -210,7 +210,7 @@ export function DashboardPageContent() {
   return (
     <div className="space-y-8">
       <header className="mb-6">
-        <h1 className="text-3xl font-bold font-headline">{t('dashboard.title')}</h1>
+        <h1 className="text-3xl font-bold font-headline text-gradient">{t('dashboard.title')}</h1>
         <p className="text-muted-foreground">{t('dashboard.welcome_message')}</p>
       </header>
 

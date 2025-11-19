@@ -55,7 +55,7 @@ export function StakingPlanCard({ title, description, price, features, isFeature
                 )}>
                     <Medal className={cn('w-8 h-8', currentStyle.textColor)} />
                 </div>
-                <CardTitle className={cn('font-headline text-2xl', currentStyle.textColor)}>{title}</CardTitle>
+                <CardTitle className={cn('font-headline text-gradient text-2xl', currentStyle.textColor)}>{title}</CardTitle>
                 <p className="text-muted-foreground">{description}</p>
             </CardHeader>
             <CardContent className="flex-grow pt-4">

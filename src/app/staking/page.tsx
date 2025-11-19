@@ -146,7 +146,7 @@ export default function StakingPage() {
         <AppLayout>
             {/* --- HEADER --- */}
             <header className="mb-8">
-                <h1 className="text-3xl font-bold font-headline">{t('staking_page.title')}</h1>
+                <h1 className="text-3xl font-bold font-headline text-gradient text-gradient">{t('staking_page.title')}</h1>
                 <p className="text-muted-foreground">{t('staking_page.subtitle_for_role')} {roleName}</p>
             </header>
 
@@ -312,7 +312,7 @@ export default function StakingPage() {
 
             {/* --- STAKING PLANS SECTION (UNTOUCHED) --- */}
             <div className="text-center mb-8 pt-8 border-t">
-                <h2 className="text-2xl font-semibold font-headline">{t('staking_page.plans_for_role')} {roleName}</h2>
+                <h2 className="text-2xl font-semibold font-headline text-gradient">{t('staking_page.plans_for_role')} {roleName}</h2>
                 <p className="text-muted-foreground mt-1">{t('staking_page.plans_for_role_desc')}</p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

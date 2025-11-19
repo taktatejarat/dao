@@ -179,7 +179,7 @@ export default function ProposalDetailPage() {
         <AppLayout>
             <header className="mb-6 flex flex-wrap items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold font-headline">{offChainData.projectName}</h1>
+                    <h1 className="text-3xl font-bold font-headline text-gradient">{offChainData.projectName}</h1>
                     <p className="text-muted-foreground mt-1">{offChainData.tagline}</p>
                 </div>
                 <div className="flex items-center gap-4">

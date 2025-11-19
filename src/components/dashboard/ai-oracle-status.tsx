@@ -34,7 +34,7 @@ export function AiOracleStatus() {
                 <div className="pt-1">{getStatusIcon(status.status)}</div>
             </CardHeader>
             <CardContent>
-                <div className="text-2xl font-bold mb-1">{getStatusText(status.status)}</div>
+                <div className="text-2xl font-bold text-gradient mb-1">{getStatusText(status.status)}</div>
                 <p className="text-xs text-muted-foreground">
                     {lastChecked ? `${t('dashboard.last_checked')}: ${lastChecked.toLocaleTimeString()}` : t('dashboard.checking_now')}
                 </p>

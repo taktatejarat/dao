@@ -186,7 +186,7 @@ export default function SetupPage() {
 
       {/* ====== PAGE HEADER ====== */}
       <header className="mb-10 text-center">
-        <h1 className="text-4xl font-bold font-headline mb-2">
+        <h1 className="text-4xl font-bold font-headline text-gradient mb-2">
           {t('setup_page.title')}
         </h1>
 

@@ -152,7 +152,7 @@ export function AppSidebar() {
         <SidebarHeader>
           <div className="flex items-center gap-2">
             <Logo className="size-8 text-primary" />
-            <span className="text-xl font-bold text-primary font-headline">RayanChain</span>
+            <span className="text-xl font-bold text-primary font-headline text-gradient">RayanChain</span>
           </div>
           </SidebarHeader>
         <SidebarContent>

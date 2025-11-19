@@ -300,6 +300,31 @@
     align-items: center;
     gap: 0.5rem;
   }
+   /* ✅ NEW: استایل جدید برای کارت‌ها */
+    .card-glow {
+        @apply border-transparent bg-gradient-to-br from-card to-card/60;
+        position: relative;
+        overflow: hidden;
+    }
+    .card-glow::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: var(--radius);
+        padding: 1px; /* ضخامت border */
+        background: linear-gradient(120deg, var(--primary), var(--secondary), var(--accent));
+        -webkit-mask:
+            linear-gradient(#fff 0 0) content-box,
+            linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+        mask-composite: exclude;
+        pointer-events: none; /* اجازه می‌دهد تا کلیک‌ها از روی آن عبور کنند */
+        opacity: 0.2; /* ملایم کردن جلوه */
+        transition: opacity 0.3s;
+    }
+    .card-glow:hover::before {
+        opacity: 0.6; /* افزایش جلوه در زمان هاور */
+    }
 }
 
 /* =========================================================

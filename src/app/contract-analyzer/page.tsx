@@ -14,12 +14,12 @@ export default function ContractAnalyzerPage() {
     return (
         <AppLayout>
             <header className="mb-6">
-                <h1 className="text-3xl font-bold font-headline">{t('contract_analyzer_page.title')}</h1>
+                <h1 className="text-3xl font-bold font-headline text-gradient">{t('contract_analyzer_page.title')}</h1>
                 <p className="text-muted-foreground">{t('contract_analyzer_page.subtitle')}</p>
             </header>
             <Card className="border-l-4 border-secondary rtl:border-r-4 rtl:border-l-0">
                 <CardHeader>
-                    <CardTitle className="font-headline">{t('contract_analyzer_page.card_title')}</CardTitle>
+                    <CardTitle className="font-headline text-gradient">{t('contract_analyzer_page.card_title')}</CardTitle>
                     <CardDescription>
                        {t('contract_analyzer_page.card_desc')}
                     </CardDescription>

@@ -67,7 +67,7 @@ export default function RoleSelectionPage() {
                         <Card className="max-w-md mx-auto border-2 border-border shadow-lg"> 
                              <CardHeader className="text-center">
                                 <Briefcase className="w-16 h-16 mx-auto text-primary mb-4" />
-                                <CardTitle className="font-headline">{t('role_selection.investor_title')}</CardTitle>
+                                <CardTitle className="font-headline text-gradient">{t('role_selection.investor_title')}</CardTitle>
                              </CardHeader>
                              <CardContent className="text-center">
                                 <p className="text-muted-foreground">{t('role_selection.investor_desc_short')}</p>
@@ -85,7 +85,7 @@ export default function RoleSelectionPage() {
                         <Card className="max-w-md mx-auto border-2 border-border shadow-lg">
                              <CardHeader className="text-center">
                                 <Rocket className="w-16 h-16 mx-auto text-primary mb-4" />
-                                <CardTitle className="font-headline">{t('role_selection.startup_title')}</CardTitle>
+                                <CardTitle className="font-headline text-gradient">{t('role_selection.startup_title')}</CardTitle>
                              </CardHeader>
                              <CardContent className="text-center">
                                 <p className="text-muted-foreground">{t('role_selection.startup_desc')}</p>
@@ -114,7 +114,7 @@ export default function RoleSelectionPage() {
                         <Card className="max-w-md mx-auto border-2 border-border shadow-lg">
                             <CardHeader className="text-center">
                                 <Vote className="w-16 h-16 mx-auto text-primary mb-4" />
-                                <CardTitle className="font-headline">{t('role_selection.voter_title')}</CardTitle>
+                                <CardTitle className="font-headline text-gradient">{t('role_selection.voter_title')}</CardTitle>
                             </CardHeader>
                             <CardContent className="text-center">
                                 <p className="text-muted-foreground">
@@ -134,7 +134,7 @@ export default function RoleSelectionPage() {
                         <Card className="max-w-md mx-auto border-2 border-border shadow-lg">
                             <CardHeader className="text-center">
                                 <Users className="w-16 h-16 mx-auto text-primary mb-4" />
-                                <CardTitle className="font-headline">{t('role_selection.delegate_title')}</CardTitle>
+                                <CardTitle className="font-headline text-gradient">{t('role_selection.delegate_title')}</CardTitle>
                             </CardHeader>
                             <CardContent className="text-center">
                                 <p className="text-muted-foreground">

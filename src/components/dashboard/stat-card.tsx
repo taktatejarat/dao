@@ -28,7 +28,7 @@ const variantColorMap: Record<CardVariant, string> = {
   "positive": "text-green-600 dark:text-green-500",
   "negative": "text-destructive",
   "neutral": "text-blue-600 dark:text-blue-500",
-  "default": "text-foreground", // استفاده از رنگ پیش‌فرض متن
+  "default": "text-gradient", // استفاده از رنگ پیش‌فرض متن
 };
 
 export function StatCard({ 

@@ -19,7 +19,7 @@ export function ActivityFeed() {
     return (
         <Card>
             <CardHeader>
-                <CardTitle className="font-headline">{t('dashboard.recent_activities')}</CardTitle>
+                <CardTitle className="font-headline text-gradient">{t('dashboard.recent_activities')}</CardTitle>
                 <CardDescription>{t('dashboard.recent_activities_desc')}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">

@@ -69,12 +69,12 @@ export default function AnalyticsPage() {
     return (
         <div className="space-y-6">
             <header className="mb-6">
-                <h1 className="text-3xl font-bold font-headline">{t('analytics_page.title')}</h1>
+                <h1 className="text-3xl font-bold font-headline text-gradient">{t('analytics_page.title')}</h1>
                 <p className="text-muted-foreground">{t('analytics_page.subtitle')}</p>
             </header>
             <Card className="border-l-4 border-secondary rtl:border-r-4 rtl:border-l-0">
                 <CardHeader>
-                    <CardTitle className="font-headline">{t('analytics_page.card_title')}</CardTitle>
+                    <CardTitle className="font-headline text-gradient">{t('analytics_page.card_title')}</CardTitle>
                     <CardDescription>
                         {t('analytics_page.card_desc')}
                     </CardDescription>
