@@ -12,6 +12,7 @@ import { Logo } from "@/components/icons/logo";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { LanguageSwitcher } from "@/components/layout/language-switcher";
+import LiquidChrome from "@/components/ui/liquidchrome";
 
 export default function LandingPage() {
     const { t } = useTranslation();
@@ -51,19 +52,28 @@ export default function LandingPage() {
                 </div>
             </header>
             
-            <main className="flex-1">
+             <main className="flex-1">
                 {/* Hero Section */}
-                <section className="container text-center py-20 sm:py-32">
-                    <h1 className="text-4xl md:text-6xl font-extrabold tracking-tighter font-headline mb-4 text-gradient leading-tight">
-                        {t('landing_page.hero_title')}
-                    </h1>
-                    <p className="max-w-2xl mx-auto text-lg text-muted-foreground mb-8">
-                        {t('landing_page.hero_subtitle')}
-                    </p>
-                    <div className="flex justify-center gap-4">
-                       <Button size="lg" onClick={openConnectModal}>
-                           {t('landing_page.get_started')} <Zap className="mx-2" />
-                       </Button>
+                {/* ✅✅✅ THE FIX IS HERE: استفاده از relative برای کانتینر اصلی ✅✅✅ */}
+                    <section className="container relative text-center ... overflow-hidden">
+                        <LiquidChrome
+                            className="absolute inset-0 w-full h-full z-[-1] opacity-30 dark:opacity-20"
+                            baseColor={[0.15, 0.1, 0.25]}
+                            speed={0.15}
+                            amplitude={0.4}
+                        />
+                        <div className="relative z-[1]">
+                        <h1 className="text-4xl md:text-6xl font-extrabold tracking-tighter font-headline mb-4 text-gradient leading-tight">
+                            {t('landing_page.hero_title')}
+                        </h1>
+                        <p className="max-w-2xl mx-auto text-lg text-muted-foreground mb-8">
+                            {t('landing_page.hero_subtitle')}
+                        </p>
+                        <div className="flex justify-center gap-4">
+                           <Button size="lg" onClick={openConnectModal}>
+                               {t('landing_page.get_started')} <Zap className="mx-2" />
+                           </Button>
+                        </div>
                     </div>
                 </section>
 

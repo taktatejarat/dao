@@ -1,7 +1,7 @@
+useClient;
 import React, { useRef, useEffect } from 'react';
 import { Renderer, Program, Mesh, Triangle } from 'ogl';
-
-import './global.css';
+import { useClient } from 'wagmi';
 
 interface LiquidChromeProps extends React.HTMLAttributes<HTMLDivElement> {
   baseColor?: [number, number, number];
@@ -27,9 +27,8 @@ export const LiquidChrome: React.FC<LiquidChromeProps> = ({
     if (!containerRef.current) return;
 
     const container = containerRef.current;
-    const renderer = new Renderer({ antialias: true });
+    const renderer = new Renderer({ antialias: true, dpr: 2 });
     const gl = renderer.gl;
-    gl.clearColor(1, 1, 1, 1);
 
     const vertexShader = `
       attribute vec2 position;
@@ -139,7 +138,13 @@ export const LiquidChrome: React.FC<LiquidChromeProps> = ({
       container.addEventListener('mousemove', handleMouseMove);
       container.addEventListener('touchmove', handleTouchMove);
     }
+    if (gl.canvas instanceof HTMLCanvasElement) {
+        container.appendChild(gl.canvas);
+    } else {
+        console.error("OGL canvas is not an HTMLCanvasElement, cannot append to DOM.");
+    }
 
+  
     let animationId: number;
     function update(t: number) {
       animationId = requestAnimationFrame(update);
@@ -148,8 +153,6 @@ export const LiquidChrome: React.FC<LiquidChromeProps> = ({
     }
     animationId = requestAnimationFrame(update);
 
-    container.appendChild(gl.canvas);
-
     return () => {
       cancelAnimationFrame(animationId);
       window.removeEventListener('resize', resize);
@@ -157,14 +160,14 @@ export const LiquidChrome: React.FC<LiquidChromeProps> = ({
         container.removeEventListener('mousemove', handleMouseMove);
         container.removeEventListener('touchmove', handleTouchMove);
       }
-      if (gl.canvas.parentElement) {
+      if (gl.canvas instanceof HTMLCanvasElement && gl.canvas.parentElement) {
         gl.canvas.parentElement.removeChild(gl.canvas);
       }
       gl.getExtension('WEBGL_lose_context')?.loseContext();
     };
   }, [baseColor, speed, amplitude, frequencyX, frequencyY, interactive]);
 
-  return <div ref={containerRef} className="liquidChrome-container" {...props} />;
+  return <div ref={containerRef} className="w-full h-full" {...props} />;
 };
 
 export default LiquidChrome;
