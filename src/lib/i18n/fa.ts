@@ -718,6 +718,10 @@ export const fa = {
     description: "توضیحات پروپوزال",
     proposer: "پیشنهاد دهنده",
     view_ai_report: "مشاهده گزارش هوش مصنوعی",
+    onchain_data_unavailable: "داده های On-Chain موجود نیست",
+    no_offchain_data: "داده Off-Chain وجود ندارد",
+    error_loading_title: "خطا در بارگذاری عنوان",
+    error_loading_desc: "خطا در بارگذاری توضیحات",
       timeline: {
       title: "وضعیت پروپوزال",
       submitted: "ارسال شده",

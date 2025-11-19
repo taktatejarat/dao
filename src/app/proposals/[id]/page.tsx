@@ -101,15 +101,27 @@ export default function ProposalDetailPage() {
         fetchAllData();
     }, [proposalIdParam]);
 
-    const onChainProposalId = useMemo(() => offChainData?.proposalIdOnChain ? BigInt(offChainData.proposalIdOnChain) : null, [offChainData]);
+    const onChainProposalId = useMemo(() => {
+        const raw = offChainData?.proposalIdOnChain;
+        if (raw === undefined || raw === null) return null;
+        try {
+            // اجازه می‌دهیم raw هم string یا number یا bigint باشد
+            return BigInt(raw.toString());
+        } catch (e) {
+            console.warn('Invalid on-chain proposal id', raw, e);
+            return null;
+        }
+    }, [offChainData]);
 
     const { data: onChainResult, isLoading: isOnChainLoading, error: onChainError } = useReadContract({
         address: daoAddress,
         abi: rayanChainDaoAbi,
         functionName: 'proposals',
-        args: [onChainProposalId!],
+        // فقط اگر شناسه وجود دارد آرگومان پاس کن
+        args: onChainProposalId ? [onChainProposalId] : undefined,
         query: { enabled: isWeb3Hydrated && !!daoAddress && !!onChainProposalId },
     });
+
     const onChainData = useMemo((): OnChainProposal | null => onChainResult as any, [onChainResult]);
 
     // ✅✅✅ STEP 2: استفاده صحیح از هوک‌های تعاملی ✅✅✅
@@ -164,28 +176,61 @@ export default function ProposalDetailPage() {
                         <CardContent><p className="text-muted-foreground whitespace-pre-wrap">{offChainData?.description ?? t('proposal_detail.no_offchain_data')}</p></CardContent>
                     </Card>
 
-                    {onChainData && (
-                        <Card>
-                            <CardHeader><CardTitle>{t('proposal_detail.voting_results')}</CardTitle></CardHeader>
-                            <CardContent>
-                                <div>
-                                    <div className="flex justify-between mb-1 text-sm"><span className="font-medium text-green-600">{t('proposal_detail.votes_for')}</span><span>{formatNumber(formatEther(onChainData.forVotes), locale)} ({forPercentage}%)</span></div>
-                                    <Progress value={forPercentage} className="h-3 [&>*]:bg-green-600" />
+                            {/* Voting results card - show skeleton / message when on-chain data not ready */}
+                            <Card>
+                                <CardHeader><CardTitle>{t('proposal_detail.voting_results')}</CardTitle></CardHeader>
+                                <CardContent>
+                                    {isOnChainLoading ? (
+                                        // اگر در حال لود است، اسکلتون یا پیام نمایش بده
+                                        <div className="space-y-3">
+                                            <Skeleton className="h-6 w-3/4" />
+                                            <Skeleton className="h-4 w-1/2" />
+                                            <Skeleton className="h-10 w-full" />
+                                        </div>
+                            ) : onChainData ? (
+                                // حالت عادی: داده وجود دارد
+                                <>
+                                    <div>
+                                        <div className="flex justify-between mb-1 text-sm">
+                                            <span className="font-medium text-green-600">{t('proposal_detail.votes_for')}</span>
+                                            <span>{formatNumber(formatEther(onChainData.forVotes), locale)} ({forPercentage}%)</span>
+                                        </div>
+                                        <Progress value={forPercentage} className="h-3 [&>*]:bg-green-600" />
+                                    </div>
+                                    <div className="mt-4">
+                                        <div className="flex justify-between mb-1 text-sm">
+                                            <span className="font-medium text-destructive">{t('proposal_detail.votes_against')}</span>
+                                            <span>{formatNumber(formatEther(onChainData.againstVotes), locale)} ({100 - forPercentage}%)</span>
+                                        </div>
+                                        <Progress value={100 - forPercentage} className="h-3 [&>*]:bg-destructive" />
+                                    </div>
+                                    {hasVoted && (
+                                        <Alert className="mt-6" variant="success">
+                                            <CheckCircle className="h-4 w-4" />
+                                            <AlertTitle>{t('proposal_detail.you_have_voted_title')}</AlertTitle>
+                                            <AlertDescription>{t('proposal_detail.you_have_voted_desc')}</AlertDescription>
+                                        </Alert>
+                                    )}
+                                </>
+                            ) : (
+                                // داده آن‌چین موجود نیست — پیغام مناسب نشان بده
+                                <div className="text-sm text-muted-foreground">
+                                    {t('proposal_detail.onchain_data_unavailable') /* یا یک متن فارسی سفارشی مثل "داده‌های زنجیره‌ای در دسترس نیست" */}
                                 </div>
-                                <div className="mt-4">
-                                    <div className="flex justify-between mb-1 text-sm"><span className="font-medium text-destructive">{t('proposal_detail.votes_against')}</span><span>{formatNumber(formatEther(onChainData.againstVotes), locale)} ({100 - forPercentage}%)</span></div>
-                                    <Progress value={100 - forPercentage} className="h-3 [&>*]:bg-destructive" />
-                                </div>
-                                {hasVoted && (<Alert className="mt-6" variant="success"><CheckCircle className="h-4 w-4" /><AlertTitle>{t('proposal_detail.you_have_voted_title')}</AlertTitle><AlertDescription>{t('proposal_detail.you_have_voted_desc')}</AlertDescription></Alert>)}
-                            </CardContent>
-                            {onChainData.state === PROPOSAL_STATE_VOTING && !hasVoted && (
-                                <CardFooter className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                    <Button size="lg" className="bg-green-600 hover:bg-green-700 w-full" onClick={() => handleVote('for')} disabled={!canVoteFor || isVotingPending}>{isVotingPending ? <DaoLoadingSpinner /> : <Check className="me-2"/>}{t('proposal_detail.vote_for')}</Button>
-                                    <Button size="lg" variant="destructive" className="w-full" onClick={() => handleVote('against')} disabled={!canVoteAgainst || isVotingPending}>{isVotingPending ? <DaoLoadingSpinner /> : <X className="me-2"/>}{t('proposal_detail.vote_against')}</Button>
-                                </CardFooter>
                             )}
-                        </Card>
-                    )}
+                        </CardContent>
+                        {/* اگر داده وجود دارد، footer رأی‌گیری را نمایش بده */}
+                        {onChainData && onChainData.state === PROPOSAL_STATE_VOTING && !hasVoted && (
+                            <CardFooter className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <Button size="lg" className="bg-green-600 hover:bg-green-700 w-full" onClick={() => handleVote('for')} disabled={!canVoteFor || isVotingPending}>
+                                    {isVotingPending ? <DaoLoadingSpinner /> : <Check className="me-2"/>}{t('proposal_detail.vote_for')}
+                                </Button>
+                                <Button size="lg" variant="destructive" className="w-full" onClick={() => handleVote('against')} disabled={!canVoteAgainst || isVotingPending}>
+                                    {isVotingPending ? <DaoLoadingSpinner /> : <X className="me-2"/>}{t('proposal_detail.vote_against')}
+                                </Button>
+                            </CardFooter>
+                        )}
+                    </Card>
                 </div>
                 
                 <div className="space-y-6">
