@@ -707,7 +707,6 @@ export const fa = {
     for: "موافق",
     against: "مخالف",
     total_votes: "کل آرا",
-    timeline: "زمان‌بندی",
     created_on: "تاریخ ایجاد",
     voting_deadline: "مهلت رای‌گیری",
     vote_for: "رای موافق",
@@ -719,7 +718,18 @@ export const fa = {
     description: "توضیحات پروپوزال",
     proposer: "پیشنهاد دهنده",
     view_ai_report: "مشاهده گزارش هوش مصنوعی",
-  },
+      timeline: {
+      title: "وضعیت پروپوزال",
+      submitted: "ارسال شده",
+      voting: "در حال رأی‌گیری",
+      approved: "نتیجه نهایی",
+      executed: "اجرا شده",
+    },
+    you_have_voted_title: "شما رأی خود را ثبت کرده‌اید",
+    you_have_voted_desc: "از مشارکت شما در فرآیند حاکمیت سپاسگزاریم. نتیجه پس از پایان مهلت رأی‌گیری مشخص خواهد شد.",
+    admin_actions: "اقدامات مدیریتی",
+    execute_proposal: "اجرای پروپوزال",
+    },
   
   // Dynamic Content
   users: {

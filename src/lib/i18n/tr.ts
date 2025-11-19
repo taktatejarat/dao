@@ -703,7 +703,6 @@ export const tr = {
     for: "Lehine",
     against: "Aleyhine",
     total_votes: "Toplam Oy",
-    timeline: "Zaman Çizelgesi",
     created_on: "Oluşturulma Tarihi",
     voting_deadline: "Oylama Son Tarihi",
     vote_for: "Lehine Oy Ver",
@@ -715,6 +714,17 @@ export const tr = {
     description: "teklif açıklaması",
     proposer: "öneren kişi",
     view_ai_report: "yapay zeka raporunu görüntüle",
+    timeline:{
+      title: "Teklif durumu",
+      submitted: "Gönderildi",
+      voting: "Oylama aşamasında",
+      approved: "Nihai sonuç",
+      executed: "Uygulandı",
+      },
+      you_have_voted_title: "Oyunuzu kaydettiniz",
+      you_have_voted_desc: "Yönetişim sürecine katılımınız için teşekkür ederiz Sonuç oylama süresi tamamlandıktan sonra belirlenecektir",
+      admin_actions: "Yönetim işlemleri",
+      execute_proposal: "Teklifi yürüt",
   },
 
   // Dynamic Content

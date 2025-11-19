@@ -4,7 +4,6 @@
 
 import { useEffect, useState } from 'react';
 import { AppLayout } from '@/components/layout/app-layout';
-// --- تمام کامپوننت‌های UI شما در اینجا ایمپورت می‌شوند ---
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -17,7 +16,6 @@ import { FileInput } from '@/components/ui/file-input';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { DaoLoadingSpinner } from '@/components/icons/dao-loading-spinner';
 import { AlertTriangle, PlusCircle, Trash2 } from 'lucide-react';
-// --- ایمپورت‌های اصلی منطق ---
 import { useTranslation } from '@/hooks/use-translation';
 import { useWeb3 } from '@/context/Web3Provider';
 import { useRouter } from 'next/navigation';
@@ -60,9 +58,8 @@ export default function NewProposalPage() {
         isPending, setIsPending, isFormValid,
         // Handlers
         handleAddMilestone, handleMilestoneChange, handleRemoveMilestone, handleSubmit,
-    } = useCreateProposal({ daoAddress: daoAddress as Hex }); 
+    } = useCreateProposal({ daoAddress: daoAddress as Hex , router: router});
 
-    // --- State های محلی فقط برای مدیریت جریان تراکنش ---
     const [txHash, setTxHash] = useState<Hex | undefined>();
     const { data: receipt, isSuccess: isConfirmed } = useWaitForTransactionReceipt({ hash: txHash });
 

@@ -4,15 +4,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getDb } from '@/lib/mongodb';
 import { logEvent } from '@/lib/logger';
 
+
 export async function GET(req: NextRequest) {
     try {
         const db = await getDb();
-        const proposalsCollection = db.collection('proposals');
-
-        // ما فقط فیلدهای ضروری برای نمایش در لیست را برمی‌گردانیم تا حجم پاسخ کم باشد
-        const proposals = await proposalsCollection.find(
-            {}, // می‌توانید فیلترهایی مانند { onChainStatus: 'confirmed' } اضافه کنید
-            {
+        const proposals = await db.collection('proposals').find({}, {
                 projection: {
                     _id: 1, // _id را به عنوان رشته برمی‌گردانیم
                     proposalIdOnChain: 1,
@@ -33,7 +29,8 @@ export async function GET(req: NextRequest) {
             _id: p._id.toString(),
         }));
 
-        return NextResponse.json({ success: true, proposals: sanitizedProposals });
+        // ✅✅✅ THE FIX: همیشه از کلید 'data' استفاده می‌کنیم ✅✅✅
+        return NextResponse.json({ success: true, data: sanitizedProposals });
 
     } catch (error) {
         console.error("Error fetching proposals:", error);

@@ -7,3 +7,10 @@ INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
 --- [AI-ENGINE] Starting contract analysis for code snippet (length: 6733) ---
 --- [AI-ENGINE] Contract analysis complete. Found 1 suggestions. ---
 INFO:     127.0.0.1:51520 - "POST /analytics/contract HTTP/1.1" 200 OK
+--- [AI-ENGINE] Starting contract analysis for code snippet (length: 6733) ---
+--- [AI-ENGINE] Contract analysis complete. Found 1 suggestions. ---
+INFO:     127.0.0.1:42480 - "POST /analytics/contract HTTP/1.1" 200 OK
+--- [AI-ENGINE] Starting contract analysis for code snippet (length: 697) ---
+--- [AI-ENGINE] Contract analysis complete. Found 1 suggestions. ---
+INFO:     127.0.0.1:48252 - "POST /analytics/contract HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47936 - "GET /reports/proposal/691a1df8ac31cc88c5456fdd HTTP/1.1" 200 OK

@@ -702,7 +702,6 @@ export const en = {
     for: "For",
     against: "Against",
     total_votes: "Total Votes",
-    timeline: "Timeline",
     created_on: "Created On",
     voting_deadline: "Voting Deadline",
     vote_for: "Vote For",
@@ -714,6 +713,17 @@ export const en = {
     description: "proposal description",
     proposer: "proposer",
     view_ai_report: "view AI report",
+    timeline:{
+      title: "Proposal status",
+      submitted: "Submitted",
+      voting: "In voting",
+      approved: "Final result",
+      executed: "Executed",
+      },
+      you_have_voted_title: "You have cast your vote",
+      you_have_voted_desc: "Thank you for participating in the governance process The result will be available after the voting period ends",
+      admin_actions: "Administrative actions",
+      execute_proposal: "Execute proposal",
   },
 
   // Dynamic Content

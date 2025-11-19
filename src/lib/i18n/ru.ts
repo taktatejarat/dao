@@ -703,7 +703,6 @@ export const ru = {
     for: "За",
     against: "Против",
     total_votes: "Всего голосов",
-    timeline: "Временная шкала",
     created_on: "Дата создания",
     voting_deadline: "Крайний срок голосования",
     vote_for: "Голосовать 'За'",
@@ -715,6 +714,17 @@ export const ru = {
     description: "описание предложения",
     proposer: "предлагающий",
     view_ai_report: "просмотр отчета об искусственном интеллекте",
+    timeline:{
+      title: "Статус предложения",
+      submitted: "Отправлено",
+      voting: "Идёт голосование",
+      approved: "Окончательный результат",
+      executed: "Исполнено",
+      },
+      you_have_voted_title: "Вы уже проголосовали",
+      you_have_voted_desc: "Благодарим вас за участие в процессе управления Результат будет доступен после завершения периода голосования",
+      admin_actions: "Административные действия",
+      execute_proposal: "Исполнить предложение",
   },
 
   // Dynamic Content

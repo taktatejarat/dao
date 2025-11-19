@@ -28,7 +28,6 @@ export async function GET(
         const collection = db.collection('proposals');
 
         // جستجو بر اساس شناسه آن‌چین (onChainId) یا شناسه MongoDB (_id)
-        // این کار انعطاف‌پذیری را افزایش می‌دهد
         const query = ObjectId.isValid(proposalId)
             ? { _id: new ObjectId(proposalId) }
             : { proposalIdOnChain: proposalId };

@@ -703,7 +703,6 @@ export const ar = {
     for: "مع",
     against: "ضد",
     total_votes: "إجمالي الأصوات",
-    timeline: "الجدول الزمني",
     created_on: "تاريخ الإنشاء",
     voting_deadline: "الموعد النهائي للتصويت",
     vote_for: "تصويت مع",
@@ -715,6 +714,17 @@ export const ar = {
     description: "وصف المقترح",
     proposer: "مقدم المقترح",
     view_ai_report: "عرض تقرير الذكاء الاصطناعي",
+    timeline:{
+      title: "حالة المقترح",
+      submitted: "تم الإرسال",
+      voting: "قيد التصويت",
+      approved: "النتيجة النهائية",
+      executed: "تم التنفيذ",
+      },
+      you_have_voted_title: "لقد سجلت صوتك",
+      you_have_voted_desc: "نشكرك على مشاركتك في عملية الحوكمة سيتم الإعلان عن النتيجة بعد انتهاء فترة التصويت",
+      admin_actions: "الإجراءات الإدارية",
+      execute_proposal: "تنفيذ المقترح",
   },
   
   // Dynamic Content

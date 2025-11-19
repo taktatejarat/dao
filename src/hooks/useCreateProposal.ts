@@ -7,13 +7,18 @@ import { useAccount, useWaitForTransactionReceipt, useWriteContract } from 'wagm
 import { useTranslation } from '@/hooks/use-translation';
 import { rayanChainDaoAbi } from '@/lib/blockchain/generated';
 import { toast } from 'sonner';
-import router from 'next/router';
+import type { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
 
 // --- Type Definitions ---
 export interface Milestone { name: string; durationDays: string; amount: string; }
 interface UseCreateProposalProps { daoAddress: Address | undefined; }
 
-export function useCreateProposal({ daoAddress }: UseCreateProposalProps) {
+interface UseCreateProposalProps {
+    daoAddress: Address | undefined;
+    router: AppRouterInstance;
+}
+
+export function useCreateProposal({ daoAddress, router }: UseCreateProposalProps) {
     const { address } = useAccount();
     const { t } = useTranslation();
     const { writeContractAsync } = useWriteContract();

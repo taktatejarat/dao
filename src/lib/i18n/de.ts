@@ -703,7 +703,6 @@ export const de = {
     for: "Dafür",
     against: "Dagegen",
     total_votes: "Gesamtstimmen",
-    timeline: "Zeitleiste",
     created_on: "Erstellt am",
     voting_deadline: "Abstimmungsfrist",
     vote_for: "Dafür stimmen",
@@ -715,6 +714,17 @@ export const de = {
     description: "Beschreibung des Vorschlags",
     proposer: "Antragsteller",
     view_ai_report: "KI Bericht anzeigen",
+    timeline:{
+      title: "Status des Vorschlags",
+      submitted: "Eingereicht",
+      voting: "Abstimmung läuft",
+      approved: "Endergebnis",
+      executed: "Ausgeführt",
+      },
+      you_have_voted_title: "Sie haben bereits abgestimmt",
+      you_have_voted_desc: "Vielen Dank für Ihre Teilnahme am Governance Prozess Das Ergebnis wird nach Abschluss der Abstimmungsfrist bekanntgegeben",
+      admin_actions: "Verwaltungsaktionen",
+      execute_proposal: "Vorschlag ausführen",
   },
 
   // Dynamic Content
