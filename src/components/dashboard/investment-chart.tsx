@@ -2,7 +2,7 @@
 
 import { TrendingUp } from "lucide-react"
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts"
-import * as React from "react"
+import { useEffect, useState } from "react";
 import {
   Card,
   CardContent,
@@ -20,6 +20,8 @@ import {
 import { useTranslation } from "@/hooks/use-translation"
 import { useLanguage } from "@/context/LanguageProvider"
 import { formatLocaleDate } from "@/lib/utils"
+import React from "react";
+import { DaoLoadingSpinner } from "../icons/dao-loading-spinner";
 
 const chartConfig = {
   investment: {
@@ -28,32 +30,45 @@ const chartConfig = {
   },
 } satisfies ChartConfig
 
+
 export function InvestmentChart() {
-  const { t, locale } = useTranslation();
-  chartConfig.investment.label = t('dashboard.investment_chart_label');
+    const { t, locale } = useTranslation();
+    const [chartData, setChartData] = useState<any[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
 
-  const chartData = React.useMemo(() => {
-    const data = [];
-    const today = new Date();
-    for (let i = 5; i >= 0; i--) {
-        const date = new Date(today.getFullYear(), today.getMonth() - i, 1);
-        data.push({
-            month: formatLocaleDate(date, locale, { month: 'short' }),
-            investment: Math.floor(Math.random() * (300 - 150 + 1) + 150),
-        });
-    }
-    return data;
-  }, [locale]);
+    useEffect(() => {
+        const fetchChartData = async () => {
+            try {
+                const response = await fetch('/api/charts/investments');
+                const data = await response.json();
+                if (data.success) {
+                    // فرمت کردن ماه برای نمایش محلی
+                    const formattedData = data.data.map((item: any) => ({
+                        ...item,
+                        month: formatLocaleDate(new Date(item.month), locale, { month: 'short' }),
+                    }));
+                    setChartData(formattedData);
+                }
+            } catch (error) {
+                console.error("Failed to fetch chart data:", error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        fetchChartData();
+    }, [locale]);
 
-
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="font-headline">{t('dashboard.investment_analysis')}</CardTitle>
-        <CardDescription>{t('dashboard.investment_analysis_desc')}</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <ChartContainer config={chartConfig}>
+    return (
+        <Card>
+            <CardHeader>
+                <CardTitle className="font-headline">{t('dashboard.investment_analysis')}</CardTitle>
+                <CardDescription>{t('dashboard.investment_analysis_desc')}</CardDescription>
+            </CardHeader>
+            <CardContent>
+                {isLoading ? (
+                    <div className="flex justify-center items-center h-[200px]"><DaoLoadingSpinner /></div>
+                ) : (
+                    <ChartContainer config={chartConfig}>
           <BarChart accessibilityLayer data={chartData}>
             <CartesianGrid vertical={false} />
             <XAxis
@@ -70,6 +85,7 @@ export function InvestmentChart() {
             <Bar dataKey="investment" fill="var(--color-investment)" radius={4} />
           </BarChart>
         </ChartContainer>
+        )}
       </CardContent>
       <CardFooter className="flex-col items-start gap-2 text-sm">
         <div className="flex gap-2 font-medium leading-none">
@@ -79,6 +95,6 @@ export function InvestmentChart() {
           {t('dashboard.investment_analysis_footer2')}
         </div>
       </CardFooter>
-    </Card>
-  )
+         </Card>
+    )
 }

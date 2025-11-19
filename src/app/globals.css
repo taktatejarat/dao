@@ -1,4 +1,4 @@
-/* src/app/globals.css - نسخه نهایی با تم "Neural Genesis" */
+/* src/app/globals.css - نسخه نهایی با تم "Neural Genesis" (ادغام اصلاحات بنفش درخشان و گرادیانت طلایی-سبز-آبی) */
 
 @import "@rainbow-me/rainbowkit/styles.css";
 
@@ -6,6 +6,11 @@
 @tailwind components;
 @tailwind utilities;
 
+/* =========================================================
+   THEME VARIABLES (Base + Dark)
+   همهٔ متغیرها به صورت HSL ذخیره شده‌اند تا با Tailwind و
+   افکت‌های شفافیت (alpha) به سادگی کار کنند
+   ========================================================= */
 @layer base {
   :root {
     /* --- THEME: "Neural Genesis" (Light Mode) --- */
@@ -20,8 +25,8 @@
     --popover: 210 20% 100%;
     --popover-foreground: 220 15% 20%;
 
-    /* رنگ اصلی: آبی-بنفش الهام گرفته از AI */
-    --primary: 250 80% 60%; /* Vibrant Indigo/AI Blue */
+    /* رنگ اصلی: بنفش نئونی/AI - تنظیم‌شده برای درخشندگی */
+    --primary: 265 95% 63%; /* AI Neon Purple (Light Mode) */
     --primary-foreground: 210 20% 98%;
 
     /* رنگ ثانویه: سبز-آبی بلاکچین */
@@ -40,25 +45,28 @@
 
     --border: 220 15% 90%;
     --input: 220 15% 90%;
-    --ring: 250 80% 65%; /* کمی روشن‌تر از primary برای focus */
+
+    /* کمی روشن‌تر از primary برای focus در حالت light */
+    --ring: 265 95% 70%;
 
     --radius: 0.75rem; /* کمی گردتر برای ظاهر مدرن‌تر */
 
-    /* ... متغیرهای چارت و سایدبار با تم جدید هماهنگ شده‌اند ... */
-    --chart-1: 250 80% 60%;
+    /* متغیرهای چارت */
+    --chart-1: 265 95% 63%;
     --chart-2: 180 80% 40%;
     --chart-3: 45 90% 55%;
     --chart-4: 300 80% 60%;
     --chart-5: 210 80% 60%;
 
+    /* سایدبار */
     --sidebar-background: 220 20% 96%;
     --sidebar-foreground: 220 15% 20%;
-    --sidebar-primary: 250 80% 60%;
+    --sidebar-primary: 265 95% 63%;
     --sidebar-primary-foreground: 210 20% 98%;
     --sidebar-accent: 220 20% 90%;
     --sidebar-accent-foreground: 220 15% 10%;
     --sidebar-border: 220 15% 88%;
-    --sidebar-ring: 250 80% 65%;
+    --sidebar-ring: 265 95% 70%;
   }
 
   .dark {
@@ -73,8 +81,8 @@
     --popover: 224 71% 4%;
     --popover-foreground: 210 20% 88%;
 
-    /* رنگ اصلی: بنفش نئونی برای حس AI */
-    --primary: 260 100% 75%; /* Vibrant Neon Purple */
+    /* رنگ اصلی: بنفش نئونی تقویت‌شده برای حس AI */
+    --primary: 270 100% 75%; /* Stronger Neon Purple (Dark Mode) */
     --primary-foreground: 224 71% 10%;
 
     /* رنگ ثانویه: سبز-آبی درخشان برای بلاکچین */
@@ -93,12 +101,14 @@
     
     --border: 224 30% 20%;
     --input: 224 30% 20%;
-    --ring: 260 100% 80%; /* کمی روشن‌تر برای focus */
+
+    /* کمی روشن‌تر برای focus در حالت dark */
+    --ring: 270 100% 82%;
     
     --radius: 0.75rem;
 
-    /* ... متغیرهای چارت و سایدبار با تم جدید هماهنگ شده‌اند ... */
-    --chart-1: 260 100% 75%;
+    /* متغیرهای چارت */
+    --chart-1: 270 100% 75%;
     --chart-2: 170 100% 45%;
     --chart-3: 45 100% 60%;
     --chart-4: 320 100% 75%;
@@ -106,15 +116,18 @@
     
     --sidebar-background: 224 50% 7%;
     --sidebar-foreground: 210 20% 88%;
-    --sidebar-primary: 260 100% 75%;
+    --sidebar-primary: 270 100% 75%;
     --sidebar-primary-foreground: 210 20% 98%;
     --sidebar-accent: 224 40% 12%;
     --sidebar-accent-foreground: 210 20% 98%;
     --sidebar-border: 224 30% 15%;
-    --sidebar-ring: 260 100% 80%;
+    --sidebar-ring: 270 100% 82%;
   }
 }
 
+/* =========================================================
+   پایه های عمومی و فونت‌ها
+   ========================================================= */
 @layer base {
   * {
     @apply border-border;
@@ -123,21 +136,20 @@
   /* ۱. تنظیم فونت پیش‌فرض برای کل برنامه */
   body {
     @apply bg-background text-foreground;
-    font-family: var(--font-sans); 
+    font-family: var(--font-sans);
   }
   
-  /* ۲. تغییر فونت برای بدنه متن در حالت فارسی */
+  /* ۲. تغییر فونت برای بدنه متن در حالت فارسی (RTL) */
   [dir="rtl"] body {
-    font-family: var(--font-vazir); 
+    font-family: var(--font-vazir);
   }
 
-  /* ۳. تنظیم فونت پیش‌فرض برای سرفصل‌ها (انگلیسی) */
+  /* ۳. تنظیم فونت پیش‌فرض برای سرفصل‌ها */
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-headline);
   }
 
-  /* ✅ FIX: این قانون جدید و اصلاح شده مشکل را به طور کامل حل می‌کند */
-  /* به مرورگر می‌گوییم که در حالت راست‌چین، هم تگ‌های h1-h6 و هم هر عنصری با کلاس .font-headline باید از فونت وزیرمتن استفاده کنند */
+  /* در حالت راست‌چین، سرفصل‌ها و کلاس .font-headline از فونت وزیر استفاده کنند */
   [dir="rtl"] h1,
   [dir="rtl"] h2,
   [dir="rtl"] h3,
@@ -147,19 +159,175 @@
   [dir="rtl"] .font-headline {
     font-family: var(--font-vazir);
   }
+
+  /* پایه‌ای برای عناصر تعاملی تا از متغیرهای تم استفاده کنند */
+  button, a, input, textarea, select {
+    border-radius: var(--radius);
+  }
+
+  /* کلاس کمکی برای استفاده از رنگ اصلی در پس‌زمینه */
+  .bg-primary {
+    background-color: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+  }
+
+  /* کلاس کمکی برای متنهای رنگ اصلی */
+  .text-primary {
+    color: hsl(var(--primary));
+  }
+
+  /* کلاس برایリング فوکوس با رنگ primary */
+  .ring-primary:focus {
+    box-shadow: 0 0 0 4px color-mix(in srgb, hsl(var(--primary)) 20%, transparent);
+  }
 }
 
-
-/* --- کامپوننت‌های سفارشی (با استایل‌های جدید) --- */
+/* =========================================================
+   کامپوننت‌ها و افکت‌های اختصاصی
+   ========================================================= */
 @layer components {
-    /* گرادینت متن اکنون از رنگ‌های جدید و جذاب‌تری استفاده می‌کند */
-    .text-gradient {
-        @apply bg-clip-text text-transparent bg-gradient-to-r from-primary via-secondary to-accent;
-    }
+  /* گرادینت متن اکنون از رنگ‌های جدید و جذاب‌تری استفاده می‌کند */
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary via-secondary to-accent;
+    /* برای حالت‌های خاص، fallback */
+    background-image: linear-gradient(90deg, hsl(var(--primary)), hsl(var(--secondary)), hsl(var(--accent)));
+  }
 
-    /* ✅ NEW: افکت درخشش (Glow) برای دکمه‌ها و عناصر مهم */
-    .btn-glow {
-        @apply shadow-[0_0_15px_hsl(var(--primary)/0.5),_0_0_30px_hsl(var(--primary)/0.3)]
-               transition-shadow duration-300 hover:shadow-[0_0_25px_hsl(var(--primary)/0.7),_0_0_50px_hsl(var(--primary)/0.5)];
-    }
+  /* گرادیانت جدید مخصوص تیترها:
+     طلایی -> سبز-آبی -> آبی که حسی از فناوری، ثروت و رشد می‌دهد
+  */
+  .heading-gradient {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(90deg,
+      hsl(45 95% 60%) 0%,
+      hsl(170 90% 55%) 50%,
+      hsl(200 90% 60%) 100%);
+    /* برای خوانایی بهتر در پس‌زمینه‌های روشن و تیره */
+    -webkit-background-clip: text;
+    background-clip: text;
+  }
+
+  /* افکت درخشش (Glow) برای دکمه‌ها و عناصر مهم */
+  .btn-glow {
+    /* سایه‌های چندلایه برای درخشش نئونی */
+    @apply transition-shadow duration-300;
+    box-shadow:
+      0 0 20px hsla(var(--primary) / 0.8),
+      0 0 40px hsla(var(--primary) / 0.5);
+    background-color: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+    border: 1px solid color-mix(in srgb, hsl(var(--primary)) 30%, black 10%);
+  }
+
+  .btn-glow:hover,
+  .btn-glow:focus {
+    box-shadow:
+      0 0 30px hsla(var(--primary) / 1),
+      0 0 60px hsla(var(--primary) / 0.8);
+    transform: translateY(-1px);
+  }
+
+  /* variant برای دکمه‌های ثانویه با تم بلاکچین */
+  .btn-secondary-glow {
+    @apply transition-shadow duration-300;
+    box-shadow:
+      0 0 18px hsla(var(--secondary) / 0.85),
+      0 0 36px hsla(var(--secondary) / 0.45);
+    background-color: hsl(var(--secondary));
+    color: hsl(var(--secondary-foreground));
+    border: 1px solid color-mix(in srgb, hsl(var(--secondary)) 30%, black 10%);
+  }
+
+  .btn-secondary-glow:hover,
+  .btn-secondary-glow:focus {
+    box-shadow:
+      0 0 28px hsla(var(--secondary) / 1),
+      0 0 56px hsla(var(--secondary) / 0.75);
+    transform: translateY(-1px);
+  }
+
+  /* کارت با سایهٔ نرم و لبهٔ نیمه‌گرد برای حس عمق */
+  .card {
+    background-color: hsl(var(--card));
+    color: hsl(var(--card-foreground));
+    border: 1px solid hsl(var(--border));
+    border-radius: var(--radius);
+    box-shadow: 0 6px 18px rgba(16,24,40,0.06);
+    padding: 1rem;
+  }
+
+  /* سربرگ کارت با گرادیانت ملایم */
+  .card-header {
+    background-image: linear-gradient(90deg, color-mix(in srgb, hsl(var(--primary)), white 20%), transparent);
+    padding: 0.75rem 1rem;
+    border-top-left-radius: calc(var(--radius) - 0.125rem);
+    border-top-right-radius: calc(var(--radius) - 0.125rem);
+  }
+
+  /* لینک‌های تأکیدی با رنگ طلایی و هاور آبی-سبز */
+  .link-accent {
+    color: hsl(var(--accent));
+    text-decoration: none;
+  }
+  .link-accent:hover {
+    color: hsl(var(--secondary));
+    text-decoration: underline;
+  }
+
+  /* سایدبار: هماهنگ با متغیرهای سایدبار */
+  .sidebar {
+    background-color: hsl(var(--sidebar-background));
+    color: hsl(var(--sidebar-foreground));
+    border-right: 1px solid hsl(var(--sidebar-border));
+    min-height: 100vh;
+    padding: 1rem;
+  }
+
+  .sidebar .brand {
+    color: hsl(var(--sidebar-primary));
+    background-color: transparent;
+    font-weight: 700;
+  }
+
+  /* نوار وضعیت کوچک با رنگ تأکید */
+  .status-pill {
+    background-color: hsl(var(--accent));
+    color: hsl(var(--accent-foreground));
+    padding: 0.25rem 0.5rem;
+    border-radius: 999px;
+    font-size: 0.875rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
 }
+
+/* =========================================================
+   Utilities تکمیلی (با Tailwind ترکیب‌پذیر)
+   ========================================================= */
+@layer utilities {
+  /* متن کوچک با گرادیانت مخصوص عنوان */
+  .util-heading-sm {
+    @apply text-lg font-semibold heading-gradient;
+  }
+
+  /* وضعیت نئونی برای آیکون‌ها */
+  .neon-icon {
+    filter: drop-shadow(0 0 8px hsla(var(--primary) / 0.6));
+  }
+
+  /* حالت تاریک-محور برای پس‌زمینه‌های بزرگ */
+  .bg-immersive {
+    background-image: radial-gradient(circle at 10% 10%, color-mix(in srgb, hsl(var(--primary)) 25%, transparent 0%), transparent 40%),
+                      radial-gradient(circle at 90% 80%, color-mix(in srgb, hsl(var(--secondary)) 18%, transparent 0%), transparent 45%);
+  }
+}
+
+/* =========================================================
+   نکات نهایی و توصیه‌های اجرا
+   - برای بهترین نتیجه در Tailwind، مطمئن شوید که
+     امکان استفاده از directive های @apply و color-mix در
+     پیکربندی PostCSS فعال است
+   - برای آنگونه که glow به درستی کار کند، از پس‌زمینه‌های
+     مناسب (تیره در حالت dark و میانه در light) استفاده کنید
+   ========================================================= */
