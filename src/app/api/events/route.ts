@@ -7,6 +7,8 @@ import { rayanChainDaoAbi, stakingAbi, financeAbi } from '@/lib/blockchain/gener
 const API_KEY = process.env.POLYGONSCAN_API_KEY;
 const BASE_URL = 'https://api.etherscan.io/v2/api';
 
+export const dynamic = 'force-dynamic';
+
 // ✅✅✅ FIX 1: NEW HELPER FUNCTION TO SOLVE BigInt ERROR ✅✅✅
 // این تابع به صورت بازگشتی تمام مقادیر BigInt را به رشته تبدیل می‌کند
 const convertBigIntsToStrings = (obj: any): any => {

@@ -1,16 +1,12 @@
-INFO:     Started server process [132398]
+INFO:     Started server process [151566]
 INFO:     Waiting for application startup.
 INFO:     Application startup complete.
 INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
 [CONFIG] AI Oracle configured successfully for address: 0x55138244DC1F785C4b955480Ac70410bC1D85A08
 [AI-LAYER-3] Financial risk model loaded successfully.
---- [AI-ENGINE] Starting contract analysis for code snippet (length: 6733) ---
+INFO:     127.0.0.1:60412 - "GET /reports/proposal/69188d5bb336d8426f25a1c6 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55916 - "GET /analytics/user/0x55138244DC1F785C4b955480Ac70410bC1D85A08 HTTP/1.1" 200 OK
+--- [AI-ENGINE] Starting contract analysis for code snippet (length: 1155) ---
 --- [AI-ENGINE] Contract analysis complete. Found 1 suggestions. ---
-INFO:     127.0.0.1:51520 - "POST /analytics/contract HTTP/1.1" 200 OK
---- [AI-ENGINE] Starting contract analysis for code snippet (length: 6733) ---
---- [AI-ENGINE] Contract analysis complete. Found 1 suggestions. ---
-INFO:     127.0.0.1:42480 - "POST /analytics/contract HTTP/1.1" 200 OK
---- [AI-ENGINE] Starting contract analysis for code snippet (length: 697) ---
---- [AI-ENGINE] Contract analysis complete. Found 1 suggestions. ---
-INFO:     127.0.0.1:48252 - "POST /analytics/contract HTTP/1.1" 200 OK
-INFO:     127.0.0.1:47936 - "GET /reports/proposal/691a1df8ac31cc88c5456fdd HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56720 - "POST /analytics/contract HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37318 - "GET /reports/proposal/69188d5bb336d8426f25a1c6 HTTP/1.1" 200 OK

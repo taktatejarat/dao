@@ -298,7 +298,7 @@ export const ar = {
     project_title: "عنوان المشروع",
     project_title_placeholder: "مثال: منصة تعليمية للويب 3",
     project_name: "اسم المشروع",
-    project_name_placeholder: "مثال: RayanChain DAO",
+    project_name_placeholder: "مثال: «ای-مشرف»",
     tagline: "شعار (ملخص من سطر واحد)",
     tagline_placeholder: "مثال: منصة لامركزية للاستثمار الجريء",
     industry: "الصناعة",
@@ -832,6 +832,7 @@ export const ar = {
     id_copied: "تم نسخ معرف الاقتراح إلى الحافظة!",
     sending_transaction: "جاري إرسال المعاملة",
     transaction_failed: "فشلت المعاملة",
+    upload_failed: "فشل تحميل الملف:",
   },
     numbers: {
     0: "۰",

@@ -6,6 +6,8 @@ import { logEvent } from '@/lib/logger';
 
 const AI_ENGINE_URL = process.env.AI_ENGINE_URL || 'http://localhost:8000';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(
   req: NextRequest,
   { params }: { params: { address: string } }

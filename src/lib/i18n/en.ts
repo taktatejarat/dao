@@ -831,6 +831,7 @@ export const en = {
     id_copied: "Proposal ID copied to clipboard!",
     sending_transaction: "transaction is being sent",
     transaction_failed: "transaction failed",
+    upload_failed: "File upload failed:",
   },
       numbers: {
     0: "0",

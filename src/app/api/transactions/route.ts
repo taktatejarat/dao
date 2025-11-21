@@ -2,6 +2,8 @@
 
 import { type NextRequest, NextResponse } from 'next/server';
 
+export const dynamic = 'force-dynamic';
+
 const API_KEY = process.env.POLYGONSCAN_API_KEY;
 // ✅✅✅ ۱. استفاده از آدرس پایه صحیح Etherscan V2 ✅✅✅
 const BASE_URL = 'https://api.etherscan.io/v2/api'; 

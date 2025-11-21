@@ -5,6 +5,7 @@ import { getDb } from '@/lib/mongodb';
 import { logEvent } from '@/lib/logger';
 import { ObjectId } from 'mongodb'; // برای کار با ID های MongoDB
 
+export const dynamic = 'force-dynamic';
 // تابع کمکی برای تبدیل امن BigInt به string در آبجکت‌های تودرتو
 const safeStringify = (obj: any) => {
     return JSON.parse(JSON.stringify(obj, (key, value) =>

@@ -832,6 +832,7 @@ export const tr = {
     id_copied: "Teklif kimliği panoya kopyalandı!",
     sending_transaction: "işlem gönderiliyor",
     transaction_failed: "işlem başarısız oldu",
+    upload_failed: "Dosya yükleme başarısız oldu:",
   },
       numbers: {
     0: "0",

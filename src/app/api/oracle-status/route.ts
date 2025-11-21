@@ -4,6 +4,8 @@ import { NextRequest, NextResponse } from 'next/server';
 
 const AI_ENGINE_URL = process.env.AI_ENGINE_URL || 'http://localhost:8000';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(req: NextRequest) {
     try {
         // Attempt to hit a simple health check or root endpoint of the FastAPI service

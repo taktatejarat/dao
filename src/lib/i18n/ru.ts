@@ -832,6 +832,7 @@ export const ru = {
     id_copied: "Идентификатор предложения скопирован в буфер обмена!",
     sending_transaction: "транзакция отправляется",
     transaction_failed: "транзакция не выполнена",
+    upload_failed: "Не удалось загрузить файл:",
   },
       numbers: {
     0: "0",

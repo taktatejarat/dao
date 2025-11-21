@@ -3,6 +3,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { logEvent } from '@/lib/logger';
 
+export const dynamic = 'force-dynamic';
+
 // آدرس موتور AI از متغیرهای محیطی خوانده می‌شود
 const AI_ENGINE_URL = process.env.AI_ENGINE_URL || 'http://localhost:8000';
 

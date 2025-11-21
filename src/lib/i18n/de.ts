@@ -725,6 +725,7 @@ export const de = {
       you_have_voted_desc: "Vielen Dank für Ihre Teilnahme am Governance Prozess Das Ergebnis wird nach Abschluss der Abstimmungsfrist bekanntgegeben",
       admin_actions: "Verwaltungsaktionen",
       execute_proposal: "Vorschlag ausführen",
+      upload_failed: "Datei-Upload fehlgeschlagen:",
   },
 
   // Dynamic Content

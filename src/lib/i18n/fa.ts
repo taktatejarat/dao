@@ -58,7 +58,7 @@ export const fa = {
   // Landing Page
   landing_page: {
     hero_title: "سکوی پرتاب استارت‌آپ‌های آینده",
-    hero_subtitle: "RayanChain DAO ترکیبی از هوش مصنوعی و حاکمیت غیرمتمرکز برای شناسایی و حمایت از پروژه‌های تحول‌آفرین است.",
+    hero_subtitle: "این پلتفرم ترکیبی از هوش مصنوعی و حاکمیت غیرمتمرکز برای شناسایی و حمایت از پروژه‌های تحول‌آفرین است.",
     get_started: "شروع کنید",
     learn_more: "بیشتر بدانید",
     how_it_works_title: "چگونه کار می‌کند؟",
@@ -78,7 +78,7 @@ export const fa = {
     exclusive_opportunities_desc: "دسترسی به استارت‌آپ‌ها و پروژه‌های نوآورانه قبل از عرضه عمومی.",
     featured_proposals_title: "پروژه‌های منتخب",
     featured_proposals_subtitle: "نگاهی به فرصت‌های سرمایه‌گذاری اخیر و آینده.",
-    footer_copy: "© {year} RayanChain DAO. تمام حقوق محفوظ است.",
+    footer_copy: "© {year} رایان اندیش رشد - زنجیره هوشمند رایان. تمام حقوق محفوظ است.",
     next_gen_defi_title: "پروژه دیفای (DeFi) نسل بعد",
     next_gen_defi_desc: "یک پلتفرم نوین برای بهینه‌سازی بازدهی در بازارهای مالی غیرمتمرکز.",
     nft_marketplace_title: "بازارچه NFT هنری",
@@ -338,7 +338,7 @@ export const fa = {
       documents: "اسناد"
     },
     project_name: "نام پروژه",
-    project_name_placeholder: "مثال: RayanChain DAO",
+    project_name_placeholder: "مثال: زنجیره هوشمند رایان",
     tagline: "شعار (خلاصه یک خطی)",
     tagline_placeholder: "مثال: پلتفرم غیرمتمرکز سرمایه‌گذاری جسورانه",
     industry: "صنعت",

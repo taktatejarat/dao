@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getDb } from '@/lib/mongodb';
 import { logEvent } from '@/lib/logger';
 
+export const dynamic = 'force-dynamic';
 
 export async function GET(req: NextRequest) {
     try {

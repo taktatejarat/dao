@@ -3,6 +3,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getDb } from '@/lib/mongodb';
 
+export const dynamic = 'force-dynamic';
+
 // یک تابع کمکی برای بررسی نقش ادمین
 async function isAdminRequest(req: NextRequest): Promise<boolean> {
   // ⚠️ این بخش باید با سیستم احراز هویت شما تطبیق داده شود.
