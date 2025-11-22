@@ -10,16 +10,17 @@ import { stakingAbi, rayanChainTokenAbi } from '@/lib/blockchain/generated';
 import type { Address } from 'viem';
 import { BaseError, parseEther, isAddress, maxUint256 } from 'viem';
 import { formatEther } from 'ethers';
+import { useSWRConfig } from 'swr';
 
 interface UseStakingProps {
     tokenAddress: Address | undefined;
     stakingAddress: Address | undefined;
 }
 
-
 export function useStaking({ tokenAddress, stakingAddress }: UseStakingProps) {
     const { t } = useTranslation();
     const { address, isConnected } = useAccount();
+    const { mutate } = useSWRConfig(); // ✅ دریافت تابع mutate
 
     const [stakeAmount, setStakeAmount] = useState('');
     const [unstakeAmount, setUnstakeAmount] = useState('');
@@ -38,7 +39,7 @@ export function useStaking({ tokenAddress, stakingAddress }: UseStakingProps) {
         { address: stakingAddress!, abi: stakingAbi, functionName: 'delegates', args: [address!] },
     ], [tokenAddress, stakingAddress, address]);
 
-    const { data: contractData, refetch } = useReadContracts({
+    const { data: contractData } = useReadContracts({
         contracts: contractsToRead,
         query: { enabled: !!address && !!tokenAddress && !!stakingAddress && isConnected }
     });
@@ -63,28 +64,27 @@ export function useStaking({ tokenAddress, stakingAddress }: UseStakingProps) {
     const { isPending: isSubmitting, writeContractAsync } = useWriteContract();
     const { isLoading: isConfirming, isSuccess, isError, error } = useWaitForTransactionReceipt({ hash: txHash });
 
-    // ✅✅✅ THE CRITICAL FIX: Centralized useEffect for handling ALL transaction outcomes ✅✅✅
-    useEffect(() => {
+   useEffect(() => {
         if (!currentAction) return;
-
         if (isSuccess) {
             toast.success(t(`toasts.${currentAction}_successful`));
-            refetch(); // Refetch all balances
-            // Reset forms
+            
+            // ✅✅✅ THE CRITICAL FIX: استفاده از mutate برای refetch قدرتمند ✅✅✅
+            // این دستور به SWR (و wagmi) می‌گوید که تمام query هایی که کلیدشان
+            // با 'readContracts' شروع می‌شود را دوباره واکشی کند.
+            mutate((key) => Array.isArray(key) && key[0] === 'readContracts');
+            
             if (currentAction === 'stake') setStakeAmount('');
             if (currentAction === 'unstake') setUnstakeAmount('');
-            // Reset state for next transaction
             setTxHash(undefined);
-
             setCurrentAction(null);
         }
-
         if (isError) {
             toast.error(t('toasts.transaction_failed'), { description: (error as BaseError)?.shortMessage || error?.message });
             setTxHash(undefined);
             setCurrentAction(null);
         }
-    }, [isSuccess, isError, error, refetch, t, currentAction]);
+    }, [isSuccess, isError, error, t, currentAction, mutate]);
 
     // ✅✅✅ NEW: A single, robust function to handle all transactions ✅✅✅
     const executeTransaction = useCallback(async (
@@ -129,7 +129,6 @@ export function useStaking({ tokenAddress, stakingAddress }: UseStakingProps) {
         needsApproval,
         isActionPending,
         handleApprove, handleStake, handleUnstake, handleClaim, handleDelegate, handleUndelegate,
-        refetch,
         isApproveButtonDisabled,
         isStakeButtonDisabled,
         isUnstakeButtonDisabled,

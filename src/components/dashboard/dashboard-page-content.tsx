@@ -16,37 +16,24 @@ import Link from "next/link";
 import { daoRegistryAbi, rayanChainDaoAbi, rayanChainTokenAbi, stakingAbi } from '@/lib/blockchain/generated';
 import { REGISTRY_KEYS } from '@/lib/blockchain/registry-keys';
 import type { Address } from "viem";
-import { useMemo } from "react";
+import { useState, useMemo } from "react";
 import { DaoLoadingSpinner } from "@/components/icons/dao-loading-spinner";
-import { AiOracleStatus } from "./ai-oracle-status"; // ✅ NEW IMPORT
-
-function useContractAddresses() {
-    const { registryAddress, isHydrated } = useWeb3();
-    const queryConfig = { query: { enabled: !!registryAddress && isHydrated } };
-
-    const { data: dao, isLoading: l1 } = useReadContract({ address: registryAddress ?? undefined, abi: daoRegistryAbi, functionName: 'getAddress', args: [REGISTRY_KEYS.DAO], ...queryConfig });
-    const { data: token, isLoading: l2 } = useReadContract({ address: registryAddress ?? undefined, abi: daoRegistryAbi, functionName: 'getAddress', args: [REGISTRY_KEYS.TOKEN], ...queryConfig });
-    const { data: finance, isLoading: l3 } = useReadContract({ address: registryAddress ?? undefined, abi: daoRegistryAbi, functionName: 'getAddress', args: [REGISTRY_KEYS.FINANCE], ...queryConfig });
-    const { data: staking, isLoading: l4 } = useReadContract({ address: registryAddress ?? undefined, abi: daoRegistryAbi, functionName: 'getAddress', args: [REGISTRY_KEYS.STAKING], ...queryConfig });
-
-    return {
-        addresses: {
-            dao: dao as Address | undefined,
-            token: token as Address | undefined,
-            finance: finance as Address | undefined,
-            staking: staking as Address | undefined,
-        },
-        isLoading: l1 || l2 || l3 || l4,
-    };
-}
+import { AiOracleStatus } from "./ai-oracle-status";
+import { useDashboardStats } from "@/hooks/useDashboardStats";
 
 export function DashboardPageContent() {
-  const { userRole, address, isHydrated, registryAddress } = useWeb3();
-  const { t, locale } = useTranslation();
-  const { isConnected } = useAccount();
+    const { userRole, address, isHydrated, registryAddress } = useWeb3();
+    const { t, locale } = useTranslation();
+    const { isConnected } = useAccount();
 
   // مرحله ۱: خواندن آدرس‌ها
-  const { addresses, isLoading: areAddressesLoading } = useContractAddresses();
+  // تمام منطق واکشی اکنون در این هوک قرار دارد
+  const { stats, addresses, isLoading } = useDashboardStats();
+
+  const formatBigInt = (value?: bigint) => {
+        return value ? formatNumber(formatEther(value), locale) : '0';
+  };
+
   const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000' as const;
   const isNonZero = (addr?: Address) => !!addr && addr !== ZERO_ADDRESS;
   const missingModules = useMemo(() => {
@@ -71,11 +58,6 @@ export function DashboardPageContent() {
   const { data: treasuryBalanceResult, isLoading: l11 } = useReadContract({ address: addresses.token, abi: rayanChainTokenAbi, functionName: 'balanceOf', args: [addresses.finance!], query: { enabled: isConnected && isHydrated && isNonZero(addresses.token) && isNonZero(addresses.finance) } });
   const { data: totalStakedResult, isLoading: l12 } = useReadContract({ address: addresses.staking, abi: stakingAbi, functionName: 'totalSupply', query: { enabled: isConnected && isHydrated && isNonZero(addresses.staking) } });
 
-  const formatBigInt = (value: unknown) => {
-    return (typeof value === 'bigint') ? formatNumber(formatEther(value), locale) : '0';
-  };
-  
-  const isLoading = areAddressesLoading || l5 || l6 || l7 || l8 || l9 || l10 || l11 || l12;
  
     const MainContent = () => {
       // وضعیت ۱: منتظر اتصال کیف پول
@@ -103,20 +85,23 @@ export function DashboardPageContent() {
           );
       }
   
-      // وضعیت ۳: در حال خواندن آدرس‌های داخلی از رجیستری (حل Race Condition)
-      if (areAddressesLoading) {
-          return (
-              <div className="flex flex-col items-center justify-center min-h-[50vh]">
-                  <DaoLoadingSpinner className="w-12 h-12" />
-                  <p className="mt-4 text-muted-foreground">{t('dashboard.loading_contracts')}</p>
-              </div>
-          );
-      }
+     // وضعیت ۳: در حال خواندن آدرس‌های داخلی از رجیستری (حل Race Condition)
+     // ✅ FIX: از isLoading اصلی هوک useDashboardStats استفاده می‌کنیم
+        if (isLoading && !stats.userBalance) {
+            return (
+                <div className="flex flex-col items-center justify-center min-h-[50vh]">
+                    <DaoLoadingSpinner className="w-12 h-12" />
+                    <p className="mt-4 text-muted-foreground">{t('dashboard.loading_contracts')}</p>
+                </div>
+            );
+        }
+
   
       // وضعیت ۴: راه‌اندازی ناقص (برخی ماژول‌ها آدرس معتبر ندارند)
-      if (missingModules.length > 0) {
+      // ✅ FIX: ما منتظر می‌مانیم تا isLoading تمام شود، سپس missingModules را چک می‌کنیم
+      if (!isLoading && missingModules.length > 0) {
           return (
-              <Alert variant="destructive">
+                <Alert variant="destructive">
                   <AlertTriangle className="h-4 w-4" />
                   <AlertTitle>{t('dashboard.partial_setup_title')}</AlertTitle>
                   <AlertDescription>

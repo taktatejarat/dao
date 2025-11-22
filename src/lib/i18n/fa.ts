@@ -755,7 +755,13 @@ export const fa = {
     claimed_rewards_desc: "پاداش‌های کسب شده",
     participation_score: "امتیاز مشارکت",
     participation_score_desc: "امتیاز بر اساس فعالیت شما",
-
+    default_event: "رویداد {eventName} رخ داد",
+    system_user: "سیستم",
+    voted_on_proposal: "به پروپوزال #{id} رأی {voteType} داد",
+    staked_amount: "{amount} RYC سپرده‌گذاری کرد",
+    unstaked_amount: "{amount} RYC برداشت کرد",
+    milestone_released: "مرحله مالی #{milestoneIndex} برای پروپوزال #{id} را آزاد کرد",
+    ownership_transferred: "مالکیت قرارداد را منتقل کرد",
   },
   time: {
     minutes_ago: "۵ دقیقه پیش",
@@ -863,7 +869,14 @@ export const fa = {
     transaction_confirmed: "تراکنش با موفقیت تأیید شد!",
     submitting_execution: "در حال ارسال درخواست اجرا...",
     proposal_executed_successfully: "پروپوزال با موفقیت اجرا شد!",
-    execution_failed: "خطا در اجرای پروپوزال",    
+    execution_failed: "خطا در اجرای پروپوزال",
+    submitting_vote: "در حال ارسال رأی شما...",
+    vote_successful: "رأی شما با موفقیت ثبت شد!",
+    deposit_successful: "واریز با موفقیت ثبت شد!",
+    submitting_withdraw_ryc: "در حال ارسال درخواست برداشت RYC...",
+    withdraw_ryc_successful: "درخواست برداشت RYC با موفقیت ثبت شد!",
+    submitting_withdraw_native: "در حال ارسال درخواست برداشت ارز اصلی...",
+    withdraw_native_successful: "درخواست برداشت ارز اصلی با موفقیت ثبت شد!"  
   },
   numbers: {
     0: "۰",

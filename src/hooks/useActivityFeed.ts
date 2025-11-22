@@ -1,117 +1,60 @@
-// src/hooks/useActivityFeed.ts - FINAL, CORRECTED VERSION
+// src/hooks/useActivityFeed.ts - FINAL, MODERN VERSION POWERED BY SWR
 
-import { useState, useEffect } from 'react';
+import useSWR from 'swr';
 import { useWeb3 } from '@/context/Web3Provider';
 import { formatAddress, formatNumber } from '@/lib/utils';
 import { formatEther, type Address } from 'viem';
-import { useReadContracts } from 'wagmi'; // ✅ ایمپورت هوک جدید
+import { useReadContracts } from 'wagmi';
 import { daoRegistryAbi } from '@/lib/blockchain/generated';
 import { REGISTRY_KEYS } from '@/lib/blockchain/registry-keys';
+import { useMemo } from 'react';
+import { useTranslation } from './use-translation'; // ✅ ایمپورت برای ترجمه
 
-// تعریف نوع داده برای یک آیتم فعالیت
-export interface ActivityItem { id: string; user: string; action: string; timestamp: number; }
-
-
-export function useActivityFeed() {
-    // ✅ FIX: ما فقط به registryAddress و isHydrated نیاز داریم
-    const { registryAddress, isHydrated } = useWeb3();
-    const [activities, setActivities] = useState<ActivityItem[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-
-    // ✅✅✅ THE FIX IS HERE: خواندن آدرس‌های لازم از رجیستری ✅✅✅
-    const { data: contractAddresses, isLoading: areAddressesLoading } = useReadContracts({
-        contracts: [
-            { address: registryAddress as Address, abi: daoRegistryAbi, functionName: 'getAddress', args: [REGISTRY_KEYS.DAO] },
-            { address: registryAddress as Address, abi: daoRegistryAbi, functionName: 'getAddress', args: [REGISTRY_KEYS.STAKING] },
-            { address: registryAddress as Address, abi: daoRegistryAbi, functionName: 'getAddress', args: [REGISTRY_KEYS.FINANCE] },
-        ],
-        query: {
-            enabled: !!registryAddress && isHydrated,
-        }
-    });
-
-    const [daoAddress, stakingAddress, financeAddress] = contractAddresses?.map(d => d.result as Address) || [];
-
-    useEffect(() => {
-        // منتظر می‌مانیم تا آدرس‌ها بارگذاری شوند
-        if (areAddressesLoading || !isHydrated) {
-            return;
-        }
-
-        // اگر هیچ آدرسی پیدا نشد، واکشی را متوقف می‌کنیم
-        if (!daoAddress && !stakingAddress && !financeAddress) {
-            setIsLoading(false);
-            return;
-        }
-
-        const fetchActivities = async () => {
-            setIsLoading(true);
-            try {
-                // لیستی از درخواست‌هایی که باید ارسال شوند را می‌سازیم
-                const fetchPromises = [];
-                if (daoAddress) {
-                    fetchPromises.push(fetch(`/api/events?contractAddress=${daoAddress}&contractName=RayanChainDAO`));
-                }
-                if (stakingAddress) {
-                    fetchPromises.push(fetch(`/api/events?contractAddress=${stakingAddress}&contractName=Staking`));
-                }
-                if (financeAddress) {
-                    fetchPromises.push(fetch(`/api/events?contractAddress=${financeAddress}&contractName=Finance`));
-                }
-
-                const responses = await Promise.all(fetchPromises);
-                let allActivities: ActivityItem[] = [];
-
-                for (const res of responses) {
-                    if (res.ok) {
-                        const data = await res.json();
-                        if (data.success) {
-                            const parsed = parseEvents(data.result);
-                            allActivities = [...allActivities, ...parsed];
-                        }
-                    }
-                }
-
-                allActivities.sort((a, b) => b.timestamp - a.timestamp);
-                setActivities(allActivities.slice(0, 20));
-
-            } catch (err) {
-                setError((err as Error).message);
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
-        fetchActivities();
-
-    }, [daoAddress, stakingAddress, financeAddress, areAddressesLoading, isHydrated]); // وابستگی‌ها به‌روز شد
-
-    return { activities, isLoading, error };
+// --- Type Definitions and Helpers ---
+export interface ActivityItem {
+    id: string;
+    user: string;
+    action: string;
+    timestamp: number;
 }
 
-// ... (تابع parseEvents را در اینجا یا در یک فایل utils قرار دهید)
-function parseEvents(events: any[]): ActivityItem[] {
+
+// ✅ تابع fetcher عمومی برای SWR
+const fetcher = (url: string) => fetch(url).then(res => res.json());
+
+// ✅ تابع parseEvents اکنون t را به عنوان آرگومان می‌پذیرد
+function parseEvents(events: any[], t: (key: string) => string): ActivityItem[] {
+    if (!events || !Array.isArray(events)) return [];
+
     return events.map(event => {
-        let action = `Triggered event: ${event.eventName}`;
-        const user = event.args?.user ? formatAddress(event.args.user) : (event.args?.proposer ? formatAddress(event.args.proposer) : 'System');
+        let action = t('activities.default_event').replace('{eventName}', event.eventName);
+        const user = event.args?.user 
+            ? formatAddress(event.args.user) 
+            : (event.args?.proposer ? formatAddress(event.args.proposer) : t('activities.system_user'));
 
         switch (event.eventName) {
             case 'ProposalCreated':
-                action = `created Proposal #${event.args.id}`;
+                action = t('activities.created_proposal').replace('{id}', event.args.id);
                 break;
             case 'Voted':
-                const voteType = event.args.vote === 0 ? 'For' : 'Against';
-                action = `voted ${voteType} on Proposal #${event.args.proposalId}`;
+                const voteType = event.args.vote === 0 ? t('common.for') : t('common.against');
+                action = t('activities.voted_on_proposal')
+                    .replace('{voteType}', voteType)
+                    .replace('{id}', event.args.proposalId);
                 break;
             case 'Staked':
-                action = `staked ${formatNumber(formatEther(event.args.amount))} RYC`;
+                action = t('activities.staked_amount').replace('{amount}', formatNumber(formatEther(event.args.amount)));
                 break;
             case 'Unstaked':
-                action = `unstaked ${formatNumber(formatEther(event.args.amount))} RYC`;
+                action = t('activities.unstaked_amount').replace('{amount}', formatNumber(formatEther(event.args.amount)));
                 break;
             case 'MilestoneReleased':
-                action = `released milestone #${event.args.milestoneIndex} for Proposal #${event.args.proposalId}`;
+                action = t('activities.milestone_released')
+                    .replace('{milestoneIndex}', event.args.milestoneIndex)
+                    .replace('{id}', event.args.proposalId);
+                break;
+            case 'OwnershipTransferred':
+                action = t('activities.ownership_transferred');
                 break;
         }
 
@@ -122,4 +65,64 @@ function parseEvents(events: any[]): ActivityItem[] {
             timestamp: parseInt(event.timeStamp, 10),
         };
     });
+}
+
+export function useActivityFeed() {
+    const { t } = useTranslation();
+    const { registryAddress, isHydrated } = useWeb3();
+
+    // ۱. خواندن آدرس‌های لازم از رجیستری (بدون تغییر)
+    const { data: contractAddresses, isLoading: areAddressesLoading } = useReadContracts({
+        contracts: [
+            { address: registryAddress as Address, abi: daoRegistryAbi, functionName: 'getAddress', args: [REGISTRY_KEYS.DAO] },
+            { address: registryAddress as Address, abi: daoRegistryAbi, functionName: 'getAddress', args: [REGISTRY_KEYS.STAKING] },
+            { address: registryAddress as Address, abi: daoRegistryAbi, functionName: 'getAddress', args: [REGISTRY_KEYS.FINANCE] },
+        ],
+        query: { enabled: !!registryAddress && isHydrated },
+    });
+
+    const [daoAddress, stakingAddress, financeAddress] = useMemo(() =>
+        contractAddresses?.map(d => d.result as Address) || [],
+        [contractAddresses]
+    );
+
+    // ۲. ساخت URL های API به صورت داینامیک
+    const urls = useMemo(() => {
+        const activeUrls: string[] = [];
+        if (daoAddress) activeUrls.push(`/api/events?contractAddress=${daoAddress}&contractName=RayanChainDAO`);
+        if (stakingAddress) activeUrls.push(`/api/events?contractAddress=${stakingAddress}&contractName=Staking`);
+        if (financeAddress) activeUrls.push(`/api/events?contractAddress=${financeAddress}&contractName=Finance`);
+        return activeUrls;
+    }, [daoAddress, stakingAddress, financeAddress]);
+
+    // ✅✅✅ THE CRITICAL FIX: استفاده از useSWR برای واکشی موازی ✅✅✅
+    // SWR به صورت خودکار تمام URL ها را به صورت موازی fetch می‌کند.
+    const { data: results, error, isLoading: isSWRLoading } = useSWR(
+        // اگر آدرس‌ها آماده بودند، URL ها را برای fetch ارسال کن
+        !areAddressesLoading && urls.length > 0 ? urls : null,
+        (urls: string[]) => Promise.all(urls.map(url => fetcher(url)))
+    );
+
+    // ۳. ترکیب و پردازش نتایج
+    const { activities, error: processingError } = useMemo(() => {
+        if (!results) return { activities: [], error: null };
+        try {
+            let allActivities: ActivityItem[] = [];
+            for (const result of results) {
+                if (result.success) {
+                    const parsed = parseEvents(result.result, t);
+                    allActivities.push(...parsed);
+                }
+            }
+            allActivities.sort((a, b) => b.timestamp - a.timestamp);
+            return { activities: allActivities.slice(0, 20), error: null };
+        } catch (err) {
+            return { activities: [], error: (err as Error).message };
+        }
+    }, [results, t]);
+
+    const finalError = error?.message || processingError;
+    const isLoading = areAddressesLoading || (urls.length > 0 && isSWRLoading);
+
+    return { activities, isLoading, error: finalError };
 }

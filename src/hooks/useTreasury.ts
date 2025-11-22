@@ -1,14 +1,15 @@
-// src/hooks/useTreasury.ts - FINAL, CORRECTED, AND ROBUST VERSION
+// src/hooks/useTreasury.ts - FINAL, BULLETPROOF VERSION
 
 "use client";
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import { useAccount, useBalance, useReadContracts, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { toast } from 'sonner';
 import { useTranslation } from '@/hooks/use-translation';
 import { financeAbi, rayanChainTokenAbi } from '@/lib/blockchain/generated';
 import type { Address } from 'viem';
 import { BaseError, parseEther } from 'viem';
+import { useQueryClient } from '@tanstack/react-query';
 
 interface UseTreasuryProps {
     financeAddress: Address | undefined;
@@ -17,25 +18,39 @@ interface UseTreasuryProps {
 
 export function useTreasury({ financeAddress, tokenAddress }: UseTreasuryProps) {
     const { t } = useTranslation();
-    const { address: adminAddress } = useAccount(); // ✅ نام متغیر را برای خوانایی به adminAddress تغییر می‌دهیم
+    const { address: adminAddress, isConnected } = useAccount();
+    const queryClient = useQueryClient();
 
-    // --- Form State ---
+   // --- Form State ---
     const [depositAmount, setDepositAmount] = useState('1000');
     const [withdrawRycAmount, setWithdrawRycAmount] = useState('');
     const [withdrawNativeAmount, setWithdrawNativeAmount] = useState('');
+    const [txHash, setTxHash] = useState<`0x${string}` | undefined>(undefined);
+    const [currentAction, setCurrentAction] = useState<string | null>(null);
 
+ 
     // --- Data Fetching ---
-    const { data: contractData, refetch } = useReadContracts({
-        contracts: ([
-            { address: tokenAddress as Address, abi: rayanChainTokenAbi, functionName: 'balanceOf', args: [financeAddress as Address] },
-            { address: tokenAddress as Address, abi: rayanChainTokenAbi, functionName: 'balanceOf', args: [adminAddress as Address] },
-        ] as any),
-        query: { enabled: !!financeAddress && !!tokenAddress && !!adminAddress }
-    } as any);
-    const { data: nativeTreasuryBalance, refetch: refetchNativeBalance } = useBalance({ address: financeAddress as Address, query: { enabled: !!financeAddress } });
+    const { data: contractData } = useReadContracts({
+        contracts: [
+            { address: tokenAddress!, abi: rayanChainTokenAbi, functionName: 'balanceOf', args: [financeAddress!] },
+            { address: tokenAddress!, abi: rayanChainTokenAbi, functionName: 'balanceOf', args: [adminAddress!] },
+        ],
+        query: { 
+            enabled: !!financeAddress && !!tokenAddress && !!adminAddress && isConnected,
+            refetchInterval: 15000, // به‌روزرسانی خودکار هر ۱۵ ثانیه
+        }
+    });
+    const { data: nativeTreasuryBalance } = useBalance({ 
+        address: financeAddress, 
+        query: { 
+            enabled: !!financeAddress && isConnected,
+            refetchInterval: 15000,
+        } 
+    });
 
     const [rycTreasuryBalance, adminRycBalance] = useMemo(() => {
-        return contractData?.map(d => d.result as bigint | undefined) || [];
+        if (!contractData || contractData.some(d => d.status === 'failure')) return [undefined, undefined];
+        return contractData.map(d => d.result as bigint | undefined);
     }, [contractData]);
 
     // --- Derived State ---
@@ -49,78 +64,63 @@ export function useTreasury({ financeAddress, tokenAddress }: UseTreasuryProps) 
         try { return parseEther(withdrawNativeAmount || '0'); } catch { return 0n; }
     }, [withdrawNativeAmount]);
 
-    // --- Transaction Hooks ---
-    const { isPending, writeContractAsync } = useWriteContract();
-    const [submittedHash, setSubmittedHash] = useState<`0x${string}` | undefined>(undefined);
-    const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ hash: submittedHash });
+   // --- Transaction Logic ---
+    const { isPending: isSubmitting, writeContractAsync } = useWriteContract();
+    const { isLoading: isConfirming, isSuccess, isError, error } = useWaitForTransactionReceipt({ hash: txHash });
 
+   // ✅✅✅ useEffect متمرکز برای مدیریت نتیجه نهایی تراکنش ✅✅✅
     useEffect(() => {
+        if (!currentAction) return;
+
         if (isSuccess) {
-            refetch();
-            refetchNativeBalance();
+            toast.success(t(`toasts.${currentAction}_successful`));
+            // ✅ CRITICAL: ما به جای refetch دستی، query ها را invalidate می‌کنیم
+            // این روش استاندارد و بهینه در wagmi/react-query است
+            queryClient.invalidateQueries({ queryKey: ['readContracts'] });
+            queryClient.invalidateQueries({ queryKey: ['balance'] });
+            
+            // ریست کردن state ها
+            setTxHash(undefined);
+            setCurrentAction(null);
         }
-    }, [isSuccess, refetch, refetchNativeBalance]);
+
+        if (isError) {
+            toast.error(t('toasts.transaction_failed'), { description: (error as BaseError)?.shortMessage || error?.message });
+            setTxHash(undefined);
+            setCurrentAction(null);
+        }
+    }, [isSuccess, isError, error, queryClient, t, currentAction]);
+
+        // ✅ تابع کمکی یکپارچه برای ارسال تراکنش
+    const executeTransaction = useCallback(async (
+        action: string,
+        config: Parameters<typeof writeContractAsync>[0]
+    ) => {
+        const toastId = toast.loading(t(`toasts.submitting_${action}`));
+        setCurrentAction(action);
+        try {
+            const hash = await writeContractAsync(config);
+            setTxHash(hash);
+            toast.loading(t('toasts.waiting_for_confirmation'), { id: toastId });
+        } catch (err) {
+            toast.error(t('toasts.transaction_rejected'), { id: toastId, description: (err as BaseError).shortMessage });
+            setCurrentAction(null);
+        }
+    }, [writeContractAsync, t]);
+
 
     // --- Action Handlers ---
-   const handleDeposit = async () => {
-        if (!tokenAddress || !financeAddress || !parsedDepositAmount) return;
-        const toastId = 'deposit-toast';
-        try {
-            toast.loading(t('toasts.sending_transaction'), { id: toastId });
-            const txHash = await writeContractAsync({
-                address: tokenAddress,
-                abi: rayanChainTokenAbi,
-                functionName: 'transfer',
-                // ✅ FIX: آرگومان‌ها صحیح هستند: (گیرنده، مقدار)
-                args: [financeAddress, parsedDepositAmount],
-            });
-            setSubmittedHash(txHash);
-            toast.success(t('toasts.tx_submitted'), { id: toastId });
-            setDepositAmount('1000'); // ریست کردن فرم
-        } catch (err) {
-            toast.error(t('toasts.transaction_failed'), { id: toastId, description: (err as BaseError).shortMessage });
-        }
-    };
+    const handleDeposit = () => executeTransaction('deposit', { address: tokenAddress!, abi: rayanChainTokenAbi, functionName: 'transfer', args: [financeAddress!, parsedDepositAmount] });
+    const handleWithdrawRyc = () => executeTransaction('withdraw_ryc', { address: financeAddress!, abi: financeAbi, functionName: 'withdrawTokens', args: [adminAddress!, parsedWithdrawRycAmount] });
+    const handleWithdrawNative = () => executeTransaction('withdraw_native', { address: financeAddress!, abi: financeAbi, functionName: 'withdraw', args: [adminAddress!, parsedWithdrawNativeAmount] });
 
-    const handleWithdrawRyc = async () => {
-        if (!financeAddress || !adminAddress || !parsedWithdrawRycAmount) return;
-        const toastId = 'withdraw-ryc-toast';
-        try {
-            toast.loading(t('toasts.sending_transaction'), { id: toastId });
-            const txHash = await writeContractAsync({
-                address: financeAddress,
-                abi: financeAbi,
-                functionName: 'withdrawTokens',
-                // ✅✅✅ THE FIX: افزودن آرگومان 'to' (آدرس دریافت‌کننده) ✅✅✅
-                args: [adminAddress, parsedWithdrawRycAmount],
-            });
-            setSubmittedHash(txHash);
-            toast.success(t('toasts.tx_submitted'), { id: toastId });
-            setWithdrawRycAmount('');
-        } catch (err) {
-            toast.error(t('toasts.transaction_failed'), { id: toastId, description: (err as BaseError).shortMessage });
-        }
-    };
+    const isActionPending = isSubmitting || isConfirming;
 
-    const handleWithdrawNative = async () => {
-        if (!financeAddress || !adminAddress || !parsedWithdrawNativeAmount) return;
-        const toastId = 'withdraw-native-toast';
-        try {
-            toast.loading(t('toasts.sending_transaction'), { id: toastId });
-            const txHash = await writeContractAsync({
-                address: financeAddress,
-                abi: financeAbi,
-                functionName: 'withdraw',
-                // ✅✅✅ THE FIX: افزودن آرگومان 'to' (آدرس دریافت‌کننده) ✅✅✅
-                args: [adminAddress, parsedWithdrawNativeAmount],
-            });
-            setSubmittedHash(txHash);
-            toast.success(t('toasts.tx_submitted'), { id: toastId });
-            setWithdrawNativeAmount('');
-        } catch (err) {
-            toast.error(t('toasts.transaction_failed'), { id: toastId, description: (err as BaseError).shortMessage });
-        }
-    };
+    // --- Button Disabled Logic  ---
+    const isDepositDisabled = isActionPending || parsedDepositAmount <= 0n || (adminRycBalance != null && parsedDepositAmount > adminRycBalance);
+    const isWithdrawRycDisabled= parsedWithdrawRycAmount <= 0n || (rycTreasuryBalance != null && parsedWithdrawRycAmount > rycTreasuryBalance);
+    const isWithdrawNativeDisabled= parsedWithdrawNativeAmount <= 0n || (nativeTreasuryBalance != null && parsedWithdrawNativeAmount > nativeTreasuryBalance.value);
+    // ... (سایر متغیرهای disabled)
 
     return {
         // Balances
@@ -135,8 +135,8 @@ export function useTreasury({ financeAddress, tokenAddress }: UseTreasuryProps) 
         handleWithdrawRyc,
         handleWithdrawNative,
         // UI Logic
-        isActionPending: isPending || isConfirming,
-        isDepositDisabled: parsedDepositAmount <= 0n || (adminRycBalance != null && parsedDepositAmount > adminRycBalance),
+        isActionPending: isSubmitting || isConfirming,
+        isDepositDisabled: isActionPending || parsedDepositAmount <= 0n || (adminRycBalance != null && parsedDepositAmount > adminRycBalance),
         isWithdrawRycDisabled: parsedWithdrawRycAmount <= 0n || (rycTreasuryBalance != null && parsedWithdrawRycAmount > rycTreasuryBalance),
         isWithdrawNativeDisabled: parsedWithdrawNativeAmount <= 0n || (nativeTreasuryBalance != null && parsedWithdrawNativeAmount > nativeTreasuryBalance.value),
     };

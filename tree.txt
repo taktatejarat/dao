@@ -1,0 +1,361 @@
+.
+├── ./ai-engine
+│   ├── ./ai-engine/ai_oracle.pid
+│   ├── ./ai-engine/ai_oracle_service.log
+│   ├── ./ai-engine/ai_oracle_startup.log
+│   ├── ./ai-engine/blockchain_listener.py
+│   ├── ./ai-engine/config.py
+│   ├── ./ai-engine/data
+│   │   ├── ./ai-engine/data/big_startup_secsees_dataset.csv
+│   │   ├── ./ai-engine/data/historical_proposals.csv
+│   │   └── ./ai-engine/data/training_data.csv
+│   ├── ./ai-engine/__init__.py
+│   ├── ./ai-engine/layers
+│   │   ├── ./ai-engine/layers/__init__.py
+│   │   ├── ./ai-engine/layers/layer_1_security.py
+│   │   ├── ./ai-engine/layers/layer_2_optimizer.py
+│   │   ├── ./ai-engine/layers/layer_3_financial.py
+│   │   ├── ./ai-engine/layers/layer_5_integration.py
+│   │   └── ./ai-engine/layers/__pycache__
+│   │       ├── ./ai-engine/layers/__pycache__/__init__.cpython-312.pyc
+│   │       ├── ./ai-engine/layers/__pycache__/layer_1_security.cpython-312.pyc
+│   │       ├── ./ai-engine/layers/__pycache__/layer_2_optimizer.cpython-312.pyc
+│   │       ├── ./ai-engine/layers/__pycache__/layer_3_financial.cpython-312.pyc
+│   │       └── ./ai-engine/layers/__pycache__/layer_5_integration.cpython-312.pyc
+│   ├── ./ai-engine/main.py
+│   ├── ./ai-engine/models
+│   │   ├── ./ai-engine/models/financial_risk_model.json
+│   │   ├── ./ai-engine/models/preprocessor.joblib
+│   │   └── ./ai-engine/models/risk_model.json
+│   ├── ./ai-engine/__pycache__
+│   │   ├── ./ai-engine/__pycache__/config.cpython-312.pyc
+│   │   ├── ./ai-engine/__pycache__/main.cpython-312.pyc
+│   │   ├── ./ai-engine/__pycache__/oracle_caller.cpython-312.pyc
+│   │   ├── ./ai-engine/__pycache__/risk_assessor.cpython-312.pyc
+│   │   └── ./ai-engine/__pycache__/score_calculator.cpython-312.pyc
+│   ├── ./ai-engine/requirements.txt
+│   ├── ./ai-engine/score_calculator.py
+│   ├── ./ai-engine/services
+│   │   ├── ./ai-engine/services/__init__.py
+│   │   ├── ./ai-engine/services/oracle_caller.py
+│   │   └── ./ai-engine/services/__pycache__
+│   │       ├── ./ai-engine/services/__pycache__/__init__.cpython-312.pyc
+│   │       └── ./ai-engine/services/__pycache__/oracle_caller.cpython-312.pyc
+│   └── ./ai-engine/training
+│       ├── ./ai-engine/training/__init__.py
+│       ├── ./ai-engine/training/prepare_data.py
+│       ├── ./ai-engine/training/train_risk_model.py
+│       └── ./ai-engine/training/train_security_model.py
+│   └── ./artifacts/src
+│       └── ./artifacts/src/contracts
+│           ├── ./artifacts/src/contracts/DAORegistry.sol
+│           │   ├── ./artifacts/src/contracts/DAORegistry.sol/DAORegistry.dbg.json
+│           │   └── ./artifacts/src/contracts/DAORegistry.sol/DAORegistry.json
+│           ├── ./artifacts/src/contracts/Finance.sol
+│           │   ├── ./artifacts/src/contracts/Finance.sol/Finance.dbg.json
+│           │   └── ./artifacts/src/contracts/Finance.sol/Finance.json
+│           ├── ./artifacts/src/contracts/interfaces
+│           │   ├── ./artifacts/src/contracts/interfaces/IFinance.sol
+│           │   │   ├── ./artifacts/src/contracts/interfaces/IFinance.sol/IFinance.dbg.json
+│           │   │   └── ./artifacts/src/contracts/interfaces/IFinance.sol/IFinance.json
+│           │   ├── ./artifacts/src/contracts/interfaces/IRayanChainDAO.sol
+│           │   │   ├── ./artifacts/src/contracts/interfaces/IRayanChainDAO.sol/IRayanChainDAO.dbg.json
+│           │   │   └── ./artifacts/src/contracts/interfaces/IRayanChainDAO.sol/IRayanChainDAO.json
+│           │   ├── ./artifacts/src/contracts/interfaces/IRayanChainToken.sol
+│           │   │   ├── ./artifacts/src/contracts/interfaces/IRayanChainToken.sol/IRayanChainToken.dbg.json
+│           │   │   └── ./artifacts/src/contracts/interfaces/IRayanChainToken.sol/IRayanChainToken.json
+│           │   └── ./artifacts/src/contracts/interfaces/IStaking.sol
+│           │       ├── ./artifacts/src/contracts/interfaces/IStaking.sol/IStaking.dbg.json
+│           │       └── ./artifacts/src/contracts/interfaces/IStaking.sol/IStaking.json
+│           ├── ./artifacts/src/contracts/libraries
+│           │   └── ./artifacts/src/contracts/libraries/CustomHash.sol
+│           │       ├── ./artifacts/src/contracts/libraries/CustomHash.sol/CustomHash.dbg.json
+│           │       └── ./artifacts/src/contracts/libraries/CustomHash.sol/CustomHash.json
+│           ├── ./artifacts/src/contracts/permission
+│           │   └── ./artifacts/src/contracts/permission/AccControl.sol
+│           │       ├── ./artifacts/src/contracts/permission/AccControl.sol/AccControl.dbg.json
+│           │       └── ./artifacts/src/contracts/permission/AccControl.sol/AccControl.json
+│           ├── ./artifacts/src/contracts/RayanChainDAO.sol
+│           │   ├── ./artifacts/src/contracts/RayanChainDAO.sol/RayanChainDAO.dbg.json
+│           │   └── ./artifacts/src/contracts/RayanChainDAO.sol/RayanChainDAO.json
+│           ├── ./artifacts/src/contracts/RayanChainToken.sol
+│           │   ├── ./artifacts/src/contracts/RayanChainToken.sol/RayanChainToken.dbg.json
+│           │   └── ./artifacts/src/contracts/RayanChainToken.sol/RayanChainToken.json
+│           ├── ./artifacts/src/contracts/Staking.sol
+│           │   ├── ./artifacts/src/contracts/Staking.sol/Staking.dbg.json
+│           │   └── ./artifacts/src/contracts/Staking.sol/Staking.json
+│           ├── ./artifacts/src/contracts/TimelockController.sol
+│           │   ├── ./artifacts/src/contracts/TimelockController.sol/RayanChainTimelockController.dbg.json
+│           │   └── ./artifacts/src/contracts/TimelockController.sol/RayanChainTimelockController.json
+│           └── ./artifacts/src/contracts/UserProfile.sol
+│               ├── ./artifacts/src/contracts/UserProfile.sol/UserProfile.dbg.json
+│               └── ./artifacts/src/contracts/UserProfile.sol/UserProfile.json
+├── ./cache
+│   ├── ./cache/solidity-files-cache.json
+│   └── ./cache/validations.json
+├── ./certs
+│   ├── ./certs/ca.crt
+│   ├── ./certs/ca.key
+│   ├── ./certs/cert.crt
+│   └── ./certs/cert.key
+├── ./components.json
+├── ./get-pip.py
+├── ./.gitignore
+├── ./hardhat.config.cts
+├── ./.idx
+│   └── ./.idx/dev.nix
+├── ./.modified
+├── ./next.config.js
+├── ./ogl.d.ts
+├── ./.openzeppelin
+│   └── ./.openzeppelin/unknown-80002.json
+├── ./package.json
+├── ./package-lock.json
+├── ./postcss.config.js
+├── ./README.md
+├── ./scripts
+│   └── ./scripts/deploy.ts
+├── ./simulation
+│   ├── ./simulation/simulate.py
+│   ├── ./simulation/sybil_attack.py
+│   └── ./simulation/whale_attack.py
+├── ./src
+│   ├── ./src/app
+│   │   ├── ./src/app/analytics
+│   │   │   └── ./src/app/analytics/page.tsx
+│   │   ├── ./src/app/api
+│   │   │   ├── ./src/app/api/ai-report
+│   │   │   │   └── ./src/app/api/ai-report/[proposalId]
+│   │   │   │       └── ./src/app/api/ai-report/[proposalId]/route.ts
+│   │   │   ├── ./src/app/api/analytics
+│   │   │   │   ├── ./src/app/api/analytics/contract
+│   │   │   │   │   └── ./src/app/api/analytics/contract/route.ts
+│   │   │   │   └── ./src/app/api/analytics/user
+│   │   │   │       └── ./src/app/api/analytics/user/[address]
+│   │   │   │           └── ./src/app/api/analytics/user/[address]/route.ts
+│   │   │   ├── ./src/app/api/charts
+│   │   │   │   └── ./src/app/api/charts/investments
+│   │   │   │       └── ./src/app/api/charts/investments/route.ts
+│   │   │   ├── ./src/app/api/contract-creation
+│   │   │   │   └── ./src/app/api/contract-creation/route.ts
+│   │   │   ├── ./src/app/api/events
+│   │   │   │   └── ./src/app/api/events/route.ts
+│   │   │   ├── ./src/app/api/logs
+│   │   │   │   └── ./src/app/api/logs/route.ts
+│   │   │   ├── ./src/app/api/oracle-status
+│   │   │   │   └── ./src/app/api/oracle-status/route.ts
+│   │   │   ├── ./src/app/api/profile
+│   │   │   │   └── ./src/app/api/profile/route.ts
+│   │   │   ├── ./src/app/api/proposals
+│   │   │   │   ├── ./src/app/api/proposals/[id]
+│   │   │   │   │   ├── ./src/app/api/proposals/[id]/route.ts
+│   │   │   │   │   ├── ./src/app/api/proposals/[id]/save-ai-report
+│   │   │   │   │   │   └── ./src/app/api/proposals/[id]/save-ai-report/route.ts
+│   │   │   │   │   ├── ./src/app/api/proposals/[id]/trigger-ai
+│   │   │   │   │   │   └── ./src/app/api/proposals/[id]/trigger-ai/route.ts
+│   │   │   │   │   └── ./src/app/api/proposals/[id]/update-onchain-id
+│   │   │   │   │       └── ./src/app/api/proposals/[id]/update-onchain-id/route.ts
+│   │   │   │   ├── ./src/app/api/proposals/route.ts
+│   │   │   │   └── ./src/app/api/proposals/submit
+│   │   │   │       └── ./src/app/api/proposals/submit/route.ts
+│   │   │   ├── ./src/app/api/setup
+│   │   │   │   ├── ./src/app/api/setup/deploy
+│   │   │   │   │   └── ./src/app/api/setup/deploy/route.ts
+│   │   │   │   ├── ./src/app/api/setup/reset
+│   │   │   │   │   └── ./src/app/api/setup/reset/route.ts
+│   │   │   │   └── ./src/app/api/setup/save-config
+│   │   │   │       └── ./src/app/api/setup/save-config/route.ts
+│   │   │   ├── ./src/app/api/transactions
+│   │   │   │   └── ./src/app/api/transactions/route.ts
+│   │   │   ├── ./src/app/api/trigger-ai-update
+│   │   │   │   └── ./src/app/api/trigger-ai-update/route.ts
+│   │   │   └── ./src/app/api/upload
+│   │   │       └── ./src/app/api/upload/route.ts
+│   │   ├── ./src/app/contract-analyzer
+│   │   │   └── ./src/app/contract-analyzer/page.tsx
+│   │   ├── ./src/app/dashboard
+│   │   │   └── ./src/app/dashboard/page.tsx
+│   │   ├── ./src/app/debug
+│   │   │   └── ./src/app/debug/registry
+│   │   │       └── ./src/app/debug/registry/page.tsx
+│   │   ├── ./src/app/globals.css
+│   │   ├── ./src/app/landing
+│   │   │   └── ./src/app/landing/page.tsx
+│   │   ├── ./src/app/layout.tsx
+│   │   ├── ./src/app/logs
+│   │   │   └── ./src/app/logs/page.tsx
+│   │   ├── ./src/app/not-found.tsx
+│   │   ├── ./src/app/page.tsx
+│   │   ├── ./src/app/profile
+│   │   │   └── ./src/app/profile/page.tsx
+│   │   ├── ./src/app/proposals
+│   │   │   ├── ./src/app/proposals/[id]
+│   │   │   │   └── ./src/app/proposals/[id]/page.tsx
+│   │   │   ├── ./src/app/proposals/new
+│   │   │   │   └── ./src/app/proposals/new/page.tsx
+│   │   │   └── ./src/app/proposals/page.tsx
+│   │   ├── ./src/app/reports
+│   │   │   └── ./src/app/reports/page.tsx
+│   │   ├── ./src/app/role-selection
+│   │   │   └── ./src/app/role-selection/page.tsx
+│   │   ├── ./src/app/setup
+│   │   │   └── ./src/app/setup/page.tsx
+│   │   ├── ./src/app/staking
+│   │   │   └── ./src/app/staking/page.tsx
+│   │   └── ./src/app/treasury
+│   │       └── ./src/app/treasury/page.tsx
+│   ├── ./src/components
+│   │   ├── ./src/components/auth
+│   │   │   ├── ./src/components/auth/auth-guard.tsx
+│   │   │   └── ./src/components/auth/connect-wallet.tsx
+│   │   ├── ./src/components/common
+│   │   │   └── ./src/components/common/add-to-wallet-button.tsx
+│   │   ├── ./src/components/dashboard
+│   │   │   ├── ./src/components/dashboard/activity-feed.tsx
+│   │   │   ├── ./src/components/dashboard/ai-oracle-status.tsx
+│   │   │   ├── ./src/components/dashboard/dashboard-page-content.tsx
+│   │   │   ├── ./src/components/dashboard/investment-chart.tsx
+│   │   │   ├── ./src/components/dashboard/proposal-item.tsx
+│   │   │   ├── ./src/components/dashboard/proposals-list.tsx
+│   │   │   └── ./src/components/dashboard/stat-card.tsx
+│   │   ├── ./src/components/icons
+│   │   │   ├── ./src/components/icons/dao-loading-spinner.tsx
+│   │   │   └── ./src/components/icons/logo.tsx
+│   │   ├── ./src/components/layout
+│   │   │   ├── ./src/components/layout/app-layout.tsx
+│   │   │   ├── ./src/components/layout/app-shell.tsx
+│   │   │   ├── ./src/components/layout/app-sidebar.tsx
+│   │   │   ├── ./src/components/layout/client-root.tsx
+│   │   │   ├── ./src/components/layout/header.tsx
+│   │   │   └── ./src/components/layout/language-switcher.tsx
+│   │   ├── ./src/components/proposals
+│   │   │   └── ./src/components/proposals/proposal-timeline.tsx
+│   │   ├── ./src/components/reports
+│   │   │   └── ./src/components/reports/risk-gauge-chart.tsx
+│   │   ├── ./src/components/setup
+│   │   │   └── ./src/components/setup/deployment-log.tsx
+│   │   ├── ./src/components/staking
+│   │   │   └── ./src/components/staking/staking-plan-card.tsx
+│   │   └── ./src/components/ui
+│   │       ├── ./src/components/ui/accordion.tsx
+│   │       ├── ./src/components/ui/alert-dialog.tsx
+│   │       ├── ./src/components/ui/alert.tsx
+│   │       ├── ./src/components/ui/avatar.tsx
+│   │       ├── ./src/components/ui/badge.tsx
+│   │       ├── ./src/components/ui/button.tsx
+│   │       ├── ./src/components/ui/calendar.tsx
+│   │       ├── ./src/components/ui/card.tsx
+│   │       ├── ./src/components/ui/carousel.tsx
+│   │       ├── ./src/components/ui/chart.tsx
+│   │       ├── ./src/components/ui/checkbox.tsx
+│   │       ├── ./src/components/ui/collapsible.tsx
+│   │       ├── ./src/components/ui/dialog.tsx
+│   │       ├── ./src/components/ui/dropdown-menu.tsx
+│   │       ├── ./src/components/ui/file-input.tsx
+│   │       ├── ./src/components/ui/form.tsx
+│   │       ├── ./src/components/ui/input.tsx
+│   │       ├── ./src/components/ui/label.tsx
+│   │       ├── ./src/components/ui/liquidchrome.tsx
+│   │       ├── ./src/components/ui/menubar.tsx
+│   │       ├── ./src/components/ui/popover.tsx
+│   │       ├── ./src/components/ui/progress.tsx
+│   │       ├── ./src/components/ui/radio-group.tsx
+│   │       ├── ./src/components/ui/scroll-area.tsx
+│   │       ├── ./src/components/ui/select.tsx
+│   │       ├── ./src/components/ui/separator.tsx
+│   │       ├── ./src/components/ui/sheet.tsx
+│   │       ├── ./src/components/ui/sidebar.tsx
+│   │       ├── ./src/components/ui/skeleton.tsx
+│   │       ├── ./src/components/ui/slider.tsx
+│   │       ├── ./src/components/ui/switch.tsx
+│   │       ├── ./src/components/ui/table.tsx
+│   │       ├── ./src/components/ui/tabs.tsx
+│   │       ├── ./src/components/ui/textarea.tsx
+│   │       ├── ./src/components/ui/toast.tsx
+│   │       └── ./src/components/ui/tooltip.tsx
+│   ├── ./src/context
+│   │   ├── ./src/context/LanguageProvider.tsx
+│   │   ├── ./src/context/Providers.tsx
+│   │   ├── ./src/context/WalletConfig.tsx
+│   │   └── ./src/context/Web3Provider.tsx
+│   ├── ./src/contracts
+│   │   ├── ./src/contracts/DAORegistry.sol
+│   │   ├── ./src/contracts/Finance.sol
+│   │   ├── ./src/contracts/interfaces
+│   │   │   ├── ./src/contracts/interfaces/IFinance.sol
+│   │   │   ├── ./src/contracts/interfaces/IRayanChainDAO.sol
+│   │   │   ├── ./src/contracts/interfaces/IRayanChainToken.sol
+│   │   │   └── ./src/contracts/interfaces/IStaking.sol
+│   │   ├── ./src/contracts/libraries
+│   │   │   └── ./src/contracts/libraries/CustomHash.sol
+│   │   ├── ./src/contracts/permission
+│   │   │   └── ./src/contracts/permission/AccControl.sol
+│   │   ├── ./src/contracts/RayanChainDAO.sol
+│   │   ├── ./src/contracts/RayanChainToken.sol
+│   │   ├── ./src/contracts/Staking.sol
+│   │   ├── ./src/contracts/TimelockController.sol
+│   │   └── ./src/contracts/UserProfile.sol
+│   ├── ./src/fonts
+│   │   ├── ./src/fonts/Exo2-VariableFont_wght.ttf
+│   │   ├── ./src/fonts/Merienda-VariableFont_wght.ttf
+│   │   ├── ./src/fonts/Vazirmatn-Black.woff2
+│   │   ├── ./src/fonts/Vazirmatn-Bold.woff2
+│   │   ├── ./src/fonts/Vazirmatn-ExtraBold.woff2
+│   │   ├── ./src/fonts/Vazirmatn-ExtraLight.woff2
+│   │   ├── ./src/fonts/Vazirmatn-Light.woff2
+│   │   ├── ./src/fonts/Vazirmatn-Medium.woff2
+│   │   ├── ./src/fonts/Vazirmatn-Regular.woff2
+│   │   ├── ./src/fonts/Vazirmatn-SemiBold.woff2
+│   │   ├── ./src/fonts/Vazirmatn-Thin.woff2
+│   │   └── ./src/fonts/Vazirmatn[wght].woff2
+│   ├── ./src/hooks
+│   │   ├── ./src/hooks/useActivityFeed.ts
+│   │   ├── ./src/hooks/useBuyTokens.ts
+│   │   ├── ./src/hooks/useContractAnalyzer.ts
+│   │   ├── ./src/hooks/useCreateProposal.ts
+│   │   ├── ./src/hooks/useCurrencyConverter.ts
+│   │   ├── ./src/hooks/use-mobile.tsx
+│   │   ├── ./src/hooks/useOracleStatus.ts
+│   │   ├── ./src/hooks/useOwnershipTransfer.ts
+│   │   ├── ./src/hooks/useProposalExecute.ts
+│   │   ├── ./src/hooks/useProposals.ts
+│   │   ├── ./src/hooks/useProposalVote.ts
+│   │   ├── ./src/hooks/useStaking.ts
+│   │   ├── ./src/hooks/use-translation.ts
+│   │   ├── ./src/hooks/useTreasury.ts
+│   │   └── ./src/hooks/useUserAnalytics.ts
+│   ├── ./src/lib
+│   │   ├── ./src/lib/blockchain
+│   │   │   ├── ./src/lib/blockchain/generated.ts
+│   │   │   └── ./src/lib/blockchain/registry-keys.ts
+│   │   ├── ./src/lib/db.ts
+│   │   ├── ./src/lib/i18n
+│   │   │   ├── ./src/lib/i18n/ar.ts
+│   │   │   ├── ./src/lib/i18n/de.ts
+│   │   │   ├── ./src/lib/i18n/en.ts
+│   │   │   ├── ./src/lib/i18n/fa.ts
+│   │   │   ├── ./src/lib/i18n/locales.ts
+│   │   │   ├── ./src/lib/i18n/ru.ts
+│   │   │   └── ./src/lib/i18n/tr.ts
+│   │   ├── ./src/lib/logger.ts
+│   │   ├── ./src/lib/mongodb.ts
+│   │   ├── ./src/lib/proposal-db.ts
+│   │   └── ./src/lib/utils.ts
+│   └── ./src/types
+│       └── ./src/types/window.d.ts
+├── ./start_ai_oracle.sh
+├── ./tailwind.config.ts
+├── ./temp_abis
+│   ├── ./temp_abis/AccControl.json
+│   ├── ./temp_abis/DAORegistry.json
+│   ├── ./temp_abis/Finance.json
+│   ├── ./temp_abis/RayanChainDAO.json
+│   ├── ./temp_abis/RayanChainToken.json
+│   ├── ./temp_abis/Staking.json
+│   └── ./temp_abis/UserProfile.json
+├── ./tree.txt
+├── ./tsconfig.hardhat.json
+├── ./tsconfig.json
+└── ./wagmi.config.ts
+
+512 directories, 1525 files
