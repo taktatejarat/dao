@@ -10,3 +10,7 @@ INFO:     127.0.0.1:55916 - "GET /analytics/user/0x55138244DC1F785C4b955480Ac704
 --- [AI-ENGINE] Contract analysis complete. Found 1 suggestions. ---
 INFO:     127.0.0.1:56720 - "POST /analytics/contract HTTP/1.1" 200 OK
 INFO:     127.0.0.1:37318 - "GET /reports/proposal/69188d5bb336d8426f25a1c6 HTTP/1.1" 200 OK
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [151566]
