@@ -31,12 +31,12 @@ export function RiskGaugeChart({ value, label, className }: RiskGaugeChartProps)
             <div
                 className="absolute top-0 left-0 w-full h-[200%] rounded-full"
                 style={{
-                    background: `conic-gradient(from -90deg at 50% 100%, hsl(0, 80%, 50%), hsl(60, 80%, 50%) 50%, hsl(120, 80%, 50%))`,
+                    background: `conic-gradient(from -90deg at 50% 100%, hsla(0, 100%, 50%, 1.00), hsla(60, 100%, 50%, 1.00) 50%, hsla(120, 100%, 50%, 1.00))`,
                 }}
             />
             
             {/* ماسک داخلی برای ایجاد افکت Gauge */}
-            <div className="absolute top-0 left-0 w-full h-[200%] bg-card rounded-full" style={{ transform: 'scale(0.8)', transformOrigin: 'bottom center' }} />
+            <div className="absolute top-0 left-0 w-full h-[200%] bg-card rounded-full" style={{ transform: 'scale(0.9)', transformOrigin: 'bottom center' }} />
 
             {/* عقربه انیمیشنی */}
             <motion.div

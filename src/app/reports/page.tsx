@@ -167,13 +167,13 @@ const GradedGaugeChart = ({ value, label }: { value: number; label:string }) => 
                 <p className="text-muted-foreground">{t('reports_page.subtitle')}</p>
             </header>
 
-            <Card className="max-w-4xl mx-auto">
+            <Card className="card-glow">
                 <CardHeader>
                     <CardTitle>{t('reports_page.card_title')}</CardTitle>
                     <CardDescription>{t('reports_page.card_desc')}</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <div className="flex gap-2">
+                    <div className="flex flex-col sm:flex-row gap-2 items-end">
                         <Input
                             placeholder={t('reports_page.input_placeholder')}
                             value={proposalId}

@@ -5,7 +5,7 @@ import { Providers } from '@/context/Providers';
 import localFont from 'next/font/local';
 import { cn } from '@/lib/utils';
 import { ClientRoot } from '@/components/layout/client-root';
-import { AuthGuard } from '@/components/auth/auth-guard.tsx';
+import { AuthGuard } from '@/components/auth/auth-guard';
 
 // فونت Exo 2 برای بدنه متن انگلیسی
 const fontSans = localFont({
