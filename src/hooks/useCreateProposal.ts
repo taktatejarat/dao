@@ -1,3 +1,4 @@
+// src/hooks/useCreateProposal.ts - FINAL, BULLETPROOF VERSION
 
 "use client";
 
@@ -11,8 +12,6 @@ import type { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.
 
 // --- Type Definitions ---
 export interface Milestone { name: string; durationDays: string; amount: string; }
-interface UseCreateProposalProps { daoAddress: Address | undefined; }
-
 interface UseCreateProposalProps {
     daoAddress: Address | undefined;
     router: AppRouterInstance;
@@ -44,11 +43,12 @@ export function useCreateProposal({ daoAddress, router }: UseCreateProposalProps
     const [financialsFile, setFinancialsFile] = useState<File | null>(null);
     const [legalFile, setLegalFile] = useState<File | null>(null);
     const [isPending, setIsPending] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const [txHash, setTxHash] = useState<Hex | undefined>(undefined);
     const [mongoId, setMongoId] = useState<string | null>(null);
 
     // --- Wagmi Hooks for Transaction Monitoring ---
-    const { data: receipt, isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({ hash: txHash });
+    const { data: receipt, isLoading: isConfirming, isSuccess: isConfirmed, isError, error } = useWaitForTransactionReceipt({ hash: txHash });
 
     // --- Form Validation ---
     const isFormValid = useMemo(() => {
@@ -131,10 +131,7 @@ export function useCreateProposal({ daoAddress, router }: UseCreateProposalProps
             }
             
             const { txArgs, mongoId: receivedMongoId } = responseData;
-            setMongoId(receivedMongoId); // ✅ ذخیره شناسه MongoDB در state
-            if (!txArgs) {
-                throw new Error("API did not return transaction arguments.");
-            }
+            setMongoId(receivedMongoId); // ذخیره شناسه برای useEffect
 
             // STEP 3: Send on-chain transaction
             toast.loading(t('toasts.confirm_in_wallet'), { id: toastId });
@@ -144,7 +141,7 @@ export function useCreateProposal({ daoAddress, router }: UseCreateProposalProps
                 functionName: 'submitFundingProposal',
                 args: txArgs,
             });
-            setTxHash(hash); // ✅ ذخیره هش تراکنش در state برای مانیتورینگ توسط useEffect
+            setTxHash(hash); // ذخیره هش برای مانیتورینگ توسط useEffect
             
         } catch (error) {
             toast.error(t('toasts.submission_failed'), { id: toastId, description: (error as Error).message });
@@ -160,13 +157,19 @@ export function useCreateProposal({ daoAddress, router }: UseCreateProposalProps
         pitchDeckFile, financialsFile, legalFile
     ]);
 
-       // ✅✅✅ NEW & CRITICAL: useEffect برای مدیریت رویدادهای پس از تأیید تراکنش ✅✅✅
+    // ✅✅✅ useEffect نهایی برای مدیریت رویدادهای پس از تأیید تراکنش ✅✅✅
     useEffect(() => {
-        if (isConfirmed && receipt && mongoId && txHash) {
-            const toastId = 'post-tx-toast';
-            toast.loading(t('toasts.processing_onchain_data'), { id: toastId });
+        if (!txHash || !mongoId) return;
 
+        if (isConfirming) {
+            // می‌توانید یک toast.loading جداگانه برای تأیید نشان دهید
+            toast.loading(t('toasts.waiting_for_confirmation'), { id: `confirm-${txHash}` });
+        }
+
+        if (isConfirmed && receipt) {
             const processPostTransaction = async () => {
+                const toastId = `post-${txHash}`;
+                toast.loading(t('toasts.processing_onchain_data'), { id: toastId });
                 try {
                     // --- STEP 1: استخراج شناسه پروپوزال آن‌چین از رویدادها ---
                     const proposalCreatedEvent = rayanChainDaoAbi.find(e => e.type === 'event' && e.name === 'ProposalCreated') as AbiEvent | undefined;
@@ -206,16 +209,21 @@ export function useCreateProposal({ daoAddress, router }: UseCreateProposalProps
                 } catch (error) {
                     toast.error(t('toasts.post_submission_failed'), { id: toastId, description: (error as Error).message });
                 } finally {
-                    setIsPending(false); // پایان کامل فرآیند
-                    // ریست کردن state ها برای جلوگیری از اجرای مجدد
+                    setIsSubmitting(false); // پایان کامل فرآیند
                     setTxHash(undefined);
                     setMongoId(null);
                 }
             };
-
             processPostTransaction();
         }
-    }, [isConfirmed, receipt, mongoId, txHash, daoAddress, router, t]);
+
+        if (isError) {
+            toast.error(t('toasts.transaction_failed'), { description: (error as BaseError).shortMessage });
+            setIsSubmitting(false);
+            setTxHash(undefined);
+            setMongoId(null);
+        }
+    }, [isConfirmed, receipt, isError, error, mongoId, txHash, daoAddress, router, t]);
 
     return {
         // ... (تمام state ها و توابع setter)
@@ -227,8 +235,7 @@ export function useCreateProposal({ daoAddress, router }: UseCreateProposalProps
         hasPreviousFunding, setHasPreviousFunding, fundingHistoryDetails, setFundingHistoryDetails,
         recipient, setRecipient, milestones,
         pitchDeckFile, setPitchDeckFile, financialsFile, setFinancialsFile, legalFile, setLegalFile,
-        isPending, setIsPending, isFormValid,
-        // Handlers
+        isPending: isSubmitting, isFormValid,
         handleAddMilestone, handleMilestoneChange, handleRemoveMilestone,
         handleSubmit,
     };

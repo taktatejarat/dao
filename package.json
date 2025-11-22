@@ -55,6 +55,7 @@
     "react-hook-form": "^7.52.1",
     "recharts": "^2.15.4",
     "sonner": "^2.0.7",
+    "swr": "^2.3.6",
     "tailwind-merge": "^2.4.0",
     "util": "^0.12.5",
     "viem": "2.17.0",
