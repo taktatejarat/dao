@@ -726,6 +726,23 @@ export const de = {
       admin_actions: "Verwaltungsaktionen",
       execute_proposal: "Vorschlag ausführen",
       upload_failed: "Datei-Upload fehlgeschlagen:",
+      status: {
+        pending: "Ausstehend",
+        active: "Abstimmung läuft",
+        canceled: "Storniert",
+        defeated: "Abgelehnt",
+        succeeded: "Genehmigt",
+        queued: "Zur Ausführung eingereiht",
+        expired: "Abgelaufen",
+        executed: "Ausgeführt",
+        unknown: "Unbekannt"
+      },
+      alert: {
+        insufficient_power_title: "Unzureichendes Stimmrecht",
+        insufficient_power_desc: "Für die Teilnahme an der Governance müssen Sie (RYC) Token hinterlegen Ihre aktuelle Stimmkraft beträgt null Möchten Sie zur Staking Seite gehen",
+        cancel: "Abbrechen",
+        go_to_staking: "Zum Staking gehen"
+      },
   },
 
   // Dynamic Content
@@ -873,5 +890,41 @@ export const de = {
     0: "0",
     50: "50",
     100: "100",
+  },
+    guide_page: {
+    title: "Nutzerhandbuch der Plattform",
+    subtitle: "Erfahren Sie wie Sie je nach Nutzerrolle in RayanChain arbeiten",
+    tabs: {
+      investor: "💰 Investor",
+      startup: "🚀 Startup",
+      voter: "🗳️ Wähler"
+    },
+    actions: {
+      go_to_staking: "Zum Staking gehen",
+      create_proposal: "Vorschlag erstellen",
+      view_proposals: "Aktive Abstimmungen ansehen"
+    },
+    investor: {
+      step1_title: "Verbinden und Token erhalten",
+      step1_desc: "Verbinden Sie Ihre Wallet Wenn Sie keine RYC Token haben können Sie MATIC über das Hauptdashboard oder Börsen umwandeln",
+      step2_title: "Vorschläge prüfen",
+      step2_desc: "Prüfen Sie aktive Vorschläge Nutzen Sie KI Berichte zur Analyse von Risiko Teamkompetenz und Marktstimmung",
+      step3_title: "Für Governance staken",
+      step3_desc: "Um Einfluss auf Entscheidungen zu nehmen staken Sie Ihre RYC Token Dies gibt Ihnen Stimmkraft basierend auf Ihrer Einsatzmenge"
+    },
+    startup: {
+      step1_title: "Vorschlag einreichen",
+      step1_desc: "Füllen Sie das umfassende Vorschlagsformular aus Laden Sie finanzielle und rechtliche Dokumente sowie das Pitch Deck hoch Die Daten werden sicher in IPFS gespeichert",
+      step2_title: "KI Analyse",
+      step2_desc: "Nach der Einreichung analysiert unsere mehrschichtige KI das Projekt hinsichtlich Risiko und Machbarkeit und fügt den Bericht Ihrem Vorschlag hinzu",
+      step3_title: "Community Abstimmung",
+      step3_desc: "Interagieren Sie mit der Community Erreicht Ihr Vorschlag das Quorum werden die Mittel gemäß den Meilensteinen freigegeben"
+    },
+    voter: {
+      step1_title: "Stimmkraft erhalten",
+      step1_desc: "Sie können nicht nur mit Tokens in der Wallet abstimmen Diese müssen gestakt sein oder Ihnen muss Stimmrecht übertragen worden sein",
+      step2_title: "Abstimmung abgeben",
+      step2_desc: "Öffnen Sie einen aktiven Vorschlag Klicken Sie Zustimmung oder Ablehnung Das Gewicht Ihrer Stimme hängt von Ihrer Einsatzmenge ab"
+    }
   },
 };

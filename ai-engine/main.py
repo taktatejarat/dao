@@ -1,19 +1,19 @@
-# ai-engine/main.py - FINAL, INTEGRATED, MULTI-LAYER ARCHITECTURE
+# ai-engine/main.py (نسخه نهایی)
 
 from fastapi import FastAPI, HTTPException
-from typing import Dict, Any
-import httpx # کتابخانه جدید برای ارسال درخواست‌های HTTP
+import httpx 
 from pydantic import BaseModel 
 
-# ✅ 1. وارد کردن لایه‌های معماری AI
+# ✅ اصلاح ایمپورت‌ها (حذف وابستگی به فایل روت)
 from config import AI_ORACLE_ADDRESS
 from layers.layer_1_security import analyze_user_behavior
 from layers.layer_2_optimizer import analyze_for_gas_optimizations 
 from layers.layer_3_financial import generate_financial_report
 from layers.layer_5_integration import generate_final_investability_score
+
+# ✅ اشاره دقیق به services
 from services.oracle_caller import update_proposal_risk_score
 
-# آدرس API بک‌اند Node.js شما
 NODE_API_BASE_URL = "http://localhost:3000/api"
 
 app = FastAPI(
@@ -21,66 +21,54 @@ app = FastAPI(
     description="A multi-layer AI service for decentralized venture capital analysis."
 )
 
-# --- API Routes ---
 @app.get("/")
 def health_check():
-    return {"service": "RayanChain AI Engine", "status": "running", "version": "1.0"}
+    return {"service": "RayanChain AI Engine", "status": "running", "oracle_address": AI_ORACLE_ADDRESS}
 
 @app.post("/action/trigger-risk-analysis/{proposal_id}")
 async def trigger_risk_analysis(proposal_id: str):
-    """
-    این Endpoint توسط Node.js بعد از تأیید تراکنش فراخوانی می‌شود
-    تا تحلیل ریسک را آغاز کرده و نتیجه را در قرارداد هوشمند ثبت کند.
-    """
     try:
-        # ۱. دریافت داده‌های کامل پروپوزال از API بک‌اند Node.js
+        print(f"[API] Trigger received for proposal {proposal_id}")
+        
+        # 1. دریافت داده‌ها
         async with httpx.AsyncClient() as client:
             response = await client.get(f"{NODE_API_BASE_URL}/proposals/{proposal_id}")
-            response.raise_for_status() # اگر خطا رخ داد، Exception ایجاد می‌کند
+            response.raise_for_status()
             proposal_data = response.json().get('data', {})
 
         if not proposal_data:
-            raise ValueError(f"Proposal data for ID {proposal_id} not found.")
+            raise ValueError(f"Proposal data not found for ID {proposal_id}")
 
-        # ۲. اجرای تحلیل ریسک مالی
+        # 2. تحلیل
         financial_report = generate_financial_report(proposal_data)
-        risk_score = financial_report.get('risk_score')
-
-        # ۳. ارسال امتیاز ریسک به قرارداد هوشمند
-        if risk_score is not None:
-            print(f"Submitting risk score {risk_score} for proposal {proposal_id} to the blockchain...")
-            # این تابع اکنون باید فقط شناسه پروپوزال آن‌چین را بپذیرد
-            on_chain_id = proposal_data.get('proposalIdOnChain')
-            if on_chain_id:
-                update_proposal_risk_score(int(on_chain_id), risk_score)
-            else:
-                print(f"Warning: On-chain ID not found for proposal {proposal_id}. Cannot update risk score.")
-
-        return {"status": "success", "message": f"Risk analysis for proposal {proposal_id} completed and score submitted."}
-
-    except Exception as e:
-        print(f"ERROR in trigger_risk_analysis for proposal {proposal_id}: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
-
-@app.get("/analytics/user/{user_address}")
-async def get_user_analytics_report(user_address: str):
-    """
-    گزارش تحلیل رفتار برای یک کاربر خاص تولید می‌کند.
-    """
-    try:
-        # TODO: در آینده، اینجا باید داده‌های واقعی تاریخچه کاربر را از دیتابیس یا بلاکچین واکشی کنیم.
-        # برای نسخه فعلی، از داده‌های Mock استفاده می‌کنیم تا پایپ‌لاین کامل شود.
-        mock_user_history = [
-            {'amount': 1500, 'gas_used': 60000, 'type': 'vote'},
-            {'amount': 10000, 'gas_used': 150000, 'type': 'stake'},
-        ]
-        
+        mock_user_history = [{'amount': 1000, 'gas_used': 50000}] 
         security_report = analyze_user_behavior(mock_user_history)
         
-        return security_report
+        # تولید امتیاز نهایی
+        final_report = generate_final_investability_score(financial_report, security_report)
+        
+        # استخراج امتیاز نهایی (Investability Score)
+        # این امتیاز (0-100) نشان‌دهنده کیفیت پروژه است (100 = عالی)
+        final_score = final_report.get('investability_score', 0)
+
+        # 3. ارسال به بلاکچین
+        # نکته: ما باید مطمئن شویم که آیا قرارداد امتیاز "کیفیت" می‌خواهد یا امتیاز "ریسک"؟
+        # اگر قرارداد Risk Score می‌خواهد (یعنی 100 = پرخطر)، باید معکوس کنیم: (100 - final_score)
+        # اما معمولاً در DAO، امتیاز بالاتر بهتر است. فرض بر امتیاز کیفیت است.
+        
+        on_chain_id = proposal_data.get('proposalIdOnChain')
+        if on_chain_id:
+            print(f"[API] Sending score {final_score} to on-chain ID {on_chain_id}")
+            # فراخوانی تابعی که در services/oracle_caller است
+            update_proposal_risk_score(int(on_chain_id), int(final_score))
+        else:
+            print(f"[API WARN] On-chain ID missing for proposal {proposal_id}. Skipping blockchain update.")
+
+        # بازگشت نتیجه به Node.js برای ذخیره در دیتابیس
+        return final_report
 
     except Exception as e:
-        print(f"ERROR in get_user_analytics_report for {user_address}: {e}")
+        print(f"[API ERROR] trigger_risk_analysis failed: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/reports/proposal/{proposal_id}")

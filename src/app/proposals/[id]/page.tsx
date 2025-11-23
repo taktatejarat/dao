@@ -1,9 +1,9 @@
-//src/app/proposals/[id]/page.tsx - FINAL, HOOK-BASED, AND FULLY FEATURED
+// src/app/proposals/[id]/page.tsx - FINAL I18N COMPLIANT
 
 "use client";
 
 import { useMemo, useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { AppLayout } from '@/components/layout/app-layout';
 import { useWeb3 } from '@/context/Web3Provider';
@@ -11,21 +11,40 @@ import { useTranslation } from '@/hooks/use-translation';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { BrainCircuit, AlertTriangle, Banknote, Calendar, Check, Clock, Info, ShieldCheck, User, Users, X, PlayCircle, CheckCircle, LineChart, Scale } from 'lucide-react';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { BrainCircuit, AlertTriangle, Banknote, Calendar, Check, Clock, Info, ShieldCheck, User, Users, X, PlayCircle, CheckCircle, LineChart, Scale, Lock, XCircle } from 'lucide-react';
 import { formatNumber, formatLocaleDate, formatAddress } from '@/lib/utils';
-import { formatEther, type Address } from 'viem';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useReadContract } from 'wagmi';
-import { rayanChainDaoAbi } from '@/lib/blockchain/generated';
+import { rayanChainDaoAbi, rayanChainTokenAbi } from '@/lib/blockchain/generated';
 import { DaoLoadingSpinner } from '@/components/icons/dao-loading-spinner';
 import { useProposalVote } from '@/hooks/useProposalVote'; 
 import { useProposalExecute } from '@/hooks/useProposalExecute'; 
 import { ProposalTimeline } from '@/components/proposals/proposal-timeline';
+import { formatEther, type Address, parseAbi } from 'viem';
 
-// --- Type Definitions and Helper Components ---
-interface OnChainProposal { id: bigint; proposer: Address; forVotes: bigint; againstVotes: bigint; state: bigint; deadline: bigint; executed: boolean; aiRiskScore: bigint; }
+// --- Type Definitions ---
+interface OnChainProposal { 
+    id: bigint; 
+    proposer: Address; 
+    forVotes: bigint; 
+    againstVotes: bigint; 
+    state: number; 
+    deadline: bigint; 
+    executed: boolean; 
+    aiRiskScore: bigint; 
+}
 
 const InfoCard = ({ icon: Icon, title, value }: { icon: React.ElementType, title: string, value: string | number }) => (
     <div className="flex items-center gap-4 p-4 bg-muted/50 rounded-lg">
@@ -37,49 +56,36 @@ const InfoCard = ({ icon: Icon, title, value }: { icon: React.ElementType, title
     </div>
 );
 
-const getStatusInfo = (state: bigint, t: (key: string) => string) => {
+// نگاشت وضعیت‌ها با استفاده از کلیدهای ترجمه
+const getStatusInfo = (state: number, t: (key: string) => string) => {
     switch (state) {
-        case 0n: return { text: t('proposal_detail.status.pending'), color: 'bg-gray-500', icon: Clock };
-        case 1n: return { text: t('proposal_detail.status.active'), color: 'bg-blue-500', icon: Clock };
-        case 2n: return { text: t('proposal_detail.status.voting'), color: 'bg-yellow-500', icon: Clock };
-        case 3n: return { text: t('proposal_detail.status.approved'), color: 'bg-green-600', icon: Check };
-        case 4n: return { text: t('proposal_detail.status.rejected'), color: 'bg-red-600', icon: X };
-        case 5n: return { text: t('proposal_detail.status.executed'), color: 'bg-purple-600', icon: ShieldCheck };
-        default: return { text: t('proposal_detail.status.unknown'), color: 'bg-gray-700', icon: Info };
+        case 0: return { text: t('proposal_detail.status.pending'), color: 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20', icon: Clock };
+        case 1: return { text: t('proposal_detail.status.active'), color: 'bg-blue-500/10 text-blue-500 border-blue-500/20', icon: PlayCircle };
+        case 2: return { text: t('proposal_detail.status.canceled'), color: 'bg-gray-500/10 text-gray-500 border-gray-500/20', icon: X };
+        case 3: return { text: t('proposal_detail.status.defeated'), color: 'bg-red-500/10 text-red-500 border-red-500/20', icon: XCircle };
+        case 4: return { text: t('proposal_detail.status.succeeded'), color: 'bg-green-500/10 text-green-500 border-green-500/20', icon: CheckCircle };
+        case 5: return { text: t('proposal_detail.status.queued'), color: 'bg-purple-500/10 text-purple-500 border-purple-500/20', icon: Clock };
+        case 6: return { text: t('proposal_detail.status.expired'), color: 'bg-orange-500/10 text-orange-500 border-orange-500/20', icon: AlertTriangle };
+        case 7: return { text: t('proposal_detail.status.executed'), color: 'bg-emerald-600/10 text-emerald-600 border-emerald-600/20', icon: ShieldCheck };
+        default: return { text: t('proposal_detail.status.unknown'), color: 'bg-gray-500', icon: Info };
     }
 };
 
-const SkeletonUI = () => (
-    <div className="space-y-6">
-        <Skeleton className="h-10 w-3/4" />
-        <Skeleton className="h-6 w-1/2" />
-        <Card>
-            <CardHeader><Skeleton className="h-8 w-1/4" /></CardHeader>
-            <CardContent className="space-y-4">
-                <Skeleton className="h-6 w-full" />
-                <Skeleton className="h-6 w-5/6" />
-            </CardContent>
-        </Card>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Card><CardContent className="p-6 space-y-4"><Skeleton className="h-6 w-1/3" /><Skeleton className="h-10 w-full" /></CardContent></Card>
-            <Card><CardContent className="p-6 space-y-4"><Skeleton className="h-6 w-1/3" /><Skeleton className="h-10 w-full" /></CardContent></Card>
-        </div>
-    </div>
-);
-
-
-const PROPOSAL_STATE_VOTING = 2n;
-const PROPOSAL_STATE_APPROVED = 3n;
+const PROPOSAL_STATE_ACTIVE = 1;
+const PROPOSAL_STATE_SUCCEEDED = 4;
+const PROPOSAL_STATE_QUEUED = 5;
 
 export default function ProposalDetailPage() {
     const { t, locale } = useTranslation();
-    const { daoAddress, isHydrated: isWeb3Hydrated, userRole } = useWeb3();
+    const router = useRouter();
+    const { daoAddress, tokenAddress, isHydrated: isWeb3Hydrated, userRole, address } = useWeb3();
     const params = useParams();
     const proposalIdParam = params.id as string;
 
     const [offChainData, setOffChainData] = useState<any | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [showStakingAlert, setShowStakingAlert] = useState(false);
 
     useEffect(() => {
         const fetchAllData = async () => {
@@ -88,84 +94,110 @@ export default function ProposalDetailPage() {
             try {
                 const response = await fetch(`/api/proposals/${proposalIdParam}`);
                 const result = await response.json();
-                if (!response.ok || !result.success) {
-                    throw new Error(result.message || 'Failed to fetch proposal data.');
-                }
+                if (!response.ok || !result.success) throw new Error(result.message || 'Failed.');
                 setOffChainData(result.data);
-            } catch (err) {
-                setError((err as Error).message);
-            } finally {
-                setIsLoading(false);
-            }
+            } catch (err) { setError((err as Error).message); } 
+            finally { setIsLoading(false); }
         };
         fetchAllData();
     }, [proposalIdParam]);
 
     const onChainProposalId = useMemo(() => {
         const raw = offChainData?.proposalIdOnChain;
-        if (raw === undefined || raw === null) return null;
-        try {
-            // اجازه می‌دهیم raw هم string یا number یا bigint باشد
-            return BigInt(raw.toString());
-        } catch (e) {
-            console.warn('Invalid on-chain proposal id', raw, e);
-            return null;
-        }
+        if (raw == null) return null;
+        try { return BigInt(raw.toString()); } catch { return null; }
     }, [offChainData]);
 
     const { data: onChainResult, isLoading: isOnChainLoading, error: onChainError } = useReadContract({
         address: daoAddress,
         abi: rayanChainDaoAbi,
         functionName: 'proposals',
-        // فقط اگر شناسه وجود دارد آرگومان پاس کن
         args: onChainProposalId ? [onChainProposalId] : undefined,
         query: { enabled: isWeb3Hydrated && !!daoAddress && !!onChainProposalId },
     });
 
-    const onChainData = useMemo((): OnChainProposal | null => onChainResult as any, [onChainResult]);
-
-    // ✅✅✅ STEP 2: استفاده صحیح از هوک‌های تعاملی ✅✅✅
-    const { handleVote, isVotingPending, canVoteFor, canVoteAgainst, hasVoted } = useProposalVote({
-        daoAddress,
-        proposalId: onChainProposalId!, // پاس دادن شناسه آن‌چین
-        isVotingActive: !!onChainData && onChainData.state === PROPOSAL_STATE_VOTING,
+    const { data: userVotingPower } = useReadContract({
+        address: tokenAddress,
+        abi: parseAbi(['function getVotes(address account) view returns (uint256)']),
+        functionName: 'getVotes',
+        args: address ? [address] : undefined,
+        query: { enabled: !!address && !!tokenAddress }
     });
+
+    const onChainData = useMemo((): OnChainProposal | null => {
+        if (!onChainResult || !Array.isArray(onChainResult)) return null;
+        const result = onChainResult as any[];
+        
+
+        // ✅✅✅ DEBUGGER: این خط را در کنسول مرورگر چک کنید ✅✅✅
+        console.log("🔍 [Proposal Debug] OnChain Data Array:", result);
+        console.log("   - Index 11 (State?):", result[11]);
+        console.log("   - Index 12 (Executed?):", result[12]);
+        
+        return {
+            id: result[0],
+            proposer: result[2],
+            deadline: result[8],
+            forVotes: result[9],
+            againstVotes: result[10],
+            // اگر در کنسول دیدید که result[11] عدد ۲ است، یعنی واقعا کنسل شده
+            state: Number(result[11]), 
+            executed: result[12],
+            aiRiskScore: result[14],
+        };
+    }, [onChainResult]);
+
+    const { handleVote: submitVote, isVotingPending, hasVoted } = useProposalVote({
+        daoAddress,
+        proposalId: onChainProposalId!,
+        isVotingActive: !!onChainData && onChainData.state === PROPOSAL_STATE_ACTIVE,
+    });
+    
     const { handleExecute, isExecuting } = useProposalExecute({
         daoAddress,
-        proposalId: onChainProposalId!, // پاس دادن شناسه آن‌چین
-        isExecutable: !!onChainData && onChainData.state === PROPOSAL_STATE_APPROVED && !onChainData.executed,
+        proposalId: onChainProposalId!,
+        isExecutable: !!onChainData && (onChainData.state === PROPOSAL_STATE_SUCCEEDED || onChainData.state === PROPOSAL_STATE_QUEUED) && !onChainData.executed,
     });
 
-    const isPageLoading = isLoading || (!!onChainProposalId && isOnChainLoading);
-    const finalError = error || onChainError?.message;
+    // ✅✅✅ FIX: دکمه را غیرفعال نمی‌کنیم، بلکه هنگام کلیک چک می‌کنیم
+    const handleVoteClick = (voteType: 'for' | 'against') => {
+        if (!userVotingPower || userVotingPower === 0n) {
+            setShowStakingAlert(true); // نمایش پیام هدایت
+            return;
+        }
+        submitVote(voteType);
+    };
 
-    if (finalError || (!offChainData && !onChainData)) {
-        return <AppLayout><Alert variant="destructive"><AlertTriangle className="h-4 w-4" /><AlertTitle>{t('proposal_detail.error_loading_title')}</AlertTitle><AlertDescription>{finalError || t('proposal_detail.error_loading_desc')}</AlertDescription></Alert></AppLayout>;
+    const finalError = error || onChainError?.message;
+    if (finalError || (!offChainData && !onChainData && !isLoading && !isOnChainLoading)) {
+        return <AppLayout><Alert variant="destructive"><AlertTriangle className="h-4 w-4" /><AlertTitle>{t('common.error')}</AlertTitle><AlertDescription>{finalError}</AlertDescription></Alert></AppLayout>;
     }
     
-    const totalVotes = onChainData ? onChainData.forVotes + onChainData.againstVotes : 0n;
-    const forPercentage = (onChainData && totalVotes > 0n) ? Number((onChainData.forVotes * 100n) / totalVotes) : 0;
-    const { text: statusText, color: statusColor, icon: StatusIcon } = getStatusInfo(onChainData?.state ?? 0n, t);
+    const totalVotes = onChainData ? (BigInt(onChainData.forVotes) + BigInt(onChainData.againstVotes)) : 0n;
+    const forPercentage = (onChainData && totalVotes > 0n) ? Number((BigInt(onChainData.forVotes) * 100n) / totalVotes) : 0;
+    const { text: statusText, color: statusColor, icon: StatusIcon } = getStatusInfo(onChainData?.state ?? -1, t);
 
    return (
         <AppLayout>
             <header className="mb-6 flex flex-wrap items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold font-headline text-gradient">{offChainData?.projectName ?? `${t('proposal_detail.proposal')} #${onChainProposalId}`}</h1>
+                    <h1 className="text-3xl font-bold font-headline text-gradient">
+                        {offChainData?.projectName ?? (onChainData ? `${t('proposal_detail.proposal')} #${onChainData.id}` : t('common.loading'))}
+                    </h1>
                     {offChainData?.tagline && <p className="text-muted-foreground mt-1">{offChainData.tagline}</p>}
                 </div>
                 <div className="flex items-center gap-4">
                     {offChainData?._id && (<Link href={`/reports?id=${offChainData._id}`} passHref><Button variant="outline"><BrainCircuit className="w-4 h-4 mr-2" />{t('proposal_detail.view_ai_report')}</Button></Link>)}
-                    {onChainData && (<Badge className={`${statusColor} hover:${statusColor} text-sm px-3 py-1.5`}><StatusIcon className="w-4 h-4 mr-2" /><span>{statusText}</span></Badge>)}
+                    {onChainData && (<Badge variant="outline" className={`${statusColor} text-sm px-3 py-1.5 flex gap-2`}><StatusIcon className="w-4 h-4" /><span>{statusText}</span></Badge>)}
                 </div>
             </header>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="lg:col-span-2 space-y-6">
-                    <Card>
+                     <Card>
                         <CardHeader><CardTitle className="flex items-center gap-2"><BrainCircuit /> {t('proposal_detail.ai_analysis')}</CardTitle></CardHeader>
                         <CardContent className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                            <InfoCard icon={LineChart} title={t('proposal_detail.ai_risk_score')} value={`${onChainData?.aiRiskScore?.toString() ?? 'N/A'}`} />
+                            <InfoCard icon={LineChart} title={t('proposal_detail.ai_risk_score')} value={`${onChainData?.aiRiskScore?.toString() ?? t('common.pending')}`} />
                             <InfoCard icon={Scale} title={t('proposal_detail.market_sentiment')} value={offChainData?.aiAnalysis?.financialAnalysis?.market_sentiment_score ? `${(offChainData.aiAnalysis.financialAnalysis.market_sentiment_score * 100).toFixed(0)}%` : 'N/A'} />
                             <InfoCard icon={Users} title={t('proposal_detail.team_competency')} value={offChainData?.aiAnalysis?.financialAnalysis?.team_competency_score ?? 'N/A'} />
                         </CardContent>
@@ -173,59 +205,36 @@ export default function ProposalDetailPage() {
 
                     <Card>
                         <CardHeader><CardTitle>{t('proposal_detail.description')}</CardTitle></CardHeader>
-                        <CardContent><p className="text-muted-foreground whitespace-pre-wrap">{offChainData?.description ?? t('proposal_detail.no_offchain_data')}</p></CardContent>
+                        <CardContent><p className="text-muted-foreground whitespace-pre-wrap leading-relaxed">{offChainData?.description ?? t('proposal_detail.no_offchain_data')}</p></CardContent>
                     </Card>
 
-                            {/* Voting results card - show skeleton / message when on-chain data not ready */}
-                            <Card>
-                                <CardHeader><CardTitle>{t('proposal_detail.voting_results')}</CardTitle></CardHeader>
-                                <CardContent>
-                                    {isOnChainLoading ? (
-                                        // اگر در حال لود است، اسکلتون یا پیام نمایش بده
-                                        <div className="space-y-3">
-                                            <Skeleton className="h-6 w-3/4" />
-                                            <Skeleton className="h-4 w-1/2" />
-                                            <Skeleton className="h-10 w-full" />
-                                        </div>
+                    <Card>
+                        <CardHeader><CardTitle>{t('proposal_detail.voting_results')}</CardTitle></CardHeader>
+                        <CardContent>
+                            {isOnChainLoading ? (
+                                <div className="space-y-3"><Skeleton className="h-6 w-3/4" /><Skeleton className="h-4 w-1/2" /></div>
                             ) : onChainData ? (
-                                // حالت عادی: داده وجود دارد
                                 <>
-                                    <div>
-                                        <div className="flex justify-between mb-1 text-sm">
-                                            <span className="font-medium text-green-600">{t('proposal_detail.votes_for')}</span>
-                                            <span>{formatNumber(formatEther(onChainData.forVotes), locale)} ({forPercentage}%)</span>
-                                        </div>
+                                    <div className="mb-4">
+                                        <div className="flex justify-between mb-1 text-sm"><span className="font-medium text-green-600">{t('proposal_detail.votes_for')}</span><span>{formatNumber(formatEther(onChainData.forVotes), locale)} ({forPercentage}%)</span></div>
                                         <Progress value={forPercentage} className="h-3 [&>*]:bg-green-600" />
                                     </div>
-                                    <div className="mt-4">
-                                        <div className="flex justify-between mb-1 text-sm">
-                                            <span className="font-medium text-destructive">{t('proposal_detail.votes_against')}</span>
-                                            <span>{formatNumber(formatEther(onChainData.againstVotes), locale)} ({100 - forPercentage}%)</span>
-                                        </div>
+                                    <div>
+                                        <div className="flex justify-between mb-1 text-sm"><span className="font-medium text-destructive">{t('proposal_detail.votes_against')}</span><span>{formatNumber(formatEther(onChainData.againstVotes), locale)} ({100 - forPercentage}%)</span></div>
                                         <Progress value={100 - forPercentage} className="h-3 [&>*]:bg-destructive" />
                                     </div>
-                                    {hasVoted && (
-                                        <Alert className="mt-6" variant="success">
-                                            <CheckCircle className="h-4 w-4" />
-                                            <AlertTitle>{t('proposal_detail.you_have_voted_title')}</AlertTitle>
-                                            <AlertDescription>{t('proposal_detail.you_have_voted_desc')}</AlertDescription>
-                                        </Alert>
-                                    )}
+                                    {hasVoted && (<Alert className="mt-6 border-green-500/50 bg-green-500/10"><CheckCircle className="h-4 w-4 text-green-600" /><AlertTitle className="text-green-600">{t('proposal_detail.you_have_voted_title')}</AlertTitle></Alert>)}
                                 </>
-                            ) : (
-                                // داده آن‌چین موجود نیست — پیغام مناسب نشان بده
-                                <div className="text-sm text-muted-foreground">
-                                    {t('proposal_detail.onchain_data_unavailable') /* یا یک متن فارسی سفارشی مثل "داده‌های زنجیره‌ای در دسترس نیست" */}
-                                </div>
-                            )}
+                            ) : <div className="text-sm text-muted-foreground">{t('proposal_detail.onchain_data_unavailable')}</div>}
                         </CardContent>
-                        {/* اگر داده وجود دارد، footer رأی‌گیری را نمایش بده */}
-                        {onChainData && onChainData.state === PROPOSAL_STATE_VOTING && !hasVoted && (
+                        
+                        {/* ✅ نمایش دکمه‌ها اگر وضعیت Active باشد */}
+                        {onChainData && onChainData.state === PROPOSAL_STATE_ACTIVE && !hasVoted && (
                             <CardFooter className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <Button size="lg" className="bg-green-600 hover:bg-green-700 w-full" onClick={() => handleVote('for')} disabled={!canVoteFor || isVotingPending}>
+                                <Button size="lg" className="bg-green-600 hover:bg-green-700 w-full" onClick={() => handleVoteClick('for')} disabled={isVotingPending}>
                                     {isVotingPending ? <DaoLoadingSpinner /> : <Check className="me-2"/>}{t('proposal_detail.vote_for')}
                                 </Button>
-                                <Button size="lg" variant="destructive" className="w-full" onClick={() => handleVote('against')} disabled={!canVoteAgainst || isVotingPending}>
+                                <Button size="lg" variant="destructive" className="w-full" onClick={() => handleVoteClick('against')} disabled={isVotingPending}>
                                     {isVotingPending ? <DaoLoadingSpinner /> : <X className="me-2"/>}{t('proposal_detail.vote_against')}
                                 </Button>
                             </CardFooter>
@@ -234,7 +243,7 @@ export default function ProposalDetailPage() {
                 </div>
                 
                 <div className="space-y-6">
-                    {onChainData && <ProposalTimeline currentState={onChainData.state} />}
+                    {onChainData && <ProposalTimeline currentState={BigInt(onChainData.state)} />}
                     <Card>
                         <CardHeader><CardTitle>{t('proposal_detail.details')}</CardTitle></CardHeader>
                         <CardContent className="space-y-4">
@@ -244,11 +253,32 @@ export default function ProposalDetailPage() {
                             {onChainData && <InfoCard icon={Users} title={t('proposal_detail.total_votes')} value={formatNumber(formatEther(totalVotes), locale)} />}
                         </CardContent>
                     </Card>
-                    {userRole === 'admin' && onChainData && onChainData.state === PROPOSAL_STATE_APPROVED && !onChainData.executed && (
-                         <Card className="border-primary"><CardHeader><CardTitle>{t('proposal_detail.admin_actions')}</CardTitle></CardHeader><CardContent><p className="text-sm text-muted-foreground mb-4">{t('proposal_detail.execute_desc')}</p><Button className="w-full" onClick={handleExecute} disabled={isExecuting}>{isExecuting ? <DaoLoadingSpinner className="me-2" /> : <PlayCircle className="me-2" />}{t('proposal_detail.execute_proposal')}</Button></CardContent></Card>
+                    {userRole === 'admin' && onChainData && (onChainData.state === PROPOSAL_STATE_SUCCEEDED || onChainData.state === PROPOSAL_STATE_QUEUED) && !onChainData.executed && (
+                         <Card className="border-primary"><CardHeader><CardTitle>{t('proposal_detail.admin_actions')}</CardTitle></CardHeader><CardContent><Button className="w-full" onClick={handleExecute} disabled={isExecuting}>{isExecuting ? <DaoLoadingSpinner className="me-2" /> : <PlayCircle className="me-2" />}{t('proposal_detail.execute_proposal')}</Button></CardContent></Card>
                     )}
                 </div>
             </div>
+
+            {/* ✅✅✅ پیام هدایت به سپرده‌گذاری با متون i18n ✅✅✅ */}
+            <AlertDialog open={showStakingAlert} onOpenChange={setShowStakingAlert}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle className="flex items-center gap-2 text-yellow-600">
+                            <Lock className="h-5 w-5" />
+                            {t('proposal_detail.alert.insufficient_power_title')}
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
+                            {t('proposal_detail.alert.insufficient_power_desc')}
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>{t('proposal_detail.alert.cancel')}</AlertDialogCancel>
+                        <AlertDialogAction onClick={() => router.push('/staking')}>
+                            {t('proposal_detail.alert.go_to_staking')}
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </AppLayout>
     );
 }

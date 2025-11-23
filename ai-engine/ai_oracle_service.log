@@ -1,35 +1,10 @@
-INFO:     Started server process [8648]
+INFO:     Started server process [20528]
 INFO:     Waiting for application startup.
 INFO:     Application startup complete.
 INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
 [CONFIG] AI Oracle configured successfully for address: 0x55138244DC1F785C4b955480Ac70410bC1D85A08
 [AI-LAYER-3] Financial risk model loaded successfully.
-INFO:     127.0.0.1:47270 - "GET /reports/proposal/69219a008c151773ec56f45d HTTP/1.1" 200 OK
-INFO:     127.0.0.1:35818 - "GET /reports/proposal/69219a008c151773ec56f45d HTTP/1.1" 200 OK
-INFO:     127.0.0.1:35814 - "GET /reports/proposal/69219a008c151773ec56f45d HTTP/1.1" 200 OK
-INFO:     127.0.0.1:51830 - "GET /reports/proposal/69219a008c151773ec56f45d HTTP/1.1" 200 OK
-INFO:     127.0.0.1:51844 - "GET /reports/proposal/69219a008c151773ec56f45d HTTP/1.1" 200 OK
-INFO:     127.0.0.1:37184 - "GET /reports/proposal/69219a008c151773ec56f45d HTTP/1.1" 200 OK
-INFO:     127.0.0.1:37172 - "GET /reports/proposal/69219a008c151773ec56f45d HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55002 - "GET /reports/proposal/69219a008c151773ec56f45d HTTP/1.1" 200 OK
-INFO:     127.0.0.1:54988 - "GET /reports/proposal/69219a008c151773ec56f45d HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55012 - "GET /reports/proposal/69219a008c151773ec56f45d HTTP/1.1" 200 OK
-INFO:     127.0.0.1:54976 - "GET /reports/proposal/69219a008c151773ec56f45d HTTP/1.1" 200 OK
-INFO:     127.0.0.1:49356 - "GET /reports/proposal/69219a008c151773ec56f45d HTTP/1.1" 200 OK
-INFO:     127.0.0.1:49370 - "GET /reports/proposal/69219a008c151773ec56f45d HTTP/1.1" 200 OK
-INFO:     127.0.0.1:58314 - "GET /reports/proposal/69219a008c151773ec56f45d HTTP/1.1" 200 OK
-INFO:     127.0.0.1:58320 - "GET /reports/proposal/69219a008c151773ec56f45d HTTP/1.1" 200 OK
-INFO:     127.0.0.1:58310 - "GET /reports/proposal/69219a008c151773ec56f45d HTTP/1.1" 200 OK
-INFO:     127.0.0.1:58308 - "GET /reports/proposal/69219a008c151773ec56f45d HTTP/1.1" 200 OK
-INFO:     127.0.0.1:43634 - "GET /reports/proposal/69219a008c151773ec56f45d HTTP/1.1" 200 OK
-INFO:     127.0.0.1:43622 - "GET /reports/proposal/69219a008c151773ec56f45d HTTP/1.1" 200 OK
-INFO:     127.0.0.1:43622 - "GET /reports/proposal/69219a008c151773ec56f45d HTTP/1.1" 200 OK
-INFO:     127.0.0.1:43634 - "GET /reports/proposal/69219a008c151773ec56f45d HTTP/1.1" 200 OK
-INFO:     127.0.0.1:46236 - "GET /reports/proposal/69219a008c151773ec56f45d HTTP/1.1" 200 OK
-INFO:     127.0.0.1:46244 - "GET /reports/proposal/69219a008c151773ec56f45d HTTP/1.1" 200 OK
-INFO:     127.0.0.1:42646 - "GET /reports/proposal/69219a008c151773ec56f45d HTTP/1.1" 200 OK
-INFO:     127.0.0.1:42662 - "GET /reports/proposal/69219a008c151773ec56f45d HTTP/1.1" 200 OK
-INFO:     127.0.0.1:42646 - "GET /reports/proposal/69219a008c151773ec56f45d HTTP/1.1" 200 OK
-INFO:     127.0.0.1:42662 - "GET /reports/proposal/69219a008c151773ec56f45d HTTP/1.1" 200 OK
-INFO:     127.0.0.1:52944 - "GET /reports/proposal/69219a008c151773ec56f45d HTTP/1.1" 200 OK
-INFO:     127.0.0.1:52932 - "GET /reports/proposal/69219a008c151773ec56f45d HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50110 - "GET /reports/proposal/6922f476fef11476bfd7c3ed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50122 - "GET /reports/proposal/6922f476fef11476bfd7c3ed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48698 - "GET /reports/proposal/6922f476fef11476bfd7c3ed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48712 - "GET /reports/proposal/6922f476fef11476bfd7c3ed HTTP/1.1" 200 OK

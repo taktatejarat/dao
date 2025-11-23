@@ -1,4 +1,4 @@
-// src/context/Web3Provider.tsx - FINAL, CLEANED, AND NO REDECLARATION ERRORS
+// src/context/Web3Provider.tsx - NON-BLOCKING VERSION
 
 'use client';
 
@@ -7,7 +7,6 @@ import { useAccount, useReadContracts } from 'wagmi';
 import type { Address } from 'viem';
 import { daoRegistryAbi } from '@/lib/blockchain/generated';
 import { REGISTRY_KEYS } from '@/lib/blockchain/registry-keys';
-import { DaoLoadingSpinner } from '@/components/icons/dao-loading-spinner'; // ✅ ایمپورت برای حالت لودینگ
 
 export type UserRole = 'admin' | 'investor' | 'startup' | 'voter' | 'delegate' | null;
 
@@ -29,14 +28,20 @@ const Web3Context = createContext<IWeb3Context | undefined>(undefined);
 export function Web3Provider({ children }: { children: ReactNode }) {
     const [userRole, setUserRole] = useState<UserRole>(null);
     const [isRoleLoading, setIsRoleLoading] = useState(true);
+    // state برای اینکه مطمئن شویم در کلاینت هستیم
+    const [mounted, setMounted] = useState(false);
+
     const { address, status, isConnected } = useAccount();
     
     const registryAddress = process.env.NEXT_PUBLIC_REGISTRY_ADDRESS as Address | undefined;
 
-    // --- ✅✅✅ SECTION 1: منطق مدیریت نقش کاربر (بازگردانده شد) ✅✅✅ ---
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    // --- Role Logic ---
     useEffect(() => {
         setIsRoleLoading(true);
-        
         const timer = setTimeout(() => {
             if (status === 'connected' && address) {
                 const adminEnvAddress = process.env.NEXT_PUBLIC_ADMIN_ADDRESS;
@@ -44,66 +49,43 @@ export function Web3Provider({ children }: { children: ReactNode }) {
                     setUserRole('admin');
                 } else {
                     const storedRole = localStorage.getItem(`userRole_${address}`) as UserRole;
-                    if (storedRole) {
-                        setUserRole(storedRole);
-                    }
+                    if (storedRole) setUserRole(storedRole);
                 }
             } else if (status === 'disconnected') {
                 setUserRole(null);
             }
             setIsRoleLoading(false);
         }, 500);
-
         return () => clearTimeout(timer);
     }, [status, address]);
 
     const handleSetUserRole = useCallback((role: UserRole) => {
-      const adminEnvAddress = process.env.NEXT_PUBLIC_ADMIN_ADDRESS;
-      if (address && adminEnvAddress && address.toLowerCase() === adminEnvAddress.toLowerCase()) {
-          setUserRole('admin');
-          return;
-      }
-      
       setUserRole(role);
-      if (role && status === 'connected' && address) {
-        localStorage.setItem(`userRole_${address}`, role);
-      } else if (address) {
-        localStorage.removeItem(`userRole_${address}`);
-      }
-    }, [address, status]);
-    // --- پایان منطق مدیریت نقش کاربر ---
+      if (role && address) localStorage.setItem(`userRole_${address}`, role);
+    }, [address]);
 
-    // ✅✅✅ بخش خواندن آدرس‌ها (فقط از useReadContracts) ✅✅✅
-    const { data: addressesData, isLoading: areAddressesLoading, isSuccess: areAddressesLoaded } = useReadContracts({
+    // --- Contract Addresses (Async Load) ---
+    const { data: addressesData, isLoading: areAddressesLoading } = useReadContracts({
         contracts: [
             { address: registryAddress, abi: daoRegistryAbi, functionName: 'getAddress', args: [REGISTRY_KEYS.DAO] },
             { address: registryAddress, abi: daoRegistryAbi, functionName: 'getAddress', args: [REGISTRY_KEYS.TOKEN] },
             { address: registryAddress, abi: daoRegistryAbi, functionName: 'getAddress', args: [REGISTRY_KEYS.FINANCE] },
             { address: registryAddress, abi: daoRegistryAbi, functionName: 'getAddress', args: [REGISTRY_KEYS.STAKING] },
         ],
-        query: { enabled: !!registryAddress }
+        query: { 
+            // فقط اگر آدرس رجیستری داریم و کامپوننت مونت شده تلاش کن
+            enabled: !!registryAddress && mounted, 
+        } 
     });
 
     const { daoAddress, tokenAddress, financeAddress, stakingAddress } = useMemo(() => {
-        if (!addressesData) return {};
+        if (!addressesData) return { daoAddress: undefined, tokenAddress: undefined, financeAddress: undefined, stakingAddress: undefined };
         const [dao, token, finance, staking] = addressesData.map(d => d.result as Address | undefined);
         return { daoAddress: dao, tokenAddress: token, financeAddress: finance, stakingAddress: staking };
     }, [addressesData]);
     
-    const isHydrated = isConnected && areAddressesLoaded;
-
-    // --- DEBUGGING LOG (بدون تغییر) ---
-    useEffect(() => {
-        if (areAddressesLoaded) {
-            console.log("--- [Web3Provider] Contract Addresses Initialized ---");
-            console.log("Registry Address (from .env):", registryAddress);
-            console.log("DAO Address (read from Registry):", daoAddress);
-            console.log("Staking Address (read from Registry):", stakingAddress);
-            console.log("Token Address (read from Registry):", tokenAddress);
-            console.log("Finance Address (read from Registry):", financeAddress);
-            console.log("----------------------------------------------------");
-        }
-    }, [areAddressesLoaded, registryAddress, daoAddress, stakingAddress, tokenAddress, financeAddress]);
+    // isHydrated وضعیت داده‌ها را نشان می‌دهد، اما دیگر شرط رندر شدن نیست
+    const isHydrated = !areAddressesLoading && mounted;
 
     const value: IWeb3Context = {
         userRole,
@@ -118,22 +100,17 @@ export function Web3Provider({ children }: { children: ReactNode }) {
         stakingAddress,
     };
 
-    // حالت لودینگ مرکزی
-    if (areAddressesLoading && isConnected) {
-        return (
-            <div className="flex h-screen items-center justify-center bg-background">
-                <DaoLoadingSpinner className="h-12 w-12" />
-            </div>
-        );
-    }
-
+    // ✅✅✅ تغییر حیاتی اینجاست: ✅✅✅
+    // ما شرط if (areAddressesLoading) return <Spinner /> را حذف کردیم.
+    // حالا حتی اگر داده‌ها هنوز در حال لود شدن باشند، {children} (یعنی صفحه لندینگ) رندر می‌شود.
     return <Web3Context.Provider value={value}>{children}</Web3Context.Provider>;
 }
 
 export function useWeb3() {
     const context = useContext(Web3Context);
     if (context === undefined) {
-        throw new Error("useWeb3 must be used within a Web3Provider");
+        // بازگشت آبجکت خالی برای جلوگیری از کرش در صورت استفاده خارج از پروایدر (محض احتیاط)
+        return {} as IWeb3Context;
     }
     return context;
 }

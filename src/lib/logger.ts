@@ -12,7 +12,8 @@ export type LogCategory =
   | 'SECURITY'      // هشدارهای امنیتی
   | 'AI_REPORT_FETCH'
   | 'AI_ENGINE_ERROR'  
-  | 'AI_REPORT_SUCCESS'  
+  | 'AI_REPORT_SUCCESS'
+  | 'AI_RESPONSE_RECEIVED' 
   | 'TRIGGER_AI_START'  
   | 'TRIGGER_AI_FAIL'  
   | 'TRIGGER_AI_FORWARD'  
@@ -20,7 +21,9 @@ export type LogCategory =
   | 'TRIGGER_AI_SUCCESS'
   | 'TRIGGER_AI_ERROR' 
   | 'USER_ANALYTICS_FETCH'
-  | 'CONTRACT_ANALYSIS_FETCH'   
+  | 'CONTRACT_ANALYSIS_FETCH'
+  | 'DB_UPDATED_WITH_AI'
+  | 'DB_UPDATE_NO_CHANGE'   
   
   // دسته‌بندی‌های جدید برای API ها
   | 'API_REQUEST'   // درخواست‌های ورودی به API

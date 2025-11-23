@@ -724,6 +724,23 @@ export const en = {
       you_have_voted_desc: "Thank you for participating in the governance process The result will be available after the voting period ends",
       admin_actions: "Administrative actions",
       execute_proposal: "Execute proposal",
+    status: {
+      pending: "Pending",
+      active: "Voting in progress",
+      canceled: "Canceled",
+      defeated: "Rejected",
+      succeeded: "Approved",
+      queued: "Queued for execution",
+      expired: "Expired",
+      executed: "Executed",
+      unknown: "Unknown"
+    },
+    alert: {
+      insufficient_power_title: "Insufficient voting power",
+      insufficient_power_desc: "To participate in governance you must stake (RYC) tokens Your current voting power is zero Would you like to go to the staking page",
+      cancel: "Cancel",
+      go_to_staking: "Go to staking"
+    },
   },
 
   // Dynamic Content
@@ -872,5 +889,41 @@ export const en = {
     0: "0",
     50: "50",
     100: "100",
+  },
+    guide_page: {
+    title: "Platform user guide",
+    subtitle: "Learn how to operate in RayanChain based on your user role",
+    tabs: {
+      investor: "💰 Investor",
+      startup: "🚀 Startup",
+      voter: "🗳️ Voter"
+    },
+    actions: {
+      go_to_staking: "Go to staking",
+      create_proposal: "Create proposal",
+      view_proposals: "View active votings"
+    },
+    investor: {
+      step1_title: "Connect and acquire tokens",
+      step1_desc: "Connect your wallet If you do not have RYC tokens you can convert MATIC in the main dashboard or exchanges",
+      step2_title: "Review proposals",
+      step2_desc: "Review active proposals Use AI reports to analyze risk level team competence and market sentiment",
+      step3_title: "Stake for governance",
+      step3_desc: "To influence decisions stake your RYC tokens This grants you voting power based on your stake amount"
+    },
+    startup: {
+      step1_title: "Submit proposal",
+      step1_desc: "Fill out the complete proposal form Upload financial legal documents and the pitch deck Data is securely stored on IPFS",
+      step2_title: "AI analysis",
+      step2_desc: "After submission the multilayer AI analyzes the project for risk and feasibility and attaches the report to your proposal",
+      step3_title: "Community voting",
+      step3_desc: "Engage with the community If your proposal reaches quorum funds are released according to milestones"
+    },
+    voter: {
+      step1_title: "Acquire voting power",
+      step1_desc: "You cannot vote using wallet tokens alone They must be staked or voting rights must be delegated to you",
+      step2_title: "Cast vote",
+      step2_desc: "Open an active proposal Click vote yes or vote no Your vote weight depends on your stake amount"
+    }
   },
 };

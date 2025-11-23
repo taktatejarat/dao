@@ -57,8 +57,8 @@ const nextConfig = {
 // فعال‌سازی HTTPS در dev اگر گواهی موجود باشد
 if (isDev) {
   const certPath = path.join(__dirname, 'certs');
-  const keyFile = path.join(certPath, 'localhost-key.pem');
-  const certFile = path.join(certPath, 'localhost.pem');
+  const keyFile = path.join(certPath, 'cert.key');
+  const certFile = path.join(certPath, 'cert.crt');
 
   if (fs.existsSync(keyFile) && fs.existsSync(certFile)) {
     nextConfig.devServer = {
@@ -67,7 +67,7 @@ if (isDev) {
         cert: fs.readFileSync(certFile),
       },
       host: '0.0.0.0',
-      port: 9002,
+      port: 3000,
     };
   }
 }

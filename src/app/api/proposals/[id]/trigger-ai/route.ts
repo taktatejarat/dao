@@ -43,13 +43,37 @@ export async function POST(
             throw new Error(`AI Engine failed: ${errorText}`);
         }
 
+       // 2. دریافت نتیجه آنالیز
         const aiResponse = await response.json();
-        logEvent('INFO', 'TRIGGER_AI_SUCCESS', `AI analysis successfully triggered for proposal: ${proposalMongoId}`, { aiResponse });
+        logEvent('INFO', 'AI_RESPONSE_RECEIVED', `Received data from AI`, { aiResponse });
+
+        // ✅✅✅ FIX: ذخیره مستقیم نتیجه در دیتابیس همین‌جا ✅✅✅
+        // منتظر کال‌بک نمی‌مانیم، خودمان ذخیره می‌کنیم
+        const updateResult = await db.collection('proposals').updateOne(
+            { _id: new ObjectId(proposalMongoId) },
+            { 
+                $set: { 
+                    aiAnalysis: aiResponse, // ذخیره کل آبجکت گزارش
+                    onChainStatus: 'analyzed', // تغییر وضعیت
+                    updatedAt: new Date()
+                }
+            }
+        );
+
+        if (updateResult.modifiedCount > 0) {
+            logEvent('INFO', 'DB_UPDATED_WITH_AI', `Successfully saved AI report to DB for ${proposalMongoId}`);
+        } else {
+            logEvent('WARN', 'DB_UPDATE_NO_CHANGE', `AI report fetched but DB not updated (maybe same data)`);
+        }
         
-        return NextResponse.json({ success: true, message: 'AI analysis triggered.' });
+        return NextResponse.json({ 
+            success: true, 
+            message: 'AI analysis triggered and saved successfully.',
+            data: aiResponse // داده را برمی‌گردانیم تا فرانت‌اند اگر خواست استفاده کند
+        });
 
     } catch (error) {
-        logEvent('ERROR', 'TRIGGER_AI_ERROR', `Failed to trigger AI analysis for ${proposalMongoId}`, { error: (error as Error).message });
+        logEvent('ERROR', 'TRIGGER_AI_ERROR', `Failed process for ${proposalMongoId}`, { error: (error as Error).message });
         return NextResponse.json({ success: false, message: (error as Error).message }, { status: 500 });
     }
 }

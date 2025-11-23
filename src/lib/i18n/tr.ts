@@ -725,6 +725,23 @@ export const tr = {
       you_have_voted_desc: "Yönetişim sürecine katılımınız için teşekkür ederiz Sonuç oylama süresi tamamlandıktan sonra belirlenecektir",
       admin_actions: "Yönetim işlemleri",
       execute_proposal: "Teklifi yürüt",
+    status: {
+      pending: "Beklemede",
+      active: "Oylama devam ediyor",
+      canceled: "İptal edildi",
+      defeated: "Reddedildi",
+      succeeded: "Onaylandı",
+      queued: "Yürütme sırasında",
+      expired: "Süresi doldu",
+      executed: "Uygulandı",
+      unknown: "Bilinmiyor"
+    },
+    alert: {
+      insufficient_power_title: "Yetersiz oy hakkı",
+      insufficient_power_desc: "Yönetişime katılmak için (RYC) tokenlarını stake etmelisiniz Şu anda oy gücünüz sıfır Staking sayfasına gitmek ister misiniz",
+      cancel: "İptal",
+      go_to_staking: "Staking sayfasına git"
+    },
   },
 
   // Dynamic Content
@@ -873,5 +890,41 @@ export const tr = {
     0: "0",
     50: "50",
     100: "100",
+  },
+    guide_page: {
+    title: "Platform kullanım rehberi",
+    subtitle: "RayanChain’de kullanıcı rolünüze göre nasıl çalışacağınızı öğrenin",
+    tabs: {
+      investor: "💰 Yatırımcı",
+      startup: "🚀 Girişim",
+      voter: "🗳️ Oy veren"
+    },
+    actions: {
+      go_to_staking: "Staking sayfasına git",
+      create_proposal: "Teklif oluştur",
+      view_proposals: "Aktif oylamaları görüntüle"
+    },
+    investor: {
+      step1_title: "Cüzdan bağlama ve token alma",
+      step1_desc: "Cüzdanınızı bağlayın Eğer RYC tokeniniz yoksa MATIC’i panelden veya borsalardan dönüştürebilirsiniz",
+      step2_title: "Teklifleri inceleme",
+      step2_desc: "Aktif teklifleri inceleyin Risk seviyesi ekip yeterliliği ve piyasa duyarlılığını analiz etmek için yapay zeka raporlarını kullanın",
+      step3_title: "Yönetişim için staking",
+      step3_desc: "Kararlarda etkili olmak için RYC tokenlerinizi stake edin Bu işlem yatırdığınız miktar oranında oy gücü sağlar"
+    },
+    startup: {
+      step1_title: "Teklif kaydı",
+      step1_desc: "Detaylı teklif formunu doldurun Finansal ve hukuki belgeleri ve sunum dosyasını yükleyin Veriler IPFS üzerinde güvenli şekilde saklanır",
+      step2_title: "Yapay zeka analizi",
+      step2_desc: "Kayıt sonrası çok katmanlı yapay zekamız projeyi risk ve uygulanabilirlik açısından analiz eder ve rapor teklife eklenir",
+      step3_title: "Topluluk oylaması",
+      step3_desc: "Toplulukla etkileşime geçin Eğer teklif yeterli oy alırsa fonlar aşamalar halinde serbest bırakılır"
+    },
+    voter: {
+      step1_title: "Oy gücü elde etme",
+      step1_desc: "Sadece cüzdandaki tokenlarla oy kullanamazsınız Tokenlerin stake edilmesi veya oy hakkının size devredilmiş olması gerekir",
+      step2_title: "Oy kaydı",
+      step2_desc: "Aktif bir teklife gidin ve olumlu oy veya olumsuz oy seçin Oy ağırlığınız stake miktarınıza bağlıdır"
+    }
   },
 };

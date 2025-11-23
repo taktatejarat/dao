@@ -14,6 +14,7 @@ const fontSans = localFont({
   variable: '--font-sans', // ✅ متغیر برای بدنه متن
 });
 
+
 // فونت Merienda برای سرفصل‌های انگلیسی
 const fontHeadline = localFont({
   src: '../fonts/Merienda-VariableFont_wght.ttf',
