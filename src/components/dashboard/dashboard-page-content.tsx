@@ -20,6 +20,7 @@ import { useState, useMemo } from "react";
 import { DaoLoadingSpinner } from "@/components/icons/dao-loading-spinner";
 import { AiOracleStatus } from "./ai-oracle-status";
 import { useDashboardStats } from "@/hooks/useDashboardStats";
+import { useUserAnalytics } from '@/hooks/useUserAnalytics';
 
 export function DashboardPageContent() {
     const { userRole, address, isHydrated, registryAddress } = useWeb3();

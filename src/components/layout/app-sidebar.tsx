@@ -82,7 +82,7 @@ export function AppSidebar() {
         icon: PiggyBank,
         label: t('sidebar.staking'),
         active: pathname.startsWith('/staking'),
-        roles: ['investor'],
+        roles: ['admin', 'investor', 'startup', 'voter', 'delegate'],
       },
        {
         href: "/treasury",
@@ -127,7 +127,7 @@ export function AppSidebar() {
         icon: User,
         label: t('sidebar.user_profile'),
         active: pathname.startsWith('/profile'),
-        roles: ['admin', 'investor', 'startup', 'voter'],
+       roles: ['admin', 'investor', 'startup', 'voter', 'delegate'],
       },
       {
         href: "/logs",
@@ -138,7 +138,9 @@ export function AppSidebar() {
       },
     ];
 
-    const filterByRole = (items: NavItem[]) => items.filter(item => item.roles.includes(userRole || 'voter'));
+    // اگر کاربر لاگین نکرده، نقش پیش‌فرض voter را در نظر می‌گیریم تا منوها دیده شوند
+    const currentRole = userRole || 'voter';
+    const filterByRole = (items: NavItem[]) => items.filter(item => item.roles.includes(currentRole));
     
     return {
         main: filterByRole(baseItems),

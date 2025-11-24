@@ -27,7 +27,7 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useReadContract } from 'wagmi';
-import { rayanChainDaoAbi, rayanChainTokenAbi } from '@/lib/blockchain/generated';
+import { rayanChainDaoAbi, stakingAbi } from '@/lib/blockchain/generated';
 import { DaoLoadingSpinner } from '@/components/icons/dao-loading-spinner';
 import { useProposalVote } from '@/hooks/useProposalVote'; 
 import { useProposalExecute } from '@/hooks/useProposalExecute'; 
@@ -56,29 +56,33 @@ const InfoCard = ({ icon: Icon, title, value }: { icon: React.ElementType, title
     </div>
 );
 
-// نگاشت وضعیت‌ها با استفاده از کلیدهای ترجمه
+// ✅✅✅ FIX: اصلاح نگاشت بر اساس RayanChainDAO.sol ✅✅✅
+// Enum: 0:Pending, 1:Validation, 2:Voting, 3:Approved, 4:Rejected, 5:Executed, 6:Expired, 7:Cancelled
 const getStatusInfo = (state: number, t: (key: string) => string) => {
     switch (state) {
         case 0: return { text: t('proposal_detail.status.pending'), color: 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20', icon: Clock };
-        case 1: return { text: t('proposal_detail.status.active'), color: 'bg-blue-500/10 text-blue-500 border-blue-500/20', icon: PlayCircle };
-        case 2: return { text: t('proposal_detail.status.canceled'), color: 'bg-gray-500/10 text-gray-500 border-gray-500/20', icon: X };
-        case 3: return { text: t('proposal_detail.status.defeated'), color: 'bg-red-500/10 text-red-500 border-red-500/20', icon: XCircle };
-        case 4: return { text: t('proposal_detail.status.succeeded'), color: 'bg-green-500/10 text-green-500 border-green-500/20', icon: CheckCircle };
-        case 5: return { text: t('proposal_detail.status.queued'), color: 'bg-purple-500/10 text-purple-500 border-purple-500/20', icon: Clock };
+        case 1: return { text: t('proposal_detail.status.validation'), color: 'bg-indigo-500/10 text-indigo-500 border-indigo-500/20', icon: ShieldCheck };
+        case 2: return { text: t('proposal_detail.status.active'), color: 'bg-blue-500/10 text-blue-500 border-blue-500/20', icon: PlayCircle }; // Voting
+        case 3: return { text: t('proposal_detail.status.succeeded'), color: 'bg-green-500/10 text-green-500 border-green-500/20', icon: CheckCircle }; // Approved
+        case 4: return { text: t('proposal_detail.status.defeated'), color: 'bg-red-500/10 text-red-500 border-red-500/20', icon: XCircle }; // Rejected
+        case 5: return { text: t('proposal_detail.status.executed'), color: 'bg-emerald-600/10 text-emerald-600 border-emerald-600/20', icon: ShieldCheck };
         case 6: return { text: t('proposal_detail.status.expired'), color: 'bg-orange-500/10 text-orange-500 border-orange-500/20', icon: AlertTriangle };
-        case 7: return { text: t('proposal_detail.status.executed'), color: 'bg-emerald-600/10 text-emerald-600 border-emerald-600/20', icon: ShieldCheck };
+        case 7: return { text: t('proposal_detail.status.canceled'), color: 'bg-gray-500/10 text-gray-500 border-gray-500/20', icon: X };
         default: return { text: t('proposal_detail.status.unknown'), color: 'bg-gray-500', icon: Info };
     }
 };
 
+// ✅ به‌روزرسانی ثابت‌ها برای منطق دکمه‌ها
 const PROPOSAL_STATE_ACTIVE = 1;
+const PROPOSAL_STATE_VOTING = 2;
+const PROPOSAL_STATE_APPROVED = 3;
 const PROPOSAL_STATE_SUCCEEDED = 4;
 const PROPOSAL_STATE_QUEUED = 5;
 
 export default function ProposalDetailPage() {
     const { t, locale } = useTranslation();
     const router = useRouter();
-    const { daoAddress, tokenAddress, isHydrated: isWeb3Hydrated, userRole, address } = useWeb3();
+    const { daoAddress, tokenAddress,stakingAddress, isHydrated: isWeb3Hydrated, userRole, address } = useWeb3();
     const params = useParams();
     const proposalIdParam = params.id as string;
 
@@ -116,12 +120,12 @@ export default function ProposalDetailPage() {
         query: { enabled: isWeb3Hydrated && !!daoAddress && !!onChainProposalId },
     });
 
-    const { data: userVotingPower } = useReadContract({
-        address: tokenAddress,
-        abi: parseAbi(['function getVotes(address account) view returns (uint256)']),
-        functionName: 'getVotes',
+   const { data: userVotingPower } = useReadContract({
+        address: stakingAddress, // تغییر به آدرس استیکینگ
+        abi: stakingAbi,         // تغییر به ABI استیکینگ
+        functionName: 'votingPower', // نام تابع در Staking.sol
         args: address ? [address] : undefined,
-        query: { enabled: !!address && !!tokenAddress }
+        query: { enabled: !!address && !!stakingAddress }
     });
 
     const onChainData = useMemo((): OnChainProposal | null => {
@@ -140,23 +144,25 @@ export default function ProposalDetailPage() {
             deadline: result[8],
             forVotes: result[9],
             againstVotes: result[10],
-            // اگر در کنسول دیدید که result[11] عدد ۲ است، یعنی واقعا کنسل شده
             state: Number(result[11]), 
             executed: result[12],
             aiRiskScore: result[14],
         };
     }, [onChainResult]);
 
+    // 4. هوک‌های تعاملی (اصلاح شرط)
     const { handleVote: submitVote, isVotingPending, hasVoted } = useProposalVote({
         daoAddress,
         proposalId: onChainProposalId!,
-        isVotingActive: !!onChainData && onChainData.state === PROPOSAL_STATE_ACTIVE,
+        // ✅ FIX: استفاده از ثابت صحیح (2)
+        isVotingActive: !!onChainData && onChainData.state === PROPOSAL_STATE_VOTING,
     });
     
     const { handleExecute, isExecuting } = useProposalExecute({
         daoAddress,
         proposalId: onChainProposalId!,
-        isExecutable: !!onChainData && (onChainData.state === PROPOSAL_STATE_SUCCEEDED || onChainData.state === PROPOSAL_STATE_QUEUED) && !onChainData.executed,
+        // ✅ FIX: دکمه اجرا فقط وقتی فعال است که وضعیت Approved (3) باشد و هنوز اجرا نشده باشد
+        isExecutable: !!onChainData && onChainData.state === PROPOSAL_STATE_APPROVED && !onChainData.executed,
     });
 
     // ✅✅✅ FIX: دکمه را غیرفعال نمی‌کنیم، بلکه هنگام کلیک چک می‌کنیم
@@ -228,17 +234,17 @@ export default function ProposalDetailPage() {
                             ) : <div className="text-sm text-muted-foreground">{t('proposal_detail.onchain_data_unavailable')}</div>}
                         </CardContent>
                         
-                        {/* ✅ نمایش دکمه‌ها اگر وضعیت Active باشد */}
-                        {onChainData && onChainData.state === PROPOSAL_STATE_ACTIVE && !hasVoted && (
-                            <CardFooter className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <Button size="lg" className="bg-green-600 hover:bg-green-700 w-full" onClick={() => handleVoteClick('for')} disabled={isVotingPending}>
-                                    {isVotingPending ? <DaoLoadingSpinner /> : <Check className="me-2"/>}{t('proposal_detail.vote_for')}
-                                </Button>
-                                <Button size="lg" variant="destructive" className="w-full" onClick={() => handleVoteClick('against')} disabled={isVotingPending}>
-                                    {isVotingPending ? <DaoLoadingSpinner /> : <X className="me-2"/>}{t('proposal_detail.vote_against')}
-                                </Button>
-                            </CardFooter>
-                        )}
+                            {/* ✅ FIX: شرط نمایش دکمه‌ها */}
+                            {onChainData && onChainData.state === PROPOSAL_STATE_VOTING && !hasVoted && (
+                                <CardFooter className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <Button size="lg" className="bg-green-600 hover:bg-green-700 w-full" onClick={() => handleVoteClick('for')} disabled={isVotingPending}>
+                                        {isVotingPending ? <DaoLoadingSpinner /> : <Check className="me-2"/>}{t('proposal_detail.vote_for')}
+                                    </Button>
+                                    <Button size="lg" variant="destructive" className="w-full" onClick={() => handleVoteClick('against')} disabled={isVotingPending}>
+                                        {isVotingPending ? <DaoLoadingSpinner /> : <X className="me-2"/>}{t('proposal_detail.vote_against')}
+                                    </Button>
+                                </CardFooter>
+                            )}
                     </Card>
                 </div>
                 

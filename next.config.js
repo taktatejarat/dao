@@ -1,9 +1,4 @@
 /** @type {import('next').NextConfig} */
-const fs = require('fs');
-const path = require('path');
-
-const isDev = process.env.NODE_ENV !== 'production';
-
 const nextConfig = {
   reactStrictMode: true,
   productionBrowserSourceMaps: false,
@@ -38,11 +33,13 @@ const nextConfig = {
     ];
   },
 
-  webpack(config, { dev, isServer }) {
+  webpack(config, { dev }) {
     // فقط در حالت production تغییر بده
     if (!dev) {
       config.devtool = false;
     }
+    // رفع مشکل اتصال برخی کتابخانه‌های وب۳ در سمت سرور
+    config.externals.push('pino-pretty', 'lokijs', 'encoding');
     return config;
   },
 
@@ -53,23 +50,5 @@ const nextConfig = {
     },
   },
 };
-
-// فعال‌سازی HTTPS در dev اگر گواهی موجود باشد
-if (isDev) {
-  const certPath = path.join(__dirname, 'certs');
-  const keyFile = path.join(certPath, 'cert.key');
-  const certFile = path.join(certPath, 'cert.crt');
-
-  if (fs.existsSync(keyFile) && fs.existsSync(certFile)) {
-    nextConfig.devServer = {
-      https: {
-        key: fs.readFileSync(keyFile),
-        cert: fs.readFileSync(certFile),
-      },
-      host: '0.0.0.0',
-      port: 3000,
-    };
-  }
-}
 
 module.exports = nextConfig;

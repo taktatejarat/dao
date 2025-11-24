@@ -28,30 +28,37 @@ export function useStaking({ tokenAddress, stakingAddress }: UseStakingProps) {
     const [txHash, setTxHash] = useState<`0x${string}` | undefined>(undefined);
     const [currentAction, setCurrentAction] = useState<string | null>(null);
 
-    // --- Data Fetching ---
+     // --- Data Fetching ---
     const contractsToRead = useMemo(() => [
         { address: tokenAddress!, abi: rayanChainTokenAbi, functionName: 'balanceOf', args: [address!] },
-        // ✅ FIX: The correct function name might be 'stakedBalances' or 'balanceOf' on the staking contract depending on your implementation.
-        // I'll assume 'stakedBalances' based on common ERC20 staking patterns. If it's different, change it here.
-        { address: stakingAddress!, abi: stakingAbi, functionName: 'stakedBalances', args: [address!] },
+        { address: stakingAddress!, abi: stakingAbi, functionName: 'getStakedBalance', args: [address!] },
         { address: stakingAddress!, abi: stakingAbi, functionName: 'earned', args: [address!] },
         { address: tokenAddress!, abi: rayanChainTokenAbi, functionName: 'allowance', args: [address!, stakingAddress!] },
         { address: stakingAddress!, abi: stakingAbi, functionName: 'delegates', args: [address!] },
     ], [tokenAddress, stakingAddress, address]);
 
-    const { data: contractData } = useReadContracts({
+    const { data: contractData, refetch } = useReadContracts({
         contracts: contractsToRead,
         query: { enabled: !!address && !!tokenAddress && !!stakingAddress && isConnected }
     });
 
+    // قبلاً اگر یکی خطا می‌داد، همه چیز undefined می‌شد و لودینگ می‌ماند.
     const [rycBalance, stakedBalance, earnedRewards, allowance, currentDelegatee] = useMemo(() => {
-        if (!contractData || contractData.some(d => d.status === 'failure')) return [undefined, undefined, undefined, undefined, undefined];
+        if (!contractData) return [undefined, undefined, undefined, undefined, undefined];
+
+        // تابع کمکی برای استخراج ایمن داده
+        const getVal = (index: number, defaultValue: any) => {
+            const item = contractData[index];
+            if (item && item.status === 'success') return item.result;
+            return defaultValue;
+        };
+
         return [
-            contractData[0].result as bigint | undefined,
-            contractData[1].result as bigint | undefined,
-            contractData[2].result as bigint | undefined,
-            contractData[3].result as bigint | undefined,
-            contractData[4].result as Address | undefined,
+            getVal(0, 0n) as bigint, // اگر خطا داد، موجودی 0 فرض می‌شود
+            getVal(1, 0n) as bigint,
+            getVal(2, 0n) as bigint,
+            getVal(3, 0n) as bigint,
+            getVal(4, undefined) as Address | undefined, // آدرس نماینده می‌تواند undefined باشد
         ];
     }, [contractData]);
 
@@ -69,11 +76,11 @@ export function useStaking({ tokenAddress, stakingAddress }: UseStakingProps) {
         if (isSuccess) {
             toast.success(t(`toasts.${currentAction}_successful`));
             
-            // ✅✅✅ THE CRITICAL FIX: استفاده از mutate برای refetch قدرتمند ✅✅✅
+            //  THE CRITICAL FIX: استفاده از mutate برای refetch قدرتمند 
             // این دستور به SWR (و wagmi) می‌گوید که تمام query هایی که کلیدشان
             // با 'readContracts' شروع می‌شود را دوباره واکشی کند.
             mutate((key) => Array.isArray(key) && key[0] === 'readContracts');
-            
+            refetch(); // آپدیت دستی داده‌ها
             if (currentAction === 'stake') setStakeAmount('');
             if (currentAction === 'unstake') setUnstakeAmount('');
             setTxHash(undefined);
@@ -86,7 +93,7 @@ export function useStaking({ tokenAddress, stakingAddress }: UseStakingProps) {
         }
     }, [isSuccess, isError, error, t, currentAction, mutate]);
 
-    // ✅✅✅ NEW: A single, robust function to handle all transactions ✅✅✅
+    // NEW: A single, robust function to handle all transactions
     const executeTransaction = useCallback(async (
         action: string,
         config: Parameters<typeof writeContractAsync>[0]
@@ -135,5 +142,6 @@ export function useStaking({ tokenAddress, stakingAddress }: UseStakingProps) {
         isClaimButtonDisabled,
         isDelegateButtonDisabled,
         isUndelegateButtonDisabled,
+        refetch
     };
 }

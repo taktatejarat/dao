@@ -28,15 +28,15 @@ import { AddToWalletButton } from '@/components/common/add-to-wallet-button';
 
 export default function StakingPage() {
     const { t, locale } = useTranslation();
-    const { registryAddress, isHydrated } = useWeb3();
-    const userRole = typeof window !== 'undefined' ? localStorage.getItem('userRole') as UserRole : 'voter';
+    const { registryAddress, isHydrated, userRole } = useWeb3();
     const searchParams = useSearchParams();
 
-    const getTranslatedRoleName = (role: UserRole | null | string) => {
-        const safeRole = role || 'voter';
+    // تبدیل نقش به متن ترجمه شده
+    const getTranslatedRoleName = () => {
+        const safeRole = userRole || 'voter';
         return t(`role_selection.${safeRole}`);
     };
-    const roleName = getTranslatedRoleName(userRole);    
+    const roleName = getTranslatedRoleName();   
 
     // --- Fetch required contract addresses from the registry ---
     const { data: tokenAddressResult, isLoading: isTokenAddrLoading } = useReadContract({
@@ -78,15 +78,22 @@ export default function StakingPage() {
         isBuyConfirmed,
         estimatedRycReceived,
         isEstimatingPrice,
+        resetBuyState
     } = useBuyTokens({ tokenAddress });
 
-    // این useEffect اکنون به درستی کار خواهد کرد و موجودی‌ها را به‌روز می‌کند
+    // ✅✅✅ FIX: اصلاح useEffect برای جلوگیری از لوپ توست ✅✅✅
     useEffect(() => {
         if (isBuyConfirmed) {
-            toast.success("Tokens purchased successfully! Updating balances...");
+            // 1. نمایش پیام موفقیت (فقط یک بار)
+            toast.success(t('staking_page.buy_success_title'), { description: t('staking_page.buy_success_desc') });
+            
+            // 2. به‌روزرسانی موجودی‌ها
             refetchStakingData();
+            
+            // 3. مهم: ریست کردن وضعیت خرید برای جلوگیری از تکرار پیام
+            resetBuyState();
         }
-    }, [isBuyConfirmed, refetchStakingData]);
+    }, [isBuyConfirmed, refetchStakingData, resetBuyState, t]);
 
 
     

@@ -28,7 +28,7 @@ export function useBuyTokens({ tokenAddress }: UseBuyTokensProps) {
         query: {
             enabled: !!tokenAddress && maticToSend > 0n,
             // هر ۵ ثانیه قیمت را به‌روز می‌کند تا کاربر قیمت لحظه‌ای را ببیند
-            refetchInterval: 5000,
+            refetchInterval: 1000,
         }
     });
     const [buyTxHash, setBuyTxHash] = useState<Hex | undefined>(undefined);
@@ -78,13 +78,11 @@ export function useBuyTokens({ tokenAddress }: UseBuyTokensProps) {
             toast.error(t('new_proposal_page.error_toast_title'), { description: extractRevertReason(err) });
         }
     };
-    
-    useEffect(() => {
-        if (isBuyConfirmed) {
-            toast.success(t('staking_page.buy_success_title'), { description: t('staking_page.buy_success_desc') });
-        }
-    }, [isBuyConfirmed, t]);
 
+    const resetBuyState = () => {
+        setBuyTxHash(undefined);
+        setBuyAmount('');
+    };
 
    return {
         buyAmount,
@@ -95,5 +93,6 @@ export function useBuyTokens({ tokenAddress }: UseBuyTokensProps) {
         // ✅ NEW: مقادیر جدید برای نمایش در UI
         estimatedRycReceived: estimatedRycAmount ? formatEther(estimatedRycAmount as bigint) : '0',
         isEstimatingPrice: isEstimating,
+        resetBuyState, 
     };
 }
