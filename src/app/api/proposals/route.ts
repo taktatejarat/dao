@@ -11,26 +11,31 @@ export async function GET(req: NextRequest) {
         const db = await getDb();
         const proposals = await db.collection('proposals').find({}, {
                 projection: {
-                    _id: 1, // _id را به عنوان رشته برمی‌گردانیم
+                    _id: 1, 
                     proposalIdOnChain: 1,
                     projectName: 1,
                     tagline: 1,
                     startupIndustry: 1,
                     onChainStatus: 1,
                     createdAt: 1,
+                    // ✅✅✅ FIX: اضافه کردن فیلدهای حیاتی برای داشبورد ✅✅✅
+                    proposerAddress: 1, // برای تشخیص صاحب پروپوزال
+                    milestones: 1,      // برای محاسبه مجموع سرمایه جذب شده
+                    aiAnalysis: 1,      // برای نمایش خلاصه وضعیت هوش مصنوعی (اختیاری)
                 },
-                sort: { createdAt: -1 }, // جدیدترین‌ها ابتدا نمایش داده شوند
-                limit: 50, // محدود کردن به ۵۰ پروپوزال آخر
+                sort: { createdAt: -1 }, 
+                limit: 50, 
             }
         ).toArray();
         
-        // تبدیل _id به رشته
+        // تبدیل _id به رشته و ایمن‌سازی داده‌ها
         const sanitizedProposals = proposals.map(p => ({
             ...p,
             _id: p._id.toString(),
+            // اطمینان از اینکه milestone ها آرایه هستند
+            milestones: Array.isArray(p.milestones) ? p.milestones : [],
         }));
 
-        // ✅✅✅ THE FIX: همیشه از کلید 'data' استفاده می‌کنیم ✅✅✅
         return NextResponse.json({ success: true, data: sanitizedProposals });
 
     } catch (error) {

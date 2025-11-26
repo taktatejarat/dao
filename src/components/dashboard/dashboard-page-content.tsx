@@ -30,7 +30,7 @@ export function DashboardPageContent() {
   // مرحله ۱: خواندن آدرس‌ها
   // تمام منطق واکشی اکنون در این هوک قرار دارد
   const { stats, addresses, isLoading } = useDashboardStats();
-
+  const { totalProposals, totalRaised, recentStatus, isLoading: isAnalyticsLoading } = useUserAnalytics();
   const formatBigInt = (value?: bigint) => {
         return value ? formatNumber(formatEther(value), locale) : '0';
   };
@@ -46,7 +46,22 @@ export function DashboardPageContent() {
     return missing;
   }, [addresses, t]);
 
-  
+   // تابع کمکی برای ترجمه وضعیت
+    const getStatusLabel = (status: string | null) => {
+        if (!status) return t('dashboard.no_proposals_status');
+        // نگاشت ساده برای وضعیت‌های رایج
+        const map: Record<string, string> = {
+            'submitted': t('proposal_detail.status.pending'),
+            'analyzed': t('proposal_detail.status.validation'),
+            'active': t('proposal_detail.status.active'),
+            'voting': t('proposal_detail.status.active'),
+            'approved': t('proposal_detail.status.succeeded'),
+            'executed': t('proposal_detail.status.executed'),
+            'rejected': t('proposal_detail.status.defeated'),
+        };
+        return map[status.toLowerCase()] || status;
+    };
+
   // داده‌های کاربر
   const { data: userBalance, isLoading: l5 } = useReadContract({ address: addresses.token, abi: rayanChainTokenAbi, functionName: 'balanceOf', args: [address!], query: { enabled: isConnected && isHydrated && isNonZero(addresses.token) && !!address } });
   const { data: userStaked, isLoading: l6 } = useReadContract({ address: addresses.staking, abi: stakingAbi, functionName: 'getStakedAmount', args: [address!], query: { enabled: isConnected && isHydrated && isNonZero(addresses.staking) && !!address } });
@@ -134,21 +149,45 @@ export function DashboardPageContent() {
     </>
   );
 
-  const renderStartupDashboard = () => (
-    <>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        <StatCard title={t('dashboard.your_proposals')} value={"0"} icon={FileText} description={t('dashboard.your_proposals_desc')} />
-        <StatCard title={t('dashboard.capital_raised')} value={`0 RYC`} icon={Target} description={t('dashboard.capital_raised_desc')} variant="positive" />
-        <StatCard title={t('dashboard.latest_proposal_status')} value={t('dashboard.no_proposals_status')} icon={Users} description={t('dashboard.no_proposals_status_desc')} />
-      </div>
-      <div className="p-6 border rounded-lg bg-card text-card-foreground">
-        <h2 className="text-2xl font-headline text-gradient mb-4">{t('dashboard.new_project_prompt_title')}</h2>
-        <p className="text-muted-foreground mb-4">{t('dashboard.new_project_prompt_desc')}</p>
-        <Button asChild><Link href="/proposals/new">{t('dashboard.new_project_prompt_cta')}</Link></Button>
-      </div>
-      <ProposalsList />
-    </>
-  );
+  // FIX: اصلاح بخش داشبورد استارتاپ
+    const renderStartupDashboard = () => (
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <StatCard 
+                title={t('dashboard.your_proposals')} 
+                value={isAnalyticsLoading ? "..." : totalProposals.toString()} 
+                icon={FileText} 
+                description={t('dashboard.your_proposals_desc')} 
+                isLoading={isAnalyticsLoading}
+            />
+            <StatCard 
+                title={t('dashboard.capital_raised')} 
+                value={isAnalyticsLoading ? "..." : `${formatNumber(totalRaised)} RYC`} 
+                icon={Target} 
+                description={t('dashboard.capital_raised_desc')} 
+                variant="positive" 
+                isLoading={isAnalyticsLoading}
+            />
+            <StatCard 
+                title={t('dashboard.latest_proposal_status')} 
+                value={isAnalyticsLoading ? "..." : getStatusLabel(recentStatus)} 
+                icon={Users} 
+                description={t('dashboard.no_proposals_status_desc')} 
+                isLoading={isAnalyticsLoading}
+            />
+          </div>
+          
+          <div className="p-6 border rounded-lg bg-card text-card-foreground mt-6"> {/* مارجین اضافه شد */}
+            <h2 className="text-2xl font-headline text-gradient mb-4">{t('dashboard.new_project_prompt_title')}</h2>
+            <p className="text-muted-foreground mb-4">{t('dashboard.new_project_prompt_desc')}</p>
+            <Button asChild><Link href="/proposals/new">{t('dashboard.new_project_prompt_cta')}</Link></Button>
+          </div>
+          
+          <div className="mt-8">
+             <ProposalsList limit={5} /> {/* نمایش لیست محدود */}
+          </div>
+        </>
+    );
 
 
   const renderAdminDashboard = () => (

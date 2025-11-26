@@ -22,7 +22,8 @@ export const fa = {
     no: "خیر",
     high: "بالا",
     medium: "متوسط",
-    low: "پایین"
+    low: "پایین",
+    quorum: "حد نصاب",
   },
   // Header
   header: {
@@ -156,14 +157,14 @@ export const fa = {
     estimated_profit: "سود تخمینی",
     profit_desc: "سود حاصل از سرمایه‌گذاری‌ها",
     your_proposals: "پیشنهادات شما",
-    your_proposals_desc: "تعداد کل پیشنهادات ارسالی (داده‌های نمایشی)",
+    your_proposals_desc: "تعداد کل پیشنهادات ارسالی",
     capital_raised: "سرمایه جذب شده",
     capital_raised_desc: "مجموع سرمایه جذب شده برای پروژه‌های شما",
     latest_proposal_status: "وضعیت پیشنهاد اخیر",
     latest_proposal_status_desc: "آخرین وضعیت پروژه شما",
     in_voting: "در حال رای‌گیری",
     total_users: "کل کاربران",
-    total_users_desc: "+{count} این ماه (داده‌های نمایشی)",
+    total_users_desc: "+{count} این ماه",
     active_proposals_count: "پیشنهادات فعال",
     active_proposals_count_desc: "پیشنهادات در حال رای‌گیری",
     total_volume: "حجم کل سرمایه (RYC)",
@@ -237,6 +238,7 @@ export const fa = {
     checking_now: "در حال بررسی وضعیت",
     staked_balance: "موجودی سپرده‌گذاری شده",
     staked_balance_desc: "توکن‌های سپرده‌گذاری شده شما",
+    view_all: "نمایش همه",
   },
 
   // Proposals Page
@@ -722,6 +724,13 @@ export const fa = {
     no_offchain_data: "داده Off-Chain وجود ندارد",
     error_loading_title: "خطا در بارگذاری عنوان",
     error_loading_desc: "خطا در بارگذاری توضیحات",
+    milestone_management: "مدیریت سرمایه پروژه",
+    milestone_management_desc: "پروژه شما تأمین مالی شده است. برای آزادسازی سرمایه مرحله بعد، گزارش پیشرفت کار را ارائه دهید.",
+    request_next_milestone: "درخواست آزادسازی مرحله بعد",
+    submit_progress_report: "ارسال گزارش پیشرفت",
+    progress_description: "شرح دهید در این فاز چه کارهایی انجام شده است:",
+    progress_placeholder: "مثلاً: تکمیل توسعه MVP، پایان تست‌های کاربری...",
+    submit_request: "ثبت درخواست",
       timeline: {
       title: "وضعیت پروپوزال",
       submitted: "ارسال شده",
@@ -895,7 +904,12 @@ export const fa = {
     submitting_withdraw_ryc: "در حال ارسال درخواست برداشت RYC...",
     withdraw_ryc_successful: "درخواست برداشت RYC با موفقیت ثبت شد!",
     submitting_withdraw_native: "در حال ارسال درخواست برداشت ارز اصلی...",
-    withdraw_native_successful: "درخواست برداشت ارز اصلی با موفقیت ثبت شد!"  
+    withdraw_native_successful: "درخواست برداشت ارز اصلی با موفقیت ثبت شد!",
+    processing_onchain_data: "در حال پردازش داده های on-chain",
+    triggering_ai: "در حال تبادل داده ها با هوش مصنوعی",
+    post_submission_failed: "همگام سازی داده ها ناموفق بود",
+    milestone_proposal_created: "پروپوزال آزادسازی مرحله‌ای با موفقیت ایجاد شد!",
+    submitting_milestone_release: "در حال ثبت درخواست آزادسازی...",
   },
   numbers: {
     0: "۰",
