@@ -901,6 +901,10 @@ export const de = {
     post_submission_failed: "Datenabgleich ist fehlgeschlagen",
     milestone_proposal_created: "Der Vorschlag zur stufenweisen Mittel freigabe wurde erfolgreich erstellt!",
     submitting_milestone_release: "Antrag auf Mittel freigabe wird eingereicht...",
+    error_not_authorized_milestone: "Sie sind nicht berechtigt, eine Freigabe anzufordern. Nur die Empfängeradresse des Projekts kann eine Freigabe beantragen.",
+    error_already_voted: "Sie haben bereits für diesen Vorschlag abgestimmt.",
+    error_user_rejected: "Die Transaktion wurde vom Benutzer abgebrochen.",
+    error_generic: "Ein unbekannter Fehler ist aufgetreten.",
   },
     numbers: {
     0: "0",

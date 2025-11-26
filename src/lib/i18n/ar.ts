@@ -901,6 +901,10 @@ export const ar = {
     post_submission_failed: "فشل مزامنة البيانات",
     milestone_proposal_created: "تم إنشاء مقترح تحرير الدفعات المرحلية بنجاح!",
     submitting_milestone_release: "جارٍ تسجيل طلب تحرير الدفعة...",
+    error_not_authorized_milestone: "ليس لديك صلاحية لطلب فكّ الحجز. يمكن فقط لعنوان مستلم المشروع تقديم طلب فكّ الحجز.",
+    error_already_voted: "لقد قمت بالتصويت على هذا المقترح مسبقاً.",
+    error_user_rejected: "تم إلغاء المعاملة من قبل المستخدم.",
+    error_generic: "حدث خطأ غير معروف.",
   },
     numbers: {
     0: "۰",

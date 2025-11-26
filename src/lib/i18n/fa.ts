@@ -910,6 +910,10 @@ export const fa = {
     post_submission_failed: "همگام سازی داده ها ناموفق بود",
     milestone_proposal_created: "پروپوزال آزادسازی مرحله‌ای با موفقیت ایجاد شد!",
     submitting_milestone_release: "در حال ثبت درخواست آزادسازی...",
+    error_not_authorized_milestone: "شما مجاز به درخواست آزادسازی نیستید. فقط آدرس دریافت‌کننده پروژه می‌تواند درخواست آزادسازی بدهد.",
+    error_already_voted: "شما قبلاً به این پروپوزال رأی داده‌اید.",
+    error_user_rejected: "تراکنش توسط کاربر لغو شد.",
+    error_generic: "خطای ناشناخته ای رخ داد.",
   },
   numbers: {
     0: "۰",

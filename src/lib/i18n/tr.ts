@@ -901,6 +901,10 @@ export const tr = {
     post_submission_failed: "Veri eşitlemesi başarısız oldu",
     milestone_proposal_created: "Aşamalı sermaye serbest bırakma teklifi başarıyla oluşturuldu!",
     submitting_milestone_release: "Sermaye serbest bırakma talebi kaydediliyor...",
+    error_not_authorized_milestone: "Kilidi açma talebi göndermeye yetkili değilsiniz. Sadece projenin alıcı adresi kilit açma talebinde bulunabilir.",
+    error_already_voted: "Bu teklif için daha önce oy kullandınız.",
+    error_user_rejected: "İşlem kullanıcı tarafından iptal edildi.",
+    error_generic: "Bilinmeyen bir hata oluştu.",
   },
       numbers: {
     0: "0",

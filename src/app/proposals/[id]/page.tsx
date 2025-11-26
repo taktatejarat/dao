@@ -328,56 +328,59 @@ export default function ProposalDetailPage() {
                                 </CardFooter>
                             )}
                     </Card>
-                </div>
-                
-                {/* ✅ دکمه درخواست آزادسازی سرمایه (فقط برای صاحب پروژه و پروپوزال‌های اجرا شده) */}
-                {isProjectOwner && onChainData?.state === 5 && ( // State 5 = Executed
-                    <Card className="border-blue-500/50 bg-blue-500/5 mt-6">
-                        <CardHeader>
-                            <CardTitle className="text-blue-600">{t('proposal_detail.milestone_management')}</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <p className="text-sm text-muted-foreground mb-4">
-                                {t('proposal_detail.milestone_management_desc')}
-                            </p>
-                            
-                            <Dialog open={isReleaseDialogOpen} onOpenChange={setIsReleaseDialogOpen}>
-                                <DialogTrigger asChild>
-                                    <Button className="w-full bg-blue-600 hover:bg-blue-700">
-                                        <Banknote className="mr-2 h-4 w-4" />
-                                        {t('proposal_detail.request_next_milestone')}
-                                    </Button>
-                                </DialogTrigger>
-                                <DialogContent>
-                                    <DialogHeader>
-                                        <DialogTitle>{t('proposal_detail.submit_progress_report')}</DialogTitle>
-                                    </DialogHeader>
-                                    <div className="space-y-4 py-4">
-                                        <div className="space-y-2">
-                                            <label className="text-sm font-medium">{t('proposal_detail.progress_description')}</label>
-                                            <Textarea 
-                                                placeholder={t('proposal_detail.progress_placeholder')} 
-                                                value={proofText}
-                                                onChange={(e) => setProofText(e.target.value)}
-                                            />
-                                        </div>
-                                        <Button 
-                                            onClick={() => {
-                                                requestRelease(proofText);
-                                                setIsReleaseDialogOpen(false);
-                                            }} 
-                                            disabled={isreleasing || !proofText}
-                                            className="w-full"
-                                        >
-                                            {isreleasing ? <DaoLoadingSpinner /> : t('proposal_detail.submit_request')}
+                    {/*  محل دقیق جایگذاری کد جدید */}
+                    {isProjectOwner && onChainData?.state === 2 && (
+                        <Card className="border-blue-500/50 bg-blue-500/5 shadow-lg shadow-blue-500/10">
+                            <CardHeader>
+                                <CardTitle className="text-blue-600 flex items-center gap-2">
+                                    <Banknote className="w-5 h-5" />
+                                    {t('proposal_detail.milestone_management')}
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <p className="text-sm text-muted-foreground mb-4 leading-relaxed">
+                                    {t('proposal_detail.milestone_management_desc')}
+                                </p>
+                                
+                                <Dialog open={isReleaseDialogOpen} onOpenChange={setIsReleaseDialogOpen}>
+                                    <DialogTrigger asChild>
+                                        <Button className="w-full bg-blue-600 hover:bg-blue-700 h-12 text-lg font-bold transition-all hover:scale-[1.02]">
+                                            {t('proposal_detail.request_next_milestone')}
                                         </Button>
-                                    </div>
-                                </DialogContent>
-                            </Dialog>
-                        </CardContent>
-                    </Card>
-                )}
-
+                                    </DialogTrigger>
+                                    <DialogContent>
+                                        <DialogHeader>
+                                            <DialogTitle>{t('proposal_detail.submit_progress_report')}</DialogTitle>
+                                        </DialogHeader>
+                                        <div className="space-y-4 py-4">
+                                            <div className="space-y-2">
+                                                <label className="text-sm font-medium">{t('proposal_detail.progress_description')}</label>
+                                                <Textarea 
+                                                    placeholder={t('proposal_detail.progress_placeholder')} 
+                                                    value={proofText}
+                                                    onChange={(e) => setProofText(e.target.value)}
+                                                    className="min-h-[120px]"
+                                                />
+                                            </div>
+                                            <Button 
+                                                onClick={() => {
+                                                    requestRelease(proofText);
+                                                    setIsReleaseDialogOpen(false);
+                                                }} 
+                                                // دقت کنید: اگر در هوک نام متغیر را isReleasing گذاشتید اینجا هم همان باشد
+                                                disabled={isreleasing || !proofText}
+                                                className="w-full"
+                                            >
+                                                {isreleasing ? <DaoLoadingSpinner /> : t('proposal_detail.submit_request')}
+                                            </Button>
+                                        </div>
+                                    </DialogContent>
+                                </Dialog>
+                            </CardContent>
+                        </Card>
+                    )}
+                    {/*  پایان کد جدید */}
+                </div>
                 <div className="space-y-6">
                     {onChainData && <ProposalTimeline currentState={BigInt(onChainData.state)} />}
                     <Card>

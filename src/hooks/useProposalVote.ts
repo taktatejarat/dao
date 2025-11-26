@@ -45,37 +45,39 @@ export function useProposalVote({ daoAddress, proposalId, isVotingActive }: UseP
     const { isPending: isSubmitting, writeContractAsync } = useWriteContract();
     const { isLoading: isConfirming, isSuccess, isError, error } = useWaitForTransactionReceipt({ hash: txHash });
 
-    // ✅✅✅ useEffect اصلاح شده برای مدیریت تمیز Toast ها ✅✅✅
+    // تابع کمکی ساده داخلی
+    const getErrorMessage = (err: any) => {
+        const message = err?.message || '';
+        if (message.includes("Already voted")) return t('toasts.error_already_voted');
+        if (message.includes("User rejected")) return t('toasts.error_user_rejected');
+        return t('toasts.error_generic');
+    };
+
+    // useEffect اصلاح شده برای مدیریت تمیز Toast ها 
     useEffect(() => {
         if (!txHash) return;
 
         if (isSuccess) {
             // 1. حذف پیام "در حال انتظار" قبلی
             if (toastIdRef.current) toast.dismiss(toastIdRef.current);
-            
             // 2. نمایش پیام موفقیت
             toast.success(t('toasts.vote_successful'));
-            
             // 3. رفرش داده‌ها
             queryClient.invalidateQueries({ queryKey: ['readContract'] });
-            
             // 4. پاکسازی وضعیت
             setTxHash(undefined);
             toastIdRef.current = null;
         }
 
         if (isError) {
-            // 1. حذف پیام "در حال انتظار" قبلی
             if (toastIdRef.current) toast.dismiss(toastIdRef.current);
-            
-            // 2. نمایش خطا
-            toast.error(t('toasts.transaction_failed'), { description: (error as BaseError)?.shortMessage || error?.message });
-            
-            // 3. پاکسازی
+            //استفاده از ترجمه ساده
+            toast.error(getErrorMessage(error));
             setTxHash(undefined);
             toastIdRef.current = null;
         }
     }, [isSuccess, isError, error, queryClient, t, txHash]);
+
 
     // --- Simulation hooks (بدون تغییر) ---
     const { data: voteForConfig } = useSimulateContract({
@@ -114,9 +116,9 @@ export function useProposalVote({ daoAddress, proposalId, isVotingActive }: UseP
             // آپدیت پیام موجود به جای ساخت پیام جدید
             toast.loading(t('toasts.waiting_for_confirmation'), { id: toastIdRef.current });
         } catch (err) {
-            // اگر کاربر در کیف پول رد کرد، پیام لودینگ را ببند
             if (toastIdRef.current) toast.dismiss(toastIdRef.current);
-            toast.error(t('toasts.transaction_rejected'), { description: (err as BaseError).shortMessage });
+            // استفاده از ترجمه ساده
+            toast.error(getErrorMessage(err));
         }
     }, [isVotingActive, daoAddress, proposalId, writeContractAsync, t]);
 

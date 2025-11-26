@@ -150,15 +150,24 @@ contract RayanChainDAO is Initializable, OwnableUpgradeable, ReentrancyGuardUpgr
      * @param _descriptionHash A hash of the description for this new milestone release proposal.
      */
     function createMilestoneReleaseProposal(
-        uint256 _originalProposalId,
-        bytes32 _proofHash,
-        bytes32 _descriptionHash
-    ) external {
-        Proposal storage originalProposal = proposals[_originalProposalId];
-        require(originalProposal.pType == ProposalType.Funding, "Original proposal is not for funding");
-        require(msg.sender == originalProposal.recipient || accControl.hasRole(accControl.DEFAULT_ADMIN_ROLE(), msg.sender), "Not authorized to propose milestone release");
-        require(originalProposal.currentMilestoneIndex < originalProposal.milestones.length, "All milestones already released");
-        require(_proofHash != bytes32(0), "Proof hash cannot be zero");
+            uint256 _originalProposalId,
+            bytes32 _proofHash,
+            bytes32 _descriptionHash
+        ) external {
+            Proposal storage originalProposal = proposals[_originalProposalId];
+            
+            require(originalProposal.pType == ProposalType.Funding, "Original proposal is not for funding");
+            
+            //  FIX: اجازه به Proposer یا Recipient یا Admin 
+            require(
+                msg.sender == originalProposal.proposer ||  // <--- اضافه شد: سازنده پروپوزال
+                msg.sender == originalProposal.recipient || // دریافت کننده (برای انعطاف پذیری نگه میداریم)
+                accControl.hasRole(accControl.DEFAULT_ADMIN_ROLE(), msg.sender), 
+                "Not authorized to propose milestone release"
+            );
+            
+            require(originalProposal.currentMilestoneIndex < originalProposal.milestones.length, "All milestones already released");
+            require(_proofHash != bytes32(0), "Proof hash cannot be zero");
 
         // ایجاد یک پروپوزال جدید از نوع MilestoneRelease
         uint256 milestoneProposalId = _createProposal(
@@ -169,7 +178,6 @@ contract RayanChainDAO is Initializable, OwnableUpgradeable, ReentrancyGuardUpgr
             TokenType.RYC
         );
         
-        // ✅✅✅ THE FIX IS HERE: مقداردهی کامل struct با مقادیر پیش‌فرض ✅✅✅
         // ذخیره کردن proofHash در پروپوزال جدید برای بررسی در زمان اجرا
         proposals[milestoneProposalId].milestones.push(Milestone({
             name: "", // ✅ FIX: افزودن فیلد name با مقدار پیش‌فرض

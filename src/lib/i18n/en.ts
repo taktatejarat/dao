@@ -900,6 +900,10 @@ export const en = {
     post_submission_failed: "Data synchronization failed",
     milestone_proposal_created: "Milestone release proposal created successfully!",
     submitting_milestone_release: "Submitting milestone release request...",
+    error_not_authorized_milestone: "You are not authorized to request a release. Only the project recipient address can submit a release request.",
+    error_already_voted: "You have already voted on this proposal.",
+    error_user_rejected: "The transaction was cancelled by the user.",
+    error_generic: "An unknown error occurred.",
   },
       numbers: {
     0: "0",
