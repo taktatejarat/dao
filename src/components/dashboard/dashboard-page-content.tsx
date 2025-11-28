@@ -213,7 +213,7 @@ export function DashboardPageContent() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard isLoading={isLoading} title={t('dashboard.your_balance')} value={`${formatBigInt(userBalance)} RYC`} icon={Wallet} description={t('dashboard.total_balance_desc')} />
         <StatCard isLoading={isLoading} title={t('dashboard.staked_balance')} value={`${formatBigInt(userStaked)} RYC`} icon={Banknote} description={t('dashboard.staked_balance_desc')} />
-        <StatCard isLoading={isLoading} title={t('dashboard.participation_score')} value={userPoPScore?.toString() ?? '0'} icon={BrainCircuit} description={t('dashboard.participation_score_desc')} />
+        <StatCard isLoading={isLoading} title={t('activities.participation_score')} value={userPoPScore?.toString() ?? '0'} icon={BrainCircuit} description={t('activities.participation_score_desc')} />
         <StatCard isLoading={isLoading} title={t('dashboard.active_proposals_count')} value={proposalCountResult ? (Number(proposalCountResult) > 0 ? Number(proposalCountResult)-1 : 0).toString() : '0'} icon={CheckSquare} description={t('dashboard.active_proposals_cta')} />
       </div>
        <ActivityFeed />

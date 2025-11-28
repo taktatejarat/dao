@@ -37,7 +37,7 @@ function parseEvents(events: any[], t: (key: string) => string): ActivityItem[] 
                 action = t('activities.created_proposal').replace('{id}', event.args.id);
                 break;
             case 'Voted':
-                const voteType = event.args.vote === 0 ? t('common.for') : t('common.against');
+                const voteType = event.args.vote === 0 ? t('proposal_detail.for') : t('proposal_detail.against');
                 action = t('activities.voted_on_proposal')
                     .replace('{voteType}', voteType)
                     .replace('{id}', event.args.proposalId);

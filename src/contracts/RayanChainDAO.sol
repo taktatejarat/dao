@@ -18,7 +18,7 @@ contract RayanChainDAO is Initializable, OwnableUpgradeable, ReentrancyGuardUpgr
     enum ProposalType { Funding, TreasuryAction, GrantRole, MilestoneRelease } // ✅ NEW: GrantRole for B.2
     enum VoteType { For, Against }
     enum TokenType { Native, RYC }
-
+    string public constant VERSION = "2.0.0"; 
 
     // --- Structs ---
     // ✅✅✅ FIX 1: به‌روزرسانی کامل ساختار Milestone ✅✅✅
@@ -163,7 +163,7 @@ contract RayanChainDAO is Initializable, OwnableUpgradeable, ReentrancyGuardUpgr
                 msg.sender == originalProposal.proposer ||  // <--- اضافه شد: سازنده پروپوزال
                 msg.sender == originalProposal.recipient || // دریافت کننده (برای انعطاف پذیری نگه میداریم)
                 accControl.hasRole(accControl.DEFAULT_ADMIN_ROLE(), msg.sender), 
-                "Not authorized to propose milestone release"
+                "Not authorized to this propose milestone release"
             );
             
             require(originalProposal.currentMilestoneIndex < originalProposal.milestones.length, "All milestones already released");

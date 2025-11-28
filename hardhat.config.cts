@@ -42,7 +42,7 @@ const config: HardhatUserConfig = {
       accounts: accounts,
     },
     amoy: {
-      url: amoyRpcUrl || "https://polygon-amoy.drpc.org",
+      url: amoyRpcUrl || "https://api.zan.top/polygon-amoy",
       accounts: accounts,
     },
       forking: {

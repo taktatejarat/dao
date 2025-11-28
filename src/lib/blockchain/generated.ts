@@ -1025,6 +1025,13 @@ export const rayanChainDaoAbi = [
   {
     type: 'function',
     inputs: [],
+    name: 'VERSION',
+    outputs: [{ name: '', internalType: 'string', type: 'string' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
     name: 'accControl',
     outputs: [
       { name: '', internalType: 'contract AccControl', type: 'address' },
@@ -3179,6 +3186,14 @@ export const useReadRayanChainDaoUpgradeInterfaceVersion =
     abi: rayanChainDaoAbi,
     functionName: 'UPGRADE_INTERFACE_VERSION',
   })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link rayanChainDaoAbi}__ and `functionName` set to `"VERSION"`
+ */
+export const useReadRayanChainDaoVersion = /*#__PURE__*/ createUseReadContract({
+  abi: rayanChainDaoAbi,
+  functionName: 'VERSION',
+})
 
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link rayanChainDaoAbi}__ and `functionName` set to `"accControl"`

@@ -326,7 +326,7 @@ export const fa = {
     redirecting: "در حال انتقال...",
     success_toast_title: "تراکنش با موفقیت ارسال شد",
     confirmed_toast_desc: "تراکنش در بلاکچین تأیید شد",
-    pending_toast_title: "است تراکنش در حال پردازش",
+    pending_toast_title: "تراکنش در حال پردازش است",
     error_toast_title: "خطا در ارسال تراکنش",
     unexpected_error_desc: "خطای ناشناخته‌ای رخ داد. لطفاً لاگ‌ها را بررسی کنید.",
     subtitle_professional: "اطلاعات پروژه خود را در چند مرحله برای بررسی توسط سرمایه‌گذاران و هوش مصنوعی ثبت کنید.",

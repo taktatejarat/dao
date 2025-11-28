@@ -229,7 +229,7 @@ export default function ProposalDetailPage() {
                      <Card>
                         <CardHeader><CardTitle className="flex items-center gap-2"><BrainCircuit /> {t('proposal_detail.ai_analysis')}</CardTitle></CardHeader>
                         <CardContent className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                            <InfoCard icon={LineChart} title={t('proposal_detail.ai_risk_score')} value={`${onChainData?.aiRiskScore?.toString() ?? t('common.pending')}`} />
+                            <InfoCard icon={LineChart} title={t('proposal_detail.ai_risk_score')} value={`${onChainData?.aiRiskScore?.toString() ?? t('proposal_detail.status.pending')}`} />
                             <InfoCard icon={Scale} title={t('proposal_detail.market_sentiment')} value={offChainData?.aiAnalysis?.financialAnalysis?.market_sentiment_score ? `${(offChainData.aiAnalysis.financialAnalysis.market_sentiment_score * 100).toFixed(0)}%` : 'N/A'} />
                             <InfoCard icon={Users} title={t('proposal_detail.team_competency')} value={offChainData?.aiAnalysis?.financialAnalysis?.team_competency_score ?? 'N/A'} />
                         </CardContent>
