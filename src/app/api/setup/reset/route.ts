@@ -1,54 +1,52 @@
-// src/app/api/setup/reset/route.ts - FINAL, CORRECTED VERSION
+// src/app/api/setup/reset/route.ts
 
 import { NextResponse } from 'next/server';
 import * as fs from 'fs';
 import * as path from 'path';
 
-// ✅✅✅ FIX: لیستی از تمام کلیدهایی که باید در زمان ریست حذف شوند ✅✅✅
+// لیست کلیدهایی که باید ریست شوند
 const DEPLOYMENT_ENV_KEYS = [
     'NEXT_PUBLIC_REGISTRY_ADDRESS',
     'NEXT_PUBLIC_DAO_ADDRESS',
     'NEXT_PUBLIC_TOKEN_ADDRESS',
     'NEXT_PUBLIC_STAKING_ADDRESS',
     'NEXT_PUBLIC_FINANCE_ADDRESS',
+    'NEXT_PUBLIC_USER_PROFILE_ADDRESS', // این هم باید باشد
+    'NEXT_PUBLIC_ACC_CONTROL_ADDRESS',  // این هم باید باشد
+    'NEXT_PUBLIC_ADMIN_ADDRESS',        // این هم باید باشد
     'TIMELOCK_ADDRESS',
     'RAYAN_CHAIN_DAO_ABI',
-    'NEXT_PUBLIC_CONTRACT_ADDRESS',
-  ];
+    'AI_ORACLE_PRIVATE_KEY',            // کلید خصوصی اوراکل هم باید ریست شود
+];
 
 export async function POST() {
   try {
     const envPath = path.resolve(process.cwd(), '.env');
 
     if (!fs.existsSync(envPath)) {
-        return NextResponse.json({ success: true, message: '.env file not found, considered reset.' });
+        return NextResponse.json({ success: true, message: '.env file not found.' });
     }
 
     let envContent = fs.readFileSync(envPath, 'utf8');
     let lines = envContent.split('\n');
 
-    // ✅✅✅ FIX: منطق جدید برای فیلتر کردن تمام کلیدهای استقرار ✅✅✅
-    // ما خطوطی را نگه می‌داریم که کلید آن‌ها در لیست حذف ما **نیست**.
     const filteredLines = lines.filter(line => {
-        // اگر خط خالی است یا با # شروع می‌شود (کامنت)، آن را نگه دار
-        if (!line.trim() || line.trim().startsWith('#')) {
-            return true;
-        }
+        const trimmedLine = line.trim();
+        if (!trimmedLine || trimmedLine.startsWith('#')) return true; // حفظ کامنت و خط خالی
         
         const key = line.split('=')[0].trim();
-        // اگر کلید در لیست حذف ما نیست، آن را نگه دار
+        // اگر کلید در لیست سیاه است، حذف شود
         return !DEPLOYMENT_ENV_KEYS.includes(key);
     });
 
     const newEnvContent = filteredLines.join('\n');
     fs.writeFileSync(envPath, newEnvContent, 'utf8');
 
-    console.log("✅ Deployment environment variables have been reset from .env file.");
-    return NextResponse.json({ success: true, message: 'Deployment configuration has been successfully reset.' });
+    console.log("✅ Deployment keys reset successfully.");
+    return NextResponse.json({ success: true });
 
   } catch (error) {
-    console.error('Error resetting setup:', error);
-    const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred.';
-    return NextResponse.json({ success: false, message: errorMessage }, { status: 500 });
+    console.error('Reset error:', error);
+    return NextResponse.json({ success: false, message: String(error) }, { status: 500 });
   }
 }

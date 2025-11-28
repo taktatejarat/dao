@@ -4,29 +4,44 @@ import { ethers, upgrades, network } from "hardhat";
 import * as fs from 'fs';
 import * as path from 'path';
 
+// ✅ تابع جایگزین برای مدیریت امن فایل .env
 function updateEnvFile(key: string, value: string) {
-    // مسیر را از ریشه پروژه محاسبه می‌کنیم
     const envPath = path.resolve(process.cwd(), '.env');
     
-    // اطمینان از وجود فایل
+    // اگر فایل وجود نداشت، بساز
     if (!fs.existsSync(envPath)) {
-        console.warn(`   ⚠️ .env file not found at ${envPath}. Skipping update.`);
+        fs.writeFileSync(envPath, `${key}=${value}\n`);
         return;
     }
 
-    let envContent = fs.readFileSync(envPath, 'utf8');
-    const regex = new RegExp(`^${key}=.*$`, 'm');
-
-    if (envContent.match(regex)) {
-        envContent = envContent.replace(regex, `${key}=${value}`);
-    } else {
-        envContent += `\n${key}=${value}`;
-    }
+    const envContent = fs.readFileSync(envPath, 'utf8');
+    const lines = envContent.split('\n');
+    let found = false;
     
-    fs.writeFileSync(envPath, envContent, 'utf8');
-    console.log(`   - Updated .env with: ${key}`);
-}
+    // خط به خط بررسی و جایگزینی
+    const newLines = lines.map(line => {
+        // حذف فضای خالی و بررسی کلید
+        if (line.trim().startsWith(`${key}=`)) {
+            found = true;
+            return `${key}=${value}`;
+        }
+        return line;
+    });
 
+    // اگر کلید جدید بود، به انتها اضافه کن
+    if (!found) {
+        // حذف خط خالی احتمالی در انتها قبل از اضافه کردن
+        if (newLines.length > 0 && newLines[newLines.length - 1].trim() === '') {
+            newLines.pop();
+        }
+        newLines.push(`${key}=${value}`);
+    }
+
+    // بازنویسی فایل با یک خط خالی در انتها (استاندارد POSIX)
+    const finalContent = newLines.join('\n') + '\n';
+    fs.writeFileSync(envPath, finalContent, 'utf8');
+    console.log(`   - Updated .env: ${key}`);
+}
 
 async function main() {
     console.log(`🚀 Starting FULLY UPGRADEABLE DAO deployment on network: ${network.name}...`);
