@@ -457,6 +457,31 @@ export const financeAbi = [
     type: 'event',
     anonymous: false,
     inputs: [
+      {
+        name: 'proposalId',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+      {
+        name: 'protocolFee',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+      {
+        name: 'clientFee',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+    ],
+    name: 'FeesDistributed',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
       { name: 'from', internalType: 'address', type: 'address', indexed: true },
       {
         name: 'amount',
@@ -511,6 +536,56 @@ export const financeAbi = [
       },
     ],
     name: 'InvestmentCancelled',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'proposalId',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: true,
+      },
+      {
+        name: 'investor',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      {
+        name: 'amount',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+    ],
+    name: 'InvestmentDeposited',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'proposalId',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: true,
+      },
+      {
+        name: 'investor',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      {
+        name: 'amount',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+    ],
+    name: 'InvestmentRefunded',
   },
   {
     type: 'event',
@@ -650,6 +725,20 @@ export const financeAbi = [
   {
     type: 'function',
     inputs: [],
+    name: 'CLIENT_FEE_BPS',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'PROTOCOL_FEE_BPS',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
     name: 'UPGRADE_INTERFACE_VERSION',
     outputs: [{ name: '', internalType: 'string', type: 'string' }],
     stateMutability: 'view',
@@ -666,6 +755,13 @@ export const financeAbi = [
   {
     type: 'function',
     inputs: [],
+    name: 'clientWallet',
+    outputs: [{ name: '', internalType: 'address', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
     name: 'daoAddress',
     outputs: [{ name: '', internalType: 'address', type: 'address' }],
     stateMutability: 'view',
@@ -673,10 +769,34 @@ export const financeAbi = [
   {
     type: 'function',
     inputs: [
+      { name: '_proposalId', internalType: 'uint256', type: 'uint256' },
+      { name: '_investor', internalType: 'address', type: 'address' },
+      { name: '_amount', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'depositInvestment',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: '_proposalId', internalType: 'uint256', type: 'uint256' },
+      { name: '_recipient', internalType: 'address', type: 'address' },
+      { name: '_totalRaised', internalType: 'uint256', type: 'uint256' },
+      { name: '_milestoneCount', internalType: 'uint8', type: 'uint8' },
+    ],
+    name: 'finalizeInvestment',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
       { name: '_initialOwner', internalType: 'address', type: 'address' },
       { name: '_tokenAddress', internalType: 'address', type: 'address' },
-      { name: '_platformFeeBps', internalType: 'uint256', type: 'uint256' },
       { name: '_accControlAddress', internalType: 'address', type: 'address' },
+      { name: '_protocolWallet', internalType: 'address', type: 'address' },
+      { name: '_clientWallet', internalType: 'address', type: 'address' },
     ],
     name: 'initialize',
     outputs: [],
@@ -698,6 +818,16 @@ export const financeAbi = [
   },
   {
     type: 'function',
+    inputs: [
+      { name: '', internalType: 'uint256', type: 'uint256' },
+      { name: '', internalType: 'address', type: 'address' },
+    ],
+    name: 'investorBalances',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
     inputs: [],
     name: 'owner',
     outputs: [{ name: '', internalType: 'address', type: 'address' }],
@@ -713,9 +843,26 @@ export const financeAbi = [
   {
     type: 'function',
     inputs: [],
+    name: 'protocolWallet',
+    outputs: [{ name: '', internalType: 'address', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
     name: 'proxiableUUID',
     outputs: [{ name: '', internalType: 'bytes32', type: 'bytes32' }],
     stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: '_proposalId', internalType: 'uint256', type: 'uint256' },
+      { name: '_investor', internalType: 'address', type: 'address' },
+    ],
+    name: 'refundInvestment',
+    outputs: [],
+    stateMutability: 'nonpayable',
   },
   {
     type: 'function',
@@ -757,6 +904,16 @@ export const financeAbi = [
     type: 'function',
     inputs: [{ name: '_daoAddress', internalType: 'address', type: 'address' }],
     name: 'setDaoAddress',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: '_protocol', internalType: 'address', type: 'address' },
+      { name: '_client', internalType: 'address', type: 'address' },
+    ],
+    name: 'setFeeWallets',
     outputs: [],
     stateMutability: 'nonpayable',
   },
@@ -804,7 +961,6 @@ export const financeAbi = [
     outputs: [],
     stateMutability: 'nonpayable',
   },
-  { type: 'receive', stateMutability: 'payable' },
 ] as const
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -850,6 +1006,26 @@ export const rayanChainDaoAbi = [
     anonymous: false,
     inputs: [
       {
+        name: 'proposalId',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: true,
+      },
+      { name: 'success', internalType: 'bool', type: 'bool', indexed: false },
+      {
+        name: 'totalRaised',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+    ],
+    name: 'FundingFinalized',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
         name: 'version',
         internalType: 'uint64',
         type: 'uint64',
@@ -857,6 +1033,31 @@ export const rayanChainDaoAbi = [
       },
     ],
     name: 'Initialized',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'proposalId',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: true,
+      },
+      {
+        name: 'investor',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      {
+        name: 'amount',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+    ],
+    name: 'InvestmentReceived',
   },
   {
     type: 'event',
@@ -1011,7 +1212,21 @@ export const rayanChainDaoAbi = [
   {
     type: 'function',
     inputs: [],
+    name: 'FUNDING_DURATION',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
     name: 'MAX_RISK_SCORE',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'SOFT_CAP_PERCENT',
     outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
     stateMutability: 'view',
   },
@@ -1044,6 +1259,13 @@ export const rayanChainDaoAbi = [
     name: 'approvalThresholdPercentage',
     outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
     stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: '_proposalId', internalType: 'uint256', type: 'uint256' }],
+    name: 'claimRefund',
+    outputs: [],
+    stateMutability: 'nonpayable',
   },
   {
     type: 'function',
@@ -1099,9 +1321,18 @@ export const rayanChainDaoAbi = [
   },
   {
     type: 'function',
+    inputs: [{ name: '_proposalId', internalType: 'uint256', type: 'uint256' }],
+    name: 'finalizeFunding',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
     inputs: [],
     name: 'financeContract',
-    outputs: [{ name: '', internalType: 'contract IFinance', type: 'address' }],
+    outputs: [
+      { name: '', internalType: 'contract IFinanceExtended', type: 'address' },
+    ],
     stateMutability: 'view',
   },
   {
@@ -1127,6 +1358,16 @@ export const rayanChainDaoAbi = [
       { name: '_approvalThreshold', internalType: 'uint256', type: 'uint256' },
     ],
     name: 'initialize',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: '_proposalId', internalType: 'uint256', type: 'uint256' },
+      { name: '_amount', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'invest',
     outputs: [],
     stateMutability: 'nonpayable',
   },
@@ -1193,6 +1434,9 @@ export const rayanChainDaoAbi = [
         type: 'uint256',
       },
       { name: 'roleToGrant', internalType: 'bytes32', type: 'bytes32' },
+      { name: 'totalRaised', internalType: 'uint256', type: 'uint256' },
+      { name: 'softCap', internalType: 'uint256', type: 'uint256' },
+      { name: 'fundingDeadline', internalType: 'uint256', type: 'uint256' },
     ],
     stateMutability: 'view',
   },
@@ -2802,6 +3046,21 @@ export const useReadFinance = /*#__PURE__*/ createUseReadContract({
 })
 
 /**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link financeAbi}__ and `functionName` set to `"CLIENT_FEE_BPS"`
+ */
+export const useReadFinanceClientFeeBps = /*#__PURE__*/ createUseReadContract({
+  abi: financeAbi,
+  functionName: 'CLIENT_FEE_BPS',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link financeAbi}__ and `functionName` set to `"PROTOCOL_FEE_BPS"`
+ */
+export const useReadFinanceProtocolFeeBps = /*#__PURE__*/ createUseReadContract(
+  { abi: financeAbi, functionName: 'PROTOCOL_FEE_BPS' },
+)
+
+/**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link financeAbi}__ and `functionName` set to `"UPGRADE_INTERFACE_VERSION"`
  */
 export const useReadFinanceUpgradeInterfaceVersion =
@@ -2816,6 +3075,14 @@ export const useReadFinanceUpgradeInterfaceVersion =
 export const useReadFinanceAccControl = /*#__PURE__*/ createUseReadContract({
   abi: financeAbi,
   functionName: 'accControl',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link financeAbi}__ and `functionName` set to `"clientWallet"`
+ */
+export const useReadFinanceClientWallet = /*#__PURE__*/ createUseReadContract({
+  abi: financeAbi,
+  functionName: 'clientWallet',
 })
 
 /**
@@ -2835,6 +3102,15 @@ export const useReadFinanceInvestments = /*#__PURE__*/ createUseReadContract({
 })
 
 /**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link financeAbi}__ and `functionName` set to `"investorBalances"`
+ */
+export const useReadFinanceInvestorBalances =
+  /*#__PURE__*/ createUseReadContract({
+    abi: financeAbi,
+    functionName: 'investorBalances',
+  })
+
+/**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link financeAbi}__ and `functionName` set to `"owner"`
  */
 export const useReadFinanceOwner = /*#__PURE__*/ createUseReadContract({
@@ -2847,6 +3123,13 @@ export const useReadFinanceOwner = /*#__PURE__*/ createUseReadContract({
  */
 export const useReadFinancePlatformFeeBps = /*#__PURE__*/ createUseReadContract(
   { abi: financeAbi, functionName: 'platformFeeBps' },
+)
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link financeAbi}__ and `functionName` set to `"protocolWallet"`
+ */
+export const useReadFinanceProtocolWallet = /*#__PURE__*/ createUseReadContract(
+  { abi: financeAbi, functionName: 'protocolWallet' },
 )
 
 /**
@@ -2881,12 +3164,39 @@ export const useWriteFinance = /*#__PURE__*/ createUseWriteContract({
 })
 
 /**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link financeAbi}__ and `functionName` set to `"depositInvestment"`
+ */
+export const useWriteFinanceDepositInvestment =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: financeAbi,
+    functionName: 'depositInvestment',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link financeAbi}__ and `functionName` set to `"finalizeInvestment"`
+ */
+export const useWriteFinanceFinalizeInvestment =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: financeAbi,
+    functionName: 'finalizeInvestment',
+  })
+
+/**
  * Wraps __{@link useWriteContract}__ with `abi` set to __{@link financeAbi}__ and `functionName` set to `"initialize"`
  */
 export const useWriteFinanceInitialize = /*#__PURE__*/ createUseWriteContract({
   abi: financeAbi,
   functionName: 'initialize',
 })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link financeAbi}__ and `functionName` set to `"refundInvestment"`
+ */
+export const useWriteFinanceRefundInvestment =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: financeAbi,
+    functionName: 'refundInvestment',
+  })
 
 /**
  * Wraps __{@link useWriteContract}__ with `abi` set to __{@link financeAbi}__ and `functionName` set to `"registerInvestment"`
@@ -2922,6 +3232,15 @@ export const useWriteFinanceSetDaoAddress =
   /*#__PURE__*/ createUseWriteContract({
     abi: financeAbi,
     functionName: 'setDaoAddress',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link financeAbi}__ and `functionName` set to `"setFeeWallets"`
+ */
+export const useWriteFinanceSetFeeWallets =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: financeAbi,
+    functionName: 'setFeeWallets',
   })
 
 /**
@@ -2967,12 +3286,39 @@ export const useSimulateFinance = /*#__PURE__*/ createUseSimulateContract({
 })
 
 /**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link financeAbi}__ and `functionName` set to `"depositInvestment"`
+ */
+export const useSimulateFinanceDepositInvestment =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: financeAbi,
+    functionName: 'depositInvestment',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link financeAbi}__ and `functionName` set to `"finalizeInvestment"`
+ */
+export const useSimulateFinanceFinalizeInvestment =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: financeAbi,
+    functionName: 'finalizeInvestment',
+  })
+
+/**
  * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link financeAbi}__ and `functionName` set to `"initialize"`
  */
 export const useSimulateFinanceInitialize =
   /*#__PURE__*/ createUseSimulateContract({
     abi: financeAbi,
     functionName: 'initialize',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link financeAbi}__ and `functionName` set to `"refundInvestment"`
+ */
+export const useSimulateFinanceRefundInvestment =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: financeAbi,
+    functionName: 'refundInvestment',
   })
 
 /**
@@ -3009,6 +3355,15 @@ export const useSimulateFinanceSetDaoAddress =
   /*#__PURE__*/ createUseSimulateContract({
     abi: financeAbi,
     functionName: 'setDaoAddress',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link financeAbi}__ and `functionName` set to `"setFeeWallets"`
+ */
+export const useSimulateFinanceSetFeeWallets =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: financeAbi,
+    functionName: 'setFeeWallets',
   })
 
 /**
@@ -3064,6 +3419,15 @@ export const useWatchFinanceDaoAddressSetEvent =
   })
 
 /**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link financeAbi}__ and `eventName` set to `"FeesDistributed"`
+ */
+export const useWatchFinanceFeesDistributedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: financeAbi,
+    eventName: 'FeesDistributed',
+  })
+
+/**
  * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link financeAbi}__ and `eventName` set to `"FundsDeposited"`
  */
 export const useWatchFinanceFundsDepositedEvent =
@@ -3097,6 +3461,24 @@ export const useWatchFinanceInvestmentCancelledEvent =
   /*#__PURE__*/ createUseWatchContractEvent({
     abi: financeAbi,
     eventName: 'InvestmentCancelled',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link financeAbi}__ and `eventName` set to `"InvestmentDeposited"`
+ */
+export const useWatchFinanceInvestmentDepositedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: financeAbi,
+    eventName: 'InvestmentDeposited',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link financeAbi}__ and `eventName` set to `"InvestmentRefunded"`
+ */
+export const useWatchFinanceInvestmentRefundedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: financeAbi,
+    eventName: 'InvestmentRefunded',
   })
 
 /**
@@ -3170,12 +3552,30 @@ export const useReadRayanChainDao = /*#__PURE__*/ createUseReadContract({
 })
 
 /**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link rayanChainDaoAbi}__ and `functionName` set to `"FUNDING_DURATION"`
+ */
+export const useReadRayanChainDaoFundingDuration =
+  /*#__PURE__*/ createUseReadContract({
+    abi: rayanChainDaoAbi,
+    functionName: 'FUNDING_DURATION',
+  })
+
+/**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link rayanChainDaoAbi}__ and `functionName` set to `"MAX_RISK_SCORE"`
  */
 export const useReadRayanChainDaoMaxRiskScore =
   /*#__PURE__*/ createUseReadContract({
     abi: rayanChainDaoAbi,
     functionName: 'MAX_RISK_SCORE',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link rayanChainDaoAbi}__ and `functionName` set to `"SOFT_CAP_PERCENT"`
+ */
+export const useReadRayanChainDaoSoftCapPercent =
+  /*#__PURE__*/ createUseReadContract({
+    abi: rayanChainDaoAbi,
+    functionName: 'SOFT_CAP_PERCENT',
   })
 
 /**
@@ -3324,6 +3724,15 @@ export const useWriteRayanChainDao = /*#__PURE__*/ createUseWriteContract({
 })
 
 /**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link rayanChainDaoAbi}__ and `functionName` set to `"claimRefund"`
+ */
+export const useWriteRayanChainDaoClaimRefund =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: rayanChainDaoAbi,
+    functionName: 'claimRefund',
+  })
+
+/**
  * Wraps __{@link useWriteContract}__ with `abi` set to __{@link rayanChainDaoAbi}__ and `functionName` set to `"createGrantRoleProposal"`
  */
 export const useWriteRayanChainDaoCreateGrantRoleProposal =
@@ -3369,6 +3778,15 @@ export const useWriteRayanChainDaoExecuteProposal =
   })
 
 /**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link rayanChainDaoAbi}__ and `functionName` set to `"finalizeFunding"`
+ */
+export const useWriteRayanChainDaoFinalizeFunding =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: rayanChainDaoAbi,
+    functionName: 'finalizeFunding',
+  })
+
+/**
  * Wraps __{@link useWriteContract}__ with `abi` set to __{@link rayanChainDaoAbi}__ and `functionName` set to `"initialize"`
  */
 export const useWriteRayanChainDaoInitialize =
@@ -3376,6 +3794,13 @@ export const useWriteRayanChainDaoInitialize =
     abi: rayanChainDaoAbi,
     functionName: 'initialize',
   })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link rayanChainDaoAbi}__ and `functionName` set to `"invest"`
+ */
+export const useWriteRayanChainDaoInvest = /*#__PURE__*/ createUseWriteContract(
+  { abi: rayanChainDaoAbi, functionName: 'invest' },
+)
 
 /**
  * Wraps __{@link useWriteContract}__ with `abi` set to __{@link rayanChainDaoAbi}__ and `functionName` set to `"renounceOwnership"`
@@ -3465,6 +3890,15 @@ export const useSimulateRayanChainDao = /*#__PURE__*/ createUseSimulateContract(
 )
 
 /**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link rayanChainDaoAbi}__ and `functionName` set to `"claimRefund"`
+ */
+export const useSimulateRayanChainDaoClaimRefund =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: rayanChainDaoAbi,
+    functionName: 'claimRefund',
+  })
+
+/**
  * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link rayanChainDaoAbi}__ and `functionName` set to `"createGrantRoleProposal"`
  */
 export const useSimulateRayanChainDaoCreateGrantRoleProposal =
@@ -3510,12 +3944,30 @@ export const useSimulateRayanChainDaoExecuteProposal =
   })
 
 /**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link rayanChainDaoAbi}__ and `functionName` set to `"finalizeFunding"`
+ */
+export const useSimulateRayanChainDaoFinalizeFunding =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: rayanChainDaoAbi,
+    functionName: 'finalizeFunding',
+  })
+
+/**
  * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link rayanChainDaoAbi}__ and `functionName` set to `"initialize"`
  */
 export const useSimulateRayanChainDaoInitialize =
   /*#__PURE__*/ createUseSimulateContract({
     abi: rayanChainDaoAbi,
     functionName: 'initialize',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link rayanChainDaoAbi}__ and `functionName` set to `"invest"`
+ */
+export const useSimulateRayanChainDaoInvest =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: rayanChainDaoAbi,
+    functionName: 'invest',
   })
 
 /**
@@ -3606,12 +4058,30 @@ export const useWatchRayanChainDaoEvent =
   /*#__PURE__*/ createUseWatchContractEvent({ abi: rayanChainDaoAbi })
 
 /**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link rayanChainDaoAbi}__ and `eventName` set to `"FundingFinalized"`
+ */
+export const useWatchRayanChainDaoFundingFinalizedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: rayanChainDaoAbi,
+    eventName: 'FundingFinalized',
+  })
+
+/**
  * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link rayanChainDaoAbi}__ and `eventName` set to `"Initialized"`
  */
 export const useWatchRayanChainDaoInitializedEvent =
   /*#__PURE__*/ createUseWatchContractEvent({
     abi: rayanChainDaoAbi,
     eventName: 'Initialized',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link rayanChainDaoAbi}__ and `eventName` set to `"InvestmentReceived"`
+ */
+export const useWatchRayanChainDaoInvestmentReceivedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: rayanChainDaoAbi,
+    eventName: 'InvestmentReceived',
   })
 
 /**

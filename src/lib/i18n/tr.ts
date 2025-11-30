@@ -750,7 +750,8 @@ export const tr = {
       queued: "Yürütme sırasında",
       expired: "Süresi doldu",
       executed: "Uygulandı",
-      unknown: "Bilinmiyor"
+      unknown: "Bilinmiyor",
+      validation: "Doğrulanıyor",
     },
     alert: {
       insufficient_power_title: "Yetersiz oy hakkı",

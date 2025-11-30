@@ -750,7 +750,8 @@ export const ar = {
         queued: "في قائمة التنفيذ",
         expired: "منتهي الصلاحية",
         executed: "تم التنفيذ",
-        unknown: "غير معروف"
+        unknown: "غير معروف",
+        validation: "قيد التحقق",
       },
       alert: {
         insufficient_power_title: "عدم كفاية حق التصويت",

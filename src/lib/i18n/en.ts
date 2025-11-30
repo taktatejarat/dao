@@ -749,7 +749,8 @@ export const en = {
       queued: "Queued for execution",
       expired: "Expired",
       executed: "Executed",
-      unknown: "Unknown"
+      unknown: "Unknown",
+      validation: "Validating",
     },
     alert: {
       insufficient_power_title: "Insufficient voting power",

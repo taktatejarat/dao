@@ -759,7 +759,8 @@ export const fa = {
         queued: "در صف اجرا",
         expired: "منقضی شده",
         executed: "اجرا شده",
-        unknown: "نامشخص"
+        unknown: "نامشخص",
+        validation: "در حال اعتبارسنجی",
       },
     alert: {
       insufficient_power_title: "عدم حق رأی کافی",

@@ -750,7 +750,8 @@ export const ru = {
         queued: "В очереди на выполнение",
         expired: "Истек срок",
         executed: "Выполнено",
-        unknown: "Неизвестно"
+        unknown: "Неизвестно",
+        validation: "Проходит проверку",
       },
       alert: {
         insufficient_power_title: "Недостаточно права голоса",

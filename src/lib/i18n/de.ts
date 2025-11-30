@@ -751,7 +751,8 @@ export const de = {
         queued: "Zur Ausführung eingereiht",
         expired: "Abgelaufen",
         executed: "Ausgeführt",
-        unknown: "Unbekannt"
+        unknown: "Unbekannt",
+        validation: "Wird validiert",
       },
       alert: {
         insufficient_power_title: "Unzureichendes Stimmrecht",
