@@ -50,74 +50,53 @@ def clean_feature_name(name: str) -> str:
     # ✅✅✅ FIX: حذف پیشوندهای اضافی به صورت کامل ✅✅✅
     return name.replace("cat__industry_", "").replace("remainder__", "")
 
-def generate_financial_report(proposal_features: Dict[str, Any]) -> dict:
-    """
-    یک گزارش کامل تحلیل ریسک مالی با خروجی‌های ساختاریافته برای i18n تولید می‌کند.
-    """
-    # --- استخراج و پاک‌سازی ویژگی‌ها ---
-    team_experience = int(proposal_features.get('teamExperienceYears', '0'))
-    industry = proposal_features.get('startupIndustry', 'Unknown')
-   # ✅✅✅ FIX: خواندن مقدار صحیح اندازه بازار از داده‌های پروپوزال ✅✅✅
-    # ما همچنین مبلغ درخواستی را به عنوان یک ویژگی جداگانه در نظر می‌گیریم
-    total_requested = sum(int(m.get('amount', '0')) for m in proposal_features.get('milestones', []))
+
+def generate_financial_report(proposal_data: dict) -> dict:
+    # 1. استخراج داده‌های جدید
+    market = proposal_data.get('marketStats', {})
+    financials = proposal_data.get('financialStats', {})
     
-    model_features = {
-        'industry': proposal_features.get('startupIndustry', 'Unknown'),
-        # این همان مبلغی است که مدل ما با آن آموزش دیده است
-        'requested_amount_usd': total_requested, 
-        'milestone_count': len(proposal_features.get('milestones', [])),
-        'team_experience_years': int(proposal_features.get('teamExperienceYears', '1')),
-        # ✅ NEW: افزودن اندازه بازار به عنوان یک ویژگی بالقوه برای آینده
-        'market_size': int(proposal_features.get('marketSize', '0')),
-    }
-    # --- پیش‌بینی مدل ---
-    success_probability = 0.5
-    feature_importances = {}
+    tam = float(market.get('tam', 0))
+    som = float(market.get('som', 0))
+    burn_rate = float(financials.get('burnRate', 0))
+    revenue = float(financials.get('revenueProj', 0))
+    requested = float(proposal_data.get('amount', 0)) # RYC converted to USD approx
 
-    if model and preprocessor:
-        try:
-            input_df = pd.DataFrame([model_features])
-            processed_df = preprocessor.transform(input_df)
-            
-            # دریافت احتمال موفقیت
-            success_probability = model.predict_proba(processed_df)[0][1]
-            
-            # ✅✅✅ XAI: استخراج اهمیت ویژگی‌ها ✅✅✅
-            # این بخش به ما می‌گوید کدام ویژگی بیشترین تأثیر را در تصمیم مدل داشته است.
-            importances = model.feature_importances_
-            feature_names = preprocessor.get_feature_names_out()
-            feature_importances = sorted(zip(feature_names, importances), key=lambda x: x[1], reverse=True)
+    xai_factors = []
+    risk_score = 50 # Base
 
-        except Exception as e:
-            print(f"Error during model prediction: {e}")
+    # 2. تحلیل VC-Grade (قوانین خبره)
+    
+    # قانون 1: اندازه بازار (Market Size)
+    if tam > 1_000_000_000: # بازار 1 میلیاردی
+        risk_score -= 10
+        xai_factors.append({"key": "xai.financial.huge_tam", "values": {"value": f"${tam/1e9}B"}})
+    elif tam < 10_000_000:
+        risk_score += 20
+        xai_factors.append({"key": "xai.financial.small_market", "importance": -1})
 
-    # --- محاسبه امتیازها ---
-    risk_score = 1 - success_probability
-    team_competency_score = min((team_experience * 3) + 10, 100)
-    market_sentiment_score = INDUSTRY_SENTIMENT_SCORES.get(industry, 0.5)
+    # قانون 2: سهم بازار (SOM)
+    if som > 0 and (som / tam) > 0.10: # ادعای سهم بازار غیرواقعی (بیش از 10 درصد کل بازار)
+        risk_score += 15
+        xai_factors.append({"key": "xai.financial.unrealistic_som", "importance": -1})
 
-    xai_factors_list = []
-    if isinstance(feature_importances, list) and feature_importances:
-        for name, importance in feature_importances[:3]:
-            # ✅✅✅ FIX: استفاده از تابع تمیزکننده و نگاشت به کلید i18n ✅✅✅
-            cleaned_name = clean_feature_name(name)
-            feature_key = FEATURE_NAME_MAP.get(name, f"xai.feature.{cleaned_name}") # ایجاد کلید داینامیک
-            
-            feature_value = ""
-            if "industry" in cleaned_name:
-                # مقدار واقعی صنعت را استخراج می‌کنیم
-                feature_value = proposal_features.get('startupIndustry', '')
-            
-            xai_factors_list.append({
-                "key": feature_key,
-                "values": { "value": feature_value } if feature_value else {},
-                "importance": round(float(importance), 2)
-            })
+    # قانون 3: پایداری مالی (Runway)
+    # اگر سرمایه درخواستی فقط کفاف 3 ماه را بدهد (Runway < 6 months خطرناک است)
+    if burn_rate > 0:
+        runway_months = requested / burn_rate
+        if runway_months < 6:
+            risk_score += 25
+            xai_factors.append({"key": "xai.financial.short_runway", "values": {"value": int(runway_months)}})
+        elif runway_months > 24:
+             xai_factors.append({"key": "xai.financial.stable_runway", "values": {"value": int(runway_months)}})
 
+    # نرمال‌سازی
+    risk_score = max(0, min(100, risk_score))
+    
     return {
-        "risk_score": round(risk_score * 100),
-        "success_probability": round(success_probability * 100),
-        "team_competency_score": round(team_competency_score),
-        "market_sentiment_score": market_sentiment_score,
-        "xai_factors": xai_factors_list,
+        "risk_score": risk_score,
+        "success_probability": 100 - risk_score,
+        "team_competency_score": 75, # Placeholder for now
+        "market_sentiment_score": 0.65,
+        "xai_factors": xai_factors # ✅ لیست فاکتورهای توضیح‌پذیر
     }

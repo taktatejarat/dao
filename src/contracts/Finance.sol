@@ -11,31 +11,29 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./interfaces/IFinance.sol";
 import "./permission/AccControl.sol";
 
+
 contract Finance is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, UUPSUpgradeable, IFinance {
     IERC20 public token;
     address public daoAddress;
     AccControl public accControl;
-    uint256 public platformFeeBps;
-
+    
     // --- SaaS Revenue Model Config ---
-    address public protocolWallet; // کیف پول سازنده پلتفرم (1%)
-    address public clientWallet;   // کیف پول شرکت VC (4%)
-    uint256 public constant PROTOCOL_FEE_BPS = 100; // 1%
-    uint256 public constant CLIENT_FEE_BPS = 400;   // 4%
-
+    address public protocolWallet; 
+    address public clientWallet;
+    
+    //تعریف متغیرهای وضعیت (State Variables) به جای constant
+    uint256 public protocolFeeBps; 
+    uint256 public clientFeeBps;
 
     struct Investment {
         address recipient;
-        uint256 totalAmount; // مبلغ نهایی جمع شده (بعد از کسر کارمزد)
+        uint256 totalAmount;
         uint256 releasedAmount;
         uint8 milestoneCount;
         uint8 currentMilestone;
         bool isActive;
     }
     mapping(uint256 => Investment) public investments;
-
-
-   // نگهداری موجودی سرمایه‌گذاران برای هر پروپوزال (برای Refund)
     mapping(uint256 => mapping(address => uint256)) public investorBalances;
 
     event FeesDistributed(uint256 proposalId, uint256 protocolFee, uint256 clientFee);
@@ -59,21 +57,29 @@ contract Finance is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeabl
         
         protocolWallet = _protocolWallet;
         clientWallet = _clientWallet;
+        
+        // ✅ مقداردهی اولیه متغیرها
+        protocolFeeBps = 100; // 1%
+        clientFeeBps = 400;   // 4%
     }
 
-    function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
+     function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
 
     modifier onlyExecutor() {
         require(accControl.hasRole(accControl.EXECUTOR_ROLE(), msg.sender) || msg.sender == daoAddress, "Finance: Unauthorized");
         _;
     }
 
-    // --- Investment Flow ---
+    // ✅ تابع تنظیم مجدد کارمزدها
+    function setFeeConfiguration(uint256 _protocolFeeBps, uint256 _clientFeeBps) external onlyOwner {
+        require(_protocolFeeBps + _clientFeeBps <= 1000, "Total fee cannot exceed 10%");
+        protocolFeeBps = _protocolFeeBps;
+        clientFeeBps = _clientFeeBps;
+    }
 
-    // 1. واریز سرمایه توسط کاربر (فراخوانی توسط DAO)
+    // --- Investment Flow ---
     function depositInvestment(uint256 _proposalId, address _investor, uint256 _amount) external onlyExecutor nonReentrant {
         require(_amount > 0, "Amount must be > 0");
-        // انتقال توکن از کاربر به این قرارداد (باید قبلا Approve شده باشد)
         bool success = token.transferFrom(_investor, address(this), _amount);
         require(success, "Transfer failed");
         
@@ -81,25 +87,22 @@ contract Finance is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeabl
         emit InvestmentDeposited(_proposalId, _investor, _amount);
     }
 
-    // 2. نهایی‌سازی سرمایه‌گذاری (کسر کارمزدها و قفل کردن بودجه)
     function finalizeInvestment(uint256 _proposalId, address _recipient, uint256 _totalRaised, uint8 _milestoneCount) external onlyExecutor nonReentrant {
         require(!investments[_proposalId].isActive, "Already active");
         
-        // محاسبه کارمزدها
-        uint256 pFee = (_totalRaised * PROTOCOL_FEE_BPS) / 10000;
-        uint256 cFee = (_totalRaised * CLIENT_FEE_BPS) / 10000;
+        // ✅ استفاده از متغیرهای وضعیت تعریف شده
+        uint256 pFee = (_totalRaised * protocolFeeBps) / 10000;
+        uint256 cFee = (_totalRaised * clientFeeBps) / 10000;
         uint256 projectAmount = _totalRaised - pFee - cFee;
 
-        // واریز کارمزدها
         if (pFee > 0) token.transfer(protocolWallet, pFee);
         if (cFee > 0) token.transfer(clientWallet, cFee);
         
         emit FeesDistributed(_proposalId, pFee, cFee);
 
-        // ثبت پروژه برای مایل‌ستون‌ها
         investments[_proposalId] = Investment({
             recipient: _recipient,
-            totalAmount: projectAmount, // مبلغ خالص برای پروژه
+            totalAmount: projectAmount,
             releasedAmount: 0,
             milestoneCount: _milestoneCount,
             currentMilestone: 0,
@@ -109,7 +112,6 @@ contract Finance is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeabl
         emit InvestmentRegistered(_proposalId, _recipient, projectAmount, _milestoneCount);
     }
 
-    // 3. عودت وجه (در صورت شکست در جذب سرمایه)
     function refundInvestment(uint256 _proposalId, address _investor) external onlyExecutor nonReentrant {
         uint256 amount = investorBalances[_proposalId][_investor];
         require(amount > 0, "No balance to refund");
@@ -121,15 +123,12 @@ contract Finance is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeabl
         emit InvestmentRefunded(_proposalId, _investor, amount);
     }
 
-    // --- Milestone Release (Legacy & New Logic) ---
     function releaseNextMilestone(uint256 _proposalId) external nonReentrant onlyExecutor {
         Investment storage investment = investments[_proposalId];
         require(investment.isActive, "Investment not active");
         require(investment.currentMilestone < investment.milestoneCount, "All milestones released");
 
-        // محاسبه مبلغ این فاز
         uint256 remainingMilestones = investment.milestoneCount - investment.currentMilestone;
-        // فرمول ایمن: باقیمانده بودجه تقسیم بر باقیمانده مایل‌ستون‌ها (برای جلوگیری از Dust)
         uint256 currentBalance = investment.totalAmount - investment.releasedAmount;
         uint256 amountToRelease = currentBalance / remainingMilestones;
 
@@ -148,8 +147,8 @@ contract Finance is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeabl
         emit MilestoneReleased(_proposalId, amountToRelease, investment.currentMilestone);
     }
 
-    // برای سازگاری با اینترفیس - اضافه کردن 
-    function registerInvestment(uint256 _proposalId,address _recipient,uint256 _totalAmount,uint8 _milestoneCount) external override {
+    // ✅ FIX: اضافه کردن pure برای رفع هشدار کامپایلر
+    function registerInvestment(uint256, address, uint256, uint8) external override pure {
         revert("Use finalizeInvestment instead");
     }
     
@@ -173,7 +172,6 @@ contract Finance is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeabl
         emit DaoAddressSet(_daoAddress);
     }
     
-    // توابع تنظیم کیف پول‌های کارمزد (مخصوص ادمین)
     function setFeeWallets(address _protocol, address _client) external onlyOwner {
         protocolWallet = _protocol;
         clientWallet = _client;

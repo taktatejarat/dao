@@ -1321,8 +1321,8 @@
       ]
     },
     "/home/errick/dao/src/contracts/RayanChainDAO.sol": {
-      "lastModificationDate": 1764498746748,
-      "contentHash": "fec5383e645fd8ce4564dcac47feb5ae",
+      "lastModificationDate": 1764522070231,
+      "contentHash": "43f571236580a6856ca76ca47ed5007a",
       "sourceName": "src/contracts/RayanChainDAO.sol",
       "solcConfig": {
         "version": "0.8.24",
@@ -1411,8 +1411,8 @@
       ]
     },
     "/home/errick/dao/src/contracts/interfaces/IFinance.sol": {
-      "lastModificationDate": 1763201397328,
-      "contentHash": "b0dda6e81bd65be7d1752344cd25930d",
+      "lastModificationDate": 1764522240828,
+      "contentHash": "6817b03f0764555075ac7f91b2ed1a59",
       "sourceName": "src/contracts/interfaces/IFinance.sol",
       "solcConfig": {
         "version": "0.8.24",
@@ -1617,8 +1617,8 @@
       ]
     },
     "/home/errick/dao/src/contracts/Finance.sol": {
-      "lastModificationDate": 1764502733894,
-      "contentHash": "c5e7adc66ae2e1f2f6e9ce2feb6665d9",
+      "lastModificationDate": 1764521887046,
+      "contentHash": "00b197a48a1088cb419f51a98fcbf4ee",
       "sourceName": "src/contracts/Finance.sol",
       "solcConfig": {
         "version": "0.8.24",

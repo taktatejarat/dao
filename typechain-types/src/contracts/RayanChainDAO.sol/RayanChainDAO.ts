@@ -79,6 +79,7 @@ export interface RayanChainDAOInterface extends Interface {
       | "quorumPercentage"
       | "renounceOwnership"
       | "setStartupAccessTokenAddress"
+      | "setVotingPeriod"
       | "stakingContract"
       | "startupAccessTokenAddress"
       | "submitFundingProposal"
@@ -215,6 +216,10 @@ export interface RayanChainDAOInterface extends Interface {
     values: [AddressLike]
   ): string;
   encodeFunctionData(
+    functionFragment: "setVotingPeriod",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
     functionFragment: "stakingContract",
     values?: undefined
   ): string;
@@ -337,6 +342,10 @@ export interface RayanChainDAOInterface extends Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "setStartupAccessTokenAddress",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setVotingPeriod",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -780,6 +789,12 @@ export interface RayanChainDAO extends BaseContract {
     "nonpayable"
   >;
 
+  setVotingPeriod: TypedContractMethod<
+    [_newPeriod: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
+
   stakingContract: TypedContractMethod<[], [string], "view">;
 
   startupAccessTokenAddress: TypedContractMethod<[], [string], "view">;
@@ -1010,6 +1025,9 @@ export interface RayanChainDAO extends BaseContract {
   getFunction(
     nameOrSignature: "setStartupAccessTokenAddress"
   ): TypedContractMethod<[_address: AddressLike], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "setVotingPeriod"
+  ): TypedContractMethod<[_newPeriod: BigNumberish], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "stakingContract"
   ): TypedContractMethod<[], [string], "view">;

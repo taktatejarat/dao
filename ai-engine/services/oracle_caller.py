@@ -94,3 +94,13 @@ def update_proposal_risk_score(proposal_id: int, risk_score: int):
     print(f"[ORACLE] Updating On-Chain Risk Score for Proposal ID {proposal_id}: Score {risk_score}")
     # تبدیل به int جهت اطمینان
     send_transaction('updateProposalRiskScore', [int(proposal_id), int(risk_score)])
+
+
+def update_participation_score(user_address: str, score: int):
+    """
+    ارسال امتیاز مشارکت به قرارداد DAO.
+    """
+    print(f"[ORACLE] Updating Participation Score for {user_address}: {score}")
+    # آدرس کاربر باید به فرمت Checksum باشد
+    checksum_addr = w3.to_checksum_address(user_address)
+    send_transaction('updateParticipationScore', [checksum_addr, int(score)])

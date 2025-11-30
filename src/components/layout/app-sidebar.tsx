@@ -116,13 +116,6 @@ export function AppSidebar() {
 
     const settingsItems: NavItem[] = [
       {
-        href: "/setup",
-        icon: Server,
-        label: t('sidebar.platform_setup'),
-        active: pathname.startsWith('/setup'),
-        roles: ['admin'],
-      },
-      {
         href: "/profile",
         icon: User,
         label: t('sidebar.user_profile'),

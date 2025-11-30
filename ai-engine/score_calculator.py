@@ -1,65 +1,51 @@
-# ai-engine/score_calculator.py - Mock AI Model for User Behavior Analysis (B(u) / PoP Score)
+# ai-engine/score_calculator.py
 
-from typing import Dict, Any, Optional
+import math
 
-# Mock weights for Participation Score (Simulating XGBoost/Eq. 13)
-POP_WEIGHTS = {
-    "num_votes_cast": 0.4,        # High weight for active voting
-    "vote_accuracy_rate": 0.3,    # High weight for voting on successful/low-risk proposals
-    "delegated_power": 0.2,       # Weight for reputation/trust
-    "time_since_last_vote_days": -0.1, # Penalty for inactivity
-}
-
-def calculate_pop_score(user_address: str, user_history: Dict[str, Any]) -> int:
+def calculate_pop_score(user_profile: dict, governance_history: dict = None) -> int:
     """
-    Calculates the Proof of Participation (PoP) Score for a user based on their historical activity.
-    The score should be a normalized value, e.g., between 0 and 1000 (matching RayanChainDAO.sol).
+    محاسبه امتیاز اثبات مشارکت (PoP) برای مکانیزم اجماع هیبریدی.
+    این امتیاز (0 تا 50) به عنوان درصد به قدرت رأی dPoS اضافه می‌شود.
     
-    Args:
-        user_address: The wallet address of the user.
-        user_history: Dictionary of on-chain and off-chain data (e.g., vote history, stake time).
+    فرمول: PoP = (وزن_فعالیت * امتیاز_فعالیت) + (وزن_حاکمیت * امتیاز_حاکمیت) + (وزن_زمان * امتیاز_زمان)
+    """
+    
+    # 1. فاکتور اثبات فعالیت (PoA - Proof of Activity)
+    # فعالیت در شبکه (تراکنش‌ها) نشان‌دهنده زنده بودن کاربر است.
+    tx_count = user_profile.get('transaction_count', 0)
+    
+    # امتیاز فعالیت (لگاریتمی): کسی که 100 تراکنش دارد خیلی بهتر از 1 است، اما 1000 تفاوت زیادی با 100 ندارد.
+    activity_score = 0
+    if tx_count > 0:
+        activity_score = min(20, 4 * math.log2(tx_count + 1))
+    
+    # 2. فاکتور اثبات مشارکت (PoP - Governance Participation)
+    # آیا کاربر در پروپوزال‌های قبلی رأی داده است؟
+    # (در حال حاضر این داده را نداریم، پس از یک متغیر simple استفاده می‌کنیم یا در آینده از گراف می‌خوانیم)
+    votes_cast = governance_history.get('total_votes_cast', 0) if governance_history else 0
+    vote_accuracy = governance_history.get('successful_votes', 0) if governance_history else 0
+    
+    governance_score = 0
+    if votes_cast > 0:
+        # پاداش برای تعداد آرا (حداکثر 15 امتیاز)
+        quantity_points = min(15, votes_cast * 2)
+        # پاداش برای رأی دادن به پروپوزال‌های موفق (کیفیت رأی)
+        quality_ratio = vote_accuracy / votes_cast if votes_cast > 0 else 0
+        quality_points = quality_ratio * 5
         
-    Returns:
-        int: The normalized PoP Score (e.g., 0-1000).
-    """
-    
-    # --- 1. Feature Extraction (Simulated) ---
-    num_votes = user_history.get("num_votes_cast", 0)
-    success_rate = user_history.get("vote_accuracy_rate", 0.5) # Default to 50%
-    delegated_stake = user_history.get("delegated_power", 0) / 1e18 # Normalize stake
-    inactivity_days = user_history.get("time_since_last_vote_days", 0)
+        governance_score = quantity_points + quality_points
 
-    # --- 2. Score Calculation (Simulating XGBoost/Eq. 13) ---
-    
-    # Base score determined by number of votes
-    base_score = min(num_votes * 100, 500) # Max 500 points from volume
-    
-    # Quality of vote: Max 300 points from accuracy
-    quality_score = int(success_rate * 300)
-    
-    # Reputation score: Max 200 points from delegated power (trust)
-    reputation_score = min(int(delegated_stake / 100000 * 200), 200) # Assuming 100k RYC = max rep score
-    
-    # Inactivity penalty
-    inactivity_penalty = min(inactivity_days * 5, 200)
-    
-    pop_score = base_score + quality_score + reputation_score - inactivity_penalty
-    
-    # --- 3. Normalization ---
-    
-    # Normalize to a 0-1000 range (The range the smart contract expects)
-    normalized_pop = min(max(0, pop_score), 1000)
+    # 3. فاکتور وفاداری (Stake Duration / HODL Score)
+    # این بخش مکمل dPoS است. dPoS به "مقدار" اهمیت می‌دهد، اینجا به "رفتار نگهداری" اهمیت می‌دهیم.
+    # اگر کاربر موجودی خود را مدت طولانی نگه داشته (کم‌نوسان است).
+    # فعلاً بر اساس موجودی Native ساده‌سازی می‌کنیم
+    balance = user_profile.get('native_balance', 0)
+    loyalty_score = min(10, balance * 0.5)
 
-    return normalized_pop
-
-if __name__ == '__main__':
-    # Example usage for testing
-    test_user_history = {
-        "num_votes_cast": 15,
-        "vote_accuracy_rate": 0.85, # 85% of votes were on successful proposals
-        "delegated_power": 50000000000000000000000, # 50,000 RYC
-        "time_since_last_vote_days": 10,
-    }
+    # --- محاسبه نهایی ---
+    # حداکثر امتیاز: 20 (فعالیت) + 20 (حاکمیت) + 10 (وفاداری) = 50
+    # این عدد به عنوان درصد بوست (Boost) روی dPoS اعمال می‌شود.
+    final_pop_score = int(activity_score + governance_score + loyalty_score)
     
-    score = calculate_pop_score("0xTestUserAddress", test_user_history)
-    print(f"User Participation Score (PoP): {score}/1000")
+    # سقف امتیاز 50 (یعنی حداکثر 50% افزایش قدرت رأی)
+    return min(50, final_pop_score)

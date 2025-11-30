@@ -182,6 +182,19 @@
     },
     {
       "inputs": [],
+      "name": "clientFeeBps",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
       "name": "daoAddress",
       "outputs": [
         {
@@ -290,7 +303,7 @@
     },
     {
       "inputs": [],
-      "name": "platformFeeBps",
+      "name": "protocolFeeBps",
       "outputs": [
         {
           "internalType": "uint256",

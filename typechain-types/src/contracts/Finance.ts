@@ -26,10 +26,9 @@ import type {
 export interface FinanceInterface extends Interface {
   getFunction(
     nameOrSignature:
-      | "CLIENT_FEE_BPS"
-      | "PROTOCOL_FEE_BPS"
       | "UPGRADE_INTERFACE_VERSION"
       | "accControl"
+      | "clientFeeBps"
       | "clientWallet"
       | "daoAddress"
       | "depositInvestment"
@@ -38,7 +37,7 @@ export interface FinanceInterface extends Interface {
       | "investments"
       | "investorBalances"
       | "owner"
-      | "platformFeeBps"
+      | "protocolFeeBps"
       | "protocolWallet"
       | "proxiableUUID"
       | "refundInvestment"
@@ -47,6 +46,7 @@ export interface FinanceInterface extends Interface {
       | "releaseNextMilestone"
       | "renounceOwnership"
       | "setDaoAddress"
+      | "setFeeConfiguration"
       | "setFeeWallets"
       | "token"
       | "transferOwnership"
@@ -75,19 +75,15 @@ export interface FinanceInterface extends Interface {
   ): EventFragment;
 
   encodeFunctionData(
-    functionFragment: "CLIENT_FEE_BPS",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "PROTOCOL_FEE_BPS",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
     functionFragment: "UPGRADE_INTERFACE_VERSION",
     values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "accControl",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "clientFeeBps",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -120,7 +116,7 @@ export interface FinanceInterface extends Interface {
   ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "platformFeeBps",
+    functionFragment: "protocolFeeBps",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -156,6 +152,10 @@ export interface FinanceInterface extends Interface {
     values: [AddressLike]
   ): string;
   encodeFunctionData(
+    functionFragment: "setFeeConfiguration",
+    values: [BigNumberish, BigNumberish]
+  ): string;
+  encodeFunctionData(
     functionFragment: "setFeeWallets",
     values: [AddressLike, AddressLike]
   ): string;
@@ -178,18 +178,14 @@ export interface FinanceInterface extends Interface {
   ): string;
 
   decodeFunctionResult(
-    functionFragment: "CLIENT_FEE_BPS",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "PROTOCOL_FEE_BPS",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "UPGRADE_INTERFACE_VERSION",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "accControl", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "clientFeeBps",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "clientWallet",
     data: BytesLike
@@ -214,7 +210,7 @@ export interface FinanceInterface extends Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "platformFeeBps",
+    functionFragment: "protocolFeeBps",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -247,6 +243,10 @@ export interface FinanceInterface extends Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "setDaoAddress",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setFeeConfiguration",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -551,13 +551,11 @@ export interface Finance extends BaseContract {
     event?: TCEvent
   ): Promise<this>;
 
-  CLIENT_FEE_BPS: TypedContractMethod<[], [bigint], "view">;
-
-  PROTOCOL_FEE_BPS: TypedContractMethod<[], [bigint], "view">;
-
   UPGRADE_INTERFACE_VERSION: TypedContractMethod<[], [string], "view">;
 
   accControl: TypedContractMethod<[], [string], "view">;
+
+  clientFeeBps: TypedContractMethod<[], [bigint], "view">;
 
   clientWallet: TypedContractMethod<[], [string], "view">;
 
@@ -615,7 +613,7 @@ export interface Finance extends BaseContract {
 
   owner: TypedContractMethod<[], [string], "view">;
 
-  platformFeeBps: TypedContractMethod<[], [bigint], "view">;
+  protocolFeeBps: TypedContractMethod<[], [bigint], "view">;
 
   protocolWallet: TypedContractMethod<[], [string], "view">;
 
@@ -629,13 +627,13 @@ export interface Finance extends BaseContract {
 
   registerInvestment: TypedContractMethod<
     [
-      _proposalId: BigNumberish,
-      _recipient: AddressLike,
-      _totalAmount: BigNumberish,
-      _milestoneCount: BigNumberish
+      arg0: BigNumberish,
+      arg1: AddressLike,
+      arg2: BigNumberish,
+      arg3: BigNumberish
     ],
     [void],
-    "nonpayable"
+    "view"
   >;
 
   releaseFunds: TypedContractMethod<
@@ -654,6 +652,12 @@ export interface Finance extends BaseContract {
 
   setDaoAddress: TypedContractMethod<
     [_daoAddress: AddressLike],
+    [void],
+    "nonpayable"
+  >;
+
+  setFeeConfiguration: TypedContractMethod<
+    [_protocolFeeBps: BigNumberish, _clientFeeBps: BigNumberish],
     [void],
     "nonpayable"
   >;
@@ -695,17 +699,14 @@ export interface Finance extends BaseContract {
   ): T;
 
   getFunction(
-    nameOrSignature: "CLIENT_FEE_BPS"
-  ): TypedContractMethod<[], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "PROTOCOL_FEE_BPS"
-  ): TypedContractMethod<[], [bigint], "view">;
-  getFunction(
     nameOrSignature: "UPGRADE_INTERFACE_VERSION"
   ): TypedContractMethod<[], [string], "view">;
   getFunction(
     nameOrSignature: "accControl"
   ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "clientFeeBps"
+  ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
     nameOrSignature: "clientWallet"
   ): TypedContractMethod<[], [string], "view">;
@@ -771,7 +772,7 @@ export interface Finance extends BaseContract {
     nameOrSignature: "owner"
   ): TypedContractMethod<[], [string], "view">;
   getFunction(
-    nameOrSignature: "platformFeeBps"
+    nameOrSignature: "protocolFeeBps"
   ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
     nameOrSignature: "protocolWallet"
@@ -790,13 +791,13 @@ export interface Finance extends BaseContract {
     nameOrSignature: "registerInvestment"
   ): TypedContractMethod<
     [
-      _proposalId: BigNumberish,
-      _recipient: AddressLike,
-      _totalAmount: BigNumberish,
-      _milestoneCount: BigNumberish
+      arg0: BigNumberish,
+      arg1: AddressLike,
+      arg2: BigNumberish,
+      arg3: BigNumberish
     ],
     [void],
-    "nonpayable"
+    "view"
   >;
   getFunction(
     nameOrSignature: "releaseFunds"
@@ -814,6 +815,13 @@ export interface Finance extends BaseContract {
   getFunction(
     nameOrSignature: "setDaoAddress"
   ): TypedContractMethod<[_daoAddress: AddressLike], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "setFeeConfiguration"
+  ): TypedContractMethod<
+    [_protocolFeeBps: BigNumberish, _clientFeeBps: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
   getFunction(
     nameOrSignature: "setFeeWallets"
   ): TypedContractMethod<

@@ -1,130 +1,132 @@
-# ai-engine/main.py (نسخه نهایی)
+# ai-engine/main.py
 
 from fastapi import FastAPI, HTTPException
 import httpx 
 from pydantic import BaseModel 
 
-# ✅ اصلاح ایمپورت‌ها (حذف وابستگی به فایل روت)
 from config import AI_ORACLE_ADDRESS
 from layers.layer_1_security import analyze_user_behavior
 from layers.layer_2_optimizer import analyze_for_gas_optimizations 
 from layers.layer_3_financial import generate_financial_report
 from layers.layer_5_integration import generate_final_investability_score
-
-# ✅ اشاره دقیق به services
 from services.oracle_caller import update_proposal_risk_score
+from services.blockchain_reader import get_user_onchain_profile
+from score_calculator import calculate_pop_score
+from services.oracle_caller import update_participation_score
+
 
 NODE_API_BASE_URL = "http://localhost:3000/api"
 
-app = FastAPI(
-    title="RayanChain AI Engine (AIPoX)",
-    description="A multi-layer AI service for decentralized venture capital analysis."
-)
+app = FastAPI(title="RayanChain AI Engine (AIPoX)")
 
 @app.get("/")
 def health_check():
     return {"service": "RayanChain AI Engine", "status": "running", "oracle_address": AI_ORACLE_ADDRESS}
 
+# --- 1. User Analytics (روت گمشده اضافه شد) ---
+@app.get("/analytics/user/{user_address}")
+async def get_user_analytics(user_address: str):
+    try:
+        print(f"[API] Analyzing user: {user_address}")
+        
+        # 1. خواندن داده واقعی
+        real_profile = get_user_onchain_profile(user_address)
+        
+        # 2. تحلیل (ارسال مستقیم دیکشنری)
+        report = analyze_user_behavior(real_profile)
+        
+        # 3. افزودن آدرس
+        report['user_address'] = user_address
+        
+        return report
+    except Exception as e:
+        print(f"[API ERROR] User analytics failed: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+# --- 2. Proposal Risk Analysis ---
 @app.post("/action/trigger-risk-analysis/{proposal_id}")
 async def trigger_risk_analysis(proposal_id: str):
     try:
-        print(f"[API] Trigger received for proposal {proposal_id}")
+        print(f"[API] Analyzing proposal: {proposal_id}")
         
-        # 1. دریافت داده‌ها
         async with httpx.AsyncClient() as client:
             response = await client.get(f"{NODE_API_BASE_URL}/proposals/{proposal_id}")
             response.raise_for_status()
             proposal_data = response.json().get('data', {})
 
         if not proposal_data:
-            raise ValueError(f"Proposal data not found for ID {proposal_id}")
+            raise ValueError("Proposal data not found")
 
-        # 2. تحلیل
+        # تحلیل مالی
         financial_report = generate_financial_report(proposal_data)
-        mock_user_history = [{'amount': 1000, 'gas_used': 50000}] 
-        security_report = analyze_user_behavior(mock_user_history)
         
-        # تولید امتیاز نهایی
+        # تحلیل امنیتی (بر اساس آدرس سازنده پروپوزال)
+        proposer_address = proposal_data.get('proposerAddress')
+        if proposer_address:
+            # استفاده از داده واقعی سازنده
+            real_profile = get_user_onchain_profile(proposer_address)
+            security_report = analyze_user_behavior([real_profile])
+        else:
+            # فال‌بک
+            security_report = analyze_user_behavior([{'amount': 0, 'gas_used': 0}])
+        
+        # ترکیب نتایج (امتیاز نهایی)
         final_report = generate_final_investability_score(financial_report, security_report)
-        
-        # استخراج امتیاز نهایی (Investability Score)
-        # این امتیاز (0-100) نشان‌دهنده کیفیت پروژه است (100 = عالی)
         final_score = final_report.get('investability_score', 0)
 
-        # 3. ارسال به بلاکچین
-        # نکته: ما باید مطمئن شویم که آیا قرارداد امتیاز "کیفیت" می‌خواهد یا امتیاز "ریسک"؟
-        # اگر قرارداد Risk Score می‌خواهد (یعنی 100 = پرخطر)، باید معکوس کنیم: (100 - final_score)
-        # اما معمولاً در DAO، امتیاز بالاتر بهتر است. فرض بر امتیاز کیفیت است.
-        
+        # ارسال به بلاکچین
         on_chain_id = proposal_data.get('proposalIdOnChain')
         if on_chain_id:
-            print(f"[API] Sending score {final_score} to on-chain ID {on_chain_id}")
-            # فراخوانی تابعی که در services/oracle_caller است
             update_proposal_risk_score(int(on_chain_id), int(final_score))
-        else:
-            print(f"[API WARN] On-chain ID missing for proposal {proposal_id}. Skipping blockchain update.")
-
-        # بازگشت نتیجه به Node.js برای ذخیره در دیتابیس
+        
         return final_report
 
     except Exception as e:
         print(f"[API ERROR] trigger_risk_analysis failed: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.get("/reports/proposal/{proposal_id}")
-async def get_full_proposal_report(proposal_id: str):
-    """
-    یک گزارش تحلیلی کامل و جامع برای نمایش در داشبورد فرانت‌اند تولید می‌کند.
-    """
-    try:
-        async with httpx.AsyncClient() as client:
-            # ۱. دریافت داده‌های کامل پروپوزال از API بک‌اند Node.js
-            response = await client.get(f"{NODE_API_BASE_URL}/proposals/{proposal_id}")
-            response.raise_for_status()
-            proposal_data = response.json().get('data', {})
-        
-        if not proposal_data:
-            raise HTTPException(status_code=404, detail="Proposal not found")
-
-        # ۲. اجرای تحلیل‌های لایه‌های مختلف
-        financial_report = generate_financial_report(proposal_data)
-        mock_user_history = [{'amount': 1000, 'gas_used': 50000}] # داده موقت
-        security_report = analyze_user_behavior(mock_user_history)
-        final_score_report = generate_final_investability_score(financial_report, security_report)
-        
-        # ۳. ترکیب تمام گزارش‌ها در یک پاسخ جامع
-        full_report = {
-            "proposalId": proposal_id,
-            "projectName": proposal_data.get("projectName"),
-            "summary": final_score_report,
-            "financialAnalysis": financial_report,
-            "securityAnalysis": security_report,
-        }
-        # ❌ حذف کد اضافی برای ذخیره گزارش. این تابع فقط برای خواندن است.
-        return full_report
-
-    except Exception as e:
-        print(f"ERROR in get_full_proposal_report for proposal {proposal_id}: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
-    
-
-# ✅ تعریف مدل ورودی برای اعتبارسنجی
 class ContractCode(BaseModel):
     code: str
 
+@app.post("/action/update-user-score/{user_address}")
+async def update_user_consensus_score(user_address: str):
+    try:
+        print(f"[CONSENSUS] Calculating PoP score for: {user_address}")
+        
+        # 1. خواندن داده‌های واقعی
+        profile = get_user_onchain_profile(user_address)
+        
+        # 2. شبیه‌سازی داده‌های حاکمیتی (چون هنوز دیتابیس گراف نداریم)
+        # در نسخه نهایی این را از دیتابیس MongoDB (کالکشن Votes) می‌خوانیم
+        mock_governance = {
+            "total_votes_cast": int(profile.get('transaction_count', 0) / 5), # فرض: 20% تراکنش‌ها رأی بوده
+            "successful_votes": int(profile.get('transaction_count', 0) / 10)
+        }
+        
+        # 3. محاسبه امتیاز
+        pop_score = calculate_pop_score(profile, mock_governance)
+        
+        # 4. ارسال به بلاکچین
+        # تنها در صورتی آپدیت می‌کنیم که امتیاز قابل توجه باشد (صرفه‌جویی در Gas)
+        if pop_score > 0:
+            print(f"[CONSENSUS] Sending PoP Score {pop_score} to DAO for {user_address}")
+            update_participation_score(user_address, pop_score)
+            return {"status": "updated", "score": pop_score, "tx": "sent"}
+        else:
+            return {"status": "skipped", "score": pop_score, "reason": "low_score"}
+
+    except Exception as e:
+        print(f"[CONSENSUS ERROR] {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/analytics/contract")
 async def analyze_contract_code(contract: ContractCode):
-    """
-    کد Solidity را دریافت کرده و پیشنهاداتی برای بهینه‌سازی برمی‌گرداند.
-    """
     try:
         print(f"--- [AI-ENGINE] Starting contract analysis for code snippet (length: {len(contract.code)}) ---")
         
         if not contract.code or len(contract.code) < 50:
             raise HTTPException(status_code=400, detail="Contract code is too short for analysis.")
 
-        # ✅ FIX: فراخوانی تابع تحلیل با مدیریت خطا
         suggestions = analyze_for_gas_optimizations(contract.code)
         
         print(f"--- [AI-ENGINE] Contract analysis complete. Found {len(suggestions)} suggestions. ---")
@@ -132,9 +134,7 @@ async def analyze_contract_code(contract: ContractCode):
         return suggestions
 
     except HTTPException as http_err:
-        # خطاهای HTTP را دوباره throw می‌کنیم
         raise http_err
     except Exception as e:
-        # سایر خطاها را لاگ کرده و یک خطای عمومی برمی‌گردانیم
         print(f"CRITICAL ERROR in analyze_contract_code: {e}")
         raise HTTPException(status_code=500, detail="An unexpected error occurred during contract analysis.")

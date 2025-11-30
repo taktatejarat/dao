@@ -1,11 +1,12 @@
-# requirements.txt
-web3
-python-dotenv
-numpy
-pandas
-scikit-learn
 fastapi
 uvicorn
+web3
+python-dotenv
+pandas
+numpy
+scikit-learn
 xgboost
-httpx[http2]
-joblib
+httpx
+pydantic
+pdfplumber
+textblob

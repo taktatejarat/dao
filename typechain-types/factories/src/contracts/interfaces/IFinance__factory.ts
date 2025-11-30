@@ -188,6 +188,19 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "clientFeeBps",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
     name: "daoAddress",
     outputs: [
       {
@@ -245,7 +258,7 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "platformFeeBps",
+    name: "protocolFeeBps",
     outputs: [
       {
         internalType: "uint256",

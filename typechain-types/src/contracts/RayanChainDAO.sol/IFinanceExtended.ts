@@ -26,11 +26,12 @@ import type {
 export interface IFinanceExtendedInterface extends Interface {
   getFunction(
     nameOrSignature:
+      | "clientFeeBps"
       | "daoAddress"
       | "depositInvestment"
       | "finalizeInvestment"
       | "investments"
-      | "platformFeeBps"
+      | "protocolFeeBps"
       | "refundInvestment"
       | "registerInvestment"
       | "releaseFunds"
@@ -54,6 +55,10 @@ export interface IFinanceExtendedInterface extends Interface {
   ): EventFragment;
 
   encodeFunctionData(
+    functionFragment: "clientFeeBps",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "daoAddress",
     values?: undefined
   ): string;
@@ -70,7 +75,7 @@ export interface IFinanceExtendedInterface extends Interface {
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
-    functionFragment: "platformFeeBps",
+    functionFragment: "protocolFeeBps",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -102,6 +107,10 @@ export interface IFinanceExtendedInterface extends Interface {
     values: [AddressLike, BigNumberish]
   ): string;
 
+  decodeFunctionResult(
+    functionFragment: "clientFeeBps",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "daoAddress", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "depositInvestment",
@@ -116,7 +125,7 @@ export interface IFinanceExtendedInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "platformFeeBps",
+    functionFragment: "protocolFeeBps",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -325,6 +334,8 @@ export interface IFinanceExtended extends BaseContract {
     event?: TCEvent
   ): Promise<this>;
 
+  clientFeeBps: TypedContractMethod<[], [bigint], "view">;
+
   daoAddress: TypedContractMethod<[], [string], "view">;
 
   depositInvestment: TypedContractMethod<
@@ -359,7 +370,7 @@ export interface IFinanceExtended extends BaseContract {
     "view"
   >;
 
-  platformFeeBps: TypedContractMethod<[], [bigint], "view">;
+  protocolFeeBps: TypedContractMethod<[], [bigint], "view">;
 
   refundInvestment: TypedContractMethod<
     [_proposalId: BigNumberish, _investor: AddressLike],
@@ -413,6 +424,9 @@ export interface IFinanceExtended extends BaseContract {
   ): T;
 
   getFunction(
+    nameOrSignature: "clientFeeBps"
+  ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
     nameOrSignature: "daoAddress"
   ): TypedContractMethod<[], [string], "view">;
   getFunction(
@@ -451,7 +465,7 @@ export interface IFinanceExtended extends BaseContract {
     "view"
   >;
   getFunction(
-    nameOrSignature: "platformFeeBps"
+    nameOrSignature: "protocolFeeBps"
   ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
     nameOrSignature: "refundInvestment"

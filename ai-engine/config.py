@@ -31,16 +31,25 @@ except (json.JSONDecodeError, TypeError) as e:
     DAO_ABI = []
     REGISTRY_ABI = [] # مقداردهی اولیه به آرایه خالی در صورت خطا
 
-# ✅✅✅ FIX: بررسی متغیرهای حیاتی (REGISTRY_ABI دیگر اینجا نیست) ✅✅✅
+#  FIX: بررسی متغیرهای حیاتی (REGISTRY_ABI دیگر اینجا نیست) 
 if not all([RPC_URL, AI_ORACLE_PRIVATE_KEY, DAO_REGISTRY_ADDRESS, DAO_ABI]):
     raise EnvironmentError(
         "FATAL: Missing critical AI Oracle configurations in .env file. "
         "Required: AMOY_RPC_URL, AI_ORACLE_PRIVATE_KEY, NEXT_PUBLIC_REGISTRY_ADDRESS, RAYAN_CHAIN_DAO_ABI"
     )
 
-# --- نمونه‌سازی Web3 ---
+# اتصال به وب۳
 w3 = Web3(Web3.HTTPProvider(RPC_URL))
-AI_ORACLE_ACCOUNT = w3.eth.account.from_key(AI_ORACLE_PRIVATE_KEY)
-AI_ORACLE_ADDRESS = AI_ORACLE_ACCOUNT.address
 
-print(f"[CONFIG] AI Oracle configured successfully for address: {AI_ORACLE_ADDRESS}")
+if AI_ORACLE_PRIVATE_KEY:
+    try:
+        AI_ORACLE_ACCOUNT = w3.eth.account.from_key(AI_ORACLE_PRIVATE_KEY)
+        AI_ORACLE_ADDRESS = AI_ORACLE_ACCOUNT.address
+    except:
+        print("[CONFIG WARN] Invalid Private Key")
+        AI_ORACLE_ADDRESS = None
+else:
+    AI_ORACLE_ADDRESS = None
+    print("[CONFIG WARN] AI Oracle Private Key missing")
+
+print(f"[CONFIG] AI Engine Configured. Oracle: {AI_ORACLE_ADDRESS}, RPC: {RPC_URL}")

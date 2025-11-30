@@ -1,4 +1,4 @@
-// src/contracts/RayanChainDAO.sol (نسخه اصلاح شده و کامل)
+// src/contracts/RayanChainDAO.sol
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
@@ -11,7 +11,6 @@ import "./interfaces/IStaking.sol";
 import "./interfaces/IFinance.sol";
 import "./TimelockController.sol"; 
 
-// تعریف اینترفیس جدید Finance برای دسترسی به توابع جدید
 interface IFinanceExtended is IFinance {
     function depositInvestment(uint256 _proposalId, address _investor, uint256 _amount) external;
     function finalizeInvestment(uint256 _proposalId, address _recipient, uint256 _totalRaised, uint8 _milestoneCount) external;
@@ -20,12 +19,11 @@ interface IFinanceExtended is IFinance {
 
 contract RayanChainDAO is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, UUPSUpgradeable {
     
-    // Enum ها به روز شده
     enum ProposalState { Pending, Validation, Voting, Approved, Rejected, Executed, Expired, Cancelled, Funding, Funded, FundingFailed } 
     enum ProposalType { Funding, TreasuryAction, GrantRole, MilestoneRelease }
     enum VoteType { For, Against }
     enum TokenType { Native, RYC }
-    string public constant VERSION = "3.0.0_INVESTMENT_FIXED"; 
+    string public constant VERSION = "3.1.0_STABLE"; 
 
     struct Milestone {
         string name;
@@ -42,7 +40,7 @@ contract RayanChainDAO is Initializable, OwnableUpgradeable, ReentrancyGuardUpgr
         address proposer;
         bytes32 descriptionHash;
         address payable recipient;
-        uint256 amount; // Hard Cap
+        uint256 amount; 
         TokenType tokenType;
         uint256 creationTime;
         uint256 votingDeadline;
@@ -55,8 +53,6 @@ contract RayanChainDAO is Initializable, OwnableUpgradeable, ReentrancyGuardUpgr
         uint256 aiRiskScore;
         uint256 requiredApprovalThreshold;
         bytes32 roleToGrant;
-        
-        // Investment Fields
         uint256 totalRaised;      
         uint256 softCap;          
         uint256 fundingDeadline;  
@@ -77,11 +73,9 @@ contract RayanChainDAO is Initializable, OwnableUpgradeable, ReentrancyGuardUpgr
     uint256 public quorumPercentage;
     uint256 public approvalThresholdPercentage;
     
-    // Constants
     uint256 public constant FUNDING_DURATION = 15 days; 
     uint256 public constant SOFT_CAP_PERCENT = 51; 
 
-    // Events
     event ProposalCreated(uint256 id, address proposer, ProposalType pType, bytes32 descriptionHash); 
     event Voted(uint256 proposalId, address voter, VoteType vote, uint256 weight);
     event ParticipationScoreUpdated(address indexed user, uint256 newScore);
@@ -121,15 +115,19 @@ contract RayanChainDAO is Initializable, OwnableUpgradeable, ReentrancyGuardUpgr
         nextProposalId = 1;
     }
 
-
     function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
+    
+    // ✅ NEW: تابع تغییر زمان رأی‌گیری (برای صفحه تنظیمات)
+    function setVotingPeriod(uint256 _newPeriod) external onlyOwner {
+        require(_newPeriod >= 60, "Period too short");
+        votingPeriod = _newPeriod;
+    }
 
-    // --- Proposal Creation ---
+    // --- Proposal Creation Functions ---
     function submitFundingProposal(bytes32 _descriptionHash, address payable _recipient, Milestone[] memory _milestones) external {
-        require(stakingContract.votingPower(msg.sender) > 0, "Must have voting power");
-        require(_milestones.length > 0, "No milestones");
+        require(stakingContract.votingPower(msg.sender) > 0, "DAO: Must have voting power");
+        require(_milestones.length > 0, "At least one milestone is required");
 
-        // محاسبه Hard Cap
         uint256 totalRequested = 0;
         for (uint i = 0; i < _milestones.length; i++) {
             totalRequested += _milestones[i].amount;
@@ -138,7 +136,6 @@ contract RayanChainDAO is Initializable, OwnableUpgradeable, ReentrancyGuardUpgr
         uint256 proposalId = _createProposal(ProposalType.Funding, _descriptionHash, _recipient, totalRequested, TokenType.RYC);
         Proposal storage p = proposals[proposalId];
         
-        // تنظیم Soft Cap
         p.softCap = (totalRequested * SOFT_CAP_PERCENT) / 100;
 
         for (uint i = 0; i < _milestones.length; i++) {
@@ -153,20 +150,19 @@ contract RayanChainDAO is Initializable, OwnableUpgradeable, ReentrancyGuardUpgr
             msg.sender == original.proposer || msg.sender == original.recipient || accControl.hasRole(accControl.DEFAULT_ADMIN_ROLE(), msg.sender), 
             "Access Denied: Not authorized"
         );
-        require(original.state == ProposalState.Funded, "Project not in Funded state"); // ✅ شرط جدید
+        require(original.state == ProposalState.Funded, "Project not in Funded state");
 
         uint256 id = _createProposal(ProposalType.MilestoneRelease, _descriptionHash, payable(original.recipient), _originalProposalId, TokenType.RYC);
         proposals[id].milestones.push(Milestone({
             name: "Release", durationDays: 0, amount: 0, state: ProposalState.Pending, proofOfProgressHash: _proofHash, released: false
         }));
     }
-
-    // ✅ NEW: ایجاد پروپوزال برای اعطای نقش (برای غیرمتمرکزسازی اعطای نقش)
+    
     function createGrantRoleProposal(bytes32 _descriptionHash, address _recipient, bytes32 _roleToGrant) external onlyRole(accControl.DAO_MEMBER_ROLE()) {
         uint256 id = _createProposal(ProposalType.GrantRole, _descriptionHash, payable(_recipient), 0, TokenType.RYC);
         proposals[id].roleToGrant = _roleToGrant;
     }
-    
+
     function createTreasuryActionProposal(bytes32 _descriptionHash, address payable _recipient, uint256 _amount, TokenType _tokenType) external onlyRole(accControl.DEFAULT_ADMIN_ROLE()) {
         _createProposal(ProposalType.TreasuryAction, _descriptionHash, _recipient, _amount, _tokenType);
     }
@@ -185,80 +181,47 @@ contract RayanChainDAO is Initializable, OwnableUpgradeable, ReentrancyGuardUpgr
         p.votingDeadline = block.timestamp + votingPeriod;
         p.state = ProposalState.Voting;
         emit ProposalCreated(id, msg.sender, _pType, _descriptionHash);
+        emit ProposalStateChanged(id, ProposalState.Voting);
         return id;
     }
-    
-    // --- Voting Logic --- 
+
     function vote(uint256 _proposalId, VoteType _voteType) external nonReentrant {
         Proposal storage p = proposals[_proposalId];
-        require(p.state == ProposalState.Voting, "Proposal not in voting state");
-        require(block.timestamp <= p.votingDeadline, "Voting period has ended");
+        require(p.state == ProposalState.Voting, "Not in voting state");
+        require(block.timestamp <= p.votingDeadline, "Voting ended");
         require(!hasVoted[_proposalId][msg.sender], "Already voted");
+        
+        uint256 power = IStaking(stakingContract).votingPower(msg.sender);
+        require(power > 0, "No voting power");
 
-        // baseVotingPower: مقدار رسمیِ رأی از قرارداد استیکینگ (staked + delegated مطابق قرارداد استیکینگ)
-        uint256 baseVotingPower = IStaking(stakingContract).votingPower(msg.sender);
-        require(baseVotingPower > 0, "Must have voting power to vote");
-
-        uint256 participationScore = participationScores[msg.sender]; // PoP score
-        // اعمال modifier مشارکت بر روی کل توان رأی
-        uint256 effectiveVotingPower = baseVotingPower * (100 + participationScore) / 100;
-
+        uint256 score = participationScores[msg.sender];
+        uint256 effective = power * (100 + score) / 100;
+        
         hasVoted[_proposalId][msg.sender] = true;
-
-        if (_voteType == VoteType.For) {
-            p.forVotes += effectiveVotingPower;
-        } else {
-            p.againstVotes += effectiveVotingPower;
-        }
-
-        emit Voted(_proposalId, msg.sender, _voteType, effectiveVotingPower);
+        if (_voteType == VoteType.For) p.forVotes += effective;
+        else p.againstVotes += effective;
+        
+        emit Voted(_proposalId, msg.sender, _voteType, effective);
     }
-    
-    // --- Proposal Execution ---
+
     function tallyVotes(uint256 _proposalId) public {
         Proposal storage p = proposals[_proposalId];
-
-        require(p.state == ProposalState.Voting, "Proposal not in voting state");
-        require(block.timestamp > p.votingDeadline, "Voting period not yet ended");
-
-        // *** اصلاح اول: استفاده از مجموع واقعی قدرت رأی ***
-        uint256 totalVotingPower = IStaking(stakingContract).totalVotingPower();
-
-        // *** جلوگیری از تقسیم بر صفر ***
-        require(totalVotingPower > 0, "DAO: No voting power in system");
-
-        uint256 totalVotes = p.forVotes + p.againstVotes;
-
-        // اگر حتی یک رأی هم ثبت نشده باشد → رد شود
-        if (totalVotes == 0) {
+        require(p.state == ProposalState.Voting, "Not voting");
+        require(block.timestamp > p.votingDeadline, "Wait for deadline");
+        
+        uint256 total = p.forVotes + p.againstVotes;
+        uint256 networkPower = IStaking(stakingContract).totalVotingPower();
+        
+        if (total == 0 || (total * 100 / networkPower) < quorumPercentage) {
             p.state = ProposalState.Rejected;
-            emit ProposalStateChanged(_proposalId, ProposalState.Rejected);
-            return;
-        }
-
-        // *** اصلاح دوم: محاسبه صحیح quorum ***
-        // quorum: درصد حداقل مشارکت نسبت به کل voting power
-        uint256 participationPercent = (totalVotes * 100) / totalVotingPower;
-
-        if (participationPercent < quorumPercentage) {
-            p.state = ProposalState.Rejected;
-            emit ProposalStateChanged(_proposalId, ProposalState.Rejected);
-            return;
-        }
-
-        // *** اصلاح سوم: محاسبه approval threshold با اطمینان از تقسیم صحیح ***
-        uint256 approvalPercent = (p.forVotes * 100) / totalVotes;
-
-        if (approvalPercent >= approvalThresholdPercentage) {
+        } else if ((p.forVotes * 100 / total) >= approvalThresholdPercentage) {
             p.state = ProposalState.Approved;
-            emit ProposalStateChanged(_proposalId, ProposalState.Approved);
         } else {
             p.state = ProposalState.Rejected;
-            emit ProposalStateChanged(_proposalId, ProposalState.Rejected);
         }
+        emit ProposalStateChanged(_proposalId, p.state);
     }
 
-    // 1. شروع فاز سرمایه‌گذاری
     function startFunding(uint256 _proposalId) internal {
         Proposal storage p = proposals[_proposalId];
         p.state = ProposalState.Funding;
@@ -266,7 +229,6 @@ contract RayanChainDAO is Initializable, OwnableUpgradeable, ReentrancyGuardUpgr
         emit ProposalStateChanged(_proposalId, ProposalState.Funding);
     }
 
-    // 2. سرمایه‌گذاری
     function invest(uint256 _proposalId, uint256 _amount) external nonReentrant {
         Proposal storage p = proposals[_proposalId];
         require(p.state == ProposalState.Funding, "Not in funding phase");
@@ -279,7 +241,6 @@ contract RayanChainDAO is Initializable, OwnableUpgradeable, ReentrancyGuardUpgr
         emit InvestmentReceived(_proposalId, msg.sender, _amount);
     }
 
-    // 3. پایان سرمایه‌گذاری
     function finalizeFunding(uint256 _proposalId) external nonReentrant {
         Proposal storage p = proposals[_proposalId];
         require(p.state == ProposalState.Funding, "Not funding");
@@ -300,14 +261,12 @@ contract RayanChainDAO is Initializable, OwnableUpgradeable, ReentrancyGuardUpgr
         emit ProposalStateChanged(_proposalId, p.state);
     }
 
-    // 4. بازپرداخت
     function claimRefund(uint256 _proposalId) external nonReentrant {
         Proposal storage p = proposals[_proposalId];
         require(p.state == ProposalState.FundingFailed, "Funding not failed");
         financeContract.refundInvestment(_proposalId, msg.sender);
     }
 
-    // --- Execution Logic (Updated with your custom logic) ---
     function executeProposal(uint256 _proposalId) external nonReentrant {
         Proposal storage p = proposals[_proposalId];
         
@@ -315,20 +274,16 @@ contract RayanChainDAO is Initializable, OwnableUpgradeable, ReentrancyGuardUpgr
             tallyVotes(_proposalId);
         }
 
-
-
         require(p.state == ProposalState.Approved, "Proposal is not approved");
         require(!p.executed, "Proposal already executed");
         require(p.aiRiskScore <= MAX_RISK_SCORE, "AI risk score is too high");
         
-        // ✅ CHANGE: اگر نوع Funding باشد، به جای اجرا، فاز Funding شروع می‌شود
         if (p.pType == ProposalType.Funding) {
-            p.executed = true; // علامت‌گذاری به عنوان "اجرا شده از نظر حاکمیت"
+            p.executed = true;
             startFunding(_proposalId);
             return;
         }
 
-        // --- اجرای سایر انواع پروپوزال (منطق قبلی شما) ---
         p.executed = true;
         p.state = ProposalState.Executed;
 
@@ -363,7 +318,7 @@ contract RayanChainDAO is Initializable, OwnableUpgradeable, ReentrancyGuardUpgr
         emit ProposalExecuted(_proposalId);
         emit ProposalStateChanged(_proposalId, ProposalState.Executed);
     }
-
+    
     // --- NEW LOGIC: منطق اضطراری PAUSER ---
     function emergencyCancel(uint256 _proposalId) external nonReentrant onlyRole(accControl.PAUSER_ROLE()) {
         Proposal storage p = proposals[_proposalId];

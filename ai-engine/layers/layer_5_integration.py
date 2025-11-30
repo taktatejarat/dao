@@ -1,27 +1,17 @@
-# ai-engine/layers/layer_5_integration.py (منطق اصلاح شده و هماهنگ)
+# ai-engine/layers/layer_5_integration.py
 
 def generate_xai_report(financial_report: dict, investability_score: float) -> dict:
     """
-    تولید گزارش متنی XAI بر اساس امتیاز نهایی سرمایه‌گذاری.
-    ما از investability_score استفاده می‌کنیم تا با سطح ریسک کلی هماهنگ باشد.
+    تولید گزارش متنی بر اساس امتیاز نهایی (Investability Score).
     Investability: 0 (Bad) -> 100 (Good)
     """
     xai_factors = financial_report.get('xai_factors', [])
-    team_score = financial_report.get('team_competency_score', 0)
-
+    
     strengths = []
     weaknesses = []
     key_decision_factors = []
 
-    # تحلیل نقاط قوت و ضعف (مستقل از امتیاز کلی)
-    if team_score > 75: strengths.append({"key": "xai.strength.strong_team"})
-    elif team_score < 40: weaknesses.append({"key": "xai.weakness.inexperienced_team"})
-        
-    # تبدیل امتیاز مالی به ریسک برای متن‌ها
-    financial_risk = financial_report.get('risk_score', 50)
-    if financial_risk < 30: strengths.append({"key": "xai.strength.strong_financials"})
-    elif financial_risk > 70: weaknesses.append({"key": "xai.weakness.high_financial_risk"})
-    
+    # تبدیل فاکتورها
     if xai_factors:
         for factor in xai_factors:
             key_decision_factors.append({
@@ -30,16 +20,23 @@ def generate_xai_report(financial_report: dict, investability_score: float) -> d
                 "importance": factor.get('importance', 0)
             })
 
-    # ✅✅✅ FIX: هماهنگ‌سازی منطق توصیه با سطح ریسک کلی ✅✅✅
-    # منطق قبلی بر اساس risk_score بود که معکوس investability_score است و باعث تداخل می‌شد.
-    # الان همه چیز بر اساس investability_score (امتیاز قابلیت سرمایه‌گذاری) سنجیده می‌شود.
-    
+    # منطق یکپارچه: استفاده از investability_score برای تعیین متن‌ها
+    # امتیاز بالای 80 = عالی (ریسک پایین)
     if investability_score >= 80:
-        recommendation_key = "recommendation.low_risk"      # ریسک پایین (امتیاز بالا)
+        recommendation_key = "recommendation.low_risk"
+        strengths.append({"key": "xai.strength.high_score"})
+    
+    # امتیاز بین 60 تا 80 = متوسط (ریسک متوسط)
     elif investability_score >= 60:
-        recommendation_key = "recommendation.medium_risk"   # ریسک متوسط
+        recommendation_key = "recommendation.medium_risk"
+        # بررسی دقیق‌تر برای پیدا کردن ضعف
+        if financial_report.get('risk_score', 0) > 40:
+            weaknesses.append({"key": "xai.weakness.financial_uncertainty"})
+    
+    # امتیاز زیر 60 = ضعیف (ریسک بالا)
     else:
-        recommendation_key = "recommendation.high_risk"     # ریسک بالا (امتیاز پایین)
+        recommendation_key = "recommendation.high_risk"
+        weaknesses.append({"key": "xai.weakness.general_risk"})
 
     return {
         "strengths": strengths,
@@ -49,20 +46,17 @@ def generate_xai_report(financial_report: dict, investability_score: float) -> d
     }
 
 def generate_final_investability_score(financial_report: dict, security_report: dict) -> dict:
-    """
-    خروجی‌های لایه‌های مختلف را برای تولید امتیاز نهایی ترکیب می‌کند.
-    """
     weights = {"financial": 0.7, "security": 0.3}
 
-    # تبدیل ریسک مالی (0=خوب، 100=بد) به امتیاز مثبت (0=بد، 100=خوب)
+    # تبدیل ریسک مالی (100=بد) به امتیاز مثبت (100=خوب)
     financial_score = 100 - financial_report.get('risk_score', 50)
     security_score = security_report.get('trust_score', 50)
 
-    # امتیاز نهایی (0 تا 100) -> هر چه بیشتر باشد، ریسک کمتر است
+    # محاسبه امتیاز نهایی
     investability_score = (financial_score * weights['financial']) + (security_score * weights['security'])
     investability_score = round(investability_score)
 
-    # ✅✅✅ FIX: تعریف دقیق بازه‌ها برای تگ "سطح ریسک" ✅✅✅
+    # تعیین سطح ریسک (دقیقاً هماهنگ با بازه‌های بالا)
     if investability_score >= 80:
         overall_risk_level_key = "risk_level.low"       # سبز
     elif investability_score >= 60:
@@ -72,7 +66,7 @@ def generate_final_investability_score(financial_report: dict, security_report: 
     else:
         overall_risk_level_key = "risk_level.very_high" # قرمز
     
-    # تولید گزارش متنی با استفاده از همان امتیاز برای هماهنگی کامل
+    # پاس دادن امتیاز نهایی به تابع گزارش‌ساز
     xai_report = generate_xai_report(financial_report, investability_score)
 
     return {

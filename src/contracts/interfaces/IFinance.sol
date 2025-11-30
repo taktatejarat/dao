@@ -42,7 +42,7 @@ interface IFinance {
         bool isActive
     );
 
-    function platformFeeBps() external view returns (uint256);
-
+    function protocolFeeBps() external view returns (uint256);
+    function clientFeeBps() external view returns (uint256);
     function daoAddress() external view returns (address);
 }

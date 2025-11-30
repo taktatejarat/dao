@@ -1,109 +1,13 @@
-INFO:     Started server process [20528]
+INFO:     Started server process [176183]
 INFO:     Waiting for application startup.
 INFO:     Application startup complete.
 INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
-[CONFIG] AI Oracle configured successfully for address: 0x55138244DC1F785C4b955480Ac70410bC1D85A08
+[CONFIG] AI Engine Configured. Oracle: 0x55138244DC1F785C4b955480Ac70410bC1D85A08, RPC: https://api.zan.top/polygon-amoy
 [AI-LAYER-3] Financial risk model loaded successfully.
-INFO:     127.0.0.1:50110 - "GET /reports/proposal/6922f476fef11476bfd7c3ed HTTP/1.1" 200 OK
-INFO:     127.0.0.1:50122 - "GET /reports/proposal/6922f476fef11476bfd7c3ed HTTP/1.1" 200 OK
-INFO:     127.0.0.1:48698 - "GET /reports/proposal/6922f476fef11476bfd7c3ed HTTP/1.1" 200 OK
-INFO:     127.0.0.1:48712 - "GET /reports/proposal/6922f476fef11476bfd7c3ed HTTP/1.1" 200 OK
-INFO:     127.0.0.1:54924 - "GET /reports/proposal/6922f476fef11476bfd7c3ed HTTP/1.1" 200 OK
-INFO:     127.0.0.1:54930 - "GET /reports/proposal/6922f476fef11476bfd7c3ed HTTP/1.1" 200 OK
-INFO:     127.0.0.1:54736 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55166 - "GET / HTTP/1.1" 200 OK
-[API] Trigger received for proposal 692bebf7fdd453de6d1c9e2d
-[API] Sending score 51 to on-chain ID 1
-[ORACLE] Updating On-Chain Risk Score for Proposal ID 1: Score 51
-[ORACLE] Preparing to call updateProposalRiskScore with args: [1, 51]
-[ORACLE] ✅ DAO Address found: 0xA0554edB9e2aA70415cd202579c3Ed1E055637D1
-[ORACLE CRITICAL ERROR] Transaction failed: 'SignedTransaction' object has no attribute 'rawTransaction'
-INFO:     127.0.0.1:43580 - "POST /action/trigger-risk-analysis/692bebf7fdd453de6d1c9e2d HTTP/1.1" 200 OK
-INFO:     127.0.0.1:48682 - "GET /reports/proposal/692bebf7fdd453de6d1c9e2d HTTP/1.1" 200 OK
-INFO:     127.0.0.1:48698 - "GET /reports/proposal/692bebf7fdd453de6d1c9e2d HTTP/1.1" 200 OK
-INFO:     127.0.0.1:56188 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:56192 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:56196 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:56192 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:56188 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:56208 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:51096 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:42522 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:34828 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:60538 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:52332 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:36490 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:40884 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:41818 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:49422 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:38410 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:34510 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:40236 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:53688 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:49596 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:39714 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:50634 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:50690 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:32932 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:36810 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:36810 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:36810 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:36820 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:37098 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55354 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:52138 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57314 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:47714 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:49154 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:49154 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:49154 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:49164 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:49154 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:49154 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:46694 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:54554 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:36528 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:36528 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:36528 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:36540 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:36528 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:36528 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:48112 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:48112 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:48112 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:48112 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:48112 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:48112 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:52984 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:52838 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:52838 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:52846 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:52838 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:52838 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:52838 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:52838 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:52838 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:52838 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:52838 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:52838 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:52838 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:50864 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:50864 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:50864 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:50864 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:50864 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:50864 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:34406 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:58146 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:47578 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:44312 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:33964 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:35546 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:35546 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:35546 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:35546 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:35546 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:35546 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:35546 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:49694 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:37920 - "GET / HTTP/1.1" 200 OK
+[API] Analyzing user: 0x55138244DC1F785C4b955480Ac70410bC1D85A08
+[ORACLE] ✅ DAO Address found: 0x092e9141221A819570CDb7719e80933CaB98F8dE
+[READER] Real data for 0x55138244DC1F785C4b955480Ac70410bC1D85A08: {'address': '0x55138244DC1F785C4b955480Ac70410bC1D85A08', 'amount': 166.90634466722642, 'gas_used': 29148000, 'transaction_count': 1388, 'dao_score': 0}
+INFO:     127.0.0.1:47980 - "GET /analytics/user/0x55138244DC1F785C4b955480Ac70410bC1D85A08 HTTP/1.1" 200 OK
+[API] Analyzing user: 0x7f9b30a1ba232bc9c847d93f36c293a4726c5de2
+[READER] Real data for 0x7f9b30a1ba232bc9c847d93f36c293a4726c5de2: {'address': '0x7f9b30a1ba232bc9c847d93f36c293a4726c5de2', 'amount': 28.91308804876445, 'gas_used': 672000, 'transaction_count': 32, 'dao_score': 0}
+INFO:     127.0.0.1:48522 - "GET /analytics/user/0x7f9b30a1ba232bc9c847d93f36c293a4726c5de2 HTTP/1.1" 200 OK
