@@ -240,6 +240,14 @@ export const fa = {
     staked_balance: "موجودی سپرده‌گذاری شده",
     staked_balance_desc: "توکن‌های سپرده‌گذاری شده شما",
     view_all: "نمایش همه",
+      admin: {
+        title: "مرکز کنترل مدیریت",
+        verifying: "در حال بررسی اعتبارنامه مدیر...",
+        settings_card_title: "تنظیمات کلی پلتفرم",
+        settings_card_desc: "پیکربندی کارمزدها، دوره‌های رأی‌گیری و ارتقای قراردادها",
+        security_card_title: "تنظیمات امنیتی",
+        security_card_desc: "مدیریت سطوح دسترسی و توقف اضطراری سیستم",
+    },
   },
 
   // Proposals Page

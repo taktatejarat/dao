@@ -241,6 +241,14 @@ export const en = {
     staked_balance: "Staked Balance",
     staked_balance_desc: "Your staked tokens",
     view_all: "Show all",
+    admin: {
+      title: "Admin Control Center",
+      verifying: "Verifying admin credentials",
+      settings_card_title: "Platform Settings",
+      settings_card_desc: "Configure fees voting periods and contract upgrades",
+      security_card_title: "Security and Roles",
+      security_card_desc: "Manage access controls and emergency pause",
+    },
   },
 
   // Proposals Page

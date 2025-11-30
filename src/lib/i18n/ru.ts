@@ -241,6 +241,14 @@ export const ru = {
     staked_balance: "Баланс в стейкинге",
     staked_balance_desc: "Ваши токены в стейкинге",
     view_all: "Показать все",
+    admin: {
+      title: "Центр управления администратором",
+      verifying: "Проверка учетных данных администратора",
+      settings_card_title: "Настройки платформы",
+      settings_card_desc: "Настройка комиссий сроков голосования и обновлений контрактов",
+      security_card_title: "Безопасность и роли",
+      security_card_desc: "Управление правами доступа и аварийной паузой",
+    },
   },
 
   // Proposals Page

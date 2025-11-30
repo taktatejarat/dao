@@ -241,6 +241,14 @@ export const tr = {
     staked_balance: "Stake Edilen Bakiye",
     staked_balance_desc: "Stake edilmiş tokenlarınız",
     view_all: "Tümünü göster",
+    admin: {
+      title: "Yönetim Kontrol Merkezi",
+      verifying: "Yönetici kimlik bilgileri doğrulanıyor",
+      settings_card_title: "Platform Ayarları",
+      settings_card_desc: "Ücretleri, oylama sürelerini ve sözleşme yükseltmelerini yapılandırın",
+      security_card_title: "Güvenlik ve Roller",
+      security_card_desc: "Erişim kontrollerini ve acil duraklatmayı yönetin",
+    },
   },
 
   // Proposals Page

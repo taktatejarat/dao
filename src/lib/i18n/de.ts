@@ -241,6 +241,14 @@ export const de = {
     staked_balance: "Gestaktes Guthaben",
     staked_balance_desc: "Ihre gestaketen Token",
     view_all: "Alle anzeigen",
+    admin: {
+      title: "Administrationskontrollzentrum",
+      verifying: "Überprüfung der Administratoranmeldedaten",
+      settings_card_title: "Plattform Einstellungen",
+      settings_card_desc: "Gebühren Abstimmungszeiträume und Vertragsupgrades konfigurieren",
+      security_card_title: "Sicherheit und Rollen",
+      security_card_desc: "Zugriffskontrollen und Notfallpause verwalten",
+    },
   },
 
   // Proposals Page

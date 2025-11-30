@@ -241,6 +241,14 @@ export const ar = {
     staked_balance: "الرصيد المودع",
     staked_balance_desc: "الرموز المودعة الخاصة بك",
     view_all: "عرض الكل",
+    admin: {
+      title: "مركز التحكم الإداري",
+      verifying: "جارٍ التحقق من بيانات اعتماد المسؤول",
+      settings_card_title: "إعدادات المنصة",
+      settings_card_desc: "ضبط الرسوم وفترات التصويت وترقية العقود",
+      security_card_title: "الأمان والأدوار",
+      security_card_desc: "إدارة صلاحيات الوصول والإيقاف الطارئ",
+    },
   },
 
   // Proposals Page
