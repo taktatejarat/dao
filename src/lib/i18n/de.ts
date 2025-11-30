@@ -661,6 +661,9 @@ export const de = {
     you_will_receive: "Anzahl der zu erhaltenden Token",
     manage_stake_title: "Stake verwalten",
     manage_stake_desc: "Heben Sie Ihren Einsatz ab oder fordern Sie verdiente Belohnungen an.",
+    card_label_balance: "Im Wallet gekaufte RYC Token Menge",
+    card_label_staked: "Bestand der gestakten RYC Token",
+    card_label_earned: "Erhaltene Menge an Leistungsprämien",
   },
 
   // Treasury Page

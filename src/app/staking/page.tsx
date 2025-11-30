@@ -1,4 +1,4 @@
-// src/app/staking/page.tsx - FINAL, CLEANED, AND CORRECTED VERSION
+// src/app/staking/page.tsx - FINAL I18N FIXED
 
 "use client";
 
@@ -31,14 +31,13 @@ export default function StakingPage() {
     const { registryAddress, isHydrated, userRole } = useWeb3();
     const searchParams = useSearchParams();
 
-    // تبدیل نقش به متن ترجمه شده
     const getTranslatedRoleName = () => {
         const safeRole = userRole || 'voter';
         return t(`role_selection.${safeRole}`);
     };
     const roleName = getTranslatedRoleName();   
 
-    // --- Fetch required contract addresses from the registry ---
+    // --- Contract Addresses ---
     const { data: tokenAddressResult, isLoading: isTokenAddrLoading } = useReadContract({
         address: registryAddress as Address,
         abi: daoRegistryAbi,
@@ -56,7 +55,7 @@ export default function StakingPage() {
     const tokenAddress = tokenAddressResult as Address | undefined;
     const stakingAddress = stakingAddressResult as Address | undefined;
 
-    // ✅ FIX: دریافت صحیح refetch از useStaking و نام‌گذاری مجدد برای خوانایی
+    // --- Hooks ---
     const {
         rycBalance, stakedBalance, earnedRewards,
         stakeAmount, setStakeAmount,
@@ -70,7 +69,6 @@ export default function StakingPage() {
         refetch: refetchStakingData
     } = useStaking({ tokenAddress, stakingAddress });
 
-    // ✅ FIX: دریافت مقادیر کامل از هوک useBuyTokens
     const {
         buyAmount, setBuyAmount,
         handleBuyTokens,
@@ -81,21 +79,19 @@ export default function StakingPage() {
         resetBuyState
     } = useBuyTokens({ tokenAddress });
 
-    // ✅✅✅ FIX: اصلاح useEffect برای جلوگیری از لوپ توست ✅✅✅
+    // ✅ FIX: حذف useEffect تکراری و هاردکد شده. فقط همین یکی باقی ماند:
     useEffect(() => {
         if (isBuyConfirmed) {
-            // 1. نمایش پیام موفقیت (فقط یک بار)
+            // نمایش پیام موفقیت با i18n
             toast.success(t('staking_page.buy_success_title'), { description: t('staking_page.buy_success_desc') });
             
-            // 2. به‌روزرسانی موجودی‌ها
+            // به‌روزرسانی موجودی‌ها
             refetchStakingData();
             
-            // 3. مهم: ریست کردن وضعیت خرید برای جلوگیری از تکرار پیام
+            // ریست وضعیت خرید
             resetBuyState();
         }
     }, [isBuyConfirmed, refetchStakingData, resetBuyState, t]);
-
-
     
     useEffect(() => {
         const amountFromUrl = searchParams.get('amount');
@@ -104,46 +100,39 @@ export default function StakingPage() {
         }
     }, [searchParams, setStakeAmount]);
 
-  // --- Dynamic Staking Plans Logic ---
+    // --- Plans ---
     const allPlans = useMemo(() => [
-        { // Base Voter Plan
+        { 
             roles: ['voter'], 
             title: t('staking_page.plan_voter_title'), 
             tier: "bronze" as const, 
             price: "1000000", 
             features: [t('voter_feat1'), t('voter_feat2')],
-            // ✅ FIX 3: Added missing description field
             description: t('staking_page.plan_voter_desc'),
         },
-        { // Startup / Base Investor Plan
+        { 
             roles: ['startup', 'investor'], 
             title: t('staking_page.plan_startup_title'), 
             tier: "silver" as const, 
             price: "50000000", 
             features: [t('staking_page.startup_feat1'), t('staking_page.startup_feat2')],
             isFeatured: userRole === 'startup',
-            // ✅ FIX 3: Added missing description field
             description: t('staking_page.plan_startup_desc'),
         },
-        { // Delegate Plan (High Commitment)
+        { 
             roles: ['delegate', 'investor'], 
             title: t('staking_page.plan_delegate_title'), 
             tier: "gold" as const, 
             price: "200000000", 
             features: [t('delegate_feat1'), t('delegate_feat2')],
             isFeatured: userRole === 'delegate',
-            // ✅ FIX 3: Added missing description field
             description: t('staking_page.plan_delegate_desc'),
         },
     ], [t, userRole]);
 
-
     const filteredPlans = useMemo(() => {
-        // Show all plans if admin (for management), otherwise show plans relevant to the role
         if (userRole === 'admin') return allPlans;
-        
-        // Filter by the user's current selected role. Handles 'null' role by showing voter plans.
-        const currentRole = userRole === null ? 'voter' : userRole;
+        const currentRole = userRole || 'voter';
         return allPlans.filter(plan => plan.roles.includes(currentRole as any));
     }, [allPlans, userRole]);
 
@@ -151,14 +140,13 @@ export default function StakingPage() {
 
     return (
         <AppLayout>
-            {/* --- HEADER --- */}
             <header className="mb-8">
                 <h1 className="text-3xl font-bold font-headline text-gradient text-gradient">{t('staking_page.title')}</h1>
                 <p className="text-muted-foreground">{t('staking_page.subtitle_for_role')} {roleName}</p>
             </header>
 
-            {/* --- BALANCE CARDS (UNTOUCHED - LOGIC IS GOOD) --- */}
             <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 mb-8">
+                {/* Wallet Balance Card */}
                 <Card>
                     <CardHeader className="flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-lg font-medium">{t('staking_page.ryc_balance')}</CardTitle>
@@ -166,7 +154,8 @@ export default function StakingPage() {
                     </CardHeader>
                     <CardContent>
                         {isLoading ? <Skeleton className="h-8 w-3/4" /> : <div className="text-3xl font-bold">{formatNumber(formatEther(rycBalance ?? 0n), locale)}</div>}
-                        <p className="text-sm text-muted-foreground">RYC</p>
+                        {/* ✅ FIX: استفاده از رشته i18n */}
+                        <p className="text-sm text-muted-foreground">{t('staking_page.card_label_balance')}</p>
                         {tokenAddress && (
                             <div className="mt-4">
                                 <AddToWalletButton tokenAddress={tokenAddress} tokenSymbol="RYC" tokenDecimals={18} />
@@ -174,6 +163,8 @@ export default function StakingPage() {
                         )}
                     </CardContent>
                 </Card>
+
+                {/* Staked Balance Card */}
                 <Card>
                     <CardHeader className="flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-lg font-medium">{t('staking_page.staked_balance')}</CardTitle>
@@ -181,9 +172,12 @@ export default function StakingPage() {
                     </CardHeader>
                     <CardContent>
                         {isLoading ? <Skeleton className="h-8 w-3/4" /> : <div className="text-3xl font-bold">{formatNumber(formatEther(stakedBalance ?? 0n), locale)}</div>}
-                        <p className="text-sm text-muted-foreground">RYC Staked</p>
+                        {/* ✅ FIX: استفاده از رشته i18n */}
+                        <p className="text-sm text-muted-foreground">{t('staking_page.card_label_staked')}</p>
                     </CardContent>
                 </Card>
+
+                {/* Earned Rewards Card */}
                 <Card>
                     <CardHeader className="flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-lg font-medium">{t('staking_page.earned_rewards')}</CardTitle>
@@ -191,17 +185,17 @@ export default function StakingPage() {
                     </CardHeader>
                     <CardContent>
                         {isLoading ? <Skeleton className="h-8 w-3/4" /> : <div className="text-3xl font-bold">{formatNumber(formatEther(earnedRewards ?? 0n), locale)}</div>}
-                        <p className="text-sm text-muted-foreground">RYC Earned</p>
+                        {/* ✅ FIX: استفاده از رشته i18n */}
+                        <p className="text-sm text-muted-foreground">{t('staking_page.card_label_earned')}</p>
                     </CardContent>
                 </Card>
             </div>
             
-            {/* --- ACTION CARDS - RESTRUCTURED FOR LOGICAL FLOW --- */}
+            {/* --- ACTION CARDS --- */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
                 
-                {/* --- LEFT COLUMN: ONBOARDING ACTIONS (BUY & STAKE) --- */}
                 <div className="space-y-8">
-                    {/* 1. Buy RYC Card */}
+                    {/* Buy RYC */}
                     <Card>
                         <CardHeader>
                             <CardTitle>{t('staking_page.buy_ryc_title')}</CardTitle>
@@ -212,7 +206,6 @@ export default function StakingPage() {
                                 <Label htmlFor="buy-amount">{t('staking_page.amount_of_matic_to_spend')}</Label>
                                 <Input id="buy-amount" type="number" placeholder="0.1" value={buyAmount} onChange={(e) => setBuyAmount(e.target.value)} />
                             </div>
-                            {/* ✅ NEW: Preview of received tokens */}
                             <div className="text-sm text-muted-foreground p-3 bg-muted rounded-md text-center">
                                 {isEstimatingPrice ? (
                                     <DaoLoadingSpinner className="mx-auto" />
@@ -230,7 +223,7 @@ export default function StakingPage() {
                         </CardContent>
                     </Card>
 
-                    {/* 2. Stake Card */}
+                    {/* Stake */}
                     <Card>
                         <CardHeader>
                             <CardTitle>{t('staking_page.stake_tokens_title')}</CardTitle>
@@ -242,7 +235,7 @@ export default function StakingPage() {
                                 <Input id="stake-amount" type="number" placeholder="0.0" value={stakeAmount} onChange={(e) => setStakeAmount(e.target.value)} />
                             </div>
                             {needsApproval ? (
-                                <Button className="w-full" disabled={isBuyActionPending || isApproveButtonDisabled} onClick={handleApprove}> {/* ✅ از متغیر جدید استفاده کنید */}
+                                <Button className="w-full" disabled={isBuyActionPending || isApproveButtonDisabled} onClick={handleApprove}>
                                     {isStakingActionPending ? <DaoLoadingSpinner /> : <CheckCircle className="me-2"/>}
                                     {t('staking_page.approve_button')}
                                 </Button>
@@ -256,16 +249,14 @@ export default function StakingPage() {
                     </Card>
                 </div>
 
-                {/* --- RIGHT COLUMN: MANAGEMENT ACTIONS (UNSTAKE, DELEGATE, CLAIM) --- */}
                 <div className="space-y-8">
-                    {/* 3. Unstake & Claim Card (Combined for better space usage) */}
+                    {/* Unstake & Claim */}
                     <Card>
                         <CardHeader>
                             <CardTitle>{t('staking_page.manage_stake_title')}</CardTitle>
                             <CardDescription>{t('staking_page.manage_stake_desc')}</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-6">
-                            {/* Unstake Section */}
                             <div className="space-y-2">
                                 <Label htmlFor="unstake-amount">{t('staking_page.amount_to_unstake')}</Label>
                                 <div className="flex gap-2">
@@ -276,7 +267,6 @@ export default function StakingPage() {
                                     </Button>
                                 </div>
                             </div>
-                            {/* Claim Section */}
                             <div className="space-y-2">
                                 <Label>{t('staking_page.claim_rewards_title')}</Label>
                                 <Button className="w-full" disabled={isClaimButtonDisabled} onClick={handleClaim}>
@@ -287,7 +277,7 @@ export default function StakingPage() {
                         </CardContent>
                     </Card>
 
-                    {/* 4. Delegate Card */}
+                    {/* Delegate */}
                     <Card>
                         <CardHeader>
                             <CardTitle>{t('staking_page.delegate_title')}</CardTitle>
@@ -317,7 +307,7 @@ export default function StakingPage() {
                 </div>
             </div>
 
-            {/* --- STAKING PLANS SECTION (UNTOUCHED) --- */}
+            {/* --- PLANS --- */}
             <div className="text-center mb-8 pt-8 border-t">
                 <h2 className="text-2xl font-semibold font-headline text-gradient">{t('staking_page.plans_for_role')} {roleName}</h2>
                 <p className="text-muted-foreground mt-1">{t('staking_page.plans_for_role_desc')}</p>

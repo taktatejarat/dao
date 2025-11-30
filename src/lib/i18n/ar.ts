@@ -661,6 +661,10 @@ export const ar = {
     you_will_receive: "عدد الرموز التي ستحصل عليها",
     manage_stake_title: "إدارة الإيداع",
     manage_stake_desc: "اسحب إيداعك أو طالب بمكافآتك المكتسبة.",
+    card_label_balance: "كمية رموز RYC المشتراة في المحفظة",
+    card_label_staked: "رصيد رموز RYC المودعة",
+    card_label_earned: "كمية مكافآت الأداء المستلمة",
+
   },
 
   // Treasury Page

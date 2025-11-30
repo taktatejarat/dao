@@ -661,6 +661,10 @@ export const tr = {
     you_will_receive: "Alınacak token sayısı",
     manage_stake_title: "Stake Yönetimi",
     manage_stake_desc: "Stake'inizi çekin veya kazanılan ödülleri talep edin.",
+    card_label_balance: "Cüzdanda satın alınan RYC token miktarı",
+    card_label_staked: "Stake edilen RYC token bakiyesi",
+    card_label_earned: "Alınan performans ödülleri miktarı",
+
   },
 
   // Treasury Page

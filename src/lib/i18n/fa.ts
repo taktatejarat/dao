@@ -142,6 +142,7 @@ export const fa = {
     plan_gold_feat4: "مدیر حساب اختصاصی",
     select_plan: "انتخاب پلن",
     redirecting: "در حال انتقال...",
+    admin: "مدیر پلتفرم",
   },
 
   // Dashboard Page
@@ -665,6 +666,9 @@ export const fa = {
     you_will_receive: "تعداد توکن قابل دریافت",
     manage_stake_title: "مدیریت سپرده",
     manage_stake_desc: "سپرده خود را برداشت کرده یا پاداش‌های کسب شده را دریافت کنید.",
+    card_label_balance: "مقدار توکنهای RYC خریداری شده در کیف پول",
+    card_label_staked: "موجودی توکنهای RYC سپرده گذاری شده",
+    card_label_earned: "مقدار پاداشهای عملکرد دریافت شده",
   },
 
   // Treasury Page

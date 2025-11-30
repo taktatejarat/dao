@@ -661,6 +661,9 @@ export const ru = {
     you_will_receive: "Количество токенов к получению",
     manage_stake_title: "Управление стейкингом",
     manage_stake_desc: "Выведите свой стейкинг или получите заработанные вознаграждения.",
+    card_label_balance: "В кошельке приобретенное количество токенов RYC",
+    card_label_staked: "Баланс стейкнутых токенов RYC",
+    card_label_earned: "Полученное количество вознаграждений за деятельность",
   },
 
   // Treasury Page

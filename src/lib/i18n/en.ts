@@ -660,6 +660,9 @@ export const en = {
     you_will_receive: "Number of tokens to receive",
     manage_stake_title: "Manage Stake",
     manage_stake_desc: "Withdraw your stake or claim earned rewards.",
+    card_label_balance: "Amount of purchased RYC tokens in the wallet",
+    card_label_staked: "Balance of staked RYC tokens",
+    card_label_earned: "Amount of received performance rewards",
   },
 
   // Treasury Page
