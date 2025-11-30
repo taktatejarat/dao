@@ -2,7 +2,7 @@
 
 "use client";
 
-import { useState, useMemo, useCallback, useEffect } from 'react';
+import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { isAddress, Hex, decodeEventLog, Log } from 'viem';
 import { useAccount, useWaitForTransactionReceipt, useWriteContract } from 'wagmi';
 import { useTranslation } from '@/hooks/use-translation';
@@ -49,6 +49,8 @@ export function useCreateProposal({ daoAddress, router }: UseCreateProposalProps
     const [txHash, setTxHash] = useState<Hex | undefined>(undefined);
     const [mongoId, setMongoId] = useState<string | null>(null);
 
+    // NEW: Ref to hold toast ID
+    const toastIdRef = useRef<string | number | null>(null);
     // --- Wagmi Transaction Monitoring ---
     const { data: receipt, isLoading: isConfirming, isSuccess: isConfirmed, isError: isTxError, error: txError } = useWaitForTransactionReceipt({ 
         hash: txHash,
@@ -85,7 +87,8 @@ export function useCreateProposal({ daoAddress, router }: UseCreateProposalProps
         }
 
         setIsSubmitting(true);
-        const toastId = toast.loading(t('toasts.uploading_docs'));
+        // شروع پروسه: نمایش لودینگ اولیه
+        toastIdRef.current = toast.loading(t('toasts.uploading_docs'));
 
         try {
             // 1. Upload Files (Mock or Real)
@@ -106,7 +109,7 @@ export function useCreateProposal({ daoAddress, router }: UseCreateProposalProps
             ]);
 
             // 2. Save Off-Chain (MongoDB)
-            toast.loading(t('toasts.saving_proposal'), { id: toastId });
+            toast.loading(t('toasts.saving_proposal'), { id: toastIdRef.current! });
             const payload = {
                 proposerAddress: address, projectName, tagline, website, description, problem, solution, businessModel,
                 startupIndustry, teamExperienceYears, teamBio, marketSize, competitors,
@@ -126,7 +129,7 @@ export function useCreateProposal({ daoAddress, router }: UseCreateProposalProps
             setMongoId(apiData.mongoId); // CRITICAL: Save this for step 4
 
             // 3. Submit On-Chain
-            toast.loading(t('toasts.confirm_in_wallet'), { id: toastId });
+            toast.loading(t('toasts.confirm_in_wallet'), { id: toastIdRef.current! });
             const hash = await writeContractAsync({
                 address: daoAddress,
                 abi: rayanChainDaoAbi,
@@ -134,12 +137,13 @@ export function useCreateProposal({ daoAddress, router }: UseCreateProposalProps
                 args: apiData.txArgs,
             });
             
-            toast.loading(t('toasts.waiting_for_confirmation'), { id: toastId });
+            toast.loading(t('toasts.waiting_for_confirmation'), { id: toastIdRef.current! });
             setTxHash(hash); // Starts the useEffect watcher
 
         } catch (error) {
-            console.error(error);
-            toast.error(t('toasts.submission_failed'), { id: toastId, description: (error as Error).message });
+            // ✅ FIX: بستن لودینگ و نمایش خطا
+            if (toastIdRef.current) toast.dismiss(toastIdRef.current);
+            toast.error(t('toasts.submission_failed'), { description: (error as Error).message });
             setIsSubmitting(false);
             setTxHash(undefined);
         }
@@ -152,7 +156,7 @@ export function useCreateProposal({ daoAddress, router }: UseCreateProposalProps
 
         const finalizeProposal = async () => {
             const toastId = 'finalize-toast';
-            toast.loading(t('toasts.processing_onchain_data'), { id: toastId });
+            if (toastIdRef.current) toast.loading(t('toasts.processing_onchain_data'), { id: toastIdRef.current });
 
             try {
                 // A. Find the Event
@@ -194,21 +198,20 @@ export function useCreateProposal({ daoAddress, router }: UseCreateProposalProps
                 // unless your specific route requires it. We keep it simple as per standard arch.
                 await fetch(`/api/proposals/${mongoId}/trigger-ai`, { method: 'POST' });
 
-                // D. Success & Redirect
-                toast.success(t('toasts.proposal_created_success'), { id: toastId });
+                //  FIX: بستن لودینگ و نمایش پیام موفقیت نهایی
+                if (toastIdRef.current) toast.dismiss(toastIdRef.current);
+                toast.success(t('toasts.proposal_created_success'));
                 
-                // Clear state prevents re-running
                 setTxHash(undefined);
                 setMongoId(null);
                 
-                // Redirect after short delay
                 setTimeout(() => {
                     router.push(`/proposals/${onChainId}`);
                 }, 1500);
 
             } catch (error) {
-                console.error("Finalization Error:", error);
-                toast.error(t('toasts.post_submission_failed'), { id: toastId, description: "Transaction succeeded but data sync failed." });
+                if (toastIdRef.current) toast.dismiss(toastIdRef.current);
+                toast.error(t('toasts.post_submission_failed'));
                 setIsSubmitting(false);
             }
         };
@@ -217,9 +220,10 @@ export function useCreateProposal({ daoAddress, router }: UseCreateProposalProps
 
     }, [isConfirmed, receipt, txHash, mongoId, daoAddress, router, t]);
 
-    // --- Error Handling for Rejection/Failure ---
+    // Error Handling
     useEffect(() => {
         if (isTxError) {
+            if (toastIdRef.current) toast.dismiss(toastIdRef.current);
             toast.error(t('toasts.transaction_failed'), { description: txError?.message });
             setIsSubmitting(false);
             setTxHash(undefined);

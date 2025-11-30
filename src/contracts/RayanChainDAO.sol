@@ -1,7 +1,6 @@
-// src/contracts/RayanChainDAO.sol - اصلاح شده برای ادغام Timelock
+// src/contracts/RayanChainDAO.sol (نسخه اصلاح شده و کامل)
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
-
 
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
@@ -12,16 +11,22 @@ import "./interfaces/IStaking.sol";
 import "./interfaces/IFinance.sol";
 import "./TimelockController.sol"; 
 
+// تعریف اینترفیس جدید Finance برای دسترسی به توابع جدید
+interface IFinanceExtended is IFinance {
+    function depositInvestment(uint256 _proposalId, address _investor, uint256 _amount) external;
+    function finalizeInvestment(uint256 _proposalId, address _recipient, uint256 _totalRaised, uint8 _milestoneCount) external;
+    function refundInvestment(uint256 _proposalId, address _investor) external;
+}
+
 contract RayanChainDAO is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, UUPSUpgradeable {
-    // --- Enums ---
-    enum ProposalState { Pending, Validation, Voting, Approved, Rejected, Executed, Expired, Cancelled }
-    enum ProposalType { Funding, TreasuryAction, GrantRole, MilestoneRelease } // ✅ NEW: GrantRole for B.2
+    
+    // Enum ها به روز شده
+    enum ProposalState { Pending, Validation, Voting, Approved, Rejected, Executed, Expired, Cancelled, Funding, Funded, FundingFailed } 
+    enum ProposalType { Funding, TreasuryAction, GrantRole, MilestoneRelease }
     enum VoteType { For, Against }
     enum TokenType { Native, RYC }
-    string public constant VERSION = "2.0.0"; 
+    string public constant VERSION = "3.0.0_INVESTMENT_FIXED"; 
 
-    // --- Structs ---
-    // ✅✅✅ FIX 1: به‌روزرسانی کامل ساختار Milestone ✅✅✅
     struct Milestone {
         string name;
         uint256 durationDays;
@@ -31,13 +36,13 @@ contract RayanChainDAO is Initializable, OwnableUpgradeable, ReentrancyGuardUpgr
         bool released;
     }
 
-       struct Proposal {
+    struct Proposal {
         uint256 id;
         ProposalType pType;
         address proposer;
         bytes32 descriptionHash;
         address payable recipient;
-        uint256 amount;
+        uint256 amount; // Hard Cap
         TokenType tokenType;
         uint256 creationTime;
         uint256 votingDeadline;
@@ -49,15 +54,18 @@ contract RayanChainDAO is Initializable, OwnableUpgradeable, ReentrancyGuardUpgr
         uint256 currentMilestoneIndex;
         uint256 aiRiskScore;
         uint256 requiredApprovalThreshold;
-        // ✅ NEW FIELD: برای ذخیره آدرس/نقشی که قرار است اعطا شود (برای GrantRole)
-        bytes32 roleToGrant; 
+        bytes32 roleToGrant;
+        
+        // Investment Fields
+        uint256 totalRaised;      
+        uint256 softCap;          
+        uint256 fundingDeadline;  
     }
 
-    // --- State Variables ---
     AccControl public accControl;
     IStaking public stakingContract;
-    IFinance public financeContract;
-    TimelockController public timelock; // ✅ NEW: State variable for Timelock
+    IFinanceExtended public financeContract;
+    TimelockController public timelock;
     address public startupAccessTokenAddress;  
     mapping(uint256 => Proposal) public proposals;
     uint256 public nextProposalId;
@@ -68,23 +76,26 @@ contract RayanChainDAO is Initializable, OwnableUpgradeable, ReentrancyGuardUpgr
     uint256 public votingPeriod;
     uint256 public quorumPercentage;
     uint256 public approvalThresholdPercentage;
+    
+    // Constants
+    uint256 public constant FUNDING_DURATION = 15 days; 
+    uint256 public constant SOFT_CAP_PERCENT = 51; 
 
-    // --- Events ---
-    // ✅ CHANGE: Event now uses hash instead of full description
+    // Events
     event ProposalCreated(uint256 id, address proposer, ProposalType pType, bytes32 descriptionHash); 
     event Voted(uint256 proposalId, address voter, VoteType vote, uint256 weight);
     event ParticipationScoreUpdated(address indexed user, uint256 newScore);
     event ProposalExecuted(uint256 id);
     event ProposalStateChanged(uint256 id, ProposalState newState);
     event MilestoneReleased(uint256 indexed proposalId, uint256 milestoneIndex, uint256 amount);
+    event InvestmentReceived(uint256 indexed proposalId, address indexed investor, uint256 amount);
+    event FundingFinalized(uint256 indexed proposalId, bool success, uint256 totalRaised);
 
-    // --- Modifiers ---
     modifier onlyRole(bytes32 role) {
         require(accControl.hasRole(role, msg.sender), "Caller does not have required role");
         _;
     }
 
-   // --- ✅✅✅ INITIALIZER FUNCTION ✅✅✅ ---
     function initialize(
         address _initialOwner,
         address _accControlAddress,
@@ -98,146 +109,83 @@ contract RayanChainDAO is Initializable, OwnableUpgradeable, ReentrancyGuardUpgr
         __Ownable_init(_initialOwner);
         __ReentrancyGuard_init();
         __UUPSUpgradeable_init();
-
-        // تنظیم دستی مالک اولیه
-        transferOwnership(_initialOwner); // تنظیم مالک اولیه به آدرس ارائه‌شده
+        transferOwnership(_initialOwner);
 
         accControl = AccControl(_accControlAddress);
         stakingContract = IStaking(_stakingAddress);
-        financeContract = IFinance(_financeAddress);
+        financeContract = IFinanceExtended(_financeAddress);
         timelock = TimelockController(payable(_timelockAddress));
         votingPeriod = _votingPeriod;
         quorumPercentage = _quorumPercentage;
         approvalThresholdPercentage = _approvalThreshold;
-        startupAccessTokenAddress = address(0);
         nextProposalId = 1;
     }
 
-    // --- ✅✅✅ UUPS UPGRADE AUTHORIZATION ✅✅✅ ---
+
     function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
 
-    // ✅✅✅ THE FINAL, CORRECT IMPLEMENTATION ✅✅✅
-    function submitFundingProposal(
-        bytes32 _descriptionHash,
-        address payable _recipient,
-        Milestone[] memory _milestones // فقط ۳ پارامتر
-    ) external {
-        // ✅ FIX: فراخوانی تابع صحیح از قرارداد Staking
-        require(stakingContract.votingPower(msg.sender) > 0, "DAO: Must have voting power to propose.");
-        require(_descriptionHash != bytes32(0), "Description hash cannot be zero");
-        require(_milestones.length > 0, "At least one milestone is required");
+    // --- Proposal Creation ---
+    function submitFundingProposal(bytes32 _descriptionHash, address payable _recipient, Milestone[] memory _milestones) external {
+        require(stakingContract.votingPower(msg.sender) > 0, "Must have voting power");
+        require(_milestones.length > 0, "No milestones");
 
-        uint256 proposalId = _createProposal(
-            ProposalType.Funding, _descriptionHash, _recipient, 0, TokenType.RYC
-        );
-        Proposal storage newProposal = proposals[proposalId];
+        // محاسبه Hard Cap
+        uint256 totalRequested = 0;
+        for (uint i = 0; i < _milestones.length; i++) {
+            totalRequested += _milestones[i].amount;
+        }
+
+        uint256 proposalId = _createProposal(ProposalType.Funding, _descriptionHash, _recipient, totalRequested, TokenType.RYC);
+        Proposal storage p = proposals[proposalId];
+        
+        // تنظیم Soft Cap
+        p.softCap = (totalRequested * SOFT_CAP_PERCENT) / 100;
 
         for (uint i = 0; i < _milestones.length; i++) {
-            require(_milestones[i].amount > 0, "Milestone amount must be > 0");
-            require(_milestones[i].durationDays > 0, "Milestone duration must be > 0");
-            require(bytes(_milestones[i].name).length > 0, "Milestone name cannot be empty");
-
-            newProposal.milestones.push(_milestones[i]);
+            p.milestones.push(_milestones[i]);
         }
     }
 
-
-    /**
-     * @notice Creates a proposal to release the next milestone for an existing funding project.
-     * @dev Can be called by the original project recipient or an admin.
-     * @param _originalProposalId The ID of the initial funding proposal.
-     * @param _proofHash The hash of the off-chain proof of progress.
-     * @param _descriptionHash A hash of the description for this new milestone release proposal.
-     */
-    function createMilestoneReleaseProposal(
-            uint256 _originalProposalId,
-            bytes32 _proofHash,
-            bytes32 _descriptionHash
-        ) external {
-            Proposal storage originalProposal = proposals[_originalProposalId];
-            
-            require(originalProposal.pType == ProposalType.Funding, "Original proposal is not for funding");
-            
-            //  FIX: اجازه به Proposer یا Recipient یا Admin 
-            require(
-                msg.sender == originalProposal.proposer ||  // <--- اضافه شد: سازنده پروپوزال
-                msg.sender == originalProposal.recipient || // دریافت کننده (برای انعطاف پذیری نگه میداریم)
-                accControl.hasRole(accControl.DEFAULT_ADMIN_ROLE(), msg.sender), 
-                "Not authorized to this propose milestone release"
-            );
-            
-            require(originalProposal.currentMilestoneIndex < originalProposal.milestones.length, "All milestones already released");
-            require(_proofHash != bytes32(0), "Proof hash cannot be zero");
-
-        // ایجاد یک پروپوزال جدید از نوع MilestoneRelease
-        uint256 milestoneProposalId = _createProposal(
-            ProposalType.MilestoneRelease,
-            _descriptionHash,
-            payable(originalProposal.recipient), // Recipient is the same
-            _originalProposalId, // 'amount' field now stores the original proposal ID
-            TokenType.RYC
+    function createMilestoneReleaseProposal(uint256 _originalProposalId, bytes32 _proofHash, bytes32 _descriptionHash) external {
+        Proposal storage original = proposals[_originalProposalId];
+        require(original.pType == ProposalType.Funding, "Not funding proposal");
+        require(
+            msg.sender == original.proposer || msg.sender == original.recipient || accControl.hasRole(accControl.DEFAULT_ADMIN_ROLE(), msg.sender), 
+            "Access Denied: Not authorized"
         );
-        
-        // ذخیره کردن proofHash در پروپوزال جدید برای بررسی در زمان اجرا
-        proposals[milestoneProposalId].milestones.push(Milestone({
-            name: "", // ✅ FIX: افزودن فیلد name با مقدار پیش‌فرض
-            durationDays: 0, // ✅ FIX: افزودن فیلد durationDays با مقدار پیش‌فرض
-            amount: 0, // برای این نوع پروپوزال استفاده نمی‌شود
-            state: ProposalState.Pending,
-            proofOfProgressHash: _proofHash, // مقدار اصلی که باید ذخیره شود
-            released: false
+        require(original.state == ProposalState.Funded, "Project not in Funded state"); // ✅ شرط جدید
+
+        uint256 id = _createProposal(ProposalType.MilestoneRelease, _descriptionHash, payable(original.recipient), _originalProposalId, TokenType.RYC);
+        proposals[id].milestones.push(Milestone({
+            name: "Release", durationDays: 0, amount: 0, state: ProposalState.Pending, proofOfProgressHash: _proofHash, released: false
         }));
     }
 
     // ✅ NEW: ایجاد پروپوزال برای اعطای نقش (برای غیرمتمرکزسازی اعطای نقش)
-    function createGrantRoleProposal(
-        bytes32 _descriptionHash, 
-        address _recipient, 
-        bytes32 _roleToGrant
-    ) external onlyRole(accControl.DAO_MEMBER_ROLE()) { // فقط اعضای DAO می‌توانند درخواست Grant Role دهند
-        require(_descriptionHash != bytes32(0), "Description hash cannot be zero"); 
-        
-        uint256 proposalId = _createProposal(
-            ProposalType.GrantRole, _descriptionHash, payable(_recipient), 0, TokenType.RYC
-        );
-        proposals[proposalId].roleToGrant = _roleToGrant;
+    function createGrantRoleProposal(bytes32 _descriptionHash, address _recipient, bytes32 _roleToGrant) external onlyRole(accControl.DAO_MEMBER_ROLE()) {
+        uint256 id = _createProposal(ProposalType.GrantRole, _descriptionHash, payable(_recipient), 0, TokenType.RYC);
+        proposals[id].roleToGrant = _roleToGrant;
     }
-
-    function createTreasuryActionProposal(
-        // ✅ CHANGE: Accepts only the hash
-        bytes32 _descriptionHash, 
-        address payable _recipient,
-        uint256 _amount,
-        TokenType _tokenType
-    ) external onlyRole(accControl.DEFAULT_ADMIN_ROLE()) { // Only admins can propose treasury actions
-        require(_descriptionHash != bytes32(0), "Description hash cannot be zero"); // New check
+    
+    function createTreasuryActionProposal(bytes32 _descriptionHash, address payable _recipient, uint256 _amount, TokenType _tokenType) external onlyRole(accControl.DEFAULT_ADMIN_ROLE()) {
         _createProposal(ProposalType.TreasuryAction, _descriptionHash, _recipient, _amount, _tokenType);
     }
 
-    function _createProposal(
-        ProposalType _pType,
-        bytes32 _descriptionHash,
-        address payable _recipient,
-        uint256 _amount,
-        TokenType _tokenType
-    ) private returns (uint256) {
-        uint256 proposalId = nextProposalId++;
-        // ✅✅✅ FIX: استفاده از storage pointer
-        Proposal storage newProposal = proposals[proposalId];
-        newProposal.id = proposalId;
-        newProposal.pType = _pType;
-        newProposal.proposer = msg.sender;
-        newProposal.descriptionHash = _descriptionHash;
-        newProposal.recipient = _recipient;
-        newProposal.amount = _amount;
-        newProposal.tokenType = _tokenType;
-        newProposal.creationTime = block.timestamp;
-        newProposal.votingDeadline = block.timestamp + votingPeriod;
-        newProposal.state = ProposalState.Voting;
-
-        emit ProposalCreated(proposalId, msg.sender, _pType, _descriptionHash);
-        emit ProposalStateChanged(proposalId, ProposalState.Voting);
-        return proposalId;
+    function _createProposal(ProposalType _pType, bytes32 _descriptionHash, address payable _recipient, uint256 _amount, TokenType _tokenType) private returns (uint256) {
+        uint256 id = nextProposalId++;
+        Proposal storage p = proposals[id];
+        p.id = id;
+        p.pType = _pType;
+        p.proposer = msg.sender;
+        p.descriptionHash = _descriptionHash;
+        p.recipient = _recipient;
+        p.amount = _amount;
+        p.tokenType = _tokenType;
+        p.creationTime = block.timestamp;
+        p.votingDeadline = block.timestamp + votingPeriod;
+        p.state = ProposalState.Voting;
+        emit ProposalCreated(id, msg.sender, _pType, _descriptionHash);
+        return id;
     }
     
     // --- Voting Logic --- 
@@ -310,9 +258,56 @@ contract RayanChainDAO is Initializable, OwnableUpgradeable, ReentrancyGuardUpgr
         }
     }
 
+    // 1. شروع فاز سرمایه‌گذاری
+    function startFunding(uint256 _proposalId) internal {
+        Proposal storage p = proposals[_proposalId];
+        p.state = ProposalState.Funding;
+        p.fundingDeadline = block.timestamp + FUNDING_DURATION;
+        emit ProposalStateChanged(_proposalId, ProposalState.Funding);
+    }
 
-      
-   // --- Proposal Execution (اصلی‌ترین تغییر) ---
+    // 2. سرمایه‌گذاری
+    function invest(uint256 _proposalId, uint256 _amount) external nonReentrant {
+        Proposal storage p = proposals[_proposalId];
+        require(p.state == ProposalState.Funding, "Not in funding phase");
+        require(block.timestamp <= p.fundingDeadline, "Funding ended");
+        require(p.totalRaised + _amount <= p.amount, "Hard cap reached");
+
+        financeContract.depositInvestment(_proposalId, msg.sender, _amount);
+        
+        p.totalRaised += _amount;
+        emit InvestmentReceived(_proposalId, msg.sender, _amount);
+    }
+
+    // 3. پایان سرمایه‌گذاری
+    function finalizeFunding(uint256 _proposalId) external nonReentrant {
+        Proposal storage p = proposals[_proposalId];
+        require(p.state == ProposalState.Funding, "Not funding");
+        
+        bool timeEnded = block.timestamp > p.fundingDeadline;
+        bool hardCapReached = p.totalRaised >= p.amount;
+        
+        require(timeEnded || hardCapReached, "Funding ongoing");
+
+        if (p.totalRaised >= p.softCap) {
+            p.state = ProposalState.Funded;
+            financeContract.finalizeInvestment(_proposalId, p.recipient, p.totalRaised, uint8(p.milestones.length));
+            emit FundingFinalized(_proposalId, true, p.totalRaised);
+        } else {
+            p.state = ProposalState.FundingFailed;
+            emit FundingFinalized(_proposalId, false, p.totalRaised);
+        }
+        emit ProposalStateChanged(_proposalId, p.state);
+    }
+
+    // 4. بازپرداخت
+    function claimRefund(uint256 _proposalId) external nonReentrant {
+        Proposal storage p = proposals[_proposalId];
+        require(p.state == ProposalState.FundingFailed, "Funding not failed");
+        financeContract.refundInvestment(_proposalId, msg.sender);
+    }
+
+    // --- Execution Logic (Updated with your custom logic) ---
     function executeProposal(uint256 _proposalId) external nonReentrant {
         Proposal storage p = proposals[_proposalId];
         
@@ -321,84 +316,55 @@ contract RayanChainDAO is Initializable, OwnableUpgradeable, ReentrancyGuardUpgr
         }
 
 
+
         require(p.state == ProposalState.Approved, "Proposal is not approved");
         require(!p.executed, "Proposal already executed");
-        require(p.aiRiskScore <= MAX_RISK_SCORE, "AI risk score is too high"); // ✅ AI Gate Check
+        require(p.aiRiskScore <= MAX_RISK_SCORE, "AI risk score is too high");
         
+        // ✅ CHANGE: اگر نوع Funding باشد، به جای اجرا، فاز Funding شروع می‌شود
+        if (p.pType == ProposalType.Funding) {
+            p.executed = true; // علامت‌گذاری به عنوان "اجرا شده از نظر حاکمیت"
+            startFunding(_proposalId);
+            return;
+        }
+
+        // --- اجرای سایر انواع پروپوزال (منطق قبلی شما) ---
         p.executed = true;
         p.state = ProposalState.Executed;
 
         bytes memory data;
         address target;
-        // Salt باید یکتا و قابل پیش‌بینی باشد. استفاده از ID پروپوزال بهترین گزینه است.
         bytes32 salt = keccak256(abi.encodePacked("RayanChainProposal", _proposalId));
 
-        if (p.pType == ProposalType.Funding) {
-            // عملیات: registerInvestment در قرارداد Finance
-            uint256 totalAmount = 0;
-            for (uint i = 0; i < p.milestones.length; i++) {
-                totalAmount += p.milestones[i].amount;
-            }
-            target = address(financeContract);
-            data = abi.encodeWithSelector(
-                IFinance(target).registerInvestment.selector,
-                _proposalId,
-                p.recipient,
-                totalAmount,
-                uint8(p.milestones.length)
-            );
-        } else if (p.pType == ProposalType.TreasuryAction) {
-            // عملیات: withdraw/withdrawTokens در قرارداد Finance
+        if (p.pType == ProposalType.TreasuryAction) {
             target = address(financeContract);
             if (p.tokenType == TokenType.Native) {
                 data = abi.encodeWithSelector(IFinance(target).withdraw.selector, p.recipient, p.amount);
             } else {
                 data = abi.encodeWithSelector(IFinance(target).withdrawTokens.selector, p.recipient, p.amount);
             }
-        } else if (p.pType == ProposalType.GrantRole) { // ✅ NEW: اجرای GrantRole
-            // عملیات: grantRole در قرارداد AccControl
+        } else if (p.pType == ProposalType.GrantRole) {
             target = address(accControl);
-            data = abi.encodeWithSelector(
-                AccControl(target).grantRole.selector,
-                p.roleToGrant, 
-                p.recipient // آدرس دریافت‌کننده نقش
-            );
-        } else if (p.pType == ProposalType.MilestoneRelease) { // ✅ NEW LOGIC
-            uint256 originalProposalId = p.amount; // ID پروپوزال اصلی در فیلد amount ذخیره شده
+            data = abi.encodeWithSelector(AccControl(target).grantRole.selector, p.roleToGrant, p.recipient);
+        } else if (p.pType == ProposalType.MilestoneRelease) {
+            uint256 originalProposalId = p.amount;
             target = address(financeContract);
-            data = abi.encodeWithSelector(
-                IFinance(target).releaseNextMilestone.selector,
-                originalProposalId
-        ); 
-         // آپدیت وضعیت در پروپوزال اصلی
+            data = abi.encodeWithSelector(IFinance(target).releaseNextMilestone.selector, originalProposalId);
+            
             Proposal storage originalProposal = proposals[originalProposalId];
-            bytes32 proofHash = p.milestones[0].proofOfProgressHash; // دریافت proofHash از پروپوزال فعلی
+            bytes32 proofHash = p.milestones[0].proofOfProgressHash;
             originalProposal.milestones[originalProposal.currentMilestoneIndex].proofOfProgressHash = proofHash;
             originalProposal.milestones[originalProposal.currentMilestoneIndex].released = true;
             emit MilestoneReleased(originalProposalId, originalProposal.currentMilestoneIndex, originalProposal.milestones[originalProposal.currentMilestoneIndex].amount);
             originalProposal.currentMilestoneIndex++;
         }
         
-        // ✅ FIX 2: افزودن آرگومان ششم (delay) به تابع schedule
-        timelock.schedule(
-            target,
-            0,
-            data,
-            bytes32(0),
-            salt,
-            timelock.getMinDelay() // حداقل زمان تأخیر
-        );
-
+        timelock.schedule(target, 0, data, bytes32(0), salt, timelock.getMinDelay());
         emit ProposalExecuted(_proposalId);
         emit ProposalStateChanged(_proposalId, ProposalState.Executed);
     }
 
-    // --- ✅ NEW LOGIC: منطق اضطراری PAUSER ---
-    /**
-     * @notice Allows an account with the PAUSER_ROLE to cancel a scheduled operation in the Timelock.
-     * @dev This function acts as the emergency escape hatch for the DAO.
-     * @param _proposalId The ID of the proposal whose scheduled operation should be cancelled.
-     */
+    // --- NEW LOGIC: منطق اضطراری PAUSER ---
     function emergencyCancel(uint256 _proposalId) external nonReentrant onlyRole(accControl.PAUSER_ROLE()) {
         Proposal storage p = proposals[_proposalId];
         require(p.state == ProposalState.Executed, "DAO: Proposal must be in Executed (Scheduled) state to be cancelled.");

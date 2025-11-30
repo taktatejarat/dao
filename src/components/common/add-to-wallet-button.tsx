@@ -5,6 +5,7 @@
 import { Button } from '@/components/ui/button';
 import { Wallet } from 'lucide-react';
 import type { Address } from 'viem';
+import { useTranslation } from '@/hooks/use-translation';
 
 interface AddToWalletButtonProps {
   tokenAddress: Address | undefined;
@@ -13,6 +14,8 @@ interface AddToWalletButtonProps {
 }
 
 export function AddToWalletButton({ tokenAddress, tokenSymbol, tokenDecimals }: AddToWalletButtonProps) {
+  const { t } = useTranslation();
+
   const handleAddToken = async () => {
     if (!tokenAddress || typeof window === 'undefined' || !window.ethereum) return;
 
@@ -34,9 +37,11 @@ export function AddToWalletButton({ tokenAddress, tokenSymbol, tokenDecimals }: 
   };
 
   return (
-    <Button variant="outline" size="sm" onClick={handleAddToken} disabled={!tokenAddress}>
-      <Wallet className="mr-2 h-4 w-4" />
-      Add RYC to MetaMask
-    </Button>
+    <div className="flex justify-center w-full mt-3">
+      <Button variant="outline" size="sm" onClick={handleAddToken} disabled={!tokenAddress}>
+        <Wallet className="mr-2 h-4 w-4" />
+        {t('staking_page.add_to_wallet')}
+      </Button>
+    </div>
   );
 }

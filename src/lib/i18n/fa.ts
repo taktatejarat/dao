@@ -669,6 +669,7 @@ export const fa = {
     card_label_balance: "مقدار توکنهای RYC خریداری شده در کیف پول",
     card_label_staked: "موجودی توکنهای RYC سپرده گذاری شده",
     card_label_earned: "مقدار پاداشهای عملکرد دریافت شده",
+    add_to_wallet: "افزودن توکن RYC به کیف پول",
   },
 
   // Treasury Page
@@ -735,6 +736,7 @@ export const fa = {
     progress_description: "شرح دهید در این فاز چه کارهایی انجام شده است:",
     progress_placeholder: "مثلاً: تکمیل توسعه MVP، پایان تست‌های کاربری...",
     submit_request: "ثبت درخواست",
+    total_supply: " از کل توکن های موجود ",
       timeline: {
       title: "وضعیت پروپوزال",
       submitted: "ارسال شده",

@@ -663,6 +663,7 @@ export const en = {
     card_label_balance: "Amount of purchased RYC tokens in the wallet",
     card_label_staked: "Balance of staked RYC tokens",
     card_label_earned: "Amount of received performance rewards",
+    add_to_wallet: "Add RYC token to wallet",
   },
 
   // Treasury Page
@@ -727,6 +728,7 @@ export const en = {
     progress_description: "Describe what has been completed in this phase:",
     progress_placeholder: "For example: Completion of MVP development, conclusion of user testing...",
     submit_request: "Submit request",
+    total_supply: "of the total available tokens",
     timeline:{
       title: "Proposal status",
       submitted: "Submitted",

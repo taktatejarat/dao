@@ -17,9 +17,16 @@ contract Finance is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeabl
     AccControl public accControl;
     uint256 public platformFeeBps;
 
+    // --- SaaS Revenue Model Config ---
+    address public protocolWallet; // کیف پول سازنده پلتفرم (1%)
+    address public clientWallet;   // کیف پول شرکت VC (4%)
+    uint256 public constant PROTOCOL_FEE_BPS = 100; // 1%
+    uint256 public constant CLIENT_FEE_BPS = 400;   // 4%
+
+
     struct Investment {
         address recipient;
-        uint256 totalAmount;
+        uint256 totalAmount; // مبلغ نهایی جمع شده (بعد از کسر کارمزد)
         uint256 releasedAmount;
         uint8 milestoneCount;
         uint8 currentMilestone;
@@ -28,127 +35,147 @@ contract Finance is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeabl
     mapping(uint256 => Investment) public investments;
 
 
-    // --- Initializer ---
-    function initialize(address _initialOwner, address _tokenAddress, uint256 _platformFeeBps, address _accControlAddress) public initializer {
+   // نگهداری موجودی سرمایه‌گذاران برای هر پروپوزال (برای Refund)
+    mapping(uint256 => mapping(address => uint256)) public investorBalances;
+
+    event FeesDistributed(uint256 proposalId, uint256 protocolFee, uint256 clientFee);
+    event InvestmentDeposited(uint256 indexed proposalId, address indexed investor, uint256 amount);
+    event InvestmentRefunded(uint256 indexed proposalId, address indexed investor, uint256 amount);
+
+    function initialize(
+        address _initialOwner, 
+        address _tokenAddress, 
+        address _accControlAddress,
+        address _protocolWallet,
+        address _clientWallet
+    ) public initializer {
         __Ownable_init(_initialOwner);
         __ReentrancyGuard_init();
+        __UUPSUpgradeable_init();
 
-        require(_tokenAddress != address(0), "Token cannot be zero address");
-        require(_platformFeeBps <= 1000, "Fee cannot exceed 10%");
-        
+        require(_tokenAddress != address(0), "Zero address");
         token = IERC20(_tokenAddress);
-        platformFeeBps = _platformFeeBps;
         accControl = AccControl(_accControlAddress);
+        
+        protocolWallet = _protocolWallet;
+        clientWallet = _clientWallet;
     }
 
-    // --- UUPS Upgrade Authorization ---
     function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
 
-    // --- Modifiers ---
     modifier onlyExecutor() {
-        require(accControl.hasRole(accControl.EXECUTOR_ROLE(), msg.sender), "Finance: Must be Executor Role");
+        require(accControl.hasRole(accControl.EXECUTOR_ROLE(), msg.sender) || msg.sender == daoAddress, "Finance: Unauthorized");
         _;
     }
 
-    receive() external payable {
-        emit FundsDeposited(msg.sender, msg.value);
+    // --- Investment Flow ---
+
+    // 1. واریز سرمایه توسط کاربر (فراخوانی توسط DAO)
+    function depositInvestment(uint256 _proposalId, address _investor, uint256 _amount) external onlyExecutor nonReentrant {
+        require(_amount > 0, "Amount must be > 0");
+        // انتقال توکن از کاربر به این قرارداد (باید قبلا Approve شده باشد)
+        bool success = token.transferFrom(_investor, address(this), _amount);
+        require(success, "Transfer failed");
+        
+        investorBalances[_proposalId][_investor] += _amount;
+        emit InvestmentDeposited(_proposalId, _investor, _amount);
     }
 
-    // --- Core Investment Logic ---
+    // 2. نهایی‌سازی سرمایه‌گذاری (کسر کارمزدها و قفل کردن بودجه)
+    function finalizeInvestment(uint256 _proposalId, address _recipient, uint256 _totalRaised, uint8 _milestoneCount) external onlyExecutor nonReentrant {
+        require(!investments[_proposalId].isActive, "Already active");
+        
+        // محاسبه کارمزدها
+        uint256 pFee = (_totalRaised * PROTOCOL_FEE_BPS) / 10000;
+        uint256 cFee = (_totalRaised * CLIENT_FEE_BPS) / 10000;
+        uint256 projectAmount = _totalRaised - pFee - cFee;
 
-    /**
-     * @notice Registers a new investment when a proposal passes. Called by the main DAO contract (via Timelock).
-     */
-    function registerInvestment(uint256 _proposalId, address _recipient, uint256 _totalAmount, uint8 _milestoneCount) external override onlyExecutor { // ✅ CHANGE: Replaced onlyOwner with onlyExecutor
-        require(_recipient != address(0), "Recipient cannot be zero address");
-        require(_totalAmount > 0, "Total amount must be greater than zero");
-        require(_milestoneCount > 0, "Must have at least one milestone");
-        require(!investments[_proposalId].isActive, "Investment for this proposal already exists");
+        // واریز کارمزدها
+        if (pFee > 0) token.transfer(protocolWallet, pFee);
+        if (cFee > 0) token.transfer(clientWallet, cFee);
+        
+        emit FeesDistributed(_proposalId, pFee, cFee);
 
+        // ثبت پروژه برای مایل‌ستون‌ها
         investments[_proposalId] = Investment({
             recipient: _recipient,
-            totalAmount: _totalAmount,
+            totalAmount: projectAmount, // مبلغ خالص برای پروژه
             releasedAmount: 0,
             milestoneCount: _milestoneCount,
             currentMilestone: 0,
             isActive: true
         });
 
-        emit InvestmentRegistered(_proposalId, _recipient, _totalAmount, _milestoneCount);
+        emit InvestmentRegistered(_proposalId, _recipient, projectAmount, _milestoneCount);
     }
 
-    /**
-     * @notice Releases the funds for the next milestone of a project. Called by the main DAO contract (via Timelock).
-     */
-    function releaseNextMilestone(uint256 _proposalId) external nonReentrant onlyExecutor { // ✅ CHANGE: Replaced onlyOwner with onlyExecutor
-        Investment storage investment = investments[_proposalId];
-        require(investment.isActive, "Investment is not active");
-        require(investment.currentMilestone < investment.milestoneCount, "All milestones have been released");
-
-        uint256 milestoneAmount = investment.totalAmount / investment.milestoneCount;
-        // Note: A more complex implementation could handle potential remainder dust from division.
-
-        uint256 feeAmount = (milestoneAmount * platformFeeBps) / 10000;
-        uint256 amountToRecipient = milestoneAmount - feeAmount;
-
-        require(token.balanceOf(address(this)) >= milestoneAmount, "Finance: Insufficient funds for this milestone");
-
-        if (feeAmount > 0) {
-            emit PlatformFeeTaken(_proposalId, feeAmount);
-        }
+    // 3. عودت وجه (در صورت شکست در جذب سرمایه)
+    function refundInvestment(uint256 _proposalId, address _investor) external onlyExecutor nonReentrant {
+        uint256 amount = investorBalances[_proposalId][_investor];
+        require(amount > 0, "No balance to refund");
         
-        bool success = token.transfer(investment.recipient, amountToRecipient);
-        require(success, "Finance: Token transfer to recipient failed");
+        investorBalances[_proposalId][_investor] = 0;
+        bool success = token.transfer(_investor, amount);
+        require(success, "Refund transfer failed");
+        
+        emit InvestmentRefunded(_proposalId, _investor, amount);
+    }
 
-        investment.releasedAmount += milestoneAmount;
+    // --- Milestone Release (Legacy & New Logic) ---
+    function releaseNextMilestone(uint256 _proposalId) external nonReentrant onlyExecutor {
+        Investment storage investment = investments[_proposalId];
+        require(investment.isActive, "Investment not active");
+        require(investment.currentMilestone < investment.milestoneCount, "All milestones released");
+
+        // محاسبه مبلغ این فاز
+        uint256 remainingMilestones = investment.milestoneCount - investment.currentMilestone;
+        // فرمول ایمن: باقیمانده بودجه تقسیم بر باقیمانده مایل‌ستون‌ها (برای جلوگیری از Dust)
+        uint256 currentBalance = investment.totalAmount - investment.releasedAmount;
+        uint256 amountToRelease = currentBalance / remainingMilestones;
+
+        require(token.balanceOf(address(this)) >= amountToRelease, "Insufficient funds");
+        
+        bool success = token.transfer(investment.recipient, amountToRelease);
+        require(success, "Transfer failed");
+
+        investment.releasedAmount += amountToRelease;
         investment.currentMilestone++;
 
         if (investment.currentMilestone == investment.milestoneCount) {
             investment.isActive = false;
         }
 
-        emit MilestoneReleased(_proposalId, amountToRecipient, investment.currentMilestone);
+        emit MilestoneReleased(_proposalId, amountToRelease, investment.currentMilestone);
     }
 
- 
-    /**
-     * @notice This function is deprecated for new investments but is kept for IFinance compatibility.
-     * Use releaseNextMilestone for new, structured investments.
-     */
-    function releaseFunds(address payable, uint256) external view override onlyOwner { // Keep onlyOwner for access control to deprecated function
-        revert("Finance: This function is deprecated. Use releaseNextMilestone instead.");
+    // برای سازگاری با اینترفیس - اضافه کردن 
+    function registerInvestment(uint256 _proposalId,address _recipient,uint256 _totalAmount,uint8 _milestoneCount) external override {
+        revert("Use finalizeInvestment instead");
+    }
+    
+    function releaseFunds(address payable, uint256) external view override onlyOwner {
+        revert("Deprecated");
     }
 
-    /**
-     * @notice Withdraws native currency from the treasury. Called by the DAO (via Timelock) for operational purposes.
-     */
-    function withdraw(address payable to, uint256 amount) external override onlyExecutor nonReentrant { // ✅ CHANGE: Replaced onlyOwner with onlyExecutor
-        require(address(this).balance >= amount, "Finance: Insufficient native balance");
+    function withdraw(address payable to, uint256 amount) external override onlyExecutor nonReentrant {
         (bool success, ) = to.call{value: amount}("");
-        require(success, "Finance: Native currency transfer failed");
+        require(success, "Failed");
         emit NativeFundsWithdrawn(to, amount);
     }
 
-    /**
-     * @notice Withdraws RYC tokens from the treasury. Called by the DAO (via Timelock) for operational purposes.
-     */
-    function withdrawTokens(address to, uint256 amount) external override onlyExecutor nonReentrant { // ✅ CHANGE: Replaced onlyOwner with onlyExecutor
-        require(token.balanceOf(address(this)) >= amount, "Finance: Insufficient RYC funds");
-        bool success = token.transfer(to, amount);
-        require(success, "Finance: RYC token transfer failed");
+    function withdrawTokens(address to, uint256 amount) external override onlyExecutor nonReentrant {
+        token.transfer(to, amount);
         emit TokenFundsWithdrawn(to, amount);
     }
 
-    // --- Configuration Functions ---
-
-    /**
-     * @notice Sets the DAO contract address. Can only be called by the current owner.
-     * @dev This remains onlyOwner since changing the DAO address is a highly sensitive admin function 
-     *      that will be executed by the Timelock (which will be the owner).
-     */
-    function setDaoAddress(address _daoAddress) external override onlyOwner { 
-        require(_daoAddress != address(0), "Finance: DAO address cannot be zero");
+    function setDaoAddress(address _daoAddress) external override onlyOwner {
         daoAddress = _daoAddress;
         emit DaoAddressSet(_daoAddress);
+    }
+    
+    // توابع تنظیم کیف پول‌های کارمزد (مخصوص ادمین)
+    function setFeeWallets(address _protocol, address _client) external onlyOwner {
+        protocolWallet = _protocol;
+        clientWallet = _client;
     }
 }

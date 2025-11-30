@@ -664,7 +664,7 @@ export const tr = {
     card_label_balance: "Cüzdanda satın alınan RYC token miktarı",
     card_label_staked: "Stake edilen RYC token bakiyesi",
     card_label_earned: "Alınan performans ödülleri miktarı",
-
+    add_to_wallet: "RYC tokenini cüzdana ekle",
   },
 
   // Treasury Page
@@ -729,6 +729,7 @@ export const tr = {
     progress_description: "Bu aşamada yapılan çalışmaları açıklayın:",
     progress_placeholder: "Örneğin: MVP geliştirmesinin tamamlanması, kullanıcı testlerinin bitmesi...",
     submit_request: "Talebi gönder",
+    total_supply: "mevcut toplam token arasından",
     timeline:{
       title: "Teklif durumu",
       submitted: "Gönderildi",

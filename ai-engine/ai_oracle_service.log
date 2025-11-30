@@ -12,3 +12,12 @@ INFO:     127.0.0.1:54924 - "GET /reports/proposal/6922f476fef11476bfd7c3ed HTTP
 INFO:     127.0.0.1:54930 - "GET /reports/proposal/6922f476fef11476bfd7c3ed HTTP/1.1" 200 OK
 INFO:     127.0.0.1:54736 - "GET / HTTP/1.1" 200 OK
 INFO:     127.0.0.1:55166 - "GET / HTTP/1.1" 200 OK
+[API] Trigger received for proposal 692bebf7fdd453de6d1c9e2d
+[API] Sending score 51 to on-chain ID 1
+[ORACLE] Updating On-Chain Risk Score for Proposal ID 1: Score 51
+[ORACLE] Preparing to call updateProposalRiskScore with args: [1, 51]
+[ORACLE] ✅ DAO Address found: 0xA0554edB9e2aA70415cd202579c3Ed1E055637D1
+[ORACLE CRITICAL ERROR] Transaction failed: 'SignedTransaction' object has no attribute 'rawTransaction'
+INFO:     127.0.0.1:43580 - "POST /action/trigger-risk-analysis/692bebf7fdd453de6d1c9e2d HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48682 - "GET /reports/proposal/692bebf7fdd453de6d1c9e2d HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48698 - "GET /reports/proposal/692bebf7fdd453de6d1c9e2d HTTP/1.1" 200 OK

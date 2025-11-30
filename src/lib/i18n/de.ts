@@ -664,6 +664,7 @@ export const de = {
     card_label_balance: "Im Wallet gekaufte RYC Token Menge",
     card_label_staked: "Bestand der gestakten RYC Token",
     card_label_earned: "Erhaltene Menge an Leistungsprämien",
+    add_to_wallet: "RYC Token zur Wallet hinzufügen",
   },
 
   // Treasury Page
@@ -728,6 +729,7 @@ export const de = {
     progress_description: "Beschreiben Sie die in dieser Phase erledigten Arbeiten:",
     progress_placeholder: "Zum Beispiel: Abschluss der MVP-Entwicklung, Ende der Benutzer Tests...",
     submit_request: "Anfrage einreichen",
+    total_supply: "von der gesamten verfügbaren Tokenmenge",
     timeline:{
       title: "Status des Vorschlags",
       submitted: "Eingereicht",

@@ -664,6 +664,7 @@ export const ru = {
     card_label_balance: "В кошельке приобретенное количество токенов RYC",
     card_label_staked: "Баланс стейкнутых токенов RYC",
     card_label_earned: "Полученное количество вознаграждений за деятельность",
+    add_to_wallet: "Добавить токен RYC в кошелёк",
   },
 
   // Treasury Page
@@ -728,6 +729,7 @@ export const ru = {
     progress_description: "Опишите, какие работы выполнены на данном этапе:",
     progress_placeholder: "Например: завершение разработки MVP, окончание пользовательского тестирования...",
     submit_request: "Отправить запрос",
+    total_supply: "из общего количества доступных токенов",
     timeline:{
       title: "Статус предложения",
       submitted: "Отправлено",

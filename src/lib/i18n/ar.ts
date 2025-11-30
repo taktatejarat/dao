@@ -664,7 +664,7 @@ export const ar = {
     card_label_balance: "كمية رموز RYC المشتراة في المحفظة",
     card_label_staked: "رصيد رموز RYC المودعة",
     card_label_earned: "كمية مكافآت الأداء المستلمة",
-
+    add_to_wallet: "إضافة رمز RYC إلى المحفظة",
   },
 
   // Treasury Page
@@ -729,6 +729,7 @@ export const ar = {
     progress_description: "اشرح ما تم إنجازه في هذه المرحلة:",
     progress_placeholder: "مثال: إكمال تطوير MVP، الانتهاء من اختبارات المستخدم...",
     submit_request: "تقديم الطلب",
+    total_supply: "من إجمالي عدد الرموز المتاحة",
     timeline:{
       title: "حالة المقترح",
       submitted: "تم الإرسال",

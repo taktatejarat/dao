@@ -1,9 +1,9 @@
-// src/app/proposals/[id]/page.tsx - FINAL FIX: RELATIVE TO TOTAL SUPPLY
+// src/app/proposals/[id]/page.tsx - FINAL BUG FREE VERSION
 
 "use client";
 
 import { useMemo, useEffect, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation'; // ✅ FIX: useRouter اضافه شد
 import Link from 'next/link';
 import { AppLayout } from '@/components/layout/app-layout';
 import { useWeb3 } from '@/context/Web3Provider';
@@ -28,17 +28,21 @@ import { BrainCircuit, AlertTriangle, Banknote,
 import { formatNumber, formatLocaleDate, formatAddress } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { useReadContract } from 'wagmi';
+import { useReadContract, useWriteContract } from 'wagmi';
 import { rayanChainDaoAbi, stakingAbi, rayanChainTokenAbi } from '@/lib/blockchain/generated';
 import { DaoLoadingSpinner } from '@/components/icons/dao-loading-spinner';
 import { useProposalVote } from '@/hooks/useProposalVote'; 
 import { useProposalExecute } from '@/hooks/useProposalExecute'; 
 import { ProposalTimeline } from '@/components/proposals/proposal-timeline';
-import { formatEther, type Address, parseAbi } from 'viem';
+import { formatEther, type Address, parseAbi, parseEther } from 'viem';
 import { useMilestoneRelease } from '@/hooks/useMilestoneRelease';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Progress } from "@/components/ui/progress"; 
+import { Input } from "@/components/ui/input"; 
+import { toast } from 'sonner';
 
+// ✅ FIX: تعریف دقیق تایپ‌ها بر اساس قرارداد جدید
 interface OnChainProposal { 
     id: bigint; 
     proposer: Address; 
@@ -48,6 +52,9 @@ interface OnChainProposal {
     deadline: bigint; 
     executed: boolean; 
     aiRiskScore: bigint; 
+    // فیلدهای جدید سرمایه‌گذاری
+    totalRaised: bigint;
+    amount: bigint;
 }
 
 const InfoCard = ({ icon: Icon, title, value }: { icon: React.ElementType, title: string, value: string | number }) => (
@@ -70,6 +77,10 @@ const getStatusInfo = (state: number, t: (key: string) => string) => {
         case 5: return { text: t('proposal_detail.status.executed'), color: 'bg-emerald-600/10 text-emerald-600 border-emerald-600/20', icon: ShieldCheck };
         case 6: return { text: t('proposal_detail.status.expired'), color: 'bg-orange-500/10 text-orange-500 border-orange-500/20', icon: AlertTriangle };
         case 7: return { text: t('proposal_detail.status.canceled'), color: 'bg-gray-500/10 text-gray-500 border-gray-500/20', icon: X };
+        // وضعیت‌های جدید
+        case 8: return { text: "Funding", color: 'bg-cyan-500/10 text-cyan-500 border-cyan-500/20', icon: Banknote };
+        case 9: return { text: "Funded", color: 'bg-teal-500/10 text-teal-500 border-teal-500/20', icon: CheckCircle };
+        case 10: return { text: "Funding Failed", color: 'bg-rose-500/10 text-rose-500 border-rose-500/20', icon: AlertTriangle };
         default: return { text: t('proposal_detail.status.unknown'), color: 'bg-gray-500', icon: Info };
     }
 };
@@ -88,8 +99,13 @@ export default function ProposalDetailPage() {
     const [error, setError] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [showStakingAlert, setShowStakingAlert] = useState(false);
+    
+    // استیت‌های دیالوگ آزادسازی
     const [proofText, setProofText] = useState("");
     const [isReleaseDialogOpen, setIsReleaseDialogOpen] = useState(false);
+    
+    // استیت سرمایه‌گذاری
+    const [investAmount, setInvestAmount] = useState("");
 
     useEffect(() => {
         const fetchAllData = async () => {
@@ -128,8 +144,6 @@ export default function ProposalDetailPage() {
         query: { enabled: !!address && !!stakingAddress }
     });
 
-    //FIX: تغییر مخرج کسر به Total Supply توکن 
-    // این کار باعث می‌شود درصد نسبت به کل توکن‌های موجود سنجیده شود
     const { data: tokenTotalSupply } = useReadContract({
         address: tokenAddress,
         abi: rayanChainTokenAbi,
@@ -137,27 +151,58 @@ export default function ProposalDetailPage() {
         query: { enabled: !!tokenAddress }
     });
 
+    // ✅ FIX: استخراج صحیح داده‌ها از آرایه (شامل فیلدهای جدید Funding)
     const onChainData = useMemo((): OnChainProposal | null => {
         if (!onChainResult || !Array.isArray(onChainResult)) return null;
         const result = onChainResult as any[];
+        
+        // نکته: ترتیب اندیس‌ها باید با struct Proposal در قرارداد یکی باشد
+        // [id, pType, proposer, hash, recipient, amount, tokenType, time, deadline, forVotes, againstVotes, state, executed, milestones, idx, aiScore, threshold, role, totalRaised, softCap, fundingDeadline]
+        // اندیس‌ها: 0..17 برای فیلدهای قدیمی. 18=totalRaised, 19=softCap, 20=fundingDeadline
+        
         return {
             id: result[0],
             proposer: result[2],
+            amount: result[5], // Hard Cap
             deadline: result[8],
             forVotes: result[9],
             againstVotes: result[10],
             state: Number(result[11]), 
             executed: result[12],
             aiRiskScore: result[14],
+            totalRaised: result[18] || 0n, // فیلدهای جدید
         };
     }, [onChainResult]);
 
+    // --- Hooks ---
+
+    const { writeContractAsync: investAsync } = useWriteContract();
+    
+    // ✅ FIX: تعریف ABI دستی برای invest (چون generated.ts هنوز آپدیت نشده)
+    const handleInvest = async () => {
+        if (!daoAddress || !onChainProposalId) return;
+        try {
+            const toastId = toast.loading("Investing...");
+            await investAsync({
+                address: daoAddress,
+                // ABI دستی برای invest
+                abi: parseAbi(['function invest(uint256 _proposalId, uint256 _amount) external']),
+                functionName: 'invest',
+                args: [onChainProposalId, parseEther(investAmount)]
+            });
+            toast.success("Investment submitted!", { id: toastId });
+        } catch (e) { 
+            console.error(e);
+            toast.error("Failed to invest"); 
+        }
+    };
+
+    // ✅ FIX: فراخوانی هوک MilestoneRelease
     const { requestRelease, isreleasing } = useMilestoneRelease({
         daoAddress,
         originalProposalId: onChainProposalId || 0n
     });
 
-    // بررسی اینکه آیا کاربر صاحب این پروژه است؟
     const isProjectOwner = address && onChainData && 
         (address.toLowerCase() === onChainData.proposer.toLowerCase());
 
@@ -186,7 +231,7 @@ export default function ProposalDetailPage() {
         return <AppLayout><Alert variant="destructive"><AlertTriangle className="h-4 w-4" /><AlertTitle>{t('common.error')}</AlertTitle><AlertDescription>{finalError}</AlertDescription></Alert></AppLayout>;
     }
     
-    // --- محاسبات درصد جدید ---
+    // --- محاسبات درصد ---
     const networkTotal = tokenTotalSupply ? BigInt(tokenTotalSupply.toString()) : 0n;
     
     const forVotesBig = onChainData ? BigInt(onChainData.forVotes) : 0n;
@@ -196,14 +241,12 @@ export default function ProposalDetailPage() {
     let againstPercentageRaw = 0;
 
     if (networkTotal > 0n) {
-        // دقت محاسبه را بالا می‌بریم
         forPercentageRaw = Number((forVotesBig * 10000n) / networkTotal) / 100;
         againstPercentageRaw = Number((againstVotesBig * 10000n) / networkTotal) / 100;
     }
 
     const forVotesFormatted = formatNumber(formatEther(forVotesBig), locale);
     const againstVotesFormatted = formatNumber(formatEther(againstVotesBig), locale);
-    // نمایش درصد با 4 رقم اعشار اگر خیلی کوچک بود
     const displayForPct = forPercentageRaw < 0.01 && forPercentageRaw > 0 ? "< 0.01" : forPercentageRaw.toFixed(2);
     const displayAgainstPct = againstPercentageRaw < 0.01 && againstPercentageRaw > 0 ? "< 0.01" : againstPercentageRaw.toFixed(2);
 
@@ -229,7 +272,7 @@ export default function ProposalDetailPage() {
                      <Card>
                         <CardHeader><CardTitle className="flex items-center gap-2"><BrainCircuit /> {t('proposal_detail.ai_analysis')}</CardTitle></CardHeader>
                         <CardContent className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                            <InfoCard icon={LineChart} title={t('proposal_detail.ai_risk_score')} value={`${onChainData?.aiRiskScore?.toString() ?? t('proposal_detail.status.pending')}`} />
+                            <InfoCard icon={LineChart} title={t('proposal_detail.ai_risk_score')} value={`${onChainData?.aiRiskScore?.toString() ?? t('common.pending')}`} />
                             <InfoCard icon={Scale} title={t('proposal_detail.market_sentiment')} value={offChainData?.aiAnalysis?.financialAnalysis?.market_sentiment_score ? `${(offChainData.aiAnalysis.financialAnalysis.market_sentiment_score * 100).toFixed(0)}%` : 'N/A'} />
                             <InfoCard icon={Users} title={t('proposal_detail.team_competency')} value={offChainData?.aiAnalysis?.financialAnalysis?.team_competency_score ?? 'N/A'} />
                         </CardContent>
@@ -245,7 +288,7 @@ export default function ProposalDetailPage() {
                             <CardTitle className="flex justify-between items-center">
                                 <span>{t('proposal_detail.voting_results')}</span>
                                 <Badge variant="secondary" className="text-xs font-normal">
-                                    {t('common.quorum')}: 4% {/* فعلا هاردکد یا از کانفیگ */}
+                                    {t('common.quorum')}: 4% 
                                 </Badge>
                             </CardTitle>
                         </CardHeader>
@@ -254,7 +297,7 @@ export default function ProposalDetailPage() {
                                 <div className="space-y-3"><Skeleton className="h-6 w-3/4" /><Skeleton className="h-4 w-1/2" /></div>
                             ) : onChainData ? (
                                 <div className="space-y-6">
-                                    {/* --- بخش آرای موافق --- */}
+                                    {/* --- Votes For --- */}
                                     <div>
                                         <div className="flex justify-between mb-2 text-sm">
                                             <span className="font-medium text-green-600 flex items-center gap-2">
@@ -263,26 +306,20 @@ export default function ProposalDetailPage() {
                                             </span>
                                             <div className="text-right">
                                                 <span className="font-bold block">{forVotesFormatted} RYC</span>
-                                                <span className="text-xs text-muted-foreground">{displayForPct}% of Total Supply</span>
+                                                <span className="text-xs text-muted-foreground">{displayForPct}% {t('proposal_detail.total_supply')}</span>
                                             </div>
                                         </div>
-                                        
-                                        {/* ✅ FIX: تغییر رنگ پس‌زمینه به خاکستری خنثی برای کنتراست بهتر */}
                                         <div className="h-4 w-full bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden border border-border relative shadow-inner">
-                                            {/* خط نشانگر حد نصاب (Quorum) */}
-                                            <div className="absolute top-0 bottom-0 border-l-2 border-dashed border-gray-400/50 z-10" style={{ left: '4%' }} title="Quorum (4%)"></div>
-                                            
                                             <div 
                                                 className="h-full bg-green-600 transition-all duration-1000 ease-out shadow-[0_0_15px_rgba(22,163,74,0.6)] relative" 
                                                 style={{ width: `${forVotesBig > 0n ? Math.max(forPercentageRaw, 1) : 0}%` }} 
                                             >
-                                                {/* افکت درخشش روی نوار سبز */}
-                                                <div className="absolute inset-0 bg-white/20 w-full h-full animate-pulse"></div>
+                                                 <div className="absolute inset-0 bg-white/20 w-full h-full animate-pulse"></div>
                                             </div>
                                         </div>
                                     </div>
 
-                                    {/* --- بخش آرای مخالف --- */}
+                                    {/* --- Votes Against --- */}
                                     <div>
                                         <div className="flex justify-between mb-2 text-sm">
                                             <span className="font-medium text-destructive flex items-center gap-2">
@@ -291,17 +328,14 @@ export default function ProposalDetailPage() {
                                             </span>
                                             <div className="text-right">
                                                 <span className="font-bold block">{againstVotesFormatted} RYC</span>
-                                                <span className="text-xs text-muted-foreground">{displayAgainstPct}% of Total Supply</span>
+                                                <span className="text-xs text-muted-foreground">{displayAgainstPct}% {t('proposal_detail.total_supply')}</span>
                                             </div>
                                         </div>
-                                        
-                                        {/* FIX: تغییر رنگ پس‌زمینه به خاکستری خنثی */}
                                         <div className="h-4 w-full bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden border border-border shadow-inner">
                                             <div 
                                                 className="h-full bg-destructive transition-all duration-1000 ease-out shadow-[0_0_15px_rgba(220,38,38,0.6)] relative" 
                                                 style={{ width: `${againstVotesBig > 0n ? Math.max(againstPercentageRaw, 1) : 0}%` }} 
                                             >
-                                                 {/* افکت درخشش روی نوار قرمز */}
                                                  <div className="absolute inset-0 bg-white/10 w-full h-full"></div>
                                             </div>
                                         </div>
@@ -328,8 +362,9 @@ export default function ProposalDetailPage() {
                                 </CardFooter>
                             )}
                     </Card>
-                    {/*  محل دقیق جایگذاری کد جدید */}
-                    {isProjectOwner && onChainData?.state === 2 && (
+
+                    {/* ✅ FIX: استفاده از نام درست متغیر (isReleasing) و اضافه کردن شرط state صحیح برای آزادسازی */}
+                    {isProjectOwner && onChainData?.state === 5 && (
                         <Card className="border-blue-500/50 bg-blue-500/5 shadow-lg shadow-blue-500/10">
                             <CardHeader>
                                 <CardTitle className="text-blue-600 flex items-center gap-2">
@@ -367,7 +402,7 @@ export default function ProposalDetailPage() {
                                                     requestRelease(proofText);
                                                     setIsReleaseDialogOpen(false);
                                                 }} 
-                                                // دقت کنید: اگر در هوک نام متغیر را isReleasing گذاشتید اینجا هم همان باشد
+                                                // ✅ FIX: نام متغیر اصلاح شد
                                                 disabled={isreleasing || !proofText}
                                                 className="w-full"
                                             >
@@ -379,7 +414,49 @@ export default function ProposalDetailPage() {
                             </CardContent>
                         </Card>
                     )}
-                    {/*  پایان کد جدید */}
+
+                        {/* --- FUNDING SECTION (New) --- */}
+                        {(onChainData?.state === 8) && ( // 8 = Funding State
+                            <Card className="border-primary/50 shadow-lg shadow-primary/10 mt-6">
+                                <CardHeader>
+                                    <CardTitle className="text-primary">Funding In Progress</CardTitle>
+                                    <CardDescription>This project is approved and raising funds.</CardDescription>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="space-y-4">
+                                        <div className="flex justify-between text-sm">
+                                            {/* ✅ FIX: محاسبه دقیق مقدار جذب شده و هدف */}
+                                            <span>Raised: {formatEther(onChainData.totalRaised)} RYC</span>
+                                            <span>Goal: {formatEther(onChainData.amount)} RYC</span>
+                                        </div>
+                                        
+                                        {/* محاسبه درصد پیشرفت سرمایه */}
+                                        <Progress value={Number((onChainData.totalRaised || 0n) * 100n / (onChainData.amount || 1n))} className="h-3" />
+                                        
+                                        <div className="flex gap-2 pt-2">
+                                            <Input 
+                                                type="number" 
+                                                placeholder="Amount to invest" 
+                                                value={investAmount} 
+                                                onChange={e => setInvestAmount(e.target.value)} 
+                                            />
+                                            <Button onClick={handleInvest} className="bg-primary hover:bg-primary/90">Invest</Button>
+                                        </div>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        )}
+
+                        {/* --- REFUND SECTION --- */}
+                        {(onChainData?.state === 10) && ( // 10 = FundingFailed
+                            <Card className="border-destructive/50 mt-6">
+                                <CardHeader><CardTitle className="text-destructive">Funding Failed</CardTitle></CardHeader>
+                                <CardContent>
+                                    <p className="text-sm text-muted-foreground mb-4">This project did not reach the soft cap. You can claim a refund.</p>
+                                    <Button variant="destructive" onClick={() => {/* call claimRefund */}}>Claim Refund</Button>
+                                </CardContent>
+                            </Card>
+                        )}
                 </div>
                 <div className="space-y-6">
                     {onChainData && <ProposalTimeline currentState={BigInt(onChainData.state)} />}

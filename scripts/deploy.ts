@@ -50,6 +50,11 @@ async function main() {
     const aiOracleAddress = deployer.address;
     const adminPrivateKey = process.env.PRIVATE_KEY;
 
+    const protocolWallet = deployer.address; //  TODO: آدرس کیف پول شما (پلتفرم)
+    const clientWallet = "0xabe155c88973cc83a48201a4b8a70859796a49a7"; //  TODO: آدرس کیف پول VC/Admin (فعلا یک آدرس تستی بگذارید)
+    // اگر آدرس کلاینت ندارید، موقتا همان deployer بگذارید برای تست
+    const finalClientWallet = clientWallet.startsWith("0x") ? clientWallet : deployer.address;
+
     console.log("👤 Deploying contracts with the account:", deployer.address);
     console.log("💰 Account balance:", ethers.formatEther(await ethers.provider.getBalance(deployer.address)));
 
@@ -90,11 +95,17 @@ async function main() {
     const stakingAddress = await staking.getAddress();
     console.log("✅ Staking (Proxy) deployed to:", stakingAddress);
 
-    // 4. Deploy Finance (Upgradeable)
-    console.log("\n[4/9] Deploying Finance (Upgradeable)...");
+    // 4. Deploy Finance (Updated Params)
+    console.log("\n[4/9] Deploying Finance (Upgradeable & SaaS Enabled)...");
     const FinanceFactory = await ethers.getContractFactory("Finance");
-    const platformFeeBps = 250;
-    const finance = await upgrades.deployProxy(FinanceFactory, [deployer.address, tokenAddress, platformFeeBps, accControlAddress], { initializer: 'initialize', kind: 'uups' });
+    // پارامترهای جدید: ProtocolWallet, ClientWallet
+    const finance = await upgrades.deployProxy(FinanceFactory, [
+        deployer.address, 
+        tokenAddress, 
+        accControlAddress,
+        protocolWallet, 
+        finalClientWallet
+    ], { initializer: 'initialize', kind: 'uups' });
     await finance.waitForDeployment();
     const financeAddress = await finance.getAddress();
     console.log("✅ Finance (Proxy) deployed to:", financeAddress);
