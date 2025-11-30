@@ -6,7 +6,7 @@ import { ProposalsList } from "@/components/dashboard/proposals-list";
 import { ActivityFeed } from "@/components/dashboard/activity-feed";
 import { InvestmentChart } from "@/components/dashboard/investment-chart";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Wallet, FileText, CheckSquare, Users, Award, Target, KeyRound, Server, Banknote, BrainCircuit, AlertTriangle, ShieldCheck } from "lucide-react";
+import { Wallet, FileText, CheckSquare, Users, Award, Target, KeyRound, Server, Banknote, BrainCircuit, AlertTriangle, ShieldCheck, Activity } from "lucide-react";
 import { useTranslation } from "@/hooks/use-translation";
 import { useAccount, useReadContract } from "wagmi";
 import { formatEther } from "viem";
@@ -59,7 +59,7 @@ export function DashboardPageContent() {
             'executed': t('proposal_detail.status.executed'),
             'rejected': t('proposal_detail.status.defeated'),
         };
-        return map[status.toLowerCase()] || status;
+        return status.charAt(0).toUpperCase() + status.slice(1); 
     };
 
   // داده‌های کاربر
@@ -171,8 +171,8 @@ export function DashboardPageContent() {
             <StatCard 
                 title={t('dashboard.latest_proposal_status')} 
                 value={isAnalyticsLoading ? "..." : getStatusLabel(recentStatus)} 
-                icon={Users} 
-                description={t('dashboard.no_proposals_status_desc')} 
+                icon={Activity} 
+                description={recentStatus ? t('dashboard.latest_update') : t('dashboard.no_proposals_status_desc')} 
                 isLoading={isAnalyticsLoading}
             />
           </div>
