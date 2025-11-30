@@ -52,51 +52,59 @@ def clean_feature_name(name: str) -> str:
 
 
 def generate_financial_report(proposal_data: dict) -> dict:
-    # 1. استخراج داده‌های جدید
+    # 1. استخراج داده‌های جدید (با مقدار پیش‌فرض ایمن)
     market = proposal_data.get('marketStats', {})
     financials = proposal_data.get('financialStats', {})
     
-    tam = float(market.get('tam', 0))
-    som = float(market.get('som', 0))
-    burn_rate = float(financials.get('burnRate', 0))
-    revenue = float(financials.get('revenueProj', 0))
-    requested = float(proposal_data.get('amount', 0)) # RYC converted to USD approx
+    # تبدیل مقادیر به float و مدیریت رشته‌های خالی
+    def safe_float(val):
+        try:
+            return float(val) if val else 0.0
+        except:
+            return 0.0
+
+    tam = safe_float(market.get('tam'))
+    som = safe_float(market.get('som'))
+    burn_rate = safe_float(financials.get('burnRate'))
+    requested = safe_float(proposal_data.get('amount')) # این فیلد از محاسبه مایل‌ستون‌ها می‌آید
 
     xai_factors = []
-    risk_score = 50 # Base
+    risk_score = 50 # امتیاز پایه
 
     # 2. تحلیل VC-Grade (قوانین خبره)
     
     # قانون 1: اندازه بازار (Market Size)
-    if tam > 1_000_000_000: # بازار 1 میلیاردی
+    if tam > 1_000_000_000: # بازار بزرگ
         risk_score -= 10
-        xai_factors.append({"key": "xai.financial.huge_tam", "values": {"value": f"${tam/1e9}B"}})
-    elif tam < 10_000_000:
+        xai_factors.append({"key": "xai.financial.huge_tam", "values": {"value": f"${tam/1e9}B"}, "importance": 1})
+    elif tam > 0 and tam < 10_000_000: # بازار کوچک
         risk_score += 20
         xai_factors.append({"key": "xai.financial.small_market", "importance": -1})
 
     # قانون 2: سهم بازار (SOM)
-    if som > 0 and (som / tam) > 0.10: # ادعای سهم بازار غیرواقعی (بیش از 10 درصد کل بازار)
+    if tam > 0 and som > 0 and (som / tam) > 0.10: 
         risk_score += 15
         xai_factors.append({"key": "xai.financial.unrealistic_som", "importance": -1})
 
     # قانون 3: پایداری مالی (Runway)
-    # اگر سرمایه درخواستی فقط کفاف 3 ماه را بدهد (Runway < 6 months خطرناک است)
-    if burn_rate > 0:
+    if burn_rate > 0 and requested > 0:
         runway_months = requested / burn_rate
         if runway_months < 6:
             risk_score += 25
-            xai_factors.append({"key": "xai.financial.short_runway", "values": {"value": int(runway_months)}})
-        elif runway_months > 24:
-             xai_factors.append({"key": "xai.financial.stable_runway", "values": {"value": int(runway_months)}})
+            xai_factors.append({"key": "xai.financial.short_runway", "values": {"value": int(runway_months)}, "importance": -1})
+        elif runway_months > 18:
+             xai_factors.append({"key": "xai.financial.stable_runway", "values": {"value": int(runway_months)}, "importance": 1})
 
-    # نرمال‌سازی
+    # نرمال‌سازی نهایی
     risk_score = max(0, min(100, risk_score))
     
+    # محاسبه احتمال موفقیت (معکوس ریسک)
+    success_prob = 100 - risk_score
+
     return {
-        "risk_score": risk_score,
-        "success_probability": 100 - risk_score,
-        "team_competency_score": 75, # Placeholder for now
-        "market_sentiment_score": 0.65,
-        "xai_factors": xai_factors # ✅ لیست فاکتورهای توضیح‌پذیر
+        "risk_score": int(risk_score),
+        "success_probability": int(success_prob),
+        "team_competency_score": 75, # Placeholder until Team AI layer is upgraded
+        "market_sentiment_score": 0.65, # Default
+        "xai_factors": xai_factors
     }

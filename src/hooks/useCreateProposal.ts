@@ -3,17 +3,16 @@
 "use client";
 
 import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
-import { isAddress, Hex, decodeEventLog, Log } from 'viem';
+import { isAddress, Hex, decodeEventLog } from 'viem';
 import { useAccount, useWaitForTransactionReceipt, useWriteContract } from 'wagmi';
 import { useTranslation } from '@/hooks/use-translation';
 import { rayanChainDaoAbi } from '@/lib/blockchain/generated';
 import { toast } from 'sonner';
 import type { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
 
-// --- Type Definitions ---
 export interface Milestone { name: string; durationDays: string; amount: string; }
 interface UseCreateProposalProps {
-    daoAddress: `0x${string}` | undefined; // Type refinement for stricter checks
+    daoAddress: `0x${string}` | undefined;
     router: AppRouterInstance;
 }
 
@@ -21,8 +20,9 @@ export function useCreateProposal({ daoAddress, router }: UseCreateProposalProps
     const { address } = useAccount();
     const { t } = useTranslation();
     const { writeContractAsync } = useWriteContract();
+    const toastIdRef = useRef<string | number | null>(null);
 
-    // --- Form States ---
+    // --- Form States (Updated) ---
     const [projectName, setProjectName] = useState('');
     const [tagline, setTagline] = useState('');
     const [website, setWebsite] = useState('');
@@ -31,42 +31,49 @@ export function useCreateProposal({ daoAddress, router }: UseCreateProposalProps
     const [solution, setSolution] = useState('');
     const [businessModel, setBusinessModel] = useState('');
     const [startupIndustry, setStartupIndustry] = useState('');
+    
+    // Team
     const [teamExperienceYears, setTeamExperienceYears] = useState('');
     const [teamBio, setTeamBio] = useState('');
-    const [marketSize, setMarketSize] = useState('');
+    
+    // Market (NEW)
+    const [marketSize, setMarketSize] = useState(''); // Legacy field (kept for compatibility)
+    const [tam, setTam] = useState(''); 
+    const [sam, setSam] = useState(''); 
+    const [som, setSom] = useState(''); 
     const [competitors, setCompetitors] = useState('');
+
+    // Financials (NEW)
+    const [burnRate, setBurnRate] = useState('');
+    const [revenueProj, setRevenueProj] = useState('');
+    const [breakEven, setBreakEven] = useState('');
     const [hasPreviousFunding, setHasPreviousFunding] = useState('false');
     const [fundingHistoryDetails, setFundingHistoryDetails] = useState('');
     const [recipient, setRecipient] = useState<string>('');
+    
     const [milestones, setMilestones] = useState<Milestone[]>([{ name: '', durationDays: '', amount: '' }]);
     
+    // Files
     const [pitchDeckFile, setPitchDeckFile] = useState<File | null>(null);
     const [financialsFile, setFinancialsFile] = useState<File | null>(null);
     const [legalFile, setLegalFile] = useState<File | null>(null);
 
-    // --- Process States ---
-    const [isSubmitting, setIsSubmitting] = useState(false); // General loading state
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const [txHash, setTxHash] = useState<Hex | undefined>(undefined);
     const [mongoId, setMongoId] = useState<string | null>(null);
 
-    // NEW: Ref to hold toast ID
-    const toastIdRef = useRef<string | number | null>(null);
-    // --- Wagmi Transaction Monitoring ---
-    const { data: receipt, isLoading: isConfirming, isSuccess: isConfirmed, isError: isTxError, error: txError } = useWaitForTransactionReceipt({ 
-        hash: txHash,
-        confirmations: 1 // Wait for at least 1 confirmation block
-    });
+    const { data: receipt, isLoading: isConfirming, isSuccess: isConfirmed, isError: isTxError, error: txError } = useWaitForTransactionReceipt({ hash: txHash, confirmations: 1 });
 
-    // --- Form Validation ---
+    // --- Validation ---
     const isFormValid = useMemo(() => {
         const areMilestonesValid = milestones.every(m => m.name.trim() && m.durationDays.trim() && m.amount.trim());
         return projectName.trim() !== '' &&
-               description.trim().length >= 20 && // Reduced for easier testing, adjust as needed
+               description.trim().length >= 20 &&
                isAddress(recipient) &&
                areMilestonesValid;
+        // Note: You can add stricter validation for new fields (TAM/SAM/SOM) if needed
     }, [projectName, description, recipient, milestones]);
 
-    // --- Handlers ---
     const handleAddMilestone = useCallback(() => setMilestones(prev => [...prev, { name: '', durationDays: '', amount: '' }]), []);
     const handleMilestoneChange = useCallback((index: number, field: keyof Milestone, value: string) => {
         const newMilestones = [...milestones];
@@ -78,7 +85,7 @@ export function useCreateProposal({ daoAddress, router }: UseCreateProposalProps
         if (milestones.length > 1) setMilestones(prev => prev.filter((_, i) => i !== index));
     }, [milestones.length]);
 
-    // --- SUBMISSION LOGIC ---
+    // --- Submit Logic ---
     const handleSubmit = useCallback(async (e: React.FormEvent) => {
         e.preventDefault();
         if (!isFormValid || !daoAddress) {
@@ -87,11 +94,10 @@ export function useCreateProposal({ daoAddress, router }: UseCreateProposalProps
         }
 
         setIsSubmitting(true);
-        // شروع پروسه: نمایش لودینگ اولیه
         toastIdRef.current = toast.loading(t('toasts.uploading_docs'));
 
         try {
-            // 1. Upload Files (Mock or Real)
+            // 1. Upload Files
             const uploadFile = async (file: File | null) => {
                 if (!file) return null;
                 const formData = new FormData();
@@ -108,25 +114,40 @@ export function useCreateProposal({ daoAddress, router }: UseCreateProposalProps
                 uploadFile(legalFile),
             ]);
 
-            // 2. Save Off-Chain (MongoDB)
+            // 2. Save Off-Chain (Updated Structure)
             toast.loading(t('toasts.saving_proposal'), { id: toastIdRef.current! });
-            const payload = {
+            
+            const fullProposalData = {
                 proposerAddress: address, projectName, tagline, website, description, problem, solution, businessModel,
-                startupIndustry, teamExperienceYears, teamBio, marketSize, competitors,
-                hasPreviousFunding, fundingHistoryDetails, recipient, milestones,
+                startupIndustry, 
+                teamExperienceYears, teamBio, 
+                // New Structure for Market & Financials
+                marketStats: { 
+                    marketSize, // keep legacy if needed or replace
+                    tam, sam, som, competitors 
+                },
+                financialStats: { 
+                    burnRate, revenueProj, breakEven,
+                    hasPreviousFunding, fundingHistoryDetails 
+                },
+                recipient, milestones,
                 documents: { pitchDeck: pitchDeckHash, financials: financialsHash, legal: legalHash },
             };
 
             const apiRes = await fetch('/api/proposals/submit', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload),
+                body: JSON.stringify(fullProposalData),
             });
 
             const apiData = await apiRes.json();
-            if (!apiRes.ok) throw new Error(apiData.message || 'API Error');
+            if (!apiRes.ok) {
+                // Handle Zod validation errors if present
+                if (apiData.errors) console.error(apiData.errors);
+                throw new Error(apiData.message || 'API Error');
+            }
             
-            setMongoId(apiData.mongoId); // CRITICAL: Save this for step 4
+            setMongoId(apiData.mongoId);
 
             // 3. Submit On-Chain
             toast.loading(t('toasts.confirm_in_wallet'), { id: toastIdRef.current! });
@@ -138,76 +159,60 @@ export function useCreateProposal({ daoAddress, router }: UseCreateProposalProps
             });
             
             toast.loading(t('toasts.waiting_for_confirmation'), { id: toastIdRef.current! });
-            setTxHash(hash); // Starts the useEffect watcher
+            setTxHash(hash);
 
         } catch (error) {
-            // ✅ FIX: بستن لودینگ و نمایش خطا
             if (toastIdRef.current) toast.dismiss(toastIdRef.current);
             toast.error(t('toasts.submission_failed'), { description: (error as Error).message });
             setIsSubmitting(false);
             setTxHash(undefined);
         }
-    }, [isFormValid, daoAddress, address, writeContractAsync, t, projectName, tagline, website, description, problem, solution, businessModel, startupIndustry, teamExperienceYears, teamBio, marketSize, competitors, hasPreviousFunding, fundingHistoryDetails, recipient, milestones, pitchDeckFile, financialsFile, legalFile]);
+    }, [
+        isFormValid, daoAddress, address, writeContractAsync, t, 
+        projectName, tagline, website, description, problem, solution, businessModel, 
+        startupIndustry, teamExperienceYears, teamBio, 
+        marketSize, tam, sam, som, competitors, 
+        burnRate, revenueProj, breakEven, hasPreviousFunding, fundingHistoryDetails, 
+        recipient, milestones, pitchDeckFile, financialsFile, legalFile
+    ]);
 
-    // --- POST-TRANSACTION EFFECT ---
+    // --- Post-Transaction Effect (Same as before) ---
     useEffect(() => {
-        // Only run if we have a hash, receipt, and mongoId, and haven't finished yet
         if (!txHash || !receipt || !mongoId || !isConfirmed) return;
 
         const finalizeProposal = async () => {
-            const toastId = 'finalize-toast';
             if (toastIdRef.current) toast.loading(t('toasts.processing_onchain_data'), { id: toastIdRef.current });
-
             try {
-                // A. Find the Event
-                // We look for logs emitted by the DAO address
                 const daoLogs = receipt.logs.filter(l => l.address.toLowerCase() === daoAddress?.toLowerCase());
                 let onChainId: bigint | null = null;
 
                 for (const log of daoLogs) {
                     try {
-                        const decoded = decodeEventLog({
-                            abi: rayanChainDaoAbi,
-                            data: log.data,
-                            topics: log.topics,
-                        });
+                        const decoded = decodeEventLog({ abi: rayanChainDaoAbi, data: log.data, topics: log.topics });
                         if (decoded.eventName === 'ProposalCreated') {
                             onChainId = (decoded.args as any).id;
                             break;
                         }
-                    } catch (e) {
-                        // Ignore logs that don't match the ABI (e.g. from internal OpenZeppelin calls)
-                        continue;
-                    }
+                    } catch (e) { continue; }
                 }
 
-                if (onChainId === null) {
-                    throw new Error("Could not find ProposalCreated event in transaction logs.");
-                }
+                if (onChainId === null) throw new Error("Event not found");
 
-                // B. Update MongoDB with OnChain ID
                 await fetch(`/api/proposals/${mongoId}/update-onchain-id`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ onChainId: onChainId.toString() }),
                 });
 
-                // C. Trigger AI
-                toast.loading(t('toasts.triggering_ai'), { id: toastId });
-                // Note: The python engine reads data from DB using mongoId, so no need to send body here
-                // unless your specific route requires it. We keep it simple as per standard arch.
+                toast.loading(t('toasts.triggering_ai'), { id: toastIdRef.current! });
                 await fetch(`/api/proposals/${mongoId}/trigger-ai`, { method: 'POST' });
 
-                //  FIX: بستن لودینگ و نمایش پیام موفقیت نهایی
                 if (toastIdRef.current) toast.dismiss(toastIdRef.current);
                 toast.success(t('toasts.proposal_created_success'));
-                
                 setTxHash(undefined);
                 setMongoId(null);
                 
-                setTimeout(() => {
-                    router.push(`/proposals/${onChainId}`);
-                }, 1500);
+                setTimeout(() => router.push(`/proposals/${onChainId}`), 1500);
 
             } catch (error) {
                 if (toastIdRef.current) toast.dismiss(toastIdRef.current);
@@ -215,9 +220,7 @@ export function useCreateProposal({ daoAddress, router }: UseCreateProposalProps
                 setIsSubmitting(false);
             }
         };
-
         finalizeProposal();
-
     }, [isConfirmed, receipt, txHash, mongoId, daoAddress, router, t]);
 
     // Error Handling
@@ -235,7 +238,8 @@ export function useCreateProposal({ daoAddress, router }: UseCreateProposalProps
         description, setDescription, problem, setProblem, solution, setSolution,
         businessModel, setBusinessModel, startupIndustry, setStartupIndustry,
         teamExperienceYears, setTeamExperienceYears, teamBio, setTeamBio,
-        marketSize, setMarketSize, competitors, setCompetitors,
+        marketSize, setMarketSize, tam, setTam, sam, setSam, som, setSom, competitors, setCompetitors,
+        burnRate, setBurnRate, revenueProj, setRevenueProj, breakEven, setBreakEven,        
         hasPreviousFunding, setHasPreviousFunding, fundingHistoryDetails, setFundingHistoryDetails,
         recipient, setRecipient, milestones,
         setPitchDeckFile, setFinancialsFile, setLegalFile,
