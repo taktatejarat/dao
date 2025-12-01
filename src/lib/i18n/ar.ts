@@ -241,6 +241,7 @@ export const ar = {
     staked_balance: "الرصيد المودع",
     staked_balance_desc: "الرموز المودعة الخاصة بك",
     view_all: "عرض الكل",
+    latest_update: "آخر تحديث",
     admin: {
       title: "مركز التحكم الإداري",
       verifying: "جارٍ التحقق من بيانات اعتماد المسؤول",
@@ -331,12 +332,34 @@ export const ar = {
     competitors: "تحليل المنافسين",
     competitors_placeholder: "من هم منافسوك الرئيسيون وما هي ميزتك التنافسية؟",
     has_previous_funding_label: "هل لديك تاريخ في جمع التبرعات؟",
-    industries: {
-        defi: "التمويل اللامركزي / ويب 3",
+      industries: {
+        defi: "نموذج مالي لامركزي / ويب 3",
         ai: "الذكاء الاصطناعي / تعلم الآلة",
         gaming: "الألعاب / الميتافيرس",
-        saas: "البرمجيات كخدمة (SaaS)"
-    },
+        saas: "البرمجيات كخدمة (SaaS)",
+        placeholder: "اختيار القطاع",
+        },
+      business_models: {
+        placeholder: "اختيار نموذج العمل",
+        b2b: "B2B (شركة إلى شركة)",
+        b2c: "B2C (شركة إلى مستهلك)",
+        b2b2c: "B2B2C (نموذج وسيط)",
+        saas: "SaaS (خدمات البرمجيات السحابية)",
+        marketplace: "سوق التجارة الإلكترونية",
+        },
+      market_stats: {
+        tam_label: "TAM (إجمالي السوق) ($)",
+        tam_desc: "إجمالي السوق المتاح (Total Accessible Market)",
+        sam_label: "SAM (السوق المتاح) ($)",
+        sam_desc: "السوق المتاح القابل للخدمة (Serviceable Available Market)",
+        som_label: "SOM (حصة السوق) ($)",
+        som_desc: "حصة السوق القابلة للتحقيق (Serviceable Obtainable Market)",
+      },
+      financial_stats: {
+        burn_rate_label: "التكلفة الشهرية (Burn Rate) ($)",
+        revenue_label: "إيرادات السنة الأولى ($)",
+        break_even_label: "نقطة التعادل (بالأشهر)",
+      },
     funding_details: "تفاصيل التمويل السابق",
     funding_details_placeholder: "اذكر المبلغ والتاريخ وأسماء المستثمرين السابقين...",
     milestone_name: "اسم المرحلة",

@@ -241,6 +241,7 @@ export const tr = {
     staked_balance: "Stake Edilen Bakiye",
     staked_balance_desc: "Stake edilmiş tokenlarınız",
     view_all: "Tümünü göster",
+    latest_update: "son güncelleme",
     admin: {
       title: "Yönetim Kontrol Merkezi",
       verifying: "Yönetici kimlik bilgileri doğrulanıyor",
@@ -331,12 +332,34 @@ export const tr = {
     competitors: "Rakip Analizi",
     competitors_placeholder: "Ana rakipleriniz kimler ve rekabet avantajınız nedir?",
     has_previous_funding_label: "Daha önce fon toplama geçmişiniz var mı?",
-    industries: {
-        defi: "DeFi / Web3",
-        ai: "Yapay Zeka / Makine Öğrenimi",
-        gaming: "Oyun / Metaverse",
-        saas: "Hizmet Olarak Yazılım (SaaS)"
-    },
+      industries: {
+        defi: "merkeziyetsiz finans modeli / web 3",
+        ai: "yapay zeka / makine öğrenimi",
+        gaming: "oyun / metaverse",
+        saas: "hizmet olarak yazılım (SaaS)",
+        placeholder: "sektör seçimi",
+        },
+      business_models: {
+        placeholder: "iş modeli seçimi",
+        b2b: "B2B (işletmeden işletmeye)",
+        b2c: "B2C (işletmeden tüketiciye)",
+        b2b2c: "B2B2C (aracılı model)",
+        saas: "SaaS (bulut yazılım hizmetleri)",
+        marketplace: "e-ticaret pazaryeri",
+        },
+     market_stats: {
+        tam_label: "TAM (toplam pazar) ($)",
+        tam_desc: "toplam erişilebilir pazar (Total Accessible Market)",
+        sam_label: "SAM (erişilebilir pazar) ($)",
+        sam_desc: "hizmet verilebilir erişilebilir pazar (Serviceable Available Market)",
+        som_label: "SOM (pazar payı) ($)",
+        som_desc: "elde edilebilir pazar payı (Serviceable Obtainable Market)",
+      },
+        financial_stats: {
+        burn_rate_label: "aylık gider (Burn Rate) ($)",
+        revenue_label: "ilk yıl geliri ($)",
+        break_even_label: "başabaş noktası (ay)",
+      },
     funding_details: "Önceki Fonlama Detayları",
     funding_details_placeholder: "Miktarı, tarihi ve önceki yatırımcıların adlarını belirtin...",
     milestone_name: "Aşama Adı",

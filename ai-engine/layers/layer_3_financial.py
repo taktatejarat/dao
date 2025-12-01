@@ -13,7 +13,7 @@ MODEL_PATH = os.path.join(SCRIPT_DIR, "../models/financial_risk_model.json")
 PREPROCESSOR_PATH = os.path.join(SCRIPT_DIR, "../models/preprocessor.joblib")
 
 try:
-    # ✅ FIX: بارگذاری مدل به عنوان XGBClassifier برای دسترسی به متدهای scikit-learn
+    #  FIX: بارگذاری مدل به عنوان XGBClassifier برای دسترسی به متدهای scikit-learn
     model = xgb.XGBClassifier()
     model.load_model(MODEL_PATH)
     preprocessor = joblib.load(PREPROCESSOR_PATH)
@@ -29,7 +29,7 @@ INDUSTRY_SENTIMENT_SCORES = {
     "HealthTech": 0.65, "SaaS": 0.60, "Fintech": 0.55,
 }
 
-# ✅✅✅ NEW: دیکشنری برای نگاشت نام‌های فنی به کلیدهای i18n ✅✅✅
+# NEW: دیکشنری برای نگاشت نام‌های فنی به کلیدهای i18n 
 FEATURE_NAME_MAP = {
     "cat__industry": "xai.feature.industry",
     "remainder__requested_amount_usd": "xai.feature.requested_amount",
@@ -47,7 +47,7 @@ def clean_feature_name(name: str) -> str:
     Returns:
         str: _description_
     """
-    # ✅✅✅ FIX: حذف پیشوندهای اضافی به صورت کامل ✅✅✅
+    #  FIX: حذف پیشوندهای اضافی به صورت کامل 
     return name.replace("cat__industry_", "").replace("remainder__", "")
 
 

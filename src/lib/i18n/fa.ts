@@ -240,6 +240,7 @@ export const fa = {
     staked_balance: "موجودی سپرده‌گذاری شده",
     staked_balance_desc: "توکن‌های سپرده‌گذاری شده شما",
     view_all: "نمایش همه",
+    latest_update: "آخرین بروزرسانی",
       admin: {
         title: "مرکز کنترل مدیریت",
         verifying: "در حال بررسی اعتبارنامه مدیر...",
@@ -385,7 +386,29 @@ export const fa = {
       defi: "مدل مالی غیرمتمرکز / وب ۳",
       ai: "هوش مصنوعی / یادگیری ماشین",
       gaming: "بازی / متاورس",
-      saas: "نرم‌افزار به عنوان سرویس (SaaS)"
+      saas: "نرم‌افزار به عنوان سرویس (SaaS)",
+      placeholder: "انتخاب صنعت",
+    },
+    business_models: {
+      placeholder: "انتخاب مدل کسب‌وکار",
+      b2b: "B2B (تجارت به تجارت)",
+      b2c: "B2C (تجارت به مصرف‌کننده)",
+      b2b2c: "B2B2C (واسطه‌ای)",
+      saas: "SaaS (خدمات نرم افزار ابری)",
+      marketplace: "بازار تجارت الکترونیکی",
+    },
+    market_stats: {
+      tam_label: "TAM (کل بازار) ($)",
+      tam_desc: "کل بازار قابل دسترسی (Total Acceable Market)",
+      sam_label: "SAM (بازار در دسترس) ($)",
+      sam_desc: "بازار قابل سرویس‌دهی (Serviceable Available Market)",
+      som_label: "SOM (سهم بازار) ($)",
+      som_desc: "سهم بازار قابل کسب (Serviceable Obtainable Market)"
+    },
+    financial_stats: {
+      burn_rate_label: "هزینه ماهانه (Burn Rate) ($)",
+      revenue_label: "درآمد سال اول ($)",
+      break_even_label: "نقطه سر‌به‌سر (ماه)"
     },
     funding_details: "جزئیات جذب سرمایه قبلی",
     funding_details_placeholder: "مبلغ، تاریخ و نام سرمایه‌گذاران قبلی را ذکر کنید...",

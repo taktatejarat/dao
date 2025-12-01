@@ -241,6 +241,7 @@ export const ru = {
     staked_balance: "Баланс в стейкинге",
     staked_balance_desc: "Ваши токены в стейкинге",
     view_all: "Показать все",
+    latest_update: "последнее обновление",
     admin: {
       title: "Центр управления администратором",
       verifying: "Проверка учетных данных администратора",
@@ -331,12 +332,34 @@ export const ru = {
     competitors: "Анализ конкурентов",
     competitors_placeholder: "Кто ваши основные конкуренты и в чем ваше конкурентное преимущество?",
     has_previous_funding_label: "У вас есть опыт привлечения средств?",
-    industries: {
-        defi: "DeFi / Web3",
-        ai: "Искусственный интеллект / Машинное обучение",
-        gaming: "Игры / Метавселенная",
-        saas: "Программное обеспечение как услуга (SaaS)"
-    },
+      industries: {
+        defi: "децентрализованная финансовая модель / веб 3",
+        ai: "искусственный интеллект / машинное обучение",
+        gaming: "игры / метавселенная",
+        saas: "программное обеспечение как услуга (SaaS)",
+        placeholder: "выбор отрасли",
+        },
+      business_models: {
+        placeholder: "выбор бизнес-модели",
+        b2b: "B2B (бизнес для бизнеса)",
+        b2c: "B2C (бизнес для потребителя)",
+        b2b2c: "B2B2C (посредническая модель)",
+        saas: "SaaS (облачные программные услуги)",
+        marketplace: "электронная торговая площадка",
+        },
+      market_stats: {
+        tam_label: "TAM (общий рынок) ($)",
+        tam_desc: "общий доступный рынок (Total Accessible Market)",
+        sam_label: "SAM (доступный рынок) ($)",
+        sam_desc: "обслуживаемый доступный рынок (Serviceable Available Market)",
+        som_label: "SOM (доля рынка) ($)",
+        som_desc: "обслуживаемая достижимая доля рынка (Serviceable Obtainable Market)",
+        },
+      financial_stats: {
+        burn_rate_label: "ежемесячные расходы (Burn Rate) ($)",
+        revenue_label: "доход за первый год ($)",
+        break_even_label: "точка безубыточности (месяцы)",
+        },
     funding_details: "Детали предыдущего финансирования",
     funding_details_placeholder: "Укажите сумму, дату и имена предыдущих инвесторов...",
     milestone_name: "Название этапа",

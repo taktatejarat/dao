@@ -241,6 +241,7 @@ export const en = {
     staked_balance: "Staked Balance",
     staked_balance_desc: "Your staked tokens",
     view_all: "Show all",
+    latest_update: "latest update",
     admin: {
       title: "Admin Control Center",
       verifying: "Verifying admin credentials",
@@ -329,12 +330,34 @@ export const en = {
     competitors: "Competitor Analysis",
     competitors_placeholder: "Who are your main competitors and what is your competitive advantage?",
     has_previous_funding_label: "Do you have a history of fundraising?",
-    industries: {
-        defi: "DeFi / Web3",
-        ai: "Artificial Intelligence / Machine Learning",
-        gaming: "Gaming / Metaverse",
-        saas: "Software as a Service (SaaS)"
-    },
+      industries: {
+        defi: "decentralized finance model / web3",
+        ai: "artificial intelligence / machine learning",
+        gaming: "gaming / metaverse",
+        saas: "software as a service (SaaS)",
+        placeholder: "select industry",
+        },
+      business_models: {
+        placeholder: "select business model",
+        b2b: "B2B (business to business)",
+        b2c: "B2C (business to consumer)",
+        b2b2c: "B2B2C (intermediary model)",
+        saas: "SaaS (cloud software services)",
+        marketplace: "e-commerce marketplace",
+        },
+      market_stats: {
+        tam_label: "TAM (total market) ($)",
+        tam_desc: "total accessible market (Total Accessible Market)",
+        sam_label: "SAM (available market) ($)",
+        sam_desc: "serviceable available market (Serviceable Available Market)",
+        som_label: "SOM (market share) ($)",
+        som_desc: "serviceable obtainable market (Serviceable Obtainable Market)",
+      },
+      financial_stats: {
+        burn_rate_label: "monthly cost (Burn Rate) ($)",
+        revenue_label: "first year revenue ($)",
+        break_even_label: "break even point (months)",
+      },
     funding_details: "Previous Funding Details",
     funding_details_placeholder: "Mention the amount, date, and names of previous investors...",
     milestone_name: "Milestone Name",

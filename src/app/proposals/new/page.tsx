@@ -61,19 +61,26 @@ export default function NewProposalPage() {
         }
     }, [isHydrated, canAccessPage, router, t]);
 
+    // ✅ FIX: تعریف آرایه‌ها با استفاده از i18n
+    // نکته: value ها انگلیسی می‌مانند (چون در دیتابیس ذخیره می‌شوند)، اما label ها ترجمه می‌شوند
     const industries = [
-        { value: "DeFi", label: "DeFi" }, { value: "AI", label: "AI" },
-        { value: "Gaming", label: "Gaming" }, { value: "SaaS", label: "SaaS" },
+        { value: "DeFi", label: t('new_proposal_page.industries.defi') },
+        { value: "AI", label: t('new_proposal_page.industries.ai') },
+        { value: "Gaming", label: t('new_proposal_page.industries.gaming') },
+        { value: "SaaS", label: t('new_proposal_page.industries.saas') },
     ];
+
     const businessModels = [
-        { value: "B2B", label: "B2B" }, { value: "B2C", label: "B2C" },
-        { value: "B2B2C", label: "B2B2C" }, { value: "SaaS", label: "SaaS" },
-        { value: "Marketplace", label: "Marketplace" },
+        { value: "B2B", label: t('new_proposal_page.business_models.b2b') },
+        { value: "B2C", label: t('new_proposal_page.business_models.b2c') },
+        { value: "B2B2C", label: t('new_proposal_page.business_models.b2b2c') },
+        { value: "SaaS", label: t('new_proposal_page.business_models.saas') },
+        { value: "Marketplace", label: t('new_proposal_page.business_models.marketplace') },
     ];
 
     return (
         <AppLayout>
-            <form onSubmit={handleSubmit}>
+            <div>
                 <header className="mb-6">
                     <h1 className="text-3xl font-bold font-headline text-gradient">{t('new_proposal_page.title')}</h1>
                     <p className="text-muted-foreground">{t('new_proposal_page.subtitle_professional')}</p>
@@ -114,46 +121,84 @@ export default function NewProposalPage() {
                                 <div className="space-y-2"><Label>{t('new_proposal_page.team_experience_years_label')}</Label><Input type="number" value={teamExperienceYears} onChange={e => setTeamExperienceYears(e.target.value)} disabled={isPending} /></div>
                                 <div className="space-y-2"><Label>{t('new_proposal_page.team_bio_label')}</Label><Textarea value={teamBio} onChange={e => setTeamBio(e.target.value)} disabled={isPending} /></div>
                             </TabsContent>
-
-                            {/* ✅ NEW: Market Tab with TAM/SAM/SOM */}
+                            {/* --- TAB 4: MARKET (I18N FIXED) --- */}
                             <TabsContent value="market" className="space-y-6">
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                     <div className="space-y-2">
-                                        <Label>TAM ($)</Label>
-                                        <Input type="number" placeholder="1000000000" value={tam} onChange={e => setTam(e.target.value)} disabled={isPending} />
-                                        <p className="text-xs text-muted-foreground">Total Addressable Market</p>
+                                        <Label>{t('new_proposal_page.market_stats.tam_label')}</Label>
+                                        <Input 
+                                            type="number" 
+                                            placeholder="1,000,000,000" 
+                                            value={tam} 
+                                            onChange={e => setTam(e.target.value)} 
+                                            disabled={isPending} 
+                                        />
+                                        <p className="text-xs text-muted-foreground">{t('new_proposal_page.market_stats.tam_desc')}</p>
                                     </div>
                                     <div className="space-y-2">
-                                        <Label>SAM ($)</Label>
-                                        <Input type="number" placeholder="50000000" value={sam} onChange={e => setSam(e.target.value)} disabled={isPending} />
-                                        <p className="text-xs text-muted-foreground">Serviceable Available Market</p>
+                                        <Label>{t('new_proposal_page.market_stats.sam_label')}</Label>
+                                        <Input 
+                                            type="number" 
+                                            placeholder="50,000,000" 
+                                            value={sam} 
+                                            onChange={e => setSam(e.target.value)} 
+                                            disabled={isPending} 
+                                        />
+                                        <p className="text-xs text-muted-foreground">{t('new_proposal_page.market_stats.sam_desc')}</p>
                                     </div>
                                     <div className="space-y-2">
-                                        <Label>SOM ($)</Label>
-                                        <Input type="number" placeholder="5000000" value={som} onChange={e => setSom(e.target.value)} disabled={isPending} />
-                                        <p className="text-xs text-muted-foreground">Serviceable Obtainable Market</p>
+                                        <Label>{t('new_proposal_page.market_stats.som_label')}</Label>
+                                        <Input 
+                                            type="number" 
+                                            placeholder="5,000,000" 
+                                            value={som} 
+                                            onChange={e => setSom(e.target.value)} 
+                                            disabled={isPending} 
+                                        />
+                                        <p className="text-xs text-muted-foreground">{t('new_proposal_page.market_stats.som_desc')}</p>
                                     </div>
                                 </div>
-                                <div className="space-y-2"><Label>{t('new_proposal_page.competitors')}</Label><Textarea value={competitors} onChange={e => setCompetitors(e.target.value)} disabled={isPending} /></div>
+                                <div className="space-y-2">
+                                    <Label>{t('new_proposal_page.competitors')}</Label>
+                                    <Textarea 
+                                        value={competitors} 
+                                        onChange={e => setCompetitors(e.target.value)} 
+                                        disabled={isPending} 
+                                    />
+                                </div>
                             </TabsContent>
-
-                            {/* ✅ NEW: Financials Tab with Burn Rate */}
+                            {/* --- TAB 5: FINANCIALS (I18N FIXED) --- */}
                             <TabsContent value="financials" className="space-y-6">
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                     <div className="space-y-2">
-                                        <Label>Monthly Burn Rate ($)</Label>
-                                        <Input type="number" value={burnRate} onChange={e => setBurnRate(e.target.value)} disabled={isPending} />
+                                        <Label>{t('new_proposal_page.financial_stats.burn_rate_label')}</Label>
+                                        <Input 
+                                            type="number" 
+                                            value={burnRate} 
+                                            onChange={e => setBurnRate(e.target.value)} 
+                                            disabled={isPending} 
+                                        />
                                     </div>
                                     <div className="space-y-2">
-                                        <Label>Year 1 Revenue ($)</Label>
-                                        <Input type="number" value={revenueProj} onChange={e => setRevenueProj(e.target.value)} disabled={isPending} />
+                                        <Label>{t('new_proposal_page.financial_stats.revenue_label')}</Label>
+                                        <Input 
+                                            type="number" 
+                                            value={revenueProj} 
+                                            onChange={e => setRevenueProj(e.target.value)} 
+                                            disabled={isPending} 
+                                        />
                                     </div>
                                     <div className="space-y-2">
-                                        <Label>Break-even (Month)</Label>
-                                        <Input type="number" placeholder="18" value={breakEven} onChange={e => setBreakEven(e.target.value)} disabled={isPending} />
+                                        <Label>{t('new_proposal_page.financial_stats.break_even_label')}</Label>
+                                        <Input 
+                                            type="number" 
+                                            placeholder="18" 
+                                            value={breakEven} 
+                                            onChange={e => setBreakEven(e.target.value)} 
+                                            disabled={isPending} 
+                                        />
                                     </div>
                                 </div>
-                                
                                 <div className="border-t pt-4">
                                     <div className="space-y-2"><Label>{t('new_proposal_page.has_previous_funding_label')}</Label><RadioGroup onValueChange={setHasPreviousFunding} value={hasPreviousFunding} className="flex gap-4 pt-2"><div className="flex items-center space-x-2"><RadioGroupItem value="true" id="f-yes" /><Label htmlFor="f-yes">{t('common.yes')}</Label></div><div className="flex items-center space-x-2"><RadioGroupItem value="false" id="f-no" /><Label htmlFor="f-no">{t('common.no')}</Label></div></RadioGroup></div>
                                     {hasPreviousFunding === 'true' && (<div className="space-y-2 mt-2"><Label>{t('new_proposal_page.funding_details')}</Label><Textarea value={fundingHistoryDetails} onChange={e => setFundingHistoryDetails(e.target.value)} /></div>)}
@@ -190,12 +235,12 @@ export default function NewProposalPage() {
                         {!isFormValid && isConnected && <Alert variant="default" className="mt-6"><AlertTriangle className="h-4 w-4" /><AlertTitle>{t('new_proposal_page.form_incomplete_title')}</AlertTitle><AlertDescription>{t('new_proposal_page.form_incomplete_tooltip')}</AlertDescription></Alert>}
                     </CardContent>
                     <CardFooter className="border-t pt-6">
-                        <Button type="submit" className="w-full sm:w-auto" disabled={!isFormValid || isPending || !isConnected}>
+                        <Button onClick={handleSubmit} className="w-full sm:w-auto" disabled={!isFormValid || isPending || !isConnected}>
                             {isPending ? <DaoLoadingSpinner className="me-2"/> : t('new_proposal_page.submit_for_review')}
                         </Button>
                     </CardFooter>
                 </Card>
-            </form>
+            </div>
         </AppLayout>
     );
 }

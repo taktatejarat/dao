@@ -1,4 +1,4 @@
-// src/hooks/useCreateProposal.ts
+// src/hooks/useCreateProposal.ts - NO FORM EVENT VERSION
 
 "use client";
 
@@ -20,9 +20,12 @@ export function useCreateProposal({ daoAddress, router }: UseCreateProposalProps
     const { address } = useAccount();
     const { t } = useTranslation();
     const { writeContractAsync } = useWriteContract();
+    
+    // استفاده از Ref برای جلوگیری از اجرای تکراری
     const toastIdRef = useRef<string | number | null>(null);
+    const isFinalizingRef = useRef(false);
 
-    // --- Form States (Updated) ---
+    // --- Form States ---
     const [projectName, setProjectName] = useState('');
     const [tagline, setTagline] = useState('');
     const [website, setWebsite] = useState('');
@@ -32,18 +35,16 @@ export function useCreateProposal({ daoAddress, router }: UseCreateProposalProps
     const [businessModel, setBusinessModel] = useState('');
     const [startupIndustry, setStartupIndustry] = useState('');
     
-    // Team
     const [teamExperienceYears, setTeamExperienceYears] = useState('');
     const [teamBio, setTeamBio] = useState('');
     
-    // Market (NEW)
-    const [marketSize, setMarketSize] = useState(''); // Legacy field (kept for compatibility)
+    // Market & Financials
+    const [marketSize, setMarketSize] = useState('');
     const [tam, setTam] = useState(''); 
     const [sam, setSam] = useState(''); 
     const [som, setSom] = useState(''); 
     const [competitors, setCompetitors] = useState('');
 
-    // Financials (NEW)
     const [burnRate, setBurnRate] = useState('');
     const [revenueProj, setRevenueProj] = useState('');
     const [breakEven, setBreakEven] = useState('');
@@ -53,7 +54,6 @@ export function useCreateProposal({ daoAddress, router }: UseCreateProposalProps
     
     const [milestones, setMilestones] = useState<Milestone[]>([{ name: '', durationDays: '', amount: '' }]);
     
-    // Files
     const [pitchDeckFile, setPitchDeckFile] = useState<File | null>(null);
     const [financialsFile, setFinancialsFile] = useState<File | null>(null);
     const [legalFile, setLegalFile] = useState<File | null>(null);
@@ -62,16 +62,12 @@ export function useCreateProposal({ daoAddress, router }: UseCreateProposalProps
     const [txHash, setTxHash] = useState<Hex | undefined>(undefined);
     const [mongoId, setMongoId] = useState<string | null>(null);
 
-    const { data: receipt, isLoading: isConfirming, isSuccess: isConfirmed, isError: isTxError, error: txError } = useWaitForTransactionReceipt({ hash: txHash, confirmations: 1 });
+    // Wagmi hooks
+    const { data: receipt, isLoading: isConfirming, isSuccess: isConfirmed, isError: isTxError, error: txError } = useWaitForTransactionReceipt({ hash: txHash });
 
-    // --- Validation ---
     const isFormValid = useMemo(() => {
         const areMilestonesValid = milestones.every(m => m.name.trim() && m.durationDays.trim() && m.amount.trim());
-        return projectName.trim() !== '' &&
-               description.trim().length >= 20 &&
-               isAddress(recipient) &&
-               areMilestonesValid;
-        // Note: You can add stricter validation for new fields (TAM/SAM/SOM) if needed
+        return projectName.trim() !== '' && description.trim().length >= 20 && isAddress(recipient) && areMilestonesValid;
     }, [projectName, description, recipient, milestones]);
 
     const handleAddMilestone = useCallback(() => setMilestones(prev => [...prev, { name: '', durationDays: '', amount: '' }]), []);
@@ -85,19 +81,20 @@ export function useCreateProposal({ daoAddress, router }: UseCreateProposalProps
         if (milestones.length > 1) setMilestones(prev => prev.filter((_, i) => i !== index));
     }, [milestones.length]);
 
-    // --- Submit Logic ---
-    const handleSubmit = useCallback(async (e: React.FormEvent) => {
-        e.preventDefault();
+    // ✅ تغییر مهم: حذف event آرگومان (e: React.FormEvent)
+    const handleSubmit = useCallback(async () => {
         if (!isFormValid || !daoAddress) {
             toast.warning(t('toasts.fill_all_fields'));
             return;
         }
 
         setIsSubmitting(true);
+        isFinalizingRef.current = false;
+        
         toastIdRef.current = toast.loading(t('toasts.uploading_docs'));
 
         try {
-            // 1. Upload Files
+            // 1. Upload
             const uploadFile = async (file: File | null) => {
                 if (!file) return null;
                 const formData = new FormData();
@@ -114,22 +111,14 @@ export function useCreateProposal({ daoAddress, router }: UseCreateProposalProps
                 uploadFile(legalFile),
             ]);
 
-            // 2. Save Off-Chain (Updated Structure)
-            toast.loading(t('toasts.saving_proposal'), { id: toastIdRef.current! });
+            // 2. Save Off-Chain
+            if (toastIdRef.current) toast.loading(t('toasts.saving_proposal'), { id: toastIdRef.current });
             
             const fullProposalData = {
                 proposerAddress: address, projectName, tagline, website, description, problem, solution, businessModel,
-                startupIndustry, 
-                teamExperienceYears, teamBio, 
-                // New Structure for Market & Financials
-                marketStats: { 
-                    marketSize, // keep legacy if needed or replace
-                    tam, sam, som, competitors 
-                },
-                financialStats: { 
-                    burnRate, revenueProj, breakEven,
-                    hasPreviousFunding, fundingHistoryDetails 
-                },
+                startupIndustry, teamExperienceYears, teamBio, 
+                marketStats: { marketSize, tam, sam, som, competitors },
+                financialStats: { burnRate, revenueProj, breakEven, hasPreviousFunding, fundingHistoryDetails },
                 recipient, milestones,
                 documents: { pitchDeck: pitchDeckHash, financials: financialsHash, legal: legalHash },
             };
@@ -141,16 +130,13 @@ export function useCreateProposal({ daoAddress, router }: UseCreateProposalProps
             });
 
             const apiData = await apiRes.json();
-            if (!apiRes.ok) {
-                // Handle Zod validation errors if present
-                if (apiData.errors) console.error(apiData.errors);
-                throw new Error(apiData.message || 'API Error');
-            }
+            if (!apiRes.ok) throw new Error(apiData.message || 'API Validation Error');
             
             setMongoId(apiData.mongoId);
 
             // 3. Submit On-Chain
-            toast.loading(t('toasts.confirm_in_wallet'), { id: toastIdRef.current! });
+            if (toastIdRef.current) toast.loading(t('toasts.confirm_in_wallet'), { id: toastIdRef.current });
+            
             const hash = await writeContractAsync({
                 address: daoAddress,
                 abi: rayanChainDaoAbi,
@@ -158,10 +144,11 @@ export function useCreateProposal({ daoAddress, router }: UseCreateProposalProps
                 args: apiData.txArgs,
             });
             
-            toast.loading(t('toasts.waiting_for_confirmation'), { id: toastIdRef.current! });
+            if (toastIdRef.current) toast.loading(t('toasts.waiting_for_confirmation'), { id: toastIdRef.current });
             setTxHash(hash);
 
         } catch (error) {
+            console.error(error);
             if (toastIdRef.current) toast.dismiss(toastIdRef.current);
             toast.error(t('toasts.submission_failed'), { description: (error as Error).message });
             setIsSubmitting(false);
@@ -176,9 +163,12 @@ export function useCreateProposal({ daoAddress, router }: UseCreateProposalProps
         recipient, milestones, pitchDeckFile, financialsFile, legalFile
     ]);
 
-    // --- Post-Transaction Effect (Same as before) ---
+    // --- Post-Transaction Logic ---
     useEffect(() => {
         if (!txHash || !receipt || !mongoId || !isConfirmed) return;
+        
+        if (isFinalizingRef.current) return;
+        isFinalizingRef.current = true;
 
         const finalizeProposal = async () => {
             if (toastIdRef.current) toast.loading(t('toasts.processing_onchain_data'), { id: toastIdRef.current });
@@ -204,26 +194,30 @@ export function useCreateProposal({ daoAddress, router }: UseCreateProposalProps
                     body: JSON.stringify({ onChainId: onChainId.toString() }),
                 });
 
-                toast.loading(t('toasts.triggering_ai'), { id: toastIdRef.current! });
+                if (toastIdRef.current) toast.loading(t('toasts.triggering_ai'), { id: toastIdRef.current });
                 await fetch(`/api/proposals/${mongoId}/trigger-ai`, { method: 'POST' });
 
                 if (toastIdRef.current) toast.dismiss(toastIdRef.current);
                 toast.success(t('toasts.proposal_created_success'));
+                
                 setTxHash(undefined);
                 setMongoId(null);
+                setIsSubmitting(false);
                 
-                setTimeout(() => router.push(`/proposals/${onChainId}`), 1500);
+                setTimeout(() => router.push(`/proposals/${onChainId}`), 1000);
 
             } catch (error) {
+                console.error(error);
                 if (toastIdRef.current) toast.dismiss(toastIdRef.current);
                 toast.error(t('toasts.post_submission_failed'));
                 setIsSubmitting(false);
+                isFinalizingRef.current = false;
             }
         };
+
         finalizeProposal();
     }, [isConfirmed, receipt, txHash, mongoId, daoAddress, router, t]);
 
-    // Error Handling
     useEffect(() => {
         if (isTxError) {
             if (toastIdRef.current) toast.dismiss(toastIdRef.current);
@@ -234,12 +228,13 @@ export function useCreateProposal({ daoAddress, router }: UseCreateProposalProps
     }, [isTxError, txError, t]);
 
     return {
+        // ... (state setters remain the same)
         projectName, setProjectName, tagline, setTagline, website, setWebsite,
         description, setDescription, problem, setProblem, solution, setSolution,
         businessModel, setBusinessModel, startupIndustry, setStartupIndustry,
         teamExperienceYears, setTeamExperienceYears, teamBio, setTeamBio,
         marketSize, setMarketSize, tam, setTam, sam, setSam, som, setSom, competitors, setCompetitors,
-        burnRate, setBurnRate, revenueProj, setRevenueProj, breakEven, setBreakEven,        
+        burnRate, setBurnRate, revenueProj, setRevenueProj, breakEven, setBreakEven,
         hasPreviousFunding, setHasPreviousFunding, fundingHistoryDetails, setFundingHistoryDetails,
         recipient, setRecipient, milestones,
         setPitchDeckFile, setFinancialsFile, setLegalFile,

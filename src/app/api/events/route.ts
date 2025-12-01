@@ -44,7 +44,7 @@ const getAbiForContract = (contractName: string): Abi | null => {
 };
 
 const formatEventDescription = (eventName: string, args: any): string => {
-    // ✅✅✅ FIX 1: Add null/undefined checks for all args before using them ✅✅✅
+    // FIX 1: Add null/undefined checks for all args before using them 
     if (!args) return `Event: ${eventName} (no args)`;
     switch (eventName) {
         case 'OwnershipTransferred':

@@ -241,6 +241,7 @@ export const de = {
     staked_balance: "Gestaktes Guthaben",
     staked_balance_desc: "Ihre gestaketen Token",
     view_all: "Alle anzeigen",
+    latest_update: "letzte aktualisierung",
     admin: {
       title: "Administrationskontrollzentrum",
       verifying: "Überprüfung der Administratoranmeldedaten",
@@ -331,12 +332,34 @@ export const de = {
     competitors: "Wettbewerbsanalyse",
     competitors_placeholder: "Wer sind Ihre Hauptkonkurrenten und was ist Ihr Wettbewerbsvorteil?",
     has_previous_funding_label: "Haben Sie bereits Spenden gesammelt?",
-    industries: {
-        defi: "DeFi / Web3",
-        ai: "Künstliche Intelligenz / Maschinelles Lernen",
+      industries: {
+        defi: "dezentrales Finanzmodell / Web3",
+        ai: "KI / maschinelles Lernen",
         gaming: "Gaming / Metaverse",
-        saas: "Software as a Service (SaaS)"
-    },
+        saas: "Software als Dienst (SaaS)",
+        placeholder: "Branchenauswahl",
+        },
+      business_models: {
+        placeholder: "Geschäftsmodell auswählen",
+        b2b: "B2B (Unternehmen an Unternehmen)",
+        b2c: "B2C (Unternehmen an Verbraucher)",
+        b2b2c: "B2B2C (Vermittlungsmodell)",
+        saas: "SaaS (Cloud-Softwaredienste)",
+        marketplace: "Elektronischer Marktplatz",
+        },
+      market_stats: {
+        tam_label: "TAM (gesamtmarkt) ($)",
+        tam_desc: "gesamt zugänglicher markt (Total Accessible Market)",
+        sam_label: "SAM (zugänglicher markt) ($)",
+        sam_desc: "bedienbarer zugänglicher markt (Serviceable Available Market)",
+        som_label: "SOM (marktanteil) ($)",
+        som_desc: "erreichbarer marktanteil (Serviceable Obtainable Market)",
+      },
+      financial_stats: {
+        burn_rate_label: "monatliche ausgaben (Burn Rate) ($)",
+        revenue_label: "jahresumsatz im ersten jahr ($)",
+        break_even_label: "break even punkt (monate)",
+      },
     funding_details: "Details zur früheren Finanzierung",
     funding_details_placeholder: "Geben Sie den Betrag, das Datum und die Namen früherer Investoren an...",
     milestone_name: "Meilensteinname",

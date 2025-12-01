@@ -1,55 +1,49 @@
-# ai-engine/config.py (نسخه نهایی و کامل)
+# ai-engine/config.py
 
 import os
 import json
 from web3 import Web3
 from dotenv import load_dotenv
+from logger_config import logger # ✅ ایمپورت لاگر
 
-# --- بارگذاری متغیرهای محیطی ---
-# مسیر فایل .env را نسبت به ریشه پروژه پیدا می‌کند
-# این باعث می‌شود اسکریپت از هر جایی قابل اجرا باشد
-SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-DOTENV_PATH = os.path.join(SCRIPT_DIR, '..', '.env') 
-load_dotenv(dotenv_path=DOTENV_PATH)
+# تنظیم مسیرها
+CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT = os.path.abspath(os.path.join(CURRENT_DIR, '..'))
+DOTENV_PATH = os.path.join(PROJECT_ROOT, '.env')
 
-# --- خواندن متغیرهای محیطی ---
-RPC_URL = os.environ.get("AMOY_RPC_URL")
+if os.path.exists(DOTENV_PATH):
+    load_dotenv(dotenv_path=DOTENV_PATH)
+    logger.info(f"Loaded .env from: {DOTENV_PATH}")
+else:
+    logger.warning(f".env file not found at: {DOTENV_PATH}")
+
+RPC_URL = os.environ.get("AMOY_RPC_URL") or "https://polygon-amoy.drpc.org"
 AI_ORACLE_PRIVATE_KEY = os.environ.get("AI_ORACLE_PRIVATE_KEY")
 DAO_REGISTRY_ADDRESS = os.environ.get("NEXT_PUBLIC_REGISTRY_ADDRESS")
 
-# --- بارگذاری ABI ها ---
-try:
-    DAO_ABI_STR = os.environ.get("RAYAN_CHAIN_DAO_ABI", "[]")
-    DAO_ABI = json.loads(DAO_ABI_STR)
+def parse_abi(env_key):
+    raw = os.environ.get(env_key, "[]")
+    try:
+        if isinstance(raw, str):
+            if raw.startswith('"') and raw.endswith('"'):
+                raw = json.loads(raw)
+            return json.loads(raw)
+        return raw
+    except Exception as e:
+        logger.warning(f"Failed to parse ABI for {env_key}: {e}")
+        return []
 
-    # ✅ FIX: ما ABI رجیستری را به صورت اختیاری بارگذاری می‌کنیم
-    # اگر در .env نبود، به صورت یک آرایه خالی باقی می‌ماند.
-    REGISTRY_ABI_STR = os.environ.get("REGISTRY_ABI", "[]")
-    REGISTRY_ABI = json.loads(REGISTRY_ABI_STR)
-except (json.JSONDecodeError, TypeError) as e:
-    print(f"CRITICAL ERROR: Failed to parse ABI JSON. Error: {e}")
-    DAO_ABI = []
-    REGISTRY_ABI = [] # مقداردهی اولیه به آرایه خالی در صورت خطا
+DAO_ABI = parse_abi("RAYAN_CHAIN_DAO_ABI")
+REGISTRY_ABI = parse_abi("REGISTRY_ABI")
 
-#  FIX: بررسی متغیرهای حیاتی (REGISTRY_ABI دیگر اینجا نیست) 
-if not all([RPC_URL, AI_ORACLE_PRIVATE_KEY, DAO_REGISTRY_ADDRESS, DAO_ABI]):
-    raise EnvironmentError(
-        "FATAL: Missing critical AI Oracle configurations in .env file. "
-        "Required: AMOY_RPC_URL, AI_ORACLE_PRIVATE_KEY, NEXT_PUBLIC_REGISTRY_ADDRESS, RAYAN_CHAIN_DAO_ABI"
-    )
-
-# اتصال به وب۳
 w3 = Web3(Web3.HTTPProvider(RPC_URL))
 
+AI_ORACLE_ADDRESS = None
 if AI_ORACLE_PRIVATE_KEY:
     try:
-        AI_ORACLE_ACCOUNT = w3.eth.account.from_key(AI_ORACLE_PRIVATE_KEY)
-        AI_ORACLE_ADDRESS = AI_ORACLE_ACCOUNT.address
-    except:
-        print("[CONFIG WARN] Invalid Private Key")
-        AI_ORACLE_ADDRESS = None
-else:
-    AI_ORACLE_ADDRESS = None
-    print("[CONFIG WARN] AI Oracle Private Key missing")
+        account = w3.eth.account.from_key(AI_ORACLE_PRIVATE_KEY)
+        AI_ORACLE_ADDRESS = account.address
+    except Exception as e:
+        logger.error(f"Invalid Private Key: {e}")
 
-print(f"[CONFIG] AI Engine Configured. Oracle: {AI_ORACLE_ADDRESS}, RPC: {RPC_URL}")
+logger.info(f"Configured RPC: {RPC_URL} | Oracle: {AI_ORACLE_ADDRESS}")
