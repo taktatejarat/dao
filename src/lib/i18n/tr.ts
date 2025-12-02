@@ -25,6 +25,12 @@ export const tr = {
     medium: "Orta",
     low: "Düşük",
     quorum: "Çoğunluk",
+    back: "Back",
+    date: "Tarih",
+    id: "Kimlik",
+    page: "Sayfa",
+    generated_footer: "RayanChain yapay zeka motoru tarafından oluşturulmuştur | Bu rapor kesin bir finansal teklif değildir.",
+    rayan_chain_vc: "RayanChain yatırım platformu",
     },
 
   // Header
@@ -866,6 +872,7 @@ export const tr = {
     no_risks_found: "Herhangi bir büyük risk tespit edilmedi.",
     pdf: "PDF raporu oluştur",
     share: "Paylaş",
+    ai_audit_report: "Yapay zeka teklif değerlendirme raporu",
     },
     risk_level: {
     low: "düşük",

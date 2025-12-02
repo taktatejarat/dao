@@ -16,9 +16,10 @@ import { StatCard } from '@/components/dashboard/stat-card';
 import { useTranslation } from '@/hooks/use-translation';
 import { DaoLoadingSpinner } from '@/components/icons/dao-loading-spinner';
 import { cn } from '@/lib/utils';
-import { toast } from 'sonner'; // برای نمایش پیام کپی لینک
-import html2canvas from 'html2canvas'; // کتابخانه عکس‌برداری از صفحه
-import jsPDF from 'jspdf'; // کتابخانه تولید PDF
+import { toast } from 'sonner';
+import { pdf } from '@react-pdf/renderer';
+import { ProposalReportPDF } from '@/components/reports/pdf-template'; 
+import { saveAs } from 'file-saver';
 
 
 // --- Interfaces ---
@@ -45,8 +46,24 @@ interface AIReport {
     market_sentiment_score?: number;
 }
 
+// ✅ اینترفیس جدید برای داده‌های پروپوزال
+interface ProposalData {
+    projectName: string;
+    tagline: string;
+    description: string;
+    problem: string;
+    solution: string;
+    businessModel: string;
+    startupIndustry: string;
+    proposerAddress: string;
+    milestones: { name: string; amount: string; durationDays: string }[];
+    marketStats?: { tam: string; sam: string; som: string };
+    financialStats?: { burnRate: string; revenueProj: string };
+    teamBio?: string;
+}
+
 function ReportContent() {
-    const { t } = useTranslation();
+    const { t, locale } = useTranslation();
     const router = useRouter();
     const searchParams = useSearchParams();
     const reportRef = useRef<HTMLDivElement>(null);
@@ -56,6 +73,7 @@ function ReportContent() {
     const [inputId, setInputId] = useState(initialId);
     
     const [report, setReport] = useState<AIReport | null>(null);
+    const [proposalData, setProposalData] = useState<ProposalData | null>(null); // ✅ استیت جدید
     const [loading, setLoading] = useState(false);
     const [pdfLoading, setPdfLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -63,93 +81,87 @@ function ReportContent() {
     //  FIX: استیت برای تشخیص قابلیت اشتراک‌گذاری
     const [canShare, setCanShare] = useState(false);
 
-    //  FIX: بررسی قابلیت share فقط در کلاینت
-    useEffect(() => {
-        if (typeof navigator !== 'undefined' && (navigator as any).share) {
-            setCanShare(true);
-        }
+ useEffect(() => {
+        if (typeof navigator !== 'undefined' && (navigator as any).share) setCanShare(true);
     }, []);
 
-    // تابع تحلیل (چه از URL چه با کلیک دکمه)
     const fetchReport = async (id: string) => {
         if (!id) return;
         setLoading(true);
         setError(null);
         setReport(null);
+        setProposalData(null);
 
         try {
-            const res = await fetch(`/api/ai-report/${id}`);
-            const data = await res.json();
+            // 1. دریافت تحلیل هوش مصنوعی
+            const aiRes = await fetch(`/api/ai-report/${id}`);
+            const aiDataJson = await aiRes.json();
+            if (!aiRes.ok) throw new Error(aiDataJson.message || t('reports_page.error_title'));
+            setReport(aiDataJson.data || aiDataJson);
 
-            if (!res.ok) {
-                if (res.status === 404) throw new Error(t('reports_page.no_proposals_found'));
-                throw new Error(data.message || t('reports_page.error_title'));
+            // 2. دریافت اطلاعات کامل پروپوزال (برای PDF)
+            // فرض می‌کنیم روت /api/proposals/[id] وجود دارد و دیتای کامل می‌دهد
+            console.log("Fetching proposal data for PDF...");
+            const propRes = await fetch(`/api/proposals/${id}`);
+            if (propRes.ok) {
+                const propJson = await propRes.json();
+                console.log("Proposal Data Received:", propJson.data); // ✅ لاگ برای دیباگ
+                setProposalData(propJson.data);
+            } else {
+                console.warn("Failed to fetch proposal details for PDF");
             }
-            
-            // هندل کردن ساختار داده
-            const cleanData = data.data || data; 
-            setReport(cleanData);
-            
-            // آپدیت URL بدون رفرش
+
             const newUrl = `/reports?id=${id}`;
             window.history.pushState({ path: newUrl }, '', newUrl);
 
         } catch (err) {
-            console.error("Report Fetch Error:", err);
+            console.error("Fetch Error:", err);
             setError((err as Error).message);
         } finally {
             setLoading(false);
         }
     };
 
-    // اگر صفحه با ID باز شد، خودکار تحلیل کن
     useEffect(() => {
-        if (initialId) {
-            fetchReport(initialId);
-        }
-    }, []); // فقط یکبار در شروع
+        if (initialId) fetchReport(initialId);
+    }, []);
 
-        // --- تابع دانلود PDF ---
+    // --- تابع دانلود PDF جامع ---
     const handleDownloadPDF = async () => {
-        if (!reportRef.current) return;
+        if (!report || !proposalData) {
+            toast.error("Proposal data is incomplete for PDF generation");
+            return;
+        }
         setPdfLoading(true);
         
         try {
-            const element = reportRef.current;
-            
-            // 1. تبدیل HTML به عکس (Canvas)
-            const canvas = await html2canvas(element, {
-                scale: 2, // کیفیت بالا (Retina)
-                useCORS: true, // برای لود فونت‌ها و تصاویر خارجی
-                logging: false,
-                backgroundColor: '#ffffff' // پس‌زمینه سفید برای PDF (حتی در دارک مود)
-            });
+            // ترجمه داده‌های هوش مصنوعی
+            const processedReport = {
+                ...report,
+                overall_risk_level_label: t(report.overall_risk_level_key),
+                recommendation_text: t(report.xai_report.recommendation_key + '_desc'),
+                xai_report: {
+                    ...report.xai_report,
+                    strengths: report.xai_report.strengths.map(s => ({ ...s, display_text: tVar(s.key, s.values) })),
+                    weaknesses: report.xai_report.weaknesses.map(w => ({ ...w, display_text: tVar(w.key, w.values) }))
+                }
+            };
 
-            // 2. تنظیمات PDF
-            const imgData = canvas.toDataURL('image/png');
-            const pdf = new jsPDF('p', 'mm', 'a4'); // A4 Portrait
-            const pdfWidth = pdf.internal.pageSize.getWidth();
-            const pdfHeight = pdf.internal.pageSize.getHeight();
-            
-            const imgWidth = canvas.width;
-            const imgHeight = canvas.height;
-            
-            // محاسبه نسبت ابعاد برای فیت شدن در صفحه A4
-            const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
-            const imgX = (pdfWidth - imgWidth * ratio) / 2;
-            const imgY = 10; // حاشیه بالا
+            const blob = await pdf(
+                <ProposalReportPDF 
+                    report={processedReport} 
+                    proposal={proposalData} // ✅ ارسال داده‌های پروپوزال
+                    proposalId={inputId}
+                    t={t}
+                    locale={locale} // ✅ ارسال زبان برای فونت و جهت
+                />
+            ).toBlob();
 
-            // اگر محتوا زیاد بود (بیش از یک صفحه)، باید لاجیک چند صفحه‌ای اضافه شود
-            // اما برای این داشبورد، فیت کردن در عرض (Fit to Width) معمولا کافیست
-            const imgHeightInPdf = (imgHeight * pdfWidth) / imgWidth;
-            
-            pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, imgHeightInPdf);
-            pdf.save(`RayanChain-Report-${inputId}.pdf`);
-            
-            toast.success("PDF Downloaded successfully");
+            saveAs(blob, `RayanChain-FullReport-${inputId}.pdf`);
+            toast.success(t('reports_page.pdf_downloaded_success') || "PDF Downloaded");
 
         } catch (err) {
-            console.error("PDF Generation Error:", err);
+            console.error("PDF Gen Error:", err);
             toast.error("Failed to generate PDF");
         } finally {
             setPdfLoading(false);

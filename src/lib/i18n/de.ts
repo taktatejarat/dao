@@ -26,6 +26,11 @@ export const de = {
     low: "Niedrig",
     quorum: "Quorum",
     back: "Zurück",
+    date: "Datum",
+    id: "Kennung",
+    page: "Seite",
+    generated_footer: "Erstellt durch die RayanChain KI-Engine | Dieser Bericht stellt kein endgültiges Finanzangebot dar.",
+    rayan_chain_vc: "RayanChain Investmentplattform",
     },
 
   // Header
@@ -867,7 +872,7 @@ export const de = {
     no_risks_found: "Es wurden keine wesentlichen Risiken festgestellt.",
     pdf: "PDF-Bericht erstellen",
     share: "Teilen",
-
+    ai_audit_report: "KI-Bewertungsbericht des Vorschlags",
     },
     risk_level: {
     low: "niedrig",

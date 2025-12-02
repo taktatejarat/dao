@@ -26,6 +26,11 @@ export const ru = {
     low: "Низкий",
     quorum: "Кворум",
     back: "Назад",
+    date: "Дата",
+    id: "Идентификатор",
+    page: "Страница",
+    generated_footer: "Сгенерировано ИИ-движком RayanChain | Этот отчет не является окончательным финансовым предложением.",
+    rayan_chain_vc: "Инвестиционная платформа RayanChain",
     },
 
   // Header
@@ -866,6 +871,7 @@ export const ru = {
     no_risks_found: "Существенных рисков не выявлено.",
     pdf: "Создать PDF-отчет",
     share: "Поделиться",
+    ai_audit_report: "Отчет об оценке ИИ предложения",
     },
     risk_level: {
     low: "низкий",

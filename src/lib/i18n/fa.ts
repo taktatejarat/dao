@@ -25,6 +25,11 @@ export const fa = {
     low: "پایین",
     quorum: "حد نصاب",
     back: "برگشت",
+    date: "تاریخ",
+    id: "شناسه",
+    page: "صفحه",
+    generated_footer: "تولید شده توسط موتور هوش مصنوعی رایان‌چین | این گزارش پیشنهاد مالی قطعی نیست.",
+    rayan_chain_vc: "پلتفرم سرمایه‌گذاری رایان‌چین"
   },
   // Header
   header: {
@@ -884,6 +889,7 @@ export const fa = {
     no_risks_found: "ریسک عمده‌ای شناسایی نشد.",
     pdf: "ایجاد گزارش PDF",
     share: "اشتراک گذاری",
+    ai_audit_report: "گزارش ارزیابی هوش مصنوعی پروپوزال",
   },
    risk_level: {
     low: "پایین",

@@ -339,7 +339,7 @@ export default function ProposalDetailPage() {
                                             </span>
                                             <div className="text-right">
                                                 <span className="font-bold block">{forVotesFormatted} RYC</span>
-                                                <span className="text-xs text-muted-foreground">{displayForPct}% of Total Supply</span>
+                                                <span className="text-xs text-muted-foreground">{displayForPct}% {t('proposal_detail.total_supply')}</span>
                                             </div>
                                         </div>
                                         <div className="h-4 w-full bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden border border-border relative shadow-inner">
@@ -361,7 +361,7 @@ export default function ProposalDetailPage() {
                                             </span>
                                             <div className="text-right">
                                                 <span className="font-bold block">{againstVotesFormatted} RYC</span>
-                                                <span className="text-xs text-muted-foreground">{displayAgainstPct}% of Total Supply</span>
+                                                <span className="text-xs text-muted-foreground">{displayAgainstPct}% {t('proposal_detail.total_supply')}</span>
                                             </div>
                                         </div>
                                         <div className="h-4 w-full bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden border border-border shadow-inner">
