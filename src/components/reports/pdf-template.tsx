@@ -1,9 +1,10 @@
-// src/components/reports/pdf-template.tsx - FULL DATA & FAIL-SAFE
+// src/components/reports/pdf-template.tsx - FINAL STABLE VERSION
 
 import React from 'react';
 import { Document, Page, Text, View, StyleSheet, Font } from '@react-pdf/renderer';
 
-// رجیستر کردن فونت‌ها
+// 1. ثبت فونت‌ها
+// نکته: اطمینان حاصل کنید فایل‌های .ttf در پوشه public/fonts موجود هستند
 Font.register({ family: 'Vazirmatn', src: '/fonts/Vazirmatn-Regular.ttf' });
 Font.register({ family: 'Vazirmatn-Bold', src: '/fonts/Vazirmatn-Bold.ttf' });
 Font.register({ family: 'Roboto', src: '/fonts/Roboto-Regular.ttf' });
@@ -17,16 +18,44 @@ interface ReportPDFProps {
   locale: string;
 }
 
+// 2. کامپوننت واسط متن (Safe Text Component)
+// این کامپوننت جلوی کرش کردن موتور PDF در زبان‌های RTL را می‌گیرد
+const PdfText = ({ style, children, ...props }: any) => {
+  return (
+    <Text
+      style={style}
+      // غیرفعال کردن الگوریتم شکستن کلمات که باعث خطای reading id می‌شود
+      hyphenationCallback={(word) => [word]}
+      {...props}
+    >
+      {children}
+    </Text>
+  );
+};
+
 export const ProposalReportPDF = ({ report, proposal, proposalId, t, locale }: ReportPDFProps) => {
   const isRTL = locale === 'fa' || locale === 'ar';
   const isRussian = locale === 'ru';
   
+  // انتخاب فونت
   const mainFont = isRussian ? 'Roboto' : 'Vazirmatn';
   const boldFont = isRussian ? 'Roboto-Bold' : 'Vazirmatn-Bold';
+  
+  // فونت اعداد (همیشه Roboto برای جلوگیری از بهم ریختگی اعداد)
+  const numFont = 'Roboto';
+  const numFontBold = 'Roboto-Bold';
 
   const rawDate = new Date().toLocaleDateString(locale === 'fa' ? 'fa-IR' : 'en-US');
-  // استفاده از کاراکترهای کنترلی برای اصلاح جهت تاریخ در متن فارسی
   const displayDate = isRTL ? `\u202A${rawDate}\u202C` : rawDate;
+
+  // توابع ایمن‌سازی
+  const safe = (val: any) => (val === null || val === undefined) ? "-" : String(val);
+  const money = (val: any) => (val ? `$${Number(val).toLocaleString()}` : "-");
+
+  const p = proposal || {};
+  const market = p.marketStats || {};
+  const finance = p.financialStats || {};
+  const milestones = p.milestones || [];
 
   const styles = StyleSheet.create({
     page: { 
@@ -34,229 +63,242 @@ export const ProposalReportPDF = ({ report, proposal, proposalId, t, locale }: R
         fontFamily: mainFont, fontSize: 10, color: '#333' 
     },
     header: { 
-        marginBottom: 20, paddingBottom: 10, borderBottomWidth: 1, borderBottomColor: '#ccc',
+        marginBottom: 15, paddingBottom: 10, borderBottomWidth: 1, borderBottomColor: '#ccc',
         flexDirection: isRTL ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center'
     },
     brand: { fontSize: 16, fontFamily: boldFont, color: '#2563eb' },
-    meta: { fontSize: 9, color: '#666', textAlign: isRTL ? 'left' : 'right' },
     
-    // عناوین بخش‌ها
+    metaContainer: { flexDirection: 'column', alignItems: isRTL ? 'flex-start' : 'flex-end' },
+    metaRow: { flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', marginBottom: 2 },
+    metaLabel: { fontSize: 9, color: '#666', fontFamily: mainFont },
+    metaValue: { fontSize: 9, color: '#333', fontFamily: numFont, marginHorizontal: 3 }, // اعداد با فونت انگلیسی
+
     sectionTitle: { 
-        fontSize: 13, fontFamily: boldFont, color: '#000', marginTop: 15, marginBottom: 6,
-        textAlign: isRTL ? 'right' : 'left', borderBottomWidth: 1, borderBottomColor: '#eee', paddingBottom: 2
-    },
-    // متون معمولی
-    text: { 
-        marginBottom: 6, lineHeight: 1.5, textAlign: isRTL ? 'right' : 'left', fontSize: 10 
-    },
-    // لیبل‌های کوچک بالای مقادیر
-    label: { 
-        color: '#666', fontSize: 8, marginBottom: 2, textAlign: isRTL ? 'right' : 'left' 
-    },
-    // مقادیر ضخیم
-    value: { 
-        fontFamily: boldFont, fontSize: 10, marginBottom: 8, textAlign: isRTL ? 'right' : 'left' 
+        fontSize: 13, fontFamily: boldFont, color: '#111827', marginTop: 15, marginBottom: 8,
+        textAlign: isRTL ? 'right' : 'left', borderBottomWidth: 1, borderBottomColor: '#f3f4f6', paddingBottom: 4
     },
     
-    // گرید سیستم
+    text: { marginBottom: 5, lineHeight: 1.5, textAlign: isRTL ? 'right' : 'left', fontSize: 10, color: '#4b5563' },
+    label: { color: '#6b7280', fontSize: 8, marginBottom: 2, textAlign: isRTL ? 'right' : 'left' },
+    value: { fontFamily: isRTL ? numFontBold : boldFont, fontSize: 10, marginBottom: 8, textAlign: isRTL ? 'right' : 'left', color: '#111827' },
+    
     row: { flexDirection: isRTL ? 'row-reverse' : 'row', flexWrap: 'wrap', marginBottom: 5 },
     col2: { width: '50%', paddingHorizontal: 4 },
-    col3: { width: '33%', paddingHorizontal: 4 },
+    col3: { width: '33.33%', paddingHorizontal: 4 },
     col4: { width: '25%', paddingHorizontal: 2 },
     
     // استایل‌های AI
-    aiBox: { backgroundColor: '#f5f3ff', padding: 10, borderRadius: 5, marginBottom: 15 },
-    scoreVal: { fontSize: 24, fontFamily: boldFont, color: '#2563eb', textAlign: 'center' },
+    aiBox: { 
+        backgroundColor: '#f5f3ff', padding: 10, borderRadius: 6, marginBottom: 15, 
+        borderWidth: 1, borderColor: '#7c3aed' 
+    },
+    scoreLabel: { fontSize: 9, color: '#5b21b6', textAlign: 'center', marginBottom: 2 },
+    scoreVal: { fontSize: 24, fontFamily: numFontBold, color: '#2563eb', textAlign: 'center' },
     
+    // استایل کارت‌های کوچک (رفع خطای TypeScript قبلی)
+    card: { backgroundColor: '#f9fafb', padding: 8, borderRadius: 4, marginBottom: 5, borderWidth: 1, borderColor: '#e5e7eb' },
+
     footer: { 
         position: 'absolute', bottom: 20, left: 30, right: 30, 
-        textAlign: 'center', fontSize: 8, color: '#999', borderTopWidth: 1, borderColor: '#eee', paddingTop: 10
+        textAlign: 'center', fontSize: 8, color: '#9ca3af', borderTopWidth: 1, borderColor: '#eee', paddingTop: 10
     }
   });
-
-  // ایمن‌سازی داده‌ها (جلوگیری از undefined)
-  const p = proposal || {};
-  const market = p.marketStats || {};
-  const finance = p.financialStats || {};
-  const milestones = p.milestones || [];
-  
-  // توابع کمکی برای ایمن‌سازی متن
-  const safeText = (txt: any) => (txt ? String(txt) : "-");
-  const currency = (val: any) => (val ? `$${Number(val).toLocaleString()}` : "-");
 
   return (
     <Document>
       
-      {/* ================= PAGE 1: PROJECT OVERVIEW ================= */}
+      {/* ================= PAGE 1 ================= */}
       <Page size="A4" style={styles.page}>
         <View style={styles.header}>
-          <Text style={styles.brand}>{t('common.rayan_chain_vc') || "RayanChain VC"}</Text>
-          <View>
-             <Text style={styles.meta}>{displayDate}</Text>
-             <Text style={styles.meta}>ID: {proposalId}</Text>
+          <PdfText style={styles.brand}>{t('common.rayan_chain_vc') || "RayanChain VC"}</PdfText>
+          <View style={styles.metaContainer}>
+             <View style={styles.metaRow}>
+                 <PdfText style={styles.metaLabel}>{t('common.date')}: </PdfText>
+                 <PdfText style={styles.metaValue}>{displayDate}</PdfText>
+             </View>
+             <View style={styles.metaRow}>
+                 <PdfText style={styles.metaLabel}>{t('common.id')}: </PdfText>
+                 {/* استفاده از فونت انگلیسی برای ID الزامی است */}
+                 <Text style={styles.metaValue} hyphenationCallback={(w)=>[w]}>{safe(proposalId)}</Text>
+             </View>
           </View>
         </View>
 
-        {/* Title Block */}
         <View style={{ marginBottom: 20, alignItems: 'center' }}>
-            <Text style={{ fontSize: 20, fontFamily: boldFont, textAlign: 'center', marginBottom: 5 }}>
-                {safeText(p.projectName)}
-            </Text>
-            <Text style={{ fontSize: 11, color: '#666', textAlign: 'center' }}>
-                {safeText(p.tagline)}
-            </Text>
-        </View>
-
-        {/* Info Grid */}
-        <View style={styles.row}>
-            <View style={styles.col2}>
-                <Text style={styles.label}>{t('new_proposal_page.industry') || "Industry"}</Text>
-                <Text style={styles.value}>{safeText(p.startupIndustry)}</Text>
-            </View>
-            <View style={styles.col2}>
-                <Text style={styles.label}>{t('new_proposal_page.business_model') || "Business Model"}</Text>
-                <Text style={styles.value}>{safeText(p.businessModel)}</Text>
-            </View>
+            <PdfText style={{ fontSize: 22, fontFamily: boldFont, textAlign: 'center', marginBottom: 5 }}>
+                {safe(p.projectName)}
+            </PdfText>
+            <PdfText style={{ fontSize: 11, color: '#666', textAlign: 'center' }}>
+                {safe(p.tagline)}
+            </PdfText>
         </View>
 
         <View style={styles.row}>
             <View style={styles.col2}>
-                <Text style={styles.label}>{t('new_proposal_page.website') || "Website"}</Text>
-                <Text style={{...styles.value, color: '#2563eb'}}>{safeText(p.website)}</Text>
+                <PdfText style={styles.label}>{t('new_proposal_page.industry')}</PdfText>
+                <PdfText style={styles.value}>{safe(p.startupIndustry)}</PdfText>
             </View>
             <View style={styles.col2}>
-                <Text style={styles.label}>{t('new_proposal_page.team_experience_years_label') || "Team Exp"}</Text>
-                <Text style={styles.value}>{safeText(p.teamExperienceYears)} Years</Text>
+                <PdfText style={styles.label}>{t('new_proposal_page.business_model')}</PdfText>
+                <PdfText style={styles.value}>{safe(p.businessModel)}</PdfText>
             </View>
         </View>
 
-        {/* Description Section */}
-        <Text style={styles.sectionTitle}>{t('new_proposal_page.tabs.details') || "Project Details"}</Text>
-        
-        <Text style={styles.label}>{t('new_proposal_page.full_description') || "Description"}</Text>
-        <Text style={styles.text}>{safeText(p.description)}</Text>
-        
-        <Text style={styles.label}>{t('new_proposal_page.problem') || "Problem"}</Text>
-        <Text style={styles.text}>{safeText(p.problem)}</Text>
-        
-        <Text style={styles.label}>{t('new_proposal_page.solution') || "Solution"}</Text>
-        <Text style={styles.text}>{safeText(p.solution)}</Text>
+        <View style={styles.row}>
+            <View style={styles.col2}>
+                <PdfText style={styles.label}>{t('new_proposal_page.website')}</PdfText>
+                {/* وب‌سایت چون انگلیسی است، با فونت Roboto نمایش داده شود بهتر است */}
+                <Text style={{...styles.value, color: '#2563eb', fontFamily: numFont}} hyphenationCallback={(w)=>[w]}>
+                    {safe(p.website)}
+                </Text>
+            </View>
+            <View style={styles.col2}>
+                <PdfText style={styles.label}>{t('new_proposal_page.team_experience_years_label')}</PdfText>
+                <PdfText style={styles.value}>{safe(p.teamExperienceYears)}</PdfText>
+            </View>
+        </View>
 
-        <View style={styles.footer}><Text>Page 1 / 3</Text></View>
+        <PdfText style={styles.sectionTitle}>{t('new_proposal_page.tabs.details')}</PdfText>
+        <PdfText style={styles.text}>{safe(p.description)}</PdfText>
+        
+        <PdfText style={styles.label}>{t('new_proposal_page.problem')}</PdfText>
+        <PdfText style={styles.text}>{safe(p.problem)}</PdfText>
+        
+        <PdfText style={styles.label}>{t('new_proposal_page.solution')}</PdfText>
+        <PdfText style={styles.text}>{safe(p.solution)}</PdfText>
+
+        <View style={styles.footer}><PdfText>1 / 3</PdfText></View>
       </Page>
 
-      {/* ================= PAGE 2: MARKET, TEAM & FINANCIALS ================= */}
+      {/* ================= PAGE 2 ================= */}
       <Page size="A4" style={styles.page}>
-        <View style={styles.header}><Text style={styles.brand}>Data Analysis</Text></View>
+        <View style={styles.header}><PdfText style={styles.brand}>Data Analysis</PdfText></View>
 
-        {/* Market Stats */}
-        <Text style={styles.sectionTitle}>{t('new_proposal_page.tabs.market') || "Market"}</Text>
+        <PdfText style={styles.sectionTitle}>{t('new_proposal_page.tabs.market')}</PdfText>
         <View style={styles.row}>
-            <View style={styles.col3}><Text style={styles.label}>TAM</Text><Text style={styles.value}>{currency(market.tam)}</Text></View>
-            <View style={styles.col3}><Text style={styles.label}>SAM</Text><Text style={styles.value}>{currency(market.sam)}</Text></View>
-            <View style={styles.col3}><Text style={styles.label}>SOM</Text><Text style={styles.value}>{currency(market.som)}</Text></View>
+            <View style={styles.col3}><PdfText style={styles.label}>TAM</PdfText><Text style={styles.metaValue}>{money(market.tam)}</Text></View>
+            <View style={styles.col3}><PdfText style={styles.label}>SAM</PdfText><Text style={styles.metaValue}>{money(market.sam)}</Text></View>
+            <View style={styles.col3}><PdfText style={styles.label}>SOM</PdfText><Text style={styles.metaValue}>{money(market.som)}</Text></View>
         </View>
-        <Text style={styles.label}>{t('new_proposal_page.competitors') || "Competitor Analysis"}</Text>
-        <Text style={styles.text}>{safeText(market.competitors)}</Text>
+        <PdfText style={styles.label}>{t('new_proposal_page.competitors')}</PdfText>
+        <PdfText style={styles.text}>{safe(market.competitors)}</PdfText>
 
-        {/* Team Bio */}
-        <Text style={styles.sectionTitle}>{t('new_proposal_page.tabs.team') || "Team"}</Text>
-        <Text style={styles.text}>{safeText(p.teamBio)}</Text>
-
-        {/* Financial Stats */}
-        <Text style={styles.sectionTitle}>{t('new_proposal_page.tabs.financials') || "Financials"}</Text>
+        <PdfText style={styles.sectionTitle}>{t('new_proposal_page.tabs.financials')}</PdfText>
         <View style={styles.row}>
-            <View style={styles.col3}><Text style={styles.label}>Burn Rate</Text><Text style={styles.value}>{currency(finance.burnRate)}/mo</Text></View>
-            <View style={styles.col3}><Text style={styles.label}>Revenue (Y1)</Text><Text style={styles.value}>{currency(finance.revenueProj)}</Text></View>
-            <View style={styles.col3}><Text style={styles.label}>Break-even</Text><Text style={styles.value}>{safeText(finance.breakEven)} M</Text></View>
+            <View style={styles.col3}><PdfText style={styles.label}>Burn Rate</PdfText><Text style={styles.metaValue}>{money(finance.burnRate)}</Text></View>
+            <View style={styles.col3}><PdfText style={styles.label}>Revenue</PdfText><Text style={styles.metaValue}>{money(finance.revenueProj)}</Text></View>
+            <View style={styles.col3}><PdfText style={styles.label}>Break-even</PdfText><Text style={styles.metaValue}>{safe(finance.breakEven)} Mo</Text></View>
         </View>
-        
-        {/* Funding History */}
-        {finance.hasPreviousFunding === 'true' && (
-            <View style={{ marginTop: 5 }}>
-                <Text style={styles.label}>{t('new_proposal_page.funding_details') || "Previous Funding"}</Text>
-                <Text style={styles.text}>{safeText(finance.fundingHistoryDetails)}</Text>
-            </View>
-        )}
 
-        {/* Milestones Table */}
-        <Text style={styles.sectionTitle}>{t('new_proposal_page.funding_milestones') || "Funding Milestones"}</Text>
+        <PdfText style={styles.sectionTitle}>{t('new_proposal_page.funding_milestones')}</PdfText>
         <View style={{ marginTop: 5 }}>
+            <View style={{ ...styles.row, borderBottomWidth: 1, borderColor: '#000', paddingBottom: 4 }}>
+                <PdfText style={{ width: '50%', fontFamily: boldFont, textAlign: isRTL ? 'right' : 'left', fontSize: 9 }}>Name</PdfText>
+                <PdfText style={{ width: '25%', fontFamily: boldFont, textAlign: 'center', fontSize: 9 }}>Duration</PdfText>
+                <PdfText style={{ width: '25%', fontFamily: boldFont, textAlign: 'center', fontSize: 9 }}>Amount</PdfText>
+            </View>
             {milestones.length > 0 ? (
                 milestones.map((m: any, i: number) => (
-                    <View key={i} style={{ ...styles.row, borderBottomWidth: 1, borderColor: '#eee', paddingVertical: 6, alignItems: 'center' }}>
-                        <Text style={{ width: '50%', textAlign: isRTL ? 'right' : 'left', fontSize: 9 }}>{safeText(m.name)}</Text>
-                        <Text style={{ width: '25%', textAlign: 'center', fontSize: 9 }}>{safeText(m.durationDays)} Days</Text>
-                        <Text style={{ width: '25%', textAlign: 'center', fontFamily: boldFont, fontSize: 9 }}>{m.amount} RYC</Text>
+                    <View key={i} style={{ ...styles.row, borderBottomWidth: 1, borderColor: '#eee', paddingVertical: 6 }}>
+                        <PdfText style={{ width: '50%', textAlign: isRTL ? 'right' : 'left', fontSize: 9 }}>{safe(m.name)}</PdfText>
+                        <Text style={{ width: '25%', textAlign: 'center', fontSize: 9, fontFamily: numFont }}>{safe(m.durationDays)} Days</Text>
+                        <Text style={{ width: '25%', textAlign: 'center', fontFamily: numFontBold, fontSize: 9 }}>{m.amount}</Text>
                     </View>
                 ))
             ) : (
-                <Text style={styles.text}>No milestones defined.</Text>
+                <PdfText style={styles.text}>No milestones defined.</PdfText>
             )}
         </View>
 
-        <View style={styles.footer}><Text>Page 2 / 3</Text></View>
+        <View style={styles.footer}><PdfText>2 / 3</PdfText></View>
       </Page>
 
-      {/* ================= PAGE 3: AI ANALYSIS REPORT ================= */}
+      {/* ================= PAGE 3 ================= */}
       <Page size="A4" style={styles.page}>
         <View style={styles.header}>
-            <Text style={{ ...styles.brand, color: '#7c3aed' }}>{t('reports_page.ai_audit_report') || "AI Report"}</Text>
+            <PdfText style={{ ...styles.brand, color: '#7c3aed' }}>{t('reports_page.ai_audit_report')}</PdfText>
         </View>
 
-        {/* AI Summary */}
         <View style={styles.aiBox}>
             <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                 <View style={{ width: '65%' }}>
-                    <Text style={{ fontSize: 10, color: '#5b21b6', textAlign: isRTL ? 'right' : 'left', marginBottom: 4 }}>
-                        {t('reports_page.ai_recommendation') || "AI Recommendation"}
-                    </Text>
-                    <Text style={{ fontSize: 10, fontFamily: boldFont, color: '#4c1d95', lineHeight: 1.4, textAlign: isRTL ? 'right' : 'left' }}>
-                        {safeText(report.recommendation_text)}
-                    </Text>
+                    <PdfText style={{ fontSize: 10, color: '#5b21b6', textAlign: isRTL ? 'right' : 'left', marginBottom: 4 }}>
+                        {t('reports_page.ai_recommendation')}
+                    </PdfText>
+                    <PdfText style={{ fontSize: 10, fontFamily: boldFont, color: '#4c1d95', lineHeight: 1.5, textAlign: isRTL ? 'right' : 'left' }}>
+                        {safe(report.recommendation_text)}
+                    </PdfText>
                 </View>
+                
                 <View style={{ alignItems: 'center', justifyContent: 'center' }}>
-                    <Text style={styles.scoreVal}>{safeText(report.investability_score)}</Text>
-                    <Text style={{ fontSize: 10, color: '#4c1d95', marginTop: 2 }}>
-                        {safeText(report.overall_risk_level_label)}
-                    </Text>
+                    <PdfText style={styles.scoreLabel}>{t('reports_page.investability_score')}</PdfText>
+                    <Text style={styles.scoreVal}>{safe(report.investability_score)}</Text>
+                    <PdfText style={{ fontSize: 10, color: '#4c1d95', marginTop: 2, fontFamily: boldFont }}>
+                        {safe(report.overall_risk_level_label)}
+                    </PdfText>
                 </View>
             </View>
         </View>
 
-        {/* Strengths */}
-        <Text style={{ ...styles.sectionTitle, color: '#16a34a' }}>{t('reports_page.xai_strengths') || "Strengths"}</Text>
-        <View style={{ marginBottom: 10 }}>
-            {report.xai_report?.strengths?.length > 0 ? (
-                report.xai_report.strengths.map((item: any, i: number) => (
-                    <View key={`s-${i}`} style={{ marginBottom: 4, flexDirection: isRTL ? 'row-reverse' : 'row' }}>
-                        <Text style={{ color: '#16a34a', marginHorizontal: 4 }}>•</Text>
-                        <Text style={{ fontSize: 9, color: '#14532d', flex: 1, textAlign: isRTL ? 'right' : 'left' }}>
-                            {safeText(item.display_text)}
-                        </Text>
-                    </View>
-                ))
-            ) : <Text style={{ fontSize: 9, color: '#999', textAlign: isRTL ? 'right' : 'left' }}>-</Text>}
+        {/* 4 Key Metrics */}
+        <PdfText style={styles.sectionTitle}>{t('reports_page.financial_analysis_title')}</PdfText>
+        <View style={styles.row}>
+            {/* Success */}
+            <View style={styles.col4}>
+                <View style={styles.card}>
+                    <PdfText style={{ fontSize: 8, color: '#666', textAlign: 'center', marginBottom: 4 }}>{t('reports_page.success_probability')}</PdfText>
+                    <Text style={{ fontSize: 14, fontFamily: numFontBold, color: '#111827', textAlign: 'center' }}>{safe(report.success_probability)}%</Text>
+                </View>
+            </View>
+            {/* Risk */}
+            <View style={styles.col4}>
+                <View style={styles.card}>
+                    <PdfText style={{ fontSize: 8, color: '#666', textAlign: 'center', marginBottom: 4 }}>{t('reports_page.financial_risk_score')}</PdfText>
+                    <Text style={{ fontSize: 14, fontFamily: numFontBold, color: '#dc2626', textAlign: 'center' }}>{safe(report.risk_score)}</Text>
+                </View>
+            </View>
+            {/* Team */}
+            <View style={styles.col4}>
+                <View style={styles.card}>
+                    <PdfText style={{ fontSize: 8, color: '#666', textAlign: 'center', marginBottom: 4 }}>{t('reports_page.team_competency')}</PdfText>
+                    <Text style={{ fontSize: 14, fontFamily: numFontBold, color: '#16a34a', textAlign: 'center' }}>{safe(report.team_competency_score)}</Text>
+                </View>
+            </View>
+            {/* Market */}
+            <View style={styles.col4}>
+                <View style={styles.card}>
+                    <PdfText style={{ fontSize: 8, color: '#666', textAlign: 'center', marginBottom: 4 }}>{t('reports_page.market_sentiment')}</PdfText>
+                    <Text style={{ fontSize: 14, fontFamily: numFontBold, color: '#2563eb', textAlign: 'center' }}>{report.market_sentiment_score ? (report.market_sentiment_score * 100).toFixed(0) : "0"}%</Text>
+                </View>
+            </View>
         </View>
 
-        {/* Weaknesses */}
-        <Text style={{ ...styles.sectionTitle, color: '#dc2626' }}>{t('reports_page.xai_weaknesses') || "Weaknesses"}</Text>
-        <View style={{ marginBottom: 10 }}>
-            {report.xai_report?.weaknesses?.length > 0 ? (
-                report.xai_report.weaknesses.map((item: any, i: number) => (
-                    <View key={`w-${i}`} style={{ marginBottom: 4, flexDirection: isRTL ? 'row-reverse' : 'row' }}>
-                        <Text style={{ color: '#dc2626', marginHorizontal: 4 }}>•</Text>
-                        <Text style={{ fontSize: 9, color: '#7f1d1d', flex: 1, textAlign: isRTL ? 'right' : 'left' }}>
-                            {safeText(item.display_text)}
-                        </Text>
-                    </View>
-                ))
-            ) : <Text style={{ fontSize: 9, color: '#999', textAlign: isRTL ? 'right' : 'left' }}>-</Text>}
+        {/* Strengths & Weaknesses */}
+        <View style={{ flexDirection: 'column', marginTop: 10 }}>
+            
+            <PdfText style={{ ...styles.sectionTitle, color: '#16a34a' }}>{t('reports_page.xai_strengths')}</PdfText>
+            {report.xai_report.strengths?.length > 0 ? report.xai_report.strengths.map((item: any, i: number) => (
+                <View key={`s-${i}`} style={{ marginBottom: 4, flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'flex-start' }}>
+                    <Text style={{ color: '#16a34a', marginHorizontal: 5 }}>-</Text>
+                    <PdfText style={{ ...styles.text, color: '#14532d', flex: 1 }}>
+                        {safe(item.display_text)}
+                    </PdfText>
+                </View>
+            )) : <PdfText style={styles.text}>-</PdfText>}
+
+            <PdfText style={{ ...styles.sectionTitle, color: '#dc2626' }}>{t('reports_page.xai_weaknesses')}</PdfText>
+            {report.xai_report.weaknesses?.length > 0 ? report.xai_report.weaknesses.map((item: any, i: number) => (
+                <View key={`w-${i}`} style={{ marginBottom: 4, flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'flex-start' }}>
+                    <Text style={{ color: '#dc2626', marginHorizontal: 5 }}>-</Text>
+                    <PdfText style={{ ...styles.text, color: '#7f1d1d', flex: 1 }}>
+                        {safe(item.display_text)}
+                    </PdfText>
+                </View>
+            )) : <PdfText style={styles.text}>-</PdfText>}
+
         </View>
 
-        <View style={styles.footer}>
-            <Text>{t('common.generated_footer') || "Generated by RayanChain AI"}</Text>
-        </View>
+        <View style={styles.footer}><PdfText>{t('common.generated_footer')}</PdfText></View>
       </Page>
 
     </Document>

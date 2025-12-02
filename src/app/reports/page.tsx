@@ -71,12 +71,11 @@ function ReportContent() {
     // حالت اولیه: اگر ID در URL بود آن را بگیر، وگرنه خالی
     const initialId = searchParams.get('id') || searchParams.get('proposalId') || '';
     const [inputId, setInputId] = useState(initialId);
-    
     const [report, setReport] = useState<AIReport | null>(null);
-    const [proposalData, setProposalData] = useState<ProposalData | null>(null); // ✅ استیت جدید
     const [loading, setLoading] = useState(false);
     const [pdfLoading, setPdfLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [proposalData, setProposalData] = useState<any>(null);
 
     //  FIX: استیت برای تشخیص قابلیت اشتراک‌گذاری
     const [canShare, setCanShare] = useState(false);
@@ -98,14 +97,11 @@ function ReportContent() {
             const aiDataJson = await aiRes.json();
             if (!aiRes.ok) throw new Error(aiDataJson.message || t('reports_page.error_title'));
             setReport(aiDataJson.data || aiDataJson);
-
             // 2. دریافت اطلاعات کامل پروپوزال (برای PDF)
             // فرض می‌کنیم روت /api/proposals/[id] وجود دارد و دیتای کامل می‌دهد
-            console.log("Fetching proposal data for PDF...");
             const propRes = await fetch(`/api/proposals/${id}`);
             if (propRes.ok) {
                 const propJson = await propRes.json();
-                console.log("Proposal Data Received:", propJson.data); // ✅ لاگ برای دیباگ
                 setProposalData(propJson.data);
             } else {
                 console.warn("Failed to fetch proposal details for PDF");
@@ -127,42 +123,82 @@ function ReportContent() {
     }, []);
 
     // --- تابع دانلود PDF جامع ---
+    // تابع اصلاح شده و کامل تولید PDF
     const handleDownloadPDF = async () => {
-        if (!report || !proposalData) {
-            toast.error("Proposal data is incomplete for PDF generation");
-            return;
+        // ۱. بررسی اولیه وجود داده‌ها
+        if (!report) return;
+        
+        // اگر اطلاعات پروپوزال هنوز لود نشده، هشدار بده اما متوقف نشو (می‌تواند با داده خالی ادامه دهد)
+        if (!proposalData) {
+            toast.warning("Proposal details are loading... please wait a moment.");
+            // اگر می‌خواهید سخت‌گیرانه باشد، اینجا return کنید.
+            // اما بهتر است اجازه دهیم ادامه یابد، تمپلت PDF داده‌های خالی را هندل می‌کند.
         }
+
         setPdfLoading(true);
         
         try {
-            // ترجمه داده‌های هوش مصنوعی
+            // ۲. تعریف تابع کمکی برای ترجمه متغیرها (فقط داخل همین اسکوپ استفاده می‌شود)
+            const replaceVars = (key: string, values?: Record<string, string | number>) => {
+                let text = t(key);
+                // اگر ترجمه پیدا نشد یا کلید خالی بود
+                if (!text || text === key) return key; 
+                
+                if (values) {
+                    Object.entries(values).forEach(([k, v]) => {
+                        // جایگزینی {{value}} با مقدار واقعی
+                        text = text.replace(`{{${k}}}`, String(v));
+                    });
+                }
+                return text;
+            };
+
+            // ۳. آماده‌سازی و ترجمه داده‌های هوش مصنوعی
+            // ما یک کپی از گزارش می‌گیریم و فیلدهای متنی آن را برای PDF آماده می‌کنیم
             const processedReport = {
                 ...report,
-                overall_risk_level_label: t(report.overall_risk_level_key),
-                recommendation_text: t(report.xai_report.recommendation_key + '_desc'),
+                
+                // ترجمه سطح ریسک (مثلاً: "متوسط")
+                overall_risk_level_label: t(report.overall_risk_level_key || 'risk_level.medium'),
+                
+                // ترجمه متن توصیه (مثلاً: "این پروژه...")
+                recommendation_text: t((report.xai_report?.recommendation_key || 'recommendation.medium_risk') + '_desc'),
+
+                // پردازش آرایه‌های نقاط قوت و ضعف
                 xai_report: {
                     ...report.xai_report,
-                    strengths: report.xai_report.strengths.map(s => ({ ...s, display_text: tVar(s.key, s.values) })),
-                    weaknesses: report.xai_report.weaknesses.map(w => ({ ...w, display_text: tVar(w.key, w.values) }))
+                    strengths: (report.xai_report?.strengths || []).map(s => ({
+                        ...s,
+                        // فیلد جدید display_text برای نمایش در PDF
+                        display_text: replaceVars(s.key, s.values)
+                    })),
+                    weaknesses: (report.xai_report?.weaknesses || []).map(w => ({
+                        ...w,
+                        display_text: replaceVars(w.key, w.values)
+                    }))
                 }
             };
 
+            // ۴. تولید فایل PDF (باینری)
+            // نکته: proposalData || {} می‌فرستیم تا اگر نال بود کرش نکند
             const blob = await pdf(
                 <ProposalReportPDF 
                     report={processedReport} 
-                    proposal={proposalData} // ✅ ارسال داده‌های پروپوزال
+                    proposal={proposalData || {}} 
                     proposalId={inputId}
                     t={t}
-                    locale={locale} // ✅ ارسال زبان برای فونت و جهت
+                    locale={locale} 
                 />
             ).toBlob();
 
-            saveAs(blob, `RayanChain-FullReport-${inputId}.pdf`);
-            toast.success(t('reports_page.pdf_downloaded_success') || "PDF Downloaded");
+            // ۵. ذخیره فایل
+            saveAs(blob, `RayanChain-Report-${inputId}.pdf`);
+            
+            toast.success(t('reports_page.pdf_downloaded_success') || "PDF Downloaded successfully");
 
         } catch (err) {
-            console.error("PDF Gen Error:", err);
-            toast.error("Failed to generate PDF");
+            console.error("PDF Generation Critical Error:", err);
+            toast.error("Failed to generate PDF. Check console for details.");
         } finally {
             setPdfLoading(false);
         }

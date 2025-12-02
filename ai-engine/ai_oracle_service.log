@@ -1974,3 +1974,435 @@ INFO:     127.0.0.1:59480 - "GET /reports/proposal/692e687e5e94f233175aef7e HTTP
 /home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
   warnings.warn(
 INFO:     127.0.0.1:59480 - "GET /reports/proposal/692e687e5e94f233175aef7e HTTP/1.1" 200 OK
+2025-12-02 14:24:42,510 - INFO - [main.py:119] - Get Report: 692e687e5e94f233175aef7e
+2025-12-02 14:24:42,568 - INFO - [main.py:44] - Fetching data: http://localhost:3000/api/proposals/692e687e5e94f233175aef7e
+[READER] Real data for 0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2: {'address': '0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2', 'amount': 23.828083316285074, 'gas_used': 861000, 'transaction_count': 41, 'dao_score': 0}
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+INFO:     127.0.0.1:49844 - "GET /reports/proposal/692e687e5e94f233175aef7e HTTP/1.1" 200 OK
+2025-12-02 14:24:45,714 - INFO - [main.py:119] - Get Report: 692e687e5e94f233175aef7e
+2025-12-02 14:24:45,772 - INFO - [main.py:44] - Fetching data: http://localhost:3000/api/proposals/692e687e5e94f233175aef7e
+[READER] Real data for 0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2: {'address': '0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2', 'amount': 23.828083316285074, 'gas_used': 861000, 'transaction_count': 41, 'dao_score': 0}
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+INFO:     127.0.0.1:49844 - "GET /reports/proposal/692e687e5e94f233175aef7e HTTP/1.1" 200 OK
+2025-12-02 14:25:55,746 - INFO - [main.py:119] - Get Report: 692e687e5e94f233175aef7e
+2025-12-02 14:25:55,813 - INFO - [main.py:44] - Fetching data: http://localhost:3000/api/proposals/692e687e5e94f233175aef7e
+[READER] Real data for 0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2: {'address': '0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2', 'amount': 23.828083316285074, 'gas_used': 861000, 'transaction_count': 41, 'dao_score': 0}
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+INFO:     127.0.0.1:34778 - "GET /reports/proposal/692e687e5e94f233175aef7e HTTP/1.1" 200 OK
+2025-12-02 14:25:58,900 - INFO - [main.py:119] - Get Report: 692e687e5e94f233175aef7e
+2025-12-02 14:25:58,965 - INFO - [main.py:44] - Fetching data: http://localhost:3000/api/proposals/692e687e5e94f233175aef7e
+[READER] Real data for 0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2: {'address': '0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2', 'amount': 23.828083316285074, 'gas_used': 861000, 'transaction_count': 41, 'dao_score': 0}
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+INFO:     127.0.0.1:34778 - "GET /reports/proposal/692e687e5e94f233175aef7e HTTP/1.1" 200 OK
+2025-12-02 14:26:00,660 - INFO - [main.py:119] - Get Report: 692e687e5e94f233175aef7e
+2025-12-02 14:26:00,725 - INFO - [main.py:44] - Fetching data: http://localhost:3000/api/proposals/692e687e5e94f233175aef7e
+[READER] Real data for 0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2: {'address': '0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2', 'amount': 23.828083316285074, 'gas_used': 861000, 'transaction_count': 41, 'dao_score': 0}
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+INFO:     127.0.0.1:34778 - "GET /reports/proposal/692e687e5e94f233175aef7e HTTP/1.1" 200 OK
+2025-12-02 14:26:02,410 - INFO - [main.py:119] - Get Report: 692e687e5e94f233175aef7e
+2025-12-02 14:26:02,476 - INFO - [main.py:44] - Fetching data: http://localhost:3000/api/proposals/692e687e5e94f233175aef7e
+[READER] Real data for 0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2: {'address': '0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2', 'amount': 23.828083316285074, 'gas_used': 861000, 'transaction_count': 41, 'dao_score': 0}
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+INFO:     127.0.0.1:34778 - "GET /reports/proposal/692e687e5e94f233175aef7e HTTP/1.1" 200 OK
+2025-12-02 14:26:25,313 - INFO - [main.py:119] - Get Report: 692e687e5e94f233175aef7e
+2025-12-02 14:26:25,377 - INFO - [main.py:44] - Fetching data: http://localhost:3000/api/proposals/692e687e5e94f233175aef7e
+[READER] Real data for 0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2: {'address': '0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2', 'amount': 23.828083316285074, 'gas_used': 861000, 'transaction_count': 41, 'dao_score': 0}
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+INFO:     127.0.0.1:56822 - "GET /reports/proposal/692e687e5e94f233175aef7e HTTP/1.1" 200 OK
+2025-12-02 14:26:28,111 - INFO - [main.py:119] - Get Report: 692e687e5e94f233175aef7e
+2025-12-02 14:26:28,175 - INFO - [main.py:44] - Fetching data: http://localhost:3000/api/proposals/692e687e5e94f233175aef7e
+[READER] Real data for 0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2: {'address': '0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2', 'amount': 23.828083316285074, 'gas_used': 861000, 'transaction_count': 41, 'dao_score': 0}
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+INFO:     127.0.0.1:56822 - "GET /reports/proposal/692e687e5e94f233175aef7e HTTP/1.1" 200 OK
+2025-12-02 14:31:39,372 - INFO - [main.py:119] - Get Report: 692e687e5e94f233175aef7e
+2025-12-02 14:31:39,429 - INFO - [main.py:44] - Fetching data: http://localhost:3000/api/proposals/692e687e5e94f233175aef7e
+[READER] Real data for 0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2: {'address': '0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2', 'amount': 23.828083316285074, 'gas_used': 861000, 'transaction_count': 41, 'dao_score': 0}
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+INFO:     127.0.0.1:53502 - "GET /reports/proposal/692e687e5e94f233175aef7e HTTP/1.1" 200 OK
+2025-12-02 14:31:44,052 - INFO - [main.py:119] - Get Report: 692e687e5e94f233175aef7e
+2025-12-02 14:31:44,116 - INFO - [main.py:44] - Fetching data: http://localhost:3000/api/proposals/692e687e5e94f233175aef7e
+[READER] Real data for 0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2: {'address': '0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2', 'amount': 23.828083316285074, 'gas_used': 861000, 'transaction_count': 41, 'dao_score': 0}
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+INFO:     127.0.0.1:53502 - "GET /reports/proposal/692e687e5e94f233175aef7e HTTP/1.1" 200 OK
+2025-12-02 14:32:14,476 - INFO - [main.py:119] - Get Report: 692e687e5e94f233175aef7e
+2025-12-02 14:32:14,542 - INFO - [main.py:44] - Fetching data: http://localhost:3000/api/proposals/692e687e5e94f233175aef7e
+[READER] Real data for 0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2: {'address': '0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2', 'amount': 23.828083316285074, 'gas_used': 861000, 'transaction_count': 41, 'dao_score': 0}
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+INFO:     127.0.0.1:39478 - "GET /reports/proposal/692e687e5e94f233175aef7e HTTP/1.1" 200 OK
+2025-12-02 14:32:17,240 - INFO - [main.py:119] - Get Report: 692e687e5e94f233175aef7e
+2025-12-02 14:32:17,303 - INFO - [main.py:44] - Fetching data: http://localhost:3000/api/proposals/692e687e5e94f233175aef7e
+[READER] Real data for 0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2: {'address': '0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2', 'amount': 23.828083316285074, 'gas_used': 861000, 'transaction_count': 41, 'dao_score': 0}
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+INFO:     127.0.0.1:39478 - "GET /reports/proposal/692e687e5e94f233175aef7e HTTP/1.1" 200 OK
+2025-12-02 14:35:24,924 - INFO - [main.py:119] - Get Report: 692e687e5e94f233175aef7e
+2025-12-02 14:35:24,983 - INFO - [main.py:44] - Fetching data: http://localhost:3000/api/proposals/692e687e5e94f233175aef7e
+[READER] Real data for 0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2: {'address': '0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2', 'amount': 23.828083316285074, 'gas_used': 861000, 'transaction_count': 41, 'dao_score': 0}
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+INFO:     127.0.0.1:50276 - "GET /reports/proposal/692e687e5e94f233175aef7e HTTP/1.1" 200 OK
+2025-12-02 14:35:29,129 - INFO - [main.py:119] - Get Report: 692e687e5e94f233175aef7e
+2025-12-02 14:35:29,190 - INFO - [main.py:44] - Fetching data: http://localhost:3000/api/proposals/692e687e5e94f233175aef7e
+[READER] Real data for 0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2: {'address': '0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2', 'amount': 23.828083316285074, 'gas_used': 861000, 'transaction_count': 41, 'dao_score': 0}
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+INFO:     127.0.0.1:50276 - "GET /reports/proposal/692e687e5e94f233175aef7e HTTP/1.1" 200 OK
+2025-12-02 14:35:51,185 - INFO - [main.py:119] - Get Report: 692e687e5e94f233175aef7e
+2025-12-02 14:35:51,292 - INFO - [main.py:44] - Fetching data: http://localhost:3000/api/proposals/692e687e5e94f233175aef7e
+[READER] Real data for 0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2: {'address': '0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2', 'amount': 23.828083316285074, 'gas_used': 861000, 'transaction_count': 41, 'dao_score': 0}
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+INFO:     127.0.0.1:45420 - "GET /reports/proposal/692e687e5e94f233175aef7e HTTP/1.1" 200 OK
+2025-12-02 14:35:57,039 - INFO - [main.py:119] - Get Report: 692e687e5e94f233175aef7e
+2025-12-02 14:35:57,098 - INFO - [main.py:44] - Fetching data: http://localhost:3000/api/proposals/692e687e5e94f233175aef7e
+[READER] Real data for 0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2: {'address': '0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2', 'amount': 23.828083316285074, 'gas_used': 861000, 'transaction_count': 41, 'dao_score': 0}
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+INFO:     127.0.0.1:45420 - "GET /reports/proposal/692e687e5e94f233175aef7e HTTP/1.1" 200 OK
+2025-12-02 14:35:58,809 - INFO - [main.py:119] - Get Report: 692e687e5e94f233175aef7e
+2025-12-02 14:35:58,867 - INFO - [main.py:44] - Fetching data: http://localhost:3000/api/proposals/692e687e5e94f233175aef7e
+[READER] Real data for 0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2: {'address': '0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2', 'amount': 23.828083316285074, 'gas_used': 861000, 'transaction_count': 41, 'dao_score': 0}
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+INFO:     127.0.0.1:45420 - "GET /reports/proposal/692e687e5e94f233175aef7e HTTP/1.1" 200 OK
+2025-12-02 14:36:00,560 - INFO - [main.py:119] - Get Report: 692e687e5e94f233175aef7e
+2025-12-02 14:36:00,617 - INFO - [main.py:44] - Fetching data: http://localhost:3000/api/proposals/692e687e5e94f233175aef7e
+[READER] Real data for 0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2: {'address': '0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2', 'amount': 23.828083316285074, 'gas_used': 861000, 'transaction_count': 41, 'dao_score': 0}
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+INFO:     127.0.0.1:45420 - "GET /reports/proposal/692e687e5e94f233175aef7e HTTP/1.1" 200 OK
+2025-12-02 14:43:37,972 - INFO - [main.py:119] - Get Report: 692e687e5e94f233175aef7e
+2025-12-02 14:43:38,029 - INFO - [main.py:44] - Fetching data: http://localhost:3000/api/proposals/692e687e5e94f233175aef7e
+[READER] Real data for 0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2: {'address': '0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2', 'amount': 23.828083316285074, 'gas_used': 861000, 'transaction_count': 41, 'dao_score': 0}
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+INFO:     127.0.0.1:34716 - "GET /reports/proposal/692e687e5e94f233175aef7e HTTP/1.1" 200 OK
+2025-12-02 14:44:20,194 - INFO - [main.py:119] - Get Report: 692e687e5e94f233175aef7e
+2025-12-02 14:44:20,250 - INFO - [main.py:44] - Fetching data: http://localhost:3000/api/proposals/692e687e5e94f233175aef7e
+[READER] Real data for 0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2: {'address': '0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2', 'amount': 23.828083316285074, 'gas_used': 861000, 'transaction_count': 41, 'dao_score': 0}
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+INFO:     127.0.0.1:56068 - "GET /reports/proposal/692e687e5e94f233175aef7e HTTP/1.1" 200 OK
+2025-12-02 14:44:22,969 - INFO - [main.py:119] - Get Report: 692e687e5e94f233175aef7e
+2025-12-02 14:44:23,025 - INFO - [main.py:44] - Fetching data: http://localhost:3000/api/proposals/692e687e5e94f233175aef7e
+[READER] Real data for 0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2: {'address': '0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2', 'amount': 23.828083316285074, 'gas_used': 861000, 'transaction_count': 41, 'dao_score': 0}
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+INFO:     127.0.0.1:56068 - "GET /reports/proposal/692e687e5e94f233175aef7e HTTP/1.1" 200 OK
+2025-12-02 14:47:08,993 - INFO - [main.py:119] - Get Report: 692e687e5e94f233175aef7e
+2025-12-02 14:47:09,053 - INFO - [main.py:44] - Fetching data: http://localhost:3000/api/proposals/692e687e5e94f233175aef7e
+[READER] Real data for 0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2: {'address': '0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2', 'amount': 23.828083316285074, 'gas_used': 861000, 'transaction_count': 41, 'dao_score': 0}
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+INFO:     127.0.0.1:39476 - "GET /reports/proposal/692e687e5e94f233175aef7e HTTP/1.1" 200 OK
+2025-12-02 14:47:12,838 - INFO - [main.py:119] - Get Report: 692e687e5e94f233175aef7e
+2025-12-02 14:47:12,898 - INFO - [main.py:44] - Fetching data: http://localhost:3000/api/proposals/692e687e5e94f233175aef7e
+[READER] Real data for 0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2: {'address': '0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2', 'amount': 23.828083316285074, 'gas_used': 861000, 'transaction_count': 41, 'dao_score': 0}
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+INFO:     127.0.0.1:39476 - "GET /reports/proposal/692e687e5e94f233175aef7e HTTP/1.1" 200 OK
+2025-12-02 14:47:53,128 - INFO - [main.py:119] - Get Report: 692e687e5e94f233175aef7e
+2025-12-02 14:47:53,195 - INFO - [main.py:44] - Fetching data: http://localhost:3000/api/proposals/692e687e5e94f233175aef7e
+[READER] Real data for 0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2: {'address': '0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2', 'amount': 23.828083316285074, 'gas_used': 861000, 'transaction_count': 41, 'dao_score': 0}
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+INFO:     127.0.0.1:55304 - "GET /reports/proposal/692e687e5e94f233175aef7e HTTP/1.1" 200 OK
+2025-12-02 14:47:56,081 - INFO - [main.py:119] - Get Report: 692e687e5e94f233175aef7e
+2025-12-02 14:47:56,138 - INFO - [main.py:44] - Fetching data: http://localhost:3000/api/proposals/692e687e5e94f233175aef7e
+[READER] Real data for 0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2: {'address': '0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2', 'amount': 23.828083316285074, 'gas_used': 861000, 'transaction_count': 41, 'dao_score': 0}
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+INFO:     127.0.0.1:55304 - "GET /reports/proposal/692e687e5e94f233175aef7e HTTP/1.1" 200 OK
+2025-12-02 14:49:17,045 - INFO - [main.py:119] - Get Report: 692e687e5e94f233175aef7e
+2025-12-02 14:49:17,126 - INFO - [main.py:44] - Fetching data: http://localhost:3000/api/proposals/692e687e5e94f233175aef7e
+[READER] Real data for 0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2: {'address': '0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2', 'amount': 23.828083316285074, 'gas_used': 861000, 'transaction_count': 41, 'dao_score': 0}
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+INFO:     127.0.0.1:51968 - "GET /reports/proposal/692e687e5e94f233175aef7e HTTP/1.1" 200 OK
+2025-12-02 14:49:20,895 - INFO - [main.py:119] - Get Report: 692e687e5e94f233175aef7e
+2025-12-02 14:49:20,953 - INFO - [main.py:44] - Fetching data: http://localhost:3000/api/proposals/692e687e5e94f233175aef7e
+[READER] Real data for 0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2: {'address': '0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2', 'amount': 23.828083316285074, 'gas_used': 861000, 'transaction_count': 41, 'dao_score': 0}
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+INFO:     127.0.0.1:51968 - "GET /reports/proposal/692e687e5e94f233175aef7e HTTP/1.1" 200 OK
+2025-12-02 14:57:01,995 - INFO - [main.py:119] - Get Report: 692e687e5e94f233175aef7e
+2025-12-02 14:57:02,100 - INFO - [main.py:44] - Fetching data: http://localhost:3000/api/proposals/692e687e5e94f233175aef7e
+[READER] Real data for 0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2: {'address': '0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2', 'amount': 23.828083316285074, 'gas_used': 861000, 'transaction_count': 41, 'dao_score': 0}
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+INFO:     127.0.0.1:43258 - "GET /reports/proposal/692e687e5e94f233175aef7e HTTP/1.1" 200 OK
+2025-12-02 14:57:06,658 - INFO - [main.py:119] - Get Report: 692e687e5e94f233175aef7e
+2025-12-02 14:57:06,724 - INFO - [main.py:44] - Fetching data: http://localhost:3000/api/proposals/692e687e5e94f233175aef7e
+[READER] Real data for 0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2: {'address': '0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2', 'amount': 23.828083316285074, 'gas_used': 861000, 'transaction_count': 41, 'dao_score': 0}
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+INFO:     127.0.0.1:43258 - "GET /reports/proposal/692e687e5e94f233175aef7e HTTP/1.1" 200 OK
+2025-12-02 14:58:20,926 - INFO - [main.py:119] - Get Report: 692e687e5e94f233175aef7e
+2025-12-02 14:58:20,992 - INFO - [main.py:44] - Fetching data: http://localhost:3000/api/proposals/692e687e5e94f233175aef7e
+[READER] Real data for 0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2: {'address': '0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2', 'amount': 23.828083316285074, 'gas_used': 861000, 'transaction_count': 41, 'dao_score': 0}
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+INFO:     127.0.0.1:51122 - "GET /reports/proposal/692e687e5e94f233175aef7e HTTP/1.1" 200 OK
+2025-12-02 14:58:23,997 - INFO - [main.py:119] - Get Report: 692e687e5e94f233175aef7e
+2025-12-02 14:58:24,066 - INFO - [main.py:44] - Fetching data: http://localhost:3000/api/proposals/692e687e5e94f233175aef7e
+[READER] Real data for 0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2: {'address': '0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2', 'amount': 23.828083316285074, 'gas_used': 861000, 'transaction_count': 41, 'dao_score': 0}
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+INFO:     127.0.0.1:51122 - "GET /reports/proposal/692e687e5e94f233175aef7e HTTP/1.1" 200 OK
+2025-12-02 14:58:43,984 - INFO - [main.py:119] - Get Report: 692e687e5e94f233175aef7e
+2025-12-02 14:58:44,048 - INFO - [main.py:44] - Fetching data: http://localhost:3000/api/proposals/692e687e5e94f233175aef7e
+[READER] Real data for 0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2: {'address': '0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2', 'amount': 23.828083316285074, 'gas_used': 861000, 'transaction_count': 41, 'dao_score': 0}
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+INFO:     127.0.0.1:34114 - "GET /reports/proposal/692e687e5e94f233175aef7e HTTP/1.1" 200 OK
+2025-12-02 15:01:50,713 - INFO - [main.py:119] - Get Report: 692e687e5e94f233175aef7e
+2025-12-02 15:01:50,771 - INFO - [main.py:44] - Fetching data: http://localhost:3000/api/proposals/692e687e5e94f233175aef7e
+[READER] Real data for 0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2: {'address': '0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2', 'amount': 23.828083316285074, 'gas_used': 861000, 'transaction_count': 41, 'dao_score': 0}
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+INFO:     127.0.0.1:35290 - "GET /reports/proposal/692e687e5e94f233175aef7e HTTP/1.1" 200 OK
+2025-12-02 15:01:54,573 - INFO - [main.py:119] - Get Report: 692e687e5e94f233175aef7e
+2025-12-02 15:01:54,630 - INFO - [main.py:44] - Fetching data: http://localhost:3000/api/proposals/692e687e5e94f233175aef7e
+[READER] Real data for 0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2: {'address': '0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2', 'amount': 23.828083316285074, 'gas_used': 861000, 'transaction_count': 41, 'dao_score': 0}
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+INFO:     127.0.0.1:35290 - "GET /reports/proposal/692e687e5e94f233175aef7e HTTP/1.1" 200 OK
+2025-12-02 15:01:56,325 - INFO - [main.py:119] - Get Report: 692e687e5e94f233175aef7e
+2025-12-02 15:01:56,381 - INFO - [main.py:44] - Fetching data: http://localhost:3000/api/proposals/692e687e5e94f233175aef7e
+[READER] Real data for 0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2: {'address': '0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2', 'amount': 23.828083316285074, 'gas_used': 861000, 'transaction_count': 41, 'dao_score': 0}
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+INFO:     127.0.0.1:35290 - "GET /reports/proposal/692e687e5e94f233175aef7e HTTP/1.1" 200 OK
+2025-12-02 15:01:58,076 - INFO - [main.py:119] - Get Report: 692e687e5e94f233175aef7e
+2025-12-02 15:01:58,132 - INFO - [main.py:44] - Fetching data: http://localhost:3000/api/proposals/692e687e5e94f233175aef7e
+[READER] Real data for 0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2: {'address': '0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2', 'amount': 23.828083316285074, 'gas_used': 861000, 'transaction_count': 41, 'dao_score': 0}
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+INFO:     127.0.0.1:35290 - "GET /reports/proposal/692e687e5e94f233175aef7e HTTP/1.1" 200 OK
+2025-12-02 15:03:09,263 - INFO - [main.py:119] - Get Report: 692e687e5e94f233175aef7e
+2025-12-02 15:03:09,324 - INFO - [main.py:44] - Fetching data: http://localhost:3000/api/proposals/692e687e5e94f233175aef7e
+[READER] Real data for 0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2: {'address': '0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2', 'amount': 23.828083316285074, 'gas_used': 861000, 'transaction_count': 41, 'dao_score': 0}
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+INFO:     127.0.0.1:35642 - "GET /reports/proposal/692e687e5e94f233175aef7e HTTP/1.1" 200 OK
+2025-12-02 15:03:16,390 - INFO - [main.py:119] - Get Report: 692e687e5e94f233175aef7e
+2025-12-02 15:03:16,450 - INFO - [main.py:44] - Fetching data: http://localhost:3000/api/proposals/692e687e5e94f233175aef7e
+[READER] Real data for 0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2: {'address': '0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2', 'amount': 23.828083316285074, 'gas_used': 861000, 'transaction_count': 41, 'dao_score': 0}
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+INFO:     127.0.0.1:35642 - "GET /reports/proposal/692e687e5e94f233175aef7e HTTP/1.1" 200 OK
+2025-12-02 15:03:18,155 - INFO - [main.py:119] - Get Report: 692e687e5e94f233175aef7e
+2025-12-02 15:03:18,214 - INFO - [main.py:44] - Fetching data: http://localhost:3000/api/proposals/692e687e5e94f233175aef7e
+[READER] Real data for 0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2: {'address': '0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2', 'amount': 23.828083316285074, 'gas_used': 861000, 'transaction_count': 41, 'dao_score': 0}
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+INFO:     127.0.0.1:35642 - "GET /reports/proposal/692e687e5e94f233175aef7e HTTP/1.1" 200 OK
+2025-12-02 15:03:19,965 - INFO - [main.py:119] - Get Report: 692e687e5e94f233175aef7e
+2025-12-02 15:03:20,023 - INFO - [main.py:44] - Fetching data: http://localhost:3000/api/proposals/692e687e5e94f233175aef7e
+[READER] Real data for 0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2: {'address': '0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2', 'amount': 23.828083316285074, 'gas_used': 861000, 'transaction_count': 41, 'dao_score': 0}
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+INFO:     127.0.0.1:35642 - "GET /reports/proposal/692e687e5e94f233175aef7e HTTP/1.1" 200 OK
+2025-12-02 15:05:16,989 - INFO - [main.py:119] - Get Report: 692e687e5e94f233175aef7e
+2025-12-02 15:05:17,047 - INFO - [main.py:44] - Fetching data: http://localhost:3000/api/proposals/692e687e5e94f233175aef7e
+[READER] Real data for 0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2: {'address': '0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2', 'amount': 23.828083316285074, 'gas_used': 861000, 'transaction_count': 41, 'dao_score': 0}
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+INFO:     127.0.0.1:56374 - "GET /reports/proposal/692e687e5e94f233175aef7e HTTP/1.1" 200 OK
+2025-12-02 15:05:21,019 - INFO - [main.py:119] - Get Report: 692e687e5e94f233175aef7e
+2025-12-02 15:05:21,083 - INFO - [main.py:44] - Fetching data: http://localhost:3000/api/proposals/692e687e5e94f233175aef7e
+[READER] Real data for 0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2: {'address': '0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2', 'amount': 23.828083316285074, 'gas_used': 861000, 'transaction_count': 41, 'dao_score': 0}
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+INFO:     127.0.0.1:56374 - "GET /reports/proposal/692e687e5e94f233175aef7e HTTP/1.1" 200 OK
+2025-12-02 15:07:10,973 - INFO - [main.py:119] - Get Report: 692e687e5e94f233175aef7e
+2025-12-02 15:07:11,030 - INFO - [main.py:44] - Fetching data: http://localhost:3000/api/proposals/692e687e5e94f233175aef7e
+[READER] Real data for 0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2: {'address': '0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2', 'amount': 23.828083316285074, 'gas_used': 861000, 'transaction_count': 41, 'dao_score': 0}
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+INFO:     127.0.0.1:53872 - "GET /reports/proposal/692e687e5e94f233175aef7e HTTP/1.1" 200 OK
+2025-12-02 15:07:14,744 - INFO - [main.py:119] - Get Report: 692e687e5e94f233175aef7e
+2025-12-02 15:07:14,804 - INFO - [main.py:44] - Fetching data: http://localhost:3000/api/proposals/692e687e5e94f233175aef7e
+[READER] Real data for 0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2: {'address': '0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2', 'amount': 23.828083316285074, 'gas_used': 861000, 'transaction_count': 41, 'dao_score': 0}
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+INFO:     127.0.0.1:53872 - "GET /reports/proposal/692e687e5e94f233175aef7e HTTP/1.1" 200 OK
+2025-12-02 15:07:50,060 - INFO - [main.py:119] - Get Report: 692e687e5e94f233175aef7e
+2025-12-02 15:07:50,126 - INFO - [main.py:44] - Fetching data: http://localhost:3000/api/proposals/692e687e5e94f233175aef7e
+[READER] Real data for 0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2: {'address': '0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2', 'amount': 23.828083316285074, 'gas_used': 861000, 'transaction_count': 41, 'dao_score': 0}
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+INFO:     127.0.0.1:41974 - "GET /reports/proposal/692e687e5e94f233175aef7e HTTP/1.1" 200 OK
+2025-12-02 15:07:53,026 - INFO - [main.py:119] - Get Report: 692e687e5e94f233175aef7e
+2025-12-02 15:07:53,091 - INFO - [main.py:44] - Fetching data: http://localhost:3000/api/proposals/692e687e5e94f233175aef7e
+[READER] Real data for 0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2: {'address': '0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2', 'amount': 23.828083316285074, 'gas_used': 861000, 'transaction_count': 41, 'dao_score': 0}
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+INFO:     127.0.0.1:41974 - "GET /reports/proposal/692e687e5e94f233175aef7e HTTP/1.1" 200 OK
+2025-12-02 15:10:35,099 - INFO - [main.py:119] - Get Report: 692e687e5e94f233175aef7e
+2025-12-02 15:10:35,155 - INFO - [main.py:44] - Fetching data: http://localhost:3000/api/proposals/692e687e5e94f233175aef7e
+[READER] Real data for 0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2: {'address': '0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2', 'amount': 23.828083316285074, 'gas_used': 861000, 'transaction_count': 41, 'dao_score': 0}
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+INFO:     127.0.0.1:48058 - "GET /reports/proposal/692e687e5e94f233175aef7e HTTP/1.1" 200 OK
+2025-12-02 15:10:38,848 - INFO - [main.py:119] - Get Report: 692e687e5e94f233175aef7e
+2025-12-02 15:10:38,904 - INFO - [main.py:44] - Fetching data: http://localhost:3000/api/proposals/692e687e5e94f233175aef7e
+[READER] Real data for 0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2: {'address': '0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2', 'amount': 23.828083316285074, 'gas_used': 861000, 'transaction_count': 41, 'dao_score': 0}
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+INFO:     127.0.0.1:48058 - "GET /reports/proposal/692e687e5e94f233175aef7e HTTP/1.1" 200 OK
+2025-12-02 15:12:46,042 - INFO - [main.py:119] - Get Report: 692e687e5e94f233175aef7e
+2025-12-02 15:12:46,114 - INFO - [main.py:44] - Fetching data: http://localhost:3000/api/proposals/692e687e5e94f233175aef7e
+[READER] Real data for 0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2: {'address': '0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2', 'amount': 23.828083316285074, 'gas_used': 861000, 'transaction_count': 41, 'dao_score': 0}
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+INFO:     127.0.0.1:38734 - "GET /reports/proposal/692e687e5e94f233175aef7e HTTP/1.1" 200 OK
+2025-12-02 15:12:50,083 - INFO - [main.py:119] - Get Report: 692e687e5e94f233175aef7e
+2025-12-02 15:12:50,140 - INFO - [main.py:44] - Fetching data: http://localhost:3000/api/proposals/692e687e5e94f233175aef7e
+[READER] Real data for 0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2: {'address': '0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2', 'amount': 23.828083316285074, 'gas_used': 861000, 'transaction_count': 41, 'dao_score': 0}
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+INFO:     127.0.0.1:38734 - "GET /reports/proposal/692e687e5e94f233175aef7e HTTP/1.1" 200 OK
+2025-12-02 15:20:56,069 - INFO - [main.py:119] - Get Report: 692e687e5e94f233175aef7e
+2025-12-02 15:20:56,128 - INFO - [main.py:44] - Fetching data: http://localhost:3000/api/proposals/692e687e5e94f233175aef7e
+[READER] Real data for 0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2: {'address': '0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2', 'amount': 23.828083316285074, 'gas_used': 861000, 'transaction_count': 41, 'dao_score': 0}
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+INFO:     127.0.0.1:52756 - "GET /reports/proposal/692e687e5e94f233175aef7e HTTP/1.1" 200 OK
+2025-12-02 15:20:59,893 - INFO - [main.py:119] - Get Report: 692e687e5e94f233175aef7e
+2025-12-02 15:20:59,949 - INFO - [main.py:44] - Fetching data: http://localhost:3000/api/proposals/692e687e5e94f233175aef7e
+[READER] Real data for 0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2: {'address': '0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2', 'amount': 23.828083316285074, 'gas_used': 861000, 'transaction_count': 41, 'dao_score': 0}
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+INFO:     127.0.0.1:52756 - "GET /reports/proposal/692e687e5e94f233175aef7e HTTP/1.1" 200 OK
+2025-12-02 15:21:12,488 - INFO - [main.py:119] - Get Report: 692e687e5e94f233175aef7e
+2025-12-02 15:21:12,557 - INFO - [main.py:44] - Fetching data: http://localhost:3000/api/proposals/692e687e5e94f233175aef7e
+[READER] Real data for 0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2: {'address': '0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2', 'amount': 23.828083316285074, 'gas_used': 861000, 'transaction_count': 41, 'dao_score': 0}
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+INFO:     127.0.0.1:35506 - "GET /reports/proposal/692e687e5e94f233175aef7e HTTP/1.1" 200 OK
+2025-12-02 15:21:18,609 - INFO - [main.py:119] - Get Report: 692e687e5e94f233175aef7e
+2025-12-02 15:21:18,725 - INFO - [main.py:44] - Fetching data: http://localhost:3000/api/proposals/692e687e5e94f233175aef7e
+[READER] Real data for 0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2: {'address': '0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2', 'amount': 23.828083316285074, 'gas_used': 861000, 'transaction_count': 41, 'dao_score': 0}
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
+  warnings.warn(
+INFO:     127.0.0.1:35506 - "GET /reports/proposal/692e687e5e94f233175aef7e HTTP/1.1" 200 OK
