@@ -1,78 +1,73 @@
-# ai-engine/layers/layer_1_security.py - FINAL DYNAMIC VERSION
+# ai-engine/layers/layer_1_security.py
 
+import os
 import numpy as np
-import math
+import joblib
+from logger_config import logger
 
-def analyze_user_behavior(user_data: any) -> dict:
-    """
-    تحلیل رفتار کاربر با حساسیت بالا به داده‌های بلاکچین.
-    ورودی می‌تواند لیست (فرمت قدیمی) یا دیکشنری (فرمت جدید) باشد.
-    """
-    # 1. استانداردسازی ورودی (حل مشکل لیست/دیکشنری)
-    if isinstance(user_data, list):
-        # اگر لیست است، اولین آیتم را بردار (چون فعلا تحلیل تک کاربره است)
-        profile = user_data[0] if len(user_data) > 0 else {}
-    else:
-        profile = user_data
+MODEL_PATH = os.path.join(os.path.dirname(__file__), '..', 'models', 'security_model.joblib')
 
-    # 2. استخراج داده‌ها با مقدار پیش‌فرض 0
-    tx_count = int(profile.get('transaction_count', 0))
-    balance = float(profile.get('native_balance', 0)) # موجودی متیک
-    # اگر gas_used در دسترس نبود، تخمینی بر اساس تراکنش محاسبه می‌کنیم
-    gas_used = profile.get('gas_used', tx_count * 21000) 
-    dao_score = int(profile.get('dao_participation_score', 0))
+class SecurityAI:
+    def __init__(self):
+        self.model = None
+        self.load_models()
 
-    # 3. محاسبه امتیاز (Dynamic Scoring Algorithm)
-    
-    # امتیاز پایه
-    base_score = 50 
+    def load_models(self):
+        if os.path.exists(MODEL_PATH):
+            try:
+                self.model = joblib.load(MODEL_PATH)
+                logger.info("✅ Security AI Model Loaded.")
+            except Exception as e:
+                logger.error(f"Failed to load Security model: {e}")
+        else:
+            logger.warning("⚠️ Security model not found.")
 
-    # الف) امتیاز فعالیت (Transaction Activity) - حداکثر 25 امتیاز
-    # از تابع log استفاده می‌کنیم تا تفاوت بین 1 و 10 زیاد باشد، اما 100 و 110 کم
-    # فرمول: 5 * log2(tx_count + 1)
-    if tx_count > 0:
-        activity_score = min(25, 5 * math.log2(tx_count + 1))
-    else:
-        activity_score = -10 # جریمه برای کاربر بدون تراکنش (روح)
+    def analyze(self, profile: dict):
+        # Fallback اگر مدل نبود
+        if not self.model:
+            return {"trust_score": 50, "anomaly_detected": False, "report_key": "security_report.no_model"}
 
-    # ب) امتیاز ثروت (Wallet Balance) - حداکثر 15 امتیاز
-    # فرض: هر 1 متیک = 0.5 امتیاز (تا سقف 30 متیک)
-    # این باعث می‌شود حتی مقادیر کم هم امتیاز را تغییر دهند
-    wealth_score = min(15, balance * 0.5)
+        try:
+            # ویژگی‌های دقیقاً مشابه train_models.py
+            # features = ['transaction_count', 'balance_native', 'total_gas_used']
+            
+            tx_count = float(profile.get('transaction_count', 0))
+            balance = float(profile.get('amount', 0)) # در blockchain_reader نامش amount است
+            gas_used = float(profile.get('gas_used', 0))
 
-    # ج) امتیاز پیچیدگی (Gas Usage) - حداکثر 10 امتیاز
-    # کاربرانی که با قراردادها تعامل دارند (Gas بیشتر) معتبرترند
-    complexity_score = min(10, (gas_used / 100000)) 
+            features = [[tx_count, balance, gas_used]]
+            
+            # 1 = Normal, -1 = Anomaly
+            prediction = self.model.predict(features)[0]
+            
+            # امتیاز ناهنجاری (هرچه منفی‌تر، ناهنجارتر)
+            score_raw = self.model.score_samples(features)[0]
+            
+            # تبدیل به امتیاز اعتماد (0 تا 100)
+            # معمولا score بین -0.8 تا 0 است.
+            # فرمول تقریبی: (score + 1) * 100
+            trust_score = int(np.clip((score_raw + 0.8) * 200, 0, 100))
+            
+            is_anomaly = (prediction == -1)
+            
+            report_key = "security_report.trusted_user"
+            if is_anomaly:
+                report_key = "security_report.anomaly_detected"
+                trust_score = min(trust_score, 40) # جریمه برای ناهنجاری
 
-    # محاسبه نهایی
-    raw_score = base_score + activity_score + wealth_score + dao_score
-    
-    # نرمال‌سازی بین 0 تا 100
-    final_score = int(max(0, min(100, raw_score)))
+            return {
+                "trust_score": trust_score,
+                "anomaly_detected": bool(is_anomaly),
+                "report_key": report_key
+            }
 
-    # 4. تحلیل کیفی (تولید پیام)
-    anomaly_detected = False
-    report_key = "security_report.normal_behavior"
+        except Exception as e:
+            logger.error(f"Security Analysis Error: {e}")
+            return {"trust_score": 50, "anomaly_detected": False, "report_key": "security_report.error"}
 
-    if tx_count == 0 and balance > 0:
-        # پول دارد اما تراکنش ندارد (کیف پول تازه شارژ شده)
-        report_key = "security_report.new_wallet"
-    elif tx_count > 0 and final_score < 40:
-        report_key = "security_report.low_activity"
-        anomaly_detected = True # مشکوک به ربات کم‌کار
-    elif final_score > 80:
-        report_key = "security_report.trusted_user"
+security_engine = SecurityAI()
 
-    return {
-        "trust_score": final_score,
-        "anomaly_detected": anomaly_detected,
-        "report_key": report_key,
-        # بازگرداندن جزئیات برای دیباگ در فرانت
-        "breakdown": {
-            "base": 50,
-            "activity_points": round(activity_score, 1),
-            "wealth_points": round(wealth_score, 1),
-            "tx_count": tx_count,
-            "balance": balance
-        }
-    }
+def analyze_user_behavior(user_profile: dict) -> dict:
+    if isinstance(user_profile, list):
+        user_profile = user_profile[0] if user_profile else {}
+    return security_engine.analyze(user_profile)

@@ -1,76 +1,62 @@
 # ai-engine/layers/layer_5_integration.py
 
 def generate_xai_report(financial_report: dict, investability_score: float) -> dict:
-    """
-    تولید گزارش متنی بر اساس امتیاز نهایی (Investability Score).
-    Investability: 0 (Bad) -> 100 (Good)
-    """
-    xai_factors = financial_report.get('xai_factors', [])
+    raw_factors = financial_report.get('xai_factors', [])
     
     strengths = []
     weaknesses = []
-    key_decision_factors = []
+    
+    for f in raw_factors:
+        item = {"key": f["key"], "values": f.get("values", {})}
+        if f.get("type") == "strength":
+            strengths.append(item)
+        else:
+            weaknesses.append(item)
 
-    # تبدیل فاکتورها
-    if xai_factors:
-        for factor in xai_factors:
-            key_decision_factors.append({
-                "key": factor['key'],
-                "values": factor.get('values', {}),
-                "importance": factor.get('importance', 0)
-            })
-
-    # منطق یکپارچه: استفاده از investability_score برای تعیین متن‌ها
-    # امتیاز بالای 80 = عالی (ریسک پایین)
     if investability_score >= 80:
-        recommendation_key = "recommendation.low_risk"
-        strengths.append({"key": "xai.strength.high_score"})
-    
-    # امتیاز بین 60 تا 80 = متوسط (ریسک متوسط)
+        rec_key = "recommendation.low_risk"
     elif investability_score >= 60:
-        recommendation_key = "recommendation.medium_risk"
-        # بررسی دقیق‌تر برای پیدا کردن ضعف
-        if financial_report.get('risk_score', 0) > 40:
-            weaknesses.append({"key": "xai.weakness.financial_uncertainty"})
-    
-    # امتیاز زیر 60 = ضعیف (ریسک بالا)
+        rec_key = "recommendation.medium_risk"
     else:
-        recommendation_key = "recommendation.high_risk"
-        weaknesses.append({"key": "xai.weakness.general_risk"})
+        rec_key = "recommendation.high_risk"
 
     return {
         "strengths": strengths,
         "weaknesses": weaknesses,
-        "key_decision_factors": key_decision_factors,
-        "recommendation_key": recommendation_key
+        "key_decision_factors": strengths + weaknesses,
+        "recommendation_key": rec_key
     }
 
 def generate_final_investability_score(financial_report: dict, security_report: dict) -> dict:
-    weights = {"financial": 0.7, "security": 0.3}
-
-    # تبدیل ریسک مالی (100=بد) به امتیاز مثبت (100=خوب)
-    financial_score = 100 - financial_report.get('risk_score', 50)
-    security_score = security_report.get('trust_score', 50)
-
-    # محاسبه امتیاز نهایی
-    investability_score = (financial_score * weights['financial']) + (security_score * weights['security'])
-    investability_score = round(investability_score)
-
-    # تعیین سطح ریسک (دقیقاً هماهنگ با بازه‌های بالا)
-    if investability_score >= 80:
-        overall_risk_level_key = "risk_level.low"       # سبز
-    elif investability_score >= 60:
-        overall_risk_level_key = "risk_level.medium"    # زرد
-    elif investability_score >= 40:
-        overall_risk_level_key = "risk_level.high"      # نارنجی
-    else:
-        overall_risk_level_key = "risk_level.very_high" # قرمز
+    # 1. دریافت امتیازات هوشمند
+    risk_score = financial_report.get('risk_score', 50)
+    trust_score = security_report.get('trust_score', 50)
     
-    # پاس دادن امتیاز نهایی به تابع گزارش‌ساز
-    xai_report = generate_xai_report(financial_report, investability_score)
+    # کیفیت مالی = 100 - ریسک
+    financial_quality = 100 - risk_score
+    
+    # 2. محاسبه نهایی (70% مالی، 30% امنیت)
+    final_score = int((financial_quality * 0.7) + (trust_score * 0.3))
+    
+    # 3. تعیین سطح
+    if final_score >= 80: risk_level = "risk_level.low"
+    elif final_score >= 60: risk_level = "risk_level.medium"
+    elif final_score >= 40: risk_level = "risk_level.high"
+    else: risk_level = "risk_level.very_high"
+
+    # 4. تولید متن
+    xai_report = generate_xai_report(financial_report, final_score)
 
     return {
-        "investability_score": investability_score,
-        "overall_risk_level_key": overall_risk_level_key,
+        "investability_score": final_score,
+        "overall_risk_level_key": risk_level,
+        
+        # انتقال تمام جزییات برای نمایش در داشبورد
+        "risk_score": risk_score,
+        "success_probability": financial_report.get('success_probability'),
+        "team_competency_score": financial_report.get('team_competency_score'),
+        "market_sentiment_score": financial_report.get('market_sentiment_score'),
+        "proposer_trust_score": trust_score,
+        
         "xai_report": xai_report
     }

@@ -43,7 +43,6 @@ def train_model():
     model = xgb.XGBClassifier(
         objective='binary:logistic',
         eval_metric='logloss',
-        use_label_encoder=False,
         n_estimators=100,
         learning_rate=0.1,
         max_depth=5

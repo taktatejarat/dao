@@ -1,14 +1,22 @@
 #!/bin/bash
 
-# --- Configuration using Absolute Paths ---
-# ✅ FIX: از pwd برای گرفتن مسیر مطلق دایرکتوری ریشه پروژه استفاده می‌کنیم
-ROOT_DIR=$(pwd)
+# --- Configuration (Absolute Paths) ---
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+ROOT_DIR="$SCRIPT_DIR"
+
 VENV_DIR="$ROOT_DIR/.venv_ai_oracle"
 AI_ENGINE_DIR="$ROOT_DIR/ai-engine"
 LOG_FILE="$AI_ENGINE_DIR/ai_oracle_service.log"
 PID_FILE="$AI_ENGINE_DIR/ai_oracle.pid"
-PYTHON_EXECUTABLE="$VENV_DIR/bin/python3" # نام متغیر برای وضوح بیشتر تغییر کرد
+
+# Python & Pip
+PYTHON_EXECUTABLE="$VENV_DIR/bin/python3"
+PIP_EXECUTABLE="$VENV_DIR/bin/pip"
 REQUIREMENTS_FILE="$AI_ENGINE_DIR/requirements.txt"
+
+# New MLOps Scripts
+DATA_GEN_SCRIPT="$ROOT_DIR/simulation/AI_Data_Gen.py"
+TRAIN_MODEL_SCRIPT="$AI_ENGINE_DIR/training/train_models.py"
 
 # --- Helper Functions ---
 log() {
@@ -16,108 +24,89 @@ log() {
 }
 
 setup_environment() {
-    log "--- [AI Oracle] Starting Setup and Activation ---"
+    log "--- [AI Oracle] Setup Environment ---"
     
-    # ایجاد یا بررسی وجود venv
     if [ ! -d "$VENV_DIR" ]; then
-        log "Creating virtual environment: $VENV_DIR"
-        python3 -m venv "$VENV_DIR" || {
-            log "CRITICAL ERROR: Failed to create virtual environment."
-            exit 1
-        }
+        log "Creating virtual environment..."
+        python3 -m venv "$VENV_DIR"
     fi
 
-    # بررسی وجود pip داخل venv
-    if [ ! -f "$VENV_DIR/bin/pip" ]; then
-        log "Installing pip inside virtual environment..."
-        "$VENV_DIR/bin/python3" -m ensurepip --upgrade || {
-            log "CRITICAL ERROR: Failed to install pip."
-            exit 1
-        }
-        "$VENV_DIR/bin/python3" -m pip install --upgrade pip setuptools wheel
-    fi
-
-    # فعال‌سازی محیط مجازی در اسکریپت (اختیاری اما مفید)
-    source "$VENV_DIR/bin/activate"
-
-    # نصب پکیج‌های مورد نیاز
-    log "Installing/Updating python3 dependencies..."
-    "$VENV_DIR/bin/pip" install -q -r "$REQUIREMENTS_FILE" || {
+    # Upgrade pip & install dependencies
+    "$PIP_EXECUTABLE" install --upgrade pip setuptools wheel > /dev/null 2>&1
+    "$PIP_EXECUTABLE" install -r "$REQUIREMENTS_FILE" > /dev/null 2>&1 || {
         log "CRITICAL ERROR: Failed to install dependencies."
         exit 1
     }
-
-    log "Dependencies installed successfully."
+    log "Environment ready."
 }
 
-prepare_training_data() {
-    log "--- [AI Oracle] Preparing Training Data ---"
-    "$PYTHON_EXECUTABLE" "$AI_ENGINE_DIR/training/prepare_data.py"
-    if [ $? -ne 0 ]; then
-        log "CRITICAL ERROR: Data preparation failed."
-        exit 1
-    fi
-    log "Data preparation complete."
-}
-
-train_ai_model() {
-    log "--- [AI Oracle] Training AI Risk Model ---"
-    "$PYTHON_EXECUTABLE" "$AI_ENGINE_DIR/training/train_risk_model.py"
-    if [ $? -ne 0 ]; then
-        log "CRITICAL ERROR: Model training failed."
-        exit 1
-    fi
-    log "Model training complete."
-}
-
-# Function to start the FastAPI service
-start_fastapi_service() {
-    log "--- [AI Oracle] Starting FastAPI Service ---"
+run_ml_pipeline() {
+    log "--- [AI Oracle] MLOps Pipeline Started ---"
     
-    # ✅ FIX: به جای kill کردن PID، هر فرآیندی که از پورت 8000 استفاده می‌کند را متوقف می‌کنیم.
-    # این روش بسیار قاطعانه‌تر و قابل اعتمادتر است.
-    log "Checking for existing service on port 8000..."
-    EXISTING_PID=$(lsof -t -i:8000)
-
-    if [ -n "$EXISTING_PID" ]; then
-        log "Found existing service on port 8000 with PID: $EXISTING_PID. Stopping it..."
-        kill -9 "$EXISTING_PID"
-        sleep 2 # زمان برای آزاد شدن پورت
-    fi
-
-    if [ ! -f "$AI_ENGINE_DIR/models/risk_model.json" ]; then
-        log "WARNING: AI model not found. Service will run but predictions may fail."
-    fi
-
-    log "Running FastAPI service in background (Port 8000)..."
-    
-    # ✅ FIX: از مسیر مطلق برای اجرای uvicorn استفاده می‌کنیم
-    # وارد پوشه ai-engine می‌شویم تا uvicorn بتواند main:app را پیدا کند.
-    cd "$AI_ENGINE_DIR"
-    nohup "$PYTHON_EXECUTABLE" -m uvicorn main:app --host 0.0.0.0 --port 8000 --log-level info > "$LOG_FILE" 2>&1 &
-    
-    echo $! > "$PID_FILE"
-    cd "$ROOT_DIR" # بازگشت به دایرکتوری اصلی
-
-    sleep 3 # زمان بیشتر برای اطمینان از اجرای سرویس
-
-    if ps -p $(cat "$PID_FILE") > /dev/null; then
-        log "Service started successfully. PID saved to $PID_FILE."
-        log "Check $LOG_FILE for service logs."
+    # 1. Generate Synthetic Data
+    if [ -f "$DATA_GEN_SCRIPT" ]; then
+        log "Step 1: Generating Synthetic Data..."
+        "$PYTHON_EXECUTABLE" "$DATA_GEN_SCRIPT"
+        if [ $? -ne 0 ]; then
+            log "ERROR: Data generation failed."
+            exit 1
+        fi
     else
-        log "CRITICAL ERROR: Failed to start FastAPI service. See logs below."
-        # ✅ FIX: نمایش محتوای فایل لاگ در صورت بروز خطا
-        log "--- START of $LOG_FILE ---"
-        cat "$LOG_FILE"
-        log "--- END of $LOG_FILE ---"
+        log "ERROR: Data gen script not found at $DATA_GEN_SCRIPT"
+        exit 1
+    fi
+
+    # 2. Train Models (XGBoost + Isolation Forest)
+    if [ -f "$TRAIN_MODEL_SCRIPT" ]; then
+        log "Step 2: Training AI Models..."
+        "$PYTHON_EXECUTABLE" "$TRAIN_MODEL_SCRIPT"
+        if [ $? -ne 0 ]; then
+            log "ERROR: Model training failed."
+            exit 1
+        fi
+    else
+        log "ERROR: Training script not found at $TRAIN_MODEL_SCRIPT"
+        exit 1
+    fi
+    
+    log "--- [AI Oracle] Pipeline Completed ---"
+}
+
+start_fastapi_service() {
+    log "--- [AI Oracle] Starting API Service ---"
+    
+    # Port Management
+    if command -v lsof &> /dev/null; then
+        EXISTING_PID=$(lsof -t -i:8000)
+        if [ -n "$EXISTING_PID" ]; then
+            log "Stopping existing service (PID: $EXISTING_PID)..."
+            kill -9 "$EXISTING_PID"
+            sleep 2
+        fi
+    fi
+
+    # Run Uvicorn
+    cd "$AI_ENGINE_DIR" || exit 1
+    nohup "$PYTHON_EXECUTABLE" -u -m uvicorn main:app --host 0.0.0.0 --port 8000 --log-level info > "$LOG_FILE" 2>&1 &
+    
+    NEW_PID=$!
+    echo $NEW_PID > "$PID_FILE"
+    
+    cd "$ROOT_DIR"
+    sleep 3
+
+    if ps -p "$NEW_PID" > /dev/null; then
+        log "✅ Service RUNNING (PID: $NEW_PID). Logs: $LOG_FILE"
+    else
+        log "❌ Service FAILED to start."
+        tail -n 20 "$LOG_FILE"
         exit 1
     fi
 }
 
-# --- Main Execution Flow ---
+# --- Execution ---
 setup_environment
-prepare_training_data
-train_ai_model
+run_ml_pipeline  # ✅ اجرای پایپ‌لاین جدید
 start_fastapi_service
 
-log "--- [AI Oracle] Full startup script finished successfully. ---"
+log "--- [AI Oracle] Startup Sequence Finished Successfully ---"

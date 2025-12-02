@@ -25,6 +25,7 @@ export const de = {
     medium: "Mittel",
     low: "Niedrig",
     quorum: "Quorum",
+    back: "Zurück",
     },
 
   // Header
@@ -542,10 +543,16 @@ export const de = {
     invalid_address_error: "Bitte geben Sie eine gültige Wallet Adresse ein",
   },
 
-  security_report:{
-    normal_behavior: "Im Verhaltensmuster dieses Nutzers wurden keine verdächtigen Aktivitäten oder Anomalien festgestellt",
-    no_history: "Es liegt nicht genügend Aktivitätsverlauf für eine vollständige Analyse vor",
-    },
+  security_report: {
+    normal_behavior: "Es wurden keine verdächtigen Aktivitäten oder Anomalien im Verhaltensmuster dieses Nutzers festgestellt.",
+    no_history: "Es liegt nicht genügend Aktivitätshistorie für eine vollständige Analyse vor.",
+    trusted_user: "Das Verhalten der Wallet des Absenders entspricht dem Muster vertrauenswürdiger Netzwerkbenutzer.",
+    anomaly_detected: "Die KI hat ein ungewöhnliches Verhaltensmuster in den Wallet-Aufzeichnungen erkannt.",
+    low_activity: "Die Aktivitätshistorie der Wallet reicht zur Verifizierung nicht aus (geringe Aktivität).",
+    new_wallet: "Diese Wallet wurde kürzlich erstellt und hat keine Transaktionshistorie.",
+    no_model: "Das Sicherheitsmodell ist derzeit nicht verfügbar.",
+    error: "Bei der Sicherheitsanalyse ist ein Fehler aufgetreten.",
+  },
     optimizer:{
       suggestion:{
       uint_comparison: "Gasoptimierung Für unsigned integer Variablen ist var != 0 gasgünstiger als var > 0",
@@ -855,6 +862,12 @@ export const de = {
     xai_title: "Wesentliche Bewertungsgründe",
     xai_strengths: "Wesentliche Stärken",
     xai_weaknesses: "Wesentliche Schwächen",
+    analyzing_data: "Daten werden ausgewertet",
+    no_data: "Es wurde kein spezifisches Element identifiziert.",
+    no_risks_found: "Es wurden keine wesentlichen Risiken festgestellt.",
+    pdf: "PDF-Bericht erstellen",
+    share: "Teilen",
+
     },
     risk_level: {
     low: "niedrig",
@@ -862,32 +875,48 @@ export const de = {
     high: "hoch",
     very_high: "sehr hoch",
     },
-    recommendation: {
-    low_risk_desc: "Eine attraktive Investitionsmöglichkeit mit geringem Risiko wird bewertet",
-    medium_risk_desc: "Das Projekt hat gutes Potenzial ist jedoch mit mittlerem Risiko verbunden Weitere Untersuchung wird empfohlen",
-    high_risk_desc: "Diese Investition ist mit hohem Risiko verbunden und erfordert sehr sorgfältige und präzise Prüfung",
-    low: "niedrig",
-    medium: "mittel",
-    high: "hoch",
-    very_high: "sehr hoch",
-    },
-    xai: {
+  recommendation: {
+    low_risk_desc: "Basierend auf den Algorithmen des maschinellen Lernens verfügt dieses Projekt über eine starke Grundlage und ein geringes Risikoniveau. Wachstums- und Stabilitätsindikatoren befinden sich in einem idealen Zustand.",
+    medium_risk_desc: "Das Projekt zeigt Erfolgspotenzial, jedoch werden die Risikovariablen als mittel eingestuft. Vor einer Investition wird empfohlen die berichteten Schwachstellen zu prüfen.",
+    high_risk_desc: "Die KI hat erhebliche strukturelle oder finanzielle Risiken identifiziert. Diese Investition gilt als risikoreich und erfordert höchste Vorsicht.",
+    low: "Niedrig",
+    medium: "Mittel",
+    high: "Hoch",
+    very_high: "Sehr hoch",
+  },
+  xai: {
     strength: {
-    strong_team: "Das Projektteam ist sehr erfahren",
-    strong_financials: "Das Finanzmodell und die wirtschaftlichen Prognosen des Projekts werden als stark bewertet",
-    top_factor: "Schlüsselfaktor für die Entscheidungsfindung {{factor}}",
+      strong_team: "Das Projektteam verfügt über umfangreiche Erfahrung.",
+      strong_financials: "Das Finanzmodell und die wirtschaftlichen Prognosen des Projekts wurden als stark bewertet.",
+      top_factor: "Schlüsselfaktor bei der Entscheidungsfindung: ({{factor}})",
+      positive_tam: "Die Größe des Zielmarktes (TAM) ist groß und weist hohes Wachstumspotenzial auf ({{value}}).",
+      positive_burn: "Die monatliche Ausgabenrate (Burn Rate) ist im Verhältnis zum angeforderten Kapital sinnvoll und nachhaltig.",
+      positive_amount: "Der angeforderte Kapitalbetrag entspricht den Erfolgsstandards dieser Branche.",
+      positive_exp: "Die Erfahrung des Führungsteams erhöht die Erfolgschancen des Projekts erheblich.",
+      positive_milestones: "Anzahl und Struktur der Kapitalfreigabephasen (Milestones) wurden optimiert.",
+      high_score: "Das Gesamtprofil des Projekts ähnelt statistisch erfolgreichen Startups.",
     },
     weakness: {
-    inexperienced_team: "Die Erfahrung des ausführenden Teams ist geringer als wünschenswert",
-    high_financial_risk: "Finanzielles Risiko und Kapitalrendite werden als hoch bewertet",
+      inexperienced_team: "Die Erfahrung des Führungsteams liegt unter dem erwarteten Niveau.",
+      high_financial_risk: "Das finanzielle Risiko und das Investitionsrisiko wurden als hoch bewertet.",
+      negative_tam: "Die Größe des Zielmarktes wurde als klein eingeschätzt, was die Skalierbarkeit einschränken kann.",
+      negative_burn: "Die Ausgabenrate (Burn Rate) ist im Verhältnis zum Budget unausgewogen (Liquiditätsrisiko).",
+      negative_amount: "Der angeforderte Betrag ist für die Entwicklungsphase des Projekts risikoreich.",
+      negative_exp: "Ein Mangel an dokumentierter Erfahrung im Team stellt einen Risikofaktor dar.",
+      negative_milestones: "Die Struktur der Meilensteine kann zu Liquiditätsdruck oder Lieferproblemen führen.",
+      financial_uncertainty: "Im Finanzmodell besteht Unsicherheit.",
+      general_risk: "Die allgemeinen Projektrisiken liegen über dem Durchschnitt.",
     },
     feature: {
-    industry: "Projektbranche ({{value}})",
-    requested_amount: "Angeforderter Betrag",
-    milestone_count: "Anzahl der Finanzierungsmeilensteine",
-    team_experience: "Teamerfahrung",
+      industry: "Projektbranche ({{value}})",
+      requested_amount: "Angeforderter Betrag",
+      milestone_count: "Anzahl der Finanzierungsphasen",
+      team_experience: "Team-Erfahrung",
+      tam: "Zielmarkt (TAM)",
+      burn_rate: "Ausgabenrate (Burn Rate)",
     },
   },
+
   toasts: {
     uploading_docs: "Dokumente werden hochgeladen...",
     saving_proposal: "Vorschlagsinformationen werden gespeichert...",

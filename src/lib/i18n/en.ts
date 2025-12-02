@@ -25,6 +25,7 @@ export const en = {
     medium: "Medium",
     low: "Low",
     quorum: "Quorum",
+    back: "Back",
     },
 
   // Header
@@ -541,10 +542,16 @@ export const en = {
     invalid_address_error: "Please enter a valid wallet address",
    },
 
-   security_report:{
-    normal_behavior: "No suspicious activity or anomalies were detected in this user's behavioral patterns",
-    no_history: "There is not enough activity history for a complete analysis",
-    },
+  security_report: {
+    normal_behavior: "No suspicious activity or behavioral anomalies were detected for this user.",
+    no_history: "There is not enough activity history for a complete analysis.",
+    trusted_user: "The sender’s wallet behavior matches the pattern of trusted network users.",
+    anomaly_detected: "The AI detected an abnormal behavioral pattern in the wallet records.",
+    low_activity: "The wallet’s activity history is insufficient for verification (low activity).",
+    new_wallet: "This wallet is newly created and has no transaction history.",
+    no_model: "The security model is currently unavailable.",
+    error: "An error occurred during the security analysis.",
+  },
     optimizer:{
       suggestion:{
       uint_comparison: "Gas optimization For unsigned integer variables using var != 0 costs less gas than var > 0",
@@ -853,6 +860,11 @@ export const en = {
     xai_title: "Key Reasons for Scoring",
     xai_strengths: "Key Strengths",
     xai_weaknesses: "Key Weaknesses",
+    analyzing_data: "Analyzing data",
+    no_data: "No specific item was identified.",
+    no_risks_found: "No major risks were detected.",
+    pdf: "Generate PDF report",
+    share: "Share",
     },
     risk_level: {
     low: "low",
@@ -860,32 +872,48 @@ export const en = {
     high: "high",
     very_high: "very high",
     },
-    recommendation: {
-    low_risk_desc: "An attractive investment opportunity with low risk is assessed.",
-    medium_risk_desc: "The project has good potential but is associated with medium risk. Further investigation is recommended.",
-    high_risk_desc: "This investment is associated with high risk and requires very careful and meticulous investigation.",
-    low: "low",
-    medium: "medium",
-    high: "high",
-    very_high: "very high",
-    },
-    xai: {
+  recommendation: {
+    low_risk_desc: "Based on machine learning algorithms, this project has strong fundamentals and low risk. Growth and sustainability indicators are in an ideal state.",
+    medium_risk_desc: "The project shows potential for success, but the risk variables are at a moderate level. It is recommended to review the reported weaknesses before investing.",
+    high_risk_desc: "The AI has identified significant structural or financial risks. This investment is considered high risk and requires maximum caution.",
+    low: "Low",
+    medium: "Medium",
+    high: "High",
+    very_high: "Very high",
+  },
+  xai: {
     strength: {
-    strong_team: "The project team is highly experienced.",
-    strong_financials: "The financial model and economic forecasts of the project are assessed as strong.",
-    top_factor: "Key factor in decision-making: {{factor}}",
+      strong_team: "The project team has a high level of experience.",
+      strong_financials: "The financial model and economic projections of the project are evaluated as strong.",
+      top_factor: "Key decision-making factor: ({{factor}})",
+      positive_tam: "The target market size (TAM) is large and has high growth potential ({{value}}).",
+      positive_burn: "The monthly burn rate is reasonable and sustainable relative to the requested capital.",
+      positive_amount: "The requested investment amount aligns with industry success standards.",
+      positive_exp: "The experience of the executive team significantly increases the project's chance of success.",
+      positive_milestones: "The number and structure of capital release milestones are optimized.",
+      high_score: "The overall project profile statistically resembles successful startups.",
     },
     weakness: {
-    inexperienced_team: "The experience of the executive team is less than desirable is.",
-    high_financial_risk: "Financial risk and return on investment are assessed as high.",
+      inexperienced_team: "The executive team has less experience than desired.",
+      high_financial_risk: "The financial and investment risks are assessed as high.",
+      negative_tam: "The target market size is assessed as small, potentially limiting scalability.",
+      negative_burn: "The burn rate is unbalanced relative to the requested budget (liquidity risk).",
+      negative_amount: "The requested amount carries high risk for the project's development stage.",
+      negative_exp: "The lack of documented experience in the team is considered a risk factor.",
+      negative_milestones: "The milestone structure may create liquidity pressure or delivery issues.",
+      financial_uncertainty: "Uncertainty is present in the financial model.",
+      general_risk: "General project risks are above the average level.",
     },
-    feature: { 
-    industry: "Project industry ({{value}})",
-    requested_amount: "Requested amount",
-    milestone_count: "Number of funding stages",
-    team_experience: "Team experience",
-    }, 
+    feature: {
+      industry: "Project industry ({{value}})",
+      requested_amount: "Requested amount",
+      milestone_count: "Number of funding milestones",
+      team_experience: "Team experience",
+      tam: "Target market (TAM)",
+      burn_rate: "Burn rate (Burn Rate)",
+    },
   },
+
   toasts: {
     uploading_docs: "Uploading documents...",
     saving_proposal: "Saving proposal information...",

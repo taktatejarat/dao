@@ -1,110 +1,116 @@
-# ai-engine/layers/layer_3_financial.py (نسخه نهایی و کامل)
+# ai-engine/layers/layer_3_financial.py
 
-import pandas as pd
-from typing import Dict, Any
 import os
-import joblib
-import xgboost as xgb
 import numpy as np
+import xgboost as xgb
+import pandas as pd
+from logger_config import logger
 
-# --- بارگذاری مدل و Preprocessor ---
-SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-MODEL_PATH = os.path.join(SCRIPT_DIR, "../models/financial_risk_model.json")
-PREPROCESSOR_PATH = os.path.join(SCRIPT_DIR, "../models/preprocessor.joblib")
+# مسیر مدل
+MODEL_PATH = os.path.join(os.path.dirname(__file__), '..', 'models', 'risk_model.json')
 
-try:
-    #  FIX: بارگذاری مدل به عنوان XGBClassifier برای دسترسی به متدهای scikit-learn
-    model = xgb.XGBClassifier()
-    model.load_model(MODEL_PATH)
-    preprocessor = joblib.load(PREPROCESSOR_PATH)
-    print("[AI-LAYER-3] Financial risk model loaded successfully.")
-except Exception as e:
-    model = None
-    preprocessor = None
-    print(f"[AI-LAYER-3] WARNING: Could not load financial risk model. Error: {e}")
+class FinancialModelHandler:
+    def __init__(self):
+        self.model = None
+        self.load_models()
 
-# --- دیکشنری امتیازدهی برای احساسات بازار ---
-INDUSTRY_SENTIMENT_SCORES = {
-    "AI": 0.85, "DeFi": 0.75, "Gaming": 0.70,
-    "HealthTech": 0.65, "SaaS": 0.60, "Fintech": 0.55,
-}
+    def load_models(self):
+        if os.path.exists(MODEL_PATH):
+            try:
+                self.model = xgb.Booster()
+                self.model.load_model(MODEL_PATH)
+                logger.info("✅ Financial AI Model Loaded.")
+            except Exception as e:
+                logger.error(f"Failed to load XGBoost model: {e}")
+        else:
+            logger.warning("⚠️ Risk model not found. Waiting for training pipeline.")
 
-# NEW: دیکشنری برای نگاشت نام‌های فنی به کلیدهای i18n 
-FEATURE_NAME_MAP = {
-    "cat__industry": "xai.feature.industry",
-    "remainder__requested_amount_usd": "xai.feature.requested_amount",
-    "remainder__milestone_count": "xai.feature.milestone_count",
-    "remainder__team_experience_years": "xai.feature.team_experience",
-}
+    def predict(self, features: dict):
+        if not self.model:
+            return 0.5, [] # Default if model missing
 
+        try:
+            # ترتیب ستون‌ها باید دقیقاً مثل train_models.py باشد
+            # features = ['tam', 'burn_rate', 'requested_amount', 'milestone_count', 'team_experience']
+            data_vector = [
+                features.get('tam', 0),
+                features.get('burn_rate', 0),
+                features.get('requested_amount', 0),
+                features.get('milestone_count', 0),
+                features.get('team_experience', 0)
+            ]
+            
+            # تبدیل به DMatrix
+            dmatrix = xgb.DMatrix(np.array([data_vector]), feature_names=['tam', 'burn_rate', 'requested_amount', 'milestone_count', 'team_experience'])
+            
+            # پیش‌بینی احتمال موفقیت
+            probability = float(self.model.predict(dmatrix)[0])
+            
+            # محاسبه اهمیت ویژگی‌ها (SHAP values approximated)
+            contribs = self.model.predict(dmatrix, pred_contribs=True)[0][:-1]
+            
+            return probability, contribs
+        except Exception as e:
+            logger.error(f"Prediction Error: {e}")
+            return 0.5, []
 
-def clean_feature_name(name: str) -> str:
-    """_summary_
-
-    Args:
-        name (str): _description_
-
-    Returns:
-        str: _description_
-    """
-    #  FIX: حذف پیشوندهای اضافی به صورت کامل 
-    return name.replace("cat__industry_", "").replace("remainder__", "")
-
+# Singleton
+ai_engine = FinancialModelHandler()
 
 def generate_financial_report(proposal_data: dict) -> dict:
-    # 1. استخراج داده‌های جدید (با مقدار پیش‌فرض ایمن)
+    """
+    دریافت داده از پلتفرم و تحلیل با هوش مصنوعی
+    """
+    # 1. تبدیل داده‌های ورودی به اعداد تمیز
     market = proposal_data.get('marketStats', {})
     financials = proposal_data.get('financialStats', {})
+    milestones = proposal_data.get('milestones', [])
+
+    def safe_float(v):
+        try: return float(str(v).replace(',', '')) if v else 0.0
+        except: return 0.0
+
+    input_features = {
+        'tam': safe_float(market.get('tam')),
+        'burn_rate': safe_float(financials.get('burnRate')),
+        'requested_amount': sum([safe_float(m.get('amount')) for m in milestones]),
+        'milestone_count': len(milestones),
+        'team_experience': safe_float(proposal_data.get('teamExperienceYears'))
+    }
+
+    # 2. اجرای مدل هوش مصنوعی
+    success_prob_raw, contributions = ai_engine.predict(input_features)
     
-    # تبدیل مقادیر به float و مدیریت رشته‌های خالی
-    def safe_float(val):
-        try:
-            return float(val) if val else 0.0
-        except:
-            return 0.0
+    # 3. تبدیل خروجی به فرمت گزارش
+    success_probability = int(success_prob_raw * 100)
+    risk_score = 100 - success_probability # ریسک برعکس موفقیت است
 
-    tam = safe_float(market.get('tam'))
-    som = safe_float(market.get('som'))
-    burn_rate = safe_float(financials.get('burnRate'))
-    requested = safe_float(proposal_data.get('amount')) # این فیلد از محاسبه مایل‌ستون‌ها می‌آید
-
+    # 4. تولید فاکتورهای توضیح‌پذیر (xAI)
     xai_factors = []
-    risk_score = 50 # امتیاز پایه
-
-    # 2. تحلیل VC-Grade (قوانین خبره)
+    feature_names = ['tam', 'burn_rate', 'requested_amount', 'milestone_count', 'team_experience']
     
-    # قانون 1: اندازه بازار (Market Size)
-    if tam > 1_000_000_000: # بازار بزرگ
-        risk_score -= 10
-        xai_factors.append({"key": "xai.financial.huge_tam", "values": {"value": f"${tam/1e9}B"}, "importance": 1})
-    elif tam > 0 and tam < 10_000_000: # بازار کوچک
-        risk_score += 20
-        xai_factors.append({"key": "xai.financial.small_market", "importance": -1})
+    for i, impact in enumerate(contributions):
+        if i >= len(feature_names): break
+        fname = feature_names[i]
+        val = input_features[fname]
+        
+        # اگر تاثیر مثبت یا منفی چشمگیر بود
+        if abs(impact) > 0.05: 
+            xai_factors.append({
+                "key": f"xai.feature.{fname}", # کلید ترجمه
+                "values": {"value": val},
+                "type": "strength" if impact > 0 else "weakness",
+                "importance": float(impact)
+            })
 
-    # قانون 2: سهم بازار (SOM)
-    if tam > 0 and som > 0 and (som / tam) > 0.10: 
-        risk_score += 15
-        xai_factors.append({"key": "xai.financial.unrealistic_som", "importance": -1})
-
-    # قانون 3: پایداری مالی (Runway)
-    if burn_rate > 0 and requested > 0:
-        runway_months = requested / burn_rate
-        if runway_months < 6:
-            risk_score += 25
-            xai_factors.append({"key": "xai.financial.short_runway", "values": {"value": int(runway_months)}, "importance": -1})
-        elif runway_months > 18:
-             xai_factors.append({"key": "xai.financial.stable_runway", "values": {"value": int(runway_months)}, "importance": 1})
-
-    # نرمال‌سازی نهایی
-    risk_score = max(0, min(100, risk_score))
-    
-    # محاسبه احتمال موفقیت (معکوس ریسک)
-    success_prob = 100 - risk_score
+    # داده‌های تکمیلی (محاسباتی ساده برای نمایش)
+    market_sentiment = 0.5 + (0.1 if input_features['tam'] > 1e9 else 0)
+    team_competency = min(100, int(input_features['team_experience'] * 10))
 
     return {
-        "risk_score": int(risk_score),
-        "success_probability": int(success_prob),
-        "team_competency_score": 75, # Placeholder until Team AI layer is upgraded
-        "market_sentiment_score": 0.65, # Default
+        "risk_score": risk_score,
+        "success_probability": success_probability,
+        "team_competency_score": team_competency,
+        "market_sentiment_score": round(market_sentiment, 2),
         "xai_factors": xai_factors
     }

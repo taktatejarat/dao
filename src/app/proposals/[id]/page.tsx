@@ -1,9 +1,9 @@
-// src/app/proposals/[id]/page.tsx - FINAL BUG FREE VERSION
+// src/app/proposals/[id]/page.tsx - STRICTLY ALIGNED WITH CONTRACTS
 
 "use client";
 
 import { useMemo, useEffect, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation'; // ✅ FIX: useRouter اضافه شد
+import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { AppLayout } from '@/components/layout/app-layout';
 import { useWeb3 } from '@/context/Web3Provider';
@@ -29,7 +29,7 @@ import { formatNumber, formatLocaleDate, formatAddress } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useReadContract, useWriteContract } from 'wagmi';
-import { rayanChainDaoAbi, stakingAbi, rayanChainTokenAbi } from '@/lib/blockchain/generated';
+import { rayanChainDaoAbi, rayanChainTokenAbi } from '@/lib/blockchain/generated'; // stakingAbi حذف شد چون دستی استفاده می‌کنیم
 import { DaoLoadingSpinner } from '@/components/icons/dao-loading-spinner';
 import { useProposalVote } from '@/hooks/useProposalVote'; 
 import { useProposalExecute } from '@/hooks/useProposalExecute'; 
@@ -42,19 +42,19 @@ import { Progress } from "@/components/ui/progress";
 import { Input } from "@/components/ui/input"; 
 import { toast } from 'sonner';
 
-// ✅ FIX: تعریف دقیق تایپ‌ها بر اساس قرارداد جدید
+// اینترفیس دقیق داده‌های خوانده شده از قرارداد
 interface OnChainProposal { 
     id: bigint; 
     proposer: Address; 
+    amount: bigint; // Hard Cap
+    deadline: bigint; 
     forVotes: bigint; 
     againstVotes: bigint; 
     state: number; 
-    deadline: bigint; 
     executed: boolean; 
     aiRiskScore: bigint; 
-    // فیلدهای جدید سرمایه‌گذاری
     totalRaised: bigint;
-    amount: bigint;
+    fundingDeadline: bigint;
 }
 
 const InfoCard = ({ icon: Icon, title, value }: { icon: React.ElementType, title: string, value: string | number }) => (
@@ -77,7 +77,7 @@ const getStatusInfo = (state: number, t: (key: string) => string) => {
         case 5: return { text: t('proposal_detail.status.executed'), color: 'bg-emerald-600/10 text-emerald-600 border-emerald-600/20', icon: ShieldCheck };
         case 6: return { text: t('proposal_detail.status.expired'), color: 'bg-orange-500/10 text-orange-500 border-orange-500/20', icon: AlertTriangle };
         case 7: return { text: t('proposal_detail.status.canceled'), color: 'bg-gray-500/10 text-gray-500 border-gray-500/20', icon: X };
-        // وضعیت‌های جدید
+        // وضعیت‌های جدید Investment DAO
         case 8: return { text: "Funding", color: 'bg-cyan-500/10 text-cyan-500 border-cyan-500/20', icon: Banknote };
         case 9: return { text: "Funded", color: 'bg-teal-500/10 text-teal-500 border-teal-500/20', icon: CheckCircle };
         case 10: return { text: "Funding Failed", color: 'bg-rose-500/10 text-rose-500 border-rose-500/20', icon: AlertTriangle };
@@ -87,6 +87,9 @@ const getStatusInfo = (state: number, t: (key: string) => string) => {
 
 const PROPOSAL_STATE_VOTING = 2;
 const PROPOSAL_STATE_APPROVED = 3;
+const PROPOSAL_STATE_FUNDING = 8;
+const PROPOSAL_STATE_FUNDED = 9;
+const PROPOSAL_STATE_FUNDING_FAILED = 10;
 
 export default function ProposalDetailPage() {
     const { t, locale } = useTranslation();
@@ -100,13 +103,12 @@ export default function ProposalDetailPage() {
     const [isLoading, setIsLoading] = useState(true);
     const [showStakingAlert, setShowStakingAlert] = useState(false);
     
-    // استیت‌های دیالوگ آزادسازی
+    // States for Dialogs and Inputs
     const [proofText, setProofText] = useState("");
     const [isReleaseDialogOpen, setIsReleaseDialogOpen] = useState(false);
-    
-    // استیت سرمایه‌گذاری
     const [investAmount, setInvestAmount] = useState("");
 
+    // 1. Fetch Off-chain Data
     useEffect(() => {
         const fetchAllData = async () => {
             if (!proposalIdParam) { setIsLoading(false); return; }
@@ -114,7 +116,7 @@ export default function ProposalDetailPage() {
             try {
                 const response = await fetch(`/api/proposals/${proposalIdParam}`);
                 const result = await response.json();
-                if (!response.ok || !result.success) throw new Error(result.message || 'Failed.');
+                if (!response.ok || !result.success) throw new Error(result.message || 'Failed to fetch proposal.');
                 setOffChainData(result.data);
             } catch (err) { setError((err as Error).message); } 
             finally { setIsLoading(false); }
@@ -128,6 +130,7 @@ export default function ProposalDetailPage() {
         try { return BigInt(raw.toString()); } catch { return null; }
     }, [offChainData]);
 
+    // 2. Fetch On-chain Data (DAO)
     const { data: onChainResult, isLoading: isOnChainLoading, error: onChainError } = useReadContract({
         address: daoAddress,
         abi: rayanChainDaoAbi,
@@ -136,7 +139,8 @@ export default function ProposalDetailPage() {
         query: { enabled: isWeb3Hydrated && !!daoAddress && !!onChainProposalId },
     });
 
-   const { data: userVotingPower } = useReadContract({
+    // 3. Fetch User Voting Power
+    const { data: userVotingPower } = useReadContract({
         address: stakingAddress, 
         abi: parseAbi(['function votingPower(address account) view returns (uint256)']),
         functionName: 'votingPower', 
@@ -144,6 +148,7 @@ export default function ProposalDetailPage() {
         query: { enabled: !!address && !!stakingAddress }
     });
 
+    // 4. Fetch Token Supply (for percentage calc)
     const { data: tokenTotalSupply } = useReadContract({
         address: tokenAddress,
         abi: rayanChainTokenAbi,
@@ -151,58 +156,84 @@ export default function ProposalDetailPage() {
         query: { enabled: !!tokenAddress }
     });
 
-    // ✅ FIX: استخراج صحیح داده‌ها از آرایه (شامل فیلدهای جدید Funding)
+    // Parsed On-chain Data (Strict Index Mapping)
     const onChainData = useMemo((): OnChainProposal | null => {
         if (!onChainResult || !Array.isArray(onChainResult)) return null;
         const result = onChainResult as any[];
         
-        // نکته: ترتیب اندیس‌ها باید با struct Proposal در قرارداد یکی باشد
-        // [id, pType, proposer, hash, recipient, amount, tokenType, time, deadline, forVotes, againstVotes, state, executed, milestones, idx, aiScore, threshold, role, totalRaised, softCap, fundingDeadline]
-        // اندیس‌ها: 0..17 برای فیلدهای قدیمی. 18=totalRaised, 19=softCap, 20=fundingDeadline
+        // IMPORTANT: Solidity Getter skips arrays (milestones).
+        // Mapping based on 'struct Proposal' in RayanChainDAO.sol:
+        // 0:id, 1:pType, 2:proposer, 3:hash, 4:recipient, 5:amount, 6:tokenType, 
+        // 7:creationTime, 8:votingDeadline, 9:forVotes, 10:againstVotes, 11:state, 12:executed
+        // -- milestones skipped --
+        // 13:currentMilestoneIndex, 14:aiRiskScore, 15:threshold, 16:roleToGrant, 17:totalRaised, 18:softCap, 19:fundingDeadline
         
         return {
             id: result[0],
             proposer: result[2],
-            amount: result[5], // Hard Cap
+            amount: result[5],
             deadline: result[8],
             forVotes: result[9],
             againstVotes: result[10],
             state: Number(result[11]), 
             executed: result[12],
-            aiRiskScore: result[14],
-            totalRaised: result[18] || 0n, // فیلدهای جدید
+            aiRiskScore: result[14], // Index 14 confirmed
+            totalRaised: result[17] || 0n, // Index 17 (totalRaised)
+            fundingDeadline: result[19] || 0n // Index 19 (fundingDeadline)
         };
     }, [onChainResult]);
 
-    // --- Hooks ---
+    // --- Actions ---
 
+    // Invest Action
     const { writeContractAsync: investAsync } = useWriteContract();
     
-    // ✅ FIX: تعریف ABI دستی برای invest (چون generated.ts هنوز آپدیت نشده)
     const handleInvest = async () => {
         if (!daoAddress || !onChainProposalId) return;
         try {
-            const toastId = toast.loading("Investing...");
+            const toastId = toast.loading("Processing investment...");
+            // Manual ABI for 'invest' function in DAO
             await investAsync({
                 address: daoAddress,
-                // ABI دستی برای invest
                 abi: parseAbi(['function invest(uint256 _proposalId, uint256 _amount) external']),
                 functionName: 'invest',
                 args: [onChainProposalId, parseEther(investAmount)]
             });
             toast.success("Investment submitted!", { id: toastId });
+            setInvestAmount("");
         } catch (e) { 
             console.error(e);
-            toast.error("Failed to invest"); 
+            toast.error("Investment failed. Check wallet balance and approval."); 
         }
     };
 
-    // ✅ FIX: فراخوانی هوک MilestoneRelease
+    // Refund Action
+    const { writeContractAsync: refundAsync } = useWriteContract();
+    
+    const handleRefund = async () => {
+        if (!daoAddress || !onChainProposalId) return;
+        try {
+            const toastId = toast.loading("Processing refund...");
+            await refundAsync({
+                address: daoAddress,
+                abi: parseAbi(['function claimRefund(uint256 _proposalId) external']),
+                functionName: 'claimRefund',
+                args: [onChainProposalId]
+            });
+            toast.success("Refund claimed!", { id: toastId });
+        } catch (e) {
+            console.error(e);
+            toast.error("Refund failed.");
+        }
+    };
+
+    // Milestone Release Hook
     const { requestRelease, isreleasing } = useMilestoneRelease({
         daoAddress,
         originalProposalId: onChainProposalId || 0n
     });
 
+    // Logic Checks
     const isProjectOwner = address && onChainData && 
         (address.toLowerCase() === onChainData.proposer.toLowerCase());
 
@@ -231,9 +262,8 @@ export default function ProposalDetailPage() {
         return <AppLayout><Alert variant="destructive"><AlertTriangle className="h-4 w-4" /><AlertTitle>{t('common.error')}</AlertTitle><AlertDescription>{finalError}</AlertDescription></Alert></AppLayout>;
     }
     
-    // --- محاسبات درصد ---
+    // Calculations
     const networkTotal = tokenTotalSupply ? BigInt(tokenTotalSupply.toString()) : 0n;
-    
     const forVotesBig = onChainData ? BigInt(onChainData.forVotes) : 0n;
     const againstVotesBig = onChainData ? BigInt(onChainData.againstVotes) : 0n;
 
@@ -269,20 +299,23 @@ export default function ProposalDetailPage() {
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="lg:col-span-2 space-y-6">
+                     {/* AI Analysis Card */}
                      <Card>
                         <CardHeader><CardTitle className="flex items-center gap-2"><BrainCircuit /> {t('proposal_detail.ai_analysis')}</CardTitle></CardHeader>
                         <CardContent className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                            <InfoCard icon={LineChart} title={t('proposal_detail.ai_risk_score')} value={`${onChainData?.aiRiskScore?.toString() ?? t('proposals_page.pending')}`} />
+                            <InfoCard icon={LineChart} title={t('proposal_detail.ai_risk_score')} value={`${onChainData?.aiRiskScore?.toString() ?? t('proposal_detail.status.pending')}`} />
                             <InfoCard icon={Scale} title={t('proposal_detail.market_sentiment')} value={offChainData?.aiAnalysis?.financialAnalysis?.market_sentiment_score ? `${(offChainData.aiAnalysis.financialAnalysis.market_sentiment_score * 100).toFixed(0)}%` : 'N/A'} />
                             <InfoCard icon={Users} title={t('proposal_detail.team_competency')} value={offChainData?.aiAnalysis?.financialAnalysis?.team_competency_score ?? 'N/A'} />
                         </CardContent>
                     </Card>
 
+                    {/* Description Card */}
                     <Card>
                         <CardHeader><CardTitle>{t('proposal_detail.description')}</CardTitle></CardHeader>
                         <CardContent><p className="text-muted-foreground whitespace-pre-wrap leading-relaxed">{offChainData?.description ?? t('proposal_detail.no_offchain_data')}</p></CardContent>
                     </Card>
 
+                   {/* Voting Card */}
                    <Card>
                         <CardHeader>
                             <CardTitle className="flex justify-between items-center">
@@ -297,7 +330,7 @@ export default function ProposalDetailPage() {
                                 <div className="space-y-3"><Skeleton className="h-6 w-3/4" /><Skeleton className="h-4 w-1/2" /></div>
                             ) : onChainData ? (
                                 <div className="space-y-6">
-                                    {/* --- Votes For --- */}
+                                    {/* Votes For */}
                                     <div>
                                         <div className="flex justify-between mb-2 text-sm">
                                             <span className="font-medium text-green-600 flex items-center gap-2">
@@ -306,7 +339,7 @@ export default function ProposalDetailPage() {
                                             </span>
                                             <div className="text-right">
                                                 <span className="font-bold block">{forVotesFormatted} RYC</span>
-                                                <span className="text-xs text-muted-foreground">{displayForPct}% {t('proposal_detail.total_supply')}</span>
+                                                <span className="text-xs text-muted-foreground">{displayForPct}% of Total Supply</span>
                                             </div>
                                         </div>
                                         <div className="h-4 w-full bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden border border-border relative shadow-inner">
@@ -319,7 +352,7 @@ export default function ProposalDetailPage() {
                                         </div>
                                     </div>
 
-                                    {/* --- Votes Against --- */}
+                                    {/* Votes Against */}
                                     <div>
                                         <div className="flex justify-between mb-2 text-sm">
                                             <span className="font-medium text-destructive flex items-center gap-2">
@@ -328,7 +361,7 @@ export default function ProposalDetailPage() {
                                             </span>
                                             <div className="text-right">
                                                 <span className="font-bold block">{againstVotesFormatted} RYC</span>
-                                                <span className="text-xs text-muted-foreground">{displayAgainstPct}% {t('proposal_detail.total_supply')}</span>
+                                                <span className="text-xs text-muted-foreground">{displayAgainstPct}% of Total Supply</span>
                                             </div>
                                         </div>
                                         <div className="h-4 w-full bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden border border-border shadow-inner">
@@ -363,8 +396,8 @@ export default function ProposalDetailPage() {
                             )}
                     </Card>
 
-                    {/* ✅ FIX: استفاده از نام درست متغیر (isReleasing) و اضافه کردن شرط state صحیح برای آزادسازی */}
-                    {isProjectOwner && onChainData?.state === 5 && (
+                    {/* Milestone Management (Only for Project Owner & When Funded) */}
+                    {isProjectOwner && onChainData?.state === PROPOSAL_STATE_FUNDED && (
                         <Card className="border-blue-500/50 bg-blue-500/5 shadow-lg shadow-blue-500/10">
                             <CardHeader>
                                 <CardTitle className="text-blue-600 flex items-center gap-2">
@@ -402,7 +435,6 @@ export default function ProposalDetailPage() {
                                                     requestRelease(proofText);
                                                     setIsReleaseDialogOpen(false);
                                                 }} 
-                                                // ✅ FIX: نام متغیر اصلاح شد
                                                 disabled={isreleasing || !proofText}
                                                 className="w-full"
                                             >
@@ -415,49 +447,49 @@ export default function ProposalDetailPage() {
                         </Card>
                     )}
 
-                        {/* --- FUNDING SECTION (New) --- */}
-                        {(onChainData?.state === 8) && ( // 8 = Funding State
-                            <Card className="border-primary/50 shadow-lg shadow-primary/10 mt-6">
-                                <CardHeader>
-                                    <CardTitle className="text-primary">Funding In Progress</CardTitle>
-                                    <CardDescription>This project is approved and raising funds.</CardDescription>
-                                </CardHeader>
-                                <CardContent>
-                                    <div className="space-y-4">
-                                        <div className="flex justify-between text-sm">
-                                            {/* ✅ FIX: محاسبه دقیق مقدار جذب شده و هدف */}
-                                            <span>Raised: {formatEther(onChainData.totalRaised)} RYC</span>
-                                            <span>Goal: {formatEther(onChainData.amount)} RYC</span>
-                                        </div>
-                                        
-                                        {/* محاسبه درصد پیشرفت سرمایه */}
-                                        <Progress value={Number((onChainData.totalRaised || 0n) * 100n / (onChainData.amount || 1n))} className="h-3" />
-                                        
-                                        <div className="flex gap-2 pt-2">
-                                            <Input 
-                                                type="number" 
-                                                placeholder="Amount to invest" 
-                                                value={investAmount} 
-                                                onChange={e => setInvestAmount(e.target.value)} 
-                                            />
-                                            <Button onClick={handleInvest} className="bg-primary hover:bg-primary/90">Invest</Button>
-                                        </div>
+                    {/* FUNDING SECTION (State 8) */}
+                    {(onChainData?.state === PROPOSAL_STATE_FUNDING) && (
+                        <Card className="border-primary/50 shadow-lg shadow-primary/10 mt-6">
+                            <CardHeader>
+                                <CardTitle className="text-primary">Funding In Progress</CardTitle>
+                                <CardDescription>This project is approved and raising funds.</CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="space-y-4">
+                                    <div className="flex justify-between text-sm">
+                                        <span>Raised: {formatEther(onChainData.totalRaised)} RYC</span>
+                                        <span>Goal: {formatEther(onChainData.amount)} RYC</span>
                                     </div>
-                                </CardContent>
-                            </Card>
-                        )}
+                                    
+                                    {/* درصد سرمایه جذب شده */}
+                                    <Progress value={Number((onChainData.totalRaised || 0n) * 100n / (onChainData.amount || 1n))} className="h-3" />
+                                    
+                                    <div className="flex gap-2 pt-2">
+                                        <Input 
+                                            type="number" 
+                                            placeholder="Amount to invest" 
+                                            value={investAmount} 
+                                            onChange={e => setInvestAmount(e.target.value)} 
+                                        />
+                                        <Button onClick={handleInvest} className="bg-primary hover:bg-primary/90">Invest</Button>
+                                    </div>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    )}
 
-                        {/* --- REFUND SECTION --- */}
-                        {(onChainData?.state === 10) && ( // 10 = FundingFailed
-                            <Card className="border-destructive/50 mt-6">
-                                <CardHeader><CardTitle className="text-destructive">Funding Failed</CardTitle></CardHeader>
-                                <CardContent>
-                                    <p className="text-sm text-muted-foreground mb-4">This project did not reach the soft cap. You can claim a refund.</p>
-                                    <Button variant="destructive" onClick={() => {/* call claimRefund */}}>Claim Refund</Button>
-                                </CardContent>
-                            </Card>
-                        )}
+                    {/* REFUND SECTION (State 10) */}
+                    {(onChainData?.state === PROPOSAL_STATE_FUNDING_FAILED) && (
+                        <Card className="border-destructive/50 mt-6">
+                            <CardHeader><CardTitle className="text-destructive">Funding Failed</CardTitle></CardHeader>
+                            <CardContent>
+                                <p className="text-sm text-muted-foreground mb-4">This project did not reach the soft cap. You can claim a refund.</p>
+                                <Button variant="destructive" onClick={handleRefund}>Claim Refund</Button>
+                            </CardContent>
+                        </Card>
+                    )}
                 </div>
+
                 <div className="space-y-6">
                     {onChainData && <ProposalTimeline currentState={BigInt(onChainData.state)} />}
                     <Card>
@@ -469,6 +501,8 @@ export default function ProposalDetailPage() {
                             {onChainData && <InfoCard icon={Users} title={t('proposal_detail.total_votes')} value={formatNumber(formatEther(forVotesBig + againstVotesBig), locale)} />}
                         </CardContent>
                     </Card>
+                    
+                    {/* Admin Actions: Execute is only for APPROVED (3) state to transition to FUNDING */}
                     {userRole === 'admin' && onChainData && (onChainData.state === PROPOSAL_STATE_APPROVED) && !onChainData.executed && (
                          <Card className="border-primary"><CardHeader><CardTitle>{t('proposal_detail.admin_actions')}</CardTitle></CardHeader><CardContent><Button className="w-full" onClick={handleExecute} disabled={isExecuting}>{isExecuting ? <DaoLoadingSpinner className="me-2" /> : <PlayCircle className="me-2" />}{t('proposal_detail.execute_proposal')}</Button></CardContent></Card>
                     )}

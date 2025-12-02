@@ -34,6 +34,7 @@ export const tr = {
     connect_wallet: "Cüzdanı Bağla",
     my_account: "Hesabım",
     profile: "Profil",
+    back: "Geri",
   },
   
   // Sidebar
@@ -542,10 +543,16 @@ export const tr = {
     invalid_address_error: "Lütfen geçerli bir cüzdan adresi girin",
     },
 
-    security_report:{
-      normal_behavior: "Bu kullanıcının davranış kalıplarında herhangi bir şüpheli etkinlik veya anormallik tespit edilmedi",
-      no_history: "Kapsamlı bir analiz için yeterli etkinlik geçmişi bulunmuyor",
-      },
+  security_report: {
+    normal_behavior: "Bu kullanıcının davranış modellerinde herhangi bir şüpheli faaliyet veya anormallik tespit edilmedi.",
+    no_history: "Tam analiz için yeterli aktivite geçmişi bulunmamaktadır.",
+    trusted_user: "Gönderen cüzdanın davranışı güvenilir ağ kullanıcılarının örüntüsüyle uyumludur.",
+    anomaly_detected: "Yapay zeka cüzdan geçmişinde anormal bir davranış örüntüsü tespit etti.",
+    low_activity: "Cüzdanın aktivite geçmişi doğrulama için yeterli değildir (düşük aktivite).",
+    new_wallet: "Bu cüzdan yenidir ve herhangi bir işlem geçmişine sahip değildir.",
+    no_model: "Güvenlik modeli şu anda kullanılamıyor.",
+    error: "Güvenlik analizinde bir hata oluştu.",
+  },
       optimizer:{
         suggestion:{
         uint_comparison: "Gas optimizasyonu Unsigned integer değişkenlerde var > 0 yerine var != 0 kullanmak daha az gas maliyetine sahiptir",
@@ -854,6 +861,11 @@ export const tr = {
     xai_title: "Puanlamanın temel sebepleri",
     xai_strengths: "Temel güçlü yönler",
     xai_weaknesses: "Temel zayıf yönler",
+    analyzing_data: "Veriler değerlendiriliyor",
+    no_data: "Herhangi bir özel öğe tespit edilmedi.",
+    no_risks_found: "Herhangi bir büyük risk tespit edilmedi.",
+    pdf: "PDF raporu oluştur",
+    share: "Paylaş",
     },
     risk_level: {
     low: "düşük",
@@ -861,32 +873,48 @@ export const tr = {
     high: "yüksek",
     very_high: "çok yüksek",
     },
-    recommendation: {
-    low_risk_desc: "Düşük riskli ve çekici bir yatırım fırsatı olarak değerlendirilir",
-    medium_risk_desc: "Projenin iyi potansiyeli vardır ancak orta seviyede risk taşır Daha fazla inceleme önerilir",
-    high_risk_desc: "Bu yatırım yüksek risk içerir ve son derece dikkatli bir analiz gerektirir",
-    low: "düşük",
-    medium: "orta",
-    high: "yüksek",
-    very_high: "çok yüksek",
-    },
-    xai: {
+  recommendation: {
+    low_risk_desc: "Makine öğrenimi algoritmalarına göre bu proje güçlü temellere sahiptir ve düşük risk taşımaktadır. Büyüme ve sürdürülebilirlik göstergeleri ideal durumdadır.",
+    medium_risk_desc: "Projede başarı potansiyeli görülmektedir ancak risk değişkenleri orta seviyededir. Yatırım yapmadan önce bildirilen zayıf noktaların incelenmesi önerilir.",
+    high_risk_desc: "Yapay zeka önemli yapısal veya finansal riskler tespit etmiştir. Bu yatırım yüksek riskli kabul edilir ve azami dikkat gerektirir.",
+    low: "Düşük",
+    medium: "Orta",
+    high: "Yüksek",
+    very_high: "Çok yüksek",
+  },
+  xai: {
     strength: {
-    strong_team: "Proje ekibi oldukça deneyimlidir",
-    strong_financials: "Projenin finansal modeli ve ekonomik tahminleri güçlü olarak değerlendirilir",
-    top_factor: "Karar vermedeki ana etken {{factor}}",
+      strong_team: "Proje ekibi yüksek deneyime sahiptir.",
+      strong_financials: "Projenin finansal modeli ve ekonomik tahminleri güçlü olarak değerlendirilmiştir.",
+      top_factor: "Karar verme sürecindeki ana faktör: ({{factor}})",
+      positive_tam: "Hedef pazarın (TAM) büyüklüğü geniştir ve yüksek büyüme potansiyeline sahiptir ({{value}}).",
+      positive_burn: "Aylık harcama oranı (Burn Rate) talep edilen sermayeye göre mantıklı ve sürdürülebilirdir.",
+      positive_amount: "Talep edilen sermaye miktarı sektörün başarı standartlarıyla uyumludur.",
+      positive_exp: "Yönetim ekibinin deneyimi projenin başarı şansını önemli ölçüde artırmaktadır.",
+      positive_milestones: "Sermaye serbest bırakma aşamalarının (Milestones) sayısı ve yapısı optimize edilmiştir.",
+      high_score: "Projenin genel profili istatistiksel olarak başarılı girişimlerle benzerlik göstermektedir.",
     },
     weakness: {
-    inexperienced_team: "Yürütücü ekibin deneyimi istenenden düşüktür",
-    high_financial_risk: "Finansal risk ve yatırım getirisi yüksek olarak değerlendirilir",
+      inexperienced_team: "Yönetim ekibinin deneyimi beklenen seviyenin altındadır.",
+      high_financial_risk: "Finansal risk ve yatırım geri dönüş riski yüksek olarak değerlendirilmiştir.",
+      negative_tam: "Hedef pazar küçük olarak değerlendirilmiştir ve ölçeklenebilirliği sınırlayabilir.",
+      negative_burn: "Harcama oranı (Burn Rate) talep edilen bütçeye göre dengesizdir (likidite riski).",
+      negative_amount: "Talep edilen miktar projenin gelişim aşamasına göre yüksek risk taşımaktadır.",
+      negative_exp: "Yönetim ekibinde belgelenmiş deneyim eksikliği risk faktörü sayılmaktadır.",
+      negative_milestones: "Aşamaların yapısı likidite baskısı veya teslimat sorunlarına yol açabilir.",
+      financial_uncertainty: "Finansal modelde belirsizlik bulunmaktadır.",
+      general_risk: "Projenin genel riskleri ortalamanın üzerindedir.",
     },
     feature: {
-      industry: "Proje endüstrisi ({{value}})",
-      requested_amount: "Talep edilen tutar",
-      milestone_count: "Finansman aşamalarının sayısı",
+      industry: "Proje sektörü ({{value}})",
+      requested_amount: "Talep edilen miktar",
+      milestone_count: "Finansman aşaması sayısı",
       team_experience: "Ekip deneyimi",
+      tam: "Hedef pazar (TAM)",
+      burn_rate: "Harcama oranı (Burn Rate)",
     },
 },
+
   toasts: {
     uploading_docs: "Belgeler yükleniyor...",
     saving_proposal: "Teklif bilgileri kaydediliyor...",
