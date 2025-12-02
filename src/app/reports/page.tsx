@@ -1,87 +1,52 @@
-// src/app/reports/page.tsx - RESTORED STRUCTURE & FIXED DATA MAPPING
+// src/app/reports/page.tsx - FINAL CORRECTED VERSION (Based on User Dictionary)
 
 "use client";
 
-import { useRef, useState, useEffect, Suspense } from 'react';
+import { useState, useEffect, Suspense, useRef } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { AppLayout } from '@/components/layout/app-layout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input'; // اضافه شده برای فرم ورودی
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { BrainCircuit, AlertTriangle, CheckCircle, XCircle, ChevronLeft, Download, Share2, TrendingUp, Users, BarChart, Search, Copy } from 'lucide-react';
+import { BrainCircuit, AlertTriangle, CheckCircle, XCircle, ChevronLeft, Download, Share2, TrendingUp, Users, BarChart, Copy, Search } from 'lucide-react';
 import { RiskGaugeChart } from '@/components/reports/risk-gauge-chart';
 import { StatCard } from '@/components/dashboard/stat-card';
 import { useTranslation } from '@/hooks/use-translation';
 import { DaoLoadingSpinner } from '@/components/icons/dao-loading-spinner';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
+import { pdf } from '@react-pdf/renderer';
 import { saveAs } from 'file-saver';
 
-
 // --- Interfaces ---
-interface XAIFactor {
-    key: string;
-    values?: Record<string, string | number>;
-    importance?: number;
-}
-
-interface XAIReport {
-    strengths: XAIFactor[];
-    weaknesses: XAIFactor[];
-    key_decision_factors: XAIFactor[];
-    recommendation_key: string;
-}
-
-interface AIReport {
-    investability_score: number;      
-    overall_risk_level_key: string;   
-    xai_report: XAIReport;
-    risk_score?: number;
-    success_probability?: number;
-    team_competency_score?: number;
-    market_sentiment_score?: number;
-}
-
-// ✅ اینترفیس جدید برای داده‌های پروپوزال
-interface ProposalData {
-    projectName: string;
-    tagline: string;
-    description: string;
-    problem: string;
-    solution: string;
-    businessModel: string;
-    startupIndustry: string;
-    proposerAddress: string;
-    milestones: { name: string; amount: string; durationDays: string }[];
-    marketStats?: { tam: string; sam: string; som: string };
-    financialStats?: { burnRate: string; revenueProj: string };
-    teamBio?: string;
-}
+interface XAIFactor { key: string; values?: Record<string, string | number>; importance?: number; }
+interface XAIReport { strengths: XAIFactor[]; weaknesses: XAIFactor[]; key_decision_factors: XAIFactor[]; recommendation_key: string; }
+interface AIReport { investability_score: number; overall_risk_level_key: string; xai_report: XAIReport; risk_score?: number; success_probability?: number; team_competency_score?: number; market_sentiment_score?: number; }
 
 function ReportContent() {
     const { t, locale } = useTranslation();
     const router = useRouter();
     const searchParams = useSearchParams();
-    const reportRef = useRef<HTMLDivElement>(null);
     
-    // حالت اولیه: اگر ID در URL بود آن را بگیر، وگرنه خالی
+    // دریافت ID (اولیه)
     const initialId = searchParams.get('id') || searchParams.get('proposalId') || '';
     const [inputId, setInputId] = useState(initialId);
+    
     const [report, setReport] = useState<AIReport | null>(null);
+    const [proposalData, setProposalData] = useState<any>(null);
+    
     const [loading, setLoading] = useState(false);
     const [pdfLoading, setPdfLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [proposalData, setProposalData] = useState<any>(null);
-
-    //  FIX: استیت برای تشخیص قابلیت اشتراک‌گذاری
     const [canShare, setCanShare] = useState(false);
 
- useEffect(() => {
+    useEffect(() => {
         if (typeof navigator !== 'undefined' && (navigator as any).share) setCanShare(true);
     }, []);
 
+    // تابع اصلی دریافت گزارش
     const fetchReport = async (id: string) => {
         if (!id) return;
         setLoading(true);
@@ -92,19 +57,29 @@ function ReportContent() {
         try {
             // 1. دریافت تحلیل هوش مصنوعی
             const aiRes = await fetch(`/api/ai-report/${id}`);
-            const aiDataJson = await aiRes.json();
-            if (!aiRes.ok) throw new Error(aiDataJson.message || t('reports_page.error_title'));
-            setReport(aiDataJson.data || aiDataJson);
+            const aiDataResponse = await aiRes.json();
+            
+            if (!aiRes.ok) {
+                if (aiRes.status === 404) throw new Error(t('reports_page.no_proposals_found'));
+                throw new Error(aiDataResponse.message || t('reports_page.error_title'));
+            }
+            const aiCleanData = aiDataResponse.data || aiDataResponse;
+            setReport(aiCleanData);
+
             // 2. دریافت اطلاعات کامل پروپوزال (برای PDF)
-            // فرض می‌کنیم روت /api/proposals/[id] وجود دارد و دیتای کامل می‌دهد
-            const propRes = await fetch(`/api/proposals/${id}`);
-            if (propRes.ok) {
-                const propJson = await propRes.json();
-                setProposalData(propJson.data);
-            } else {
-                console.warn("Failed to fetch proposal details for PDF");
+            try {
+                const propRes = await fetch(`/api/proposals/${id}`);
+                if (propRes.ok) {
+                    const propJson = await propRes.json();
+                    setProposalData(propJson.data);
+                } else {
+                    console.warn("Failed to fetch proposal details for PDF.");
+                }
+            } catch (e) {
+                console.warn("Error fetching proposal details:", e);
             }
 
+            // آپدیت URL
             const newUrl = `/reports?id=${id}`;
             window.history.pushState({ path: newUrl }, '', newUrl);
 
@@ -116,127 +91,15 @@ function ReportContent() {
         }
     };
 
+    // اگر با ID باز شد، اجرا شود
     useEffect(() => {
         if (initialId) fetchReport(initialId);
     }, []);
 
-    // --- تابع دانلود PDF جامع ---
-    // تابع اصلاح شده و کامل تولید PDF
-    const handleDownloadPDF = async () => {
-        if (!report || !proposalData) {
-            toast.warning("Loading data...");
-            return;
-        }
-        setPdfLoading(true);
-        
-        try {
-           // ساخت دیکشنری کامل ترجمه‌ها (Labels)
-            const labels = {
-                rayan_chain_vc: t('common.rayan_chain_vc') || "RayanChain VC",
-                date: t('common.date') || "Date",
-                id: t('common.id') || "ID",
-                industry: t('new_proposal_page.industry'),
-                model: t('new_proposal_page.business_model'),
-                website: t('new_proposal_page.website'),
-                teamExp: t('new_proposal_page.team_experience_years_label'),
-                details: t('new_proposal_page.tabs.details'),
-                full_description: t('new_proposal_page.full_description'),
-                problem: t('new_proposal_page.problem'),
-                solution: t('new_proposal_page.solution'),
-                data_analysis: "Data Analysis", // یا کلید ترجمه جدید
-                market: t('new_proposal_page.tabs.market'),
-                competitors: t('new_proposal_page.competitors'),
-                financials: t('new_proposal_page.tabs.financials'),
-                burn_rate: t('new_proposal_page.financial_stats.burn_rate_label') || "Burn Rate",
-                revenue: t('new_proposal_page.financial_stats.revenue_label') || "Revenue",
-                break_even: t('new_proposal_page.financial_stats.break_even_label') || "Break-even",
-                milestones: t('new_proposal_page.funding_milestones'),
-                milestone_name: t('new_proposal_page.milestone_name'),
-                duration: t('new_proposal_page.duration_days'),
-                amount: t('new_proposal_page.amount'),
-                ai_audit_report: t('reports_page.ai_audit_report'),
-                ai_recommendation: t('reports_page.ai_recommendation'),
-                investability_score: t('reports_page.investability_score'),
-                overall_risk_level: t('reports_page.overall_risk_level'),
-                key_metrics: "Key Metrics", // یا ترجمه
-                success_probability: t('reports_page.success_probability'),
-                financial_risk_score: t('reports_page.financial_risk_score'),
-                team_competency: t('reports_page.team_competency'),
-                market_sentiment: t('reports_page.market_sentiment'),
-                strengths: t('reports_page.xai_strengths'),
-                weaknesses: t('reports_page.xai_weaknesses'),
-                generated_footer: t('common.generated_footer'),
-                noData: t('reports_page.no_data')
-            };
-
-            // آماده‌سازی گزارش (مانند قبل)
-            const processedReport = {
-                ...report,
-                overall_risk_level_key: report.overall_risk_level_key,
-                // ترجمه متن‌های داخلی
-                overall_risk_level_label: t(report.overall_risk_level_key),
-                recommendation_text: t(report.xai_report.recommendation_key + '_desc'),
-                xai_report: {
-                    ...report.xai_report,
-                    strengths: report.xai_report.strengths.map(s => ({ ...s, display_text: tVar(s.key, s.values) })),
-                    weaknesses: report.xai_report.weaknesses.map(w => ({ ...w, display_text: tVar(w.key, w.values) }))
-                }
-            };
-
-            const response = await fetch('/api/generate-pdf', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    report: processedReport,
-                    proposal: proposalData,
-                    proposalId: inputId,
-                    locale: locale, // ✅ ارسال زبان
-                    labels: labels  // ✅ ارسال ترجمه‌ها
-                })
-            });
-
-            if (!response.ok) throw new Error("API Error");
-
-            const blob = await response.blob();
-            saveAs(blob, `RayanChain-Report-${inputId}.pdf`);
-            toast.success("PDF Downloaded");
-
-        } catch (err) {
-            console.error(err);
-            toast.error("Failed to generate PDF");
-        } finally {
-            setPdfLoading(false);
-        }
-    };
-
-    // --- تابع اشتراک‌گذاری ---
-
-    // ✅ FIX: تابع هندل شیر با استفاده از as any
-    const handleShare = async () => {
-        const url = window.location.href;
-        const title = `RayanChain AI Report #${inputId}`;
-        const text = `Check out this AI analysis for proposal #${inputId}`;
-
-        if (canShare) {
-            try {
-                // استفاده از as any برای رفع خطای تایپ‌اسکریپت
-                await (navigator as any).share({ title, text, url });
-            } catch (err) {
-                if ((err as Error).name !== 'AbortError') console.error('Share failed:', err);
-            }
-        } else {
-            try {
-                await navigator.clipboard.writeText(url);
-                toast.success("Link copied to clipboard!");
-            } catch (err) {
-                toast.error("Failed to copy link");
-            }
-        }
-    };
-
+    // --- تابع ترجمه متغیرها ---
     const tVar = (key: string, values?: Record<string, string | number>) => {
         let text = t(key);
-        if (text === key) return key; 
+        if (!text || text === key) return key; 
         if (values) {
             Object.entries(values).forEach(([k, v]) => {
                 text = text.replace(`{{${k}}}`, String(v));
@@ -245,12 +108,175 @@ function ReportContent() {
         return text;
     };
 
+    // --- تابع دانلود PDF ---
+    const handleDownloadPDF = async () => {
+        if (!report) return;
+        if (!proposalData) {
+            toast.warning(t('reports_page.analyzing_data')); // پیام موقت
+        }
+        setPdfLoading(true);
+        
+        try {
+            // ساخت دیکشنری ترجمه‌ها (دقیقاً طبق فایل زبان ارسالی)
+            const labels = {
+                // Header & Footer
+                rayan_chain_vc: t('common.rayan_chain_vc'),
+                date: t('common.date'), 
+                id: t('proposal_detail.proposal_id'), 
+                generated_footer: t('common.generated_footer'), 
+
+                // Page 1 Info
+                industry: t('new_proposal_page.industry'),
+                model: t('new_proposal_page.business_model'),
+                website: t('new_proposal_page.website'),
+                teamExp: t('new_proposal_page.team_experience_years_label'),
+                
+                details: t('proposal_detail.details'),
+                full_description: t('proposal_detail.description'),
+                problem: t('new_proposal_page.problem'),
+                solution: t('new_proposal_page.solution'),
+
+                // Page 2 Data
+                data_analysis: t('reports_page.data_analysis'),
+                market: t('new_proposal_page.tabs.market'),
+                competitors: t('new_proposal_page.competitors'),
+                
+                financials: t('new_proposal_page.tabs.financials'),
+                burn_rate: t('xai.feature.burn_rate'),
+                revenue: t('new_proposal_page.financial_stats.revenue_label'),
+                break_even: t('new_proposal_page.financial_stats.break_even_label'),
+                
+                milestones: t('proposal_detail.milestones'),
+                milestone_name: t('proposal_detail.milestone'),
+                duration: t('new_proposal_page.duration_days'),
+                amount: t('new_proposal_page.amount'),
+
+                // Page 3 AI
+                ai_audit_report: t('reports_page.ai_audit_report'),
+                ai_recommendation: t('reports_page.ai_recommendation'),
+                investability_score: t('reports_page.investability_score'),
+                overall_risk_level: t('reports_page.overall_risk_level'),
+                
+                // Key Metrics
+                key_metrics: t('reports_page.financial_analysis_title'),
+                success_probability: t('reports_page.success_probability'),
+                financial_risk_score: t('reports_page.financial_risk_score'),
+                team_competency: t('reports_page.team_competency'),
+                market_sentiment: t('reports_page.market_sentiment'),
+                strengths: t('reports_page.xai_strengths'),
+                weaknesses: t('reports_page.xai_weaknesses'),               
+                noData: t('reports_page.no_data'),
+            };
+
+            // پردازش داده‌ها
+            const processedReport = {
+                ...report,
+                overall_risk_level_key: report.overall_risk_level_key, // کلید اصلی
+                overall_risk_level_label: t(report.overall_risk_level_key), // متن ترجمه شده
+                recommendation_text: t(report.xai_report.recommendation_key + '_desc'),
+                xai_report: {
+                    ...report.xai_report,
+                    strengths: report.xai_report.strengths.map(s => ({ 
+                        ...s, display_text: tVar(s.key, s.values) 
+                    })),
+                    weaknesses: report.xai_report.weaknesses.map(w => ({ 
+                        ...w, display_text: tVar(w.key, w.values) 
+                    }))
+                }
+            };
+
+            // ارسال به API Puppeteer
+            const response = await fetch('/api/generate-pdf', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    report: processedReport,
+                    proposal: proposalData || {},
+                    proposalId: inputId,
+                    locale: locale,
+                    labels: labels
+                })
+            });
+
+            if (!response.ok) throw new Error("API Error");
+
+            const blob = await response.blob();
+            saveAs(blob, `RayanChain-Report-${inputId}.pdf`);
+            toast.success(t('reports_page.pdf') + " " + t('status.succeeded')); // "ایجاد گزارش PDF انجام شد"
+
+        } catch (err) {
+            console.error(err);
+            toast.error(t('reports_page.error_title'));
+        } finally {
+            setPdfLoading(false);
+        }
+    };
+
+    // --- Share ---
+    const handleShare = async () => {
+        const url = window.location.href;
+        const title = `RayanChain AI Report #${inputId}`;
+        const text = `Check out this AI analysis for proposal #${inputId}`;
+        if (canShare) {
+            try { await (navigator as any).share({ title, text, url }); } catch (err) {}
+        } else {
+            try { await navigator.clipboard.writeText(url); toast.success("Link copied!"); } catch (err) {}
+        }
+    };
+
     const getRiskColor = (key: string) => {
         if (!key) return 'text-muted-foreground';
         if (key.includes('low')) return 'text-green-600 bg-green-100 border-green-200';
         if (key.includes('medium')) return 'text-yellow-600 bg-yellow-100 border-yellow-200';
         return 'text-red-600 bg-red-100 border-red-200';
     };
+
+    // --- Render ---
+    
+    // اگر ID نداریم، فرم جستجو نشان بده
+    if (!inputId && !initialId) {
+        return (
+            <div className="flex flex-col items-center justify-center min-h-[50vh] space-y-4">
+                <Card className="w-full max-w-md p-6 border-primary/20 shadow-lg">
+                    <h2 className="text-xl font-bold mb-2 text-center text-primary">{t('reports_page.card_title')}</h2>
+                    <p className="text-sm text-muted-foreground text-center mb-6">{t('reports_page.card_desc')}</p>
+                    <div className="flex gap-2">
+                        <Input 
+                            value={inputId} 
+                            onChange={e => setInputId(e.target.value)} 
+                            placeholder={t('reports_page.input_placeholder')} 
+                            className="text-center"
+                        />
+                    </div>
+                    <Button className="w-full mt-4" onClick={() => fetchReport(inputId)} disabled={!inputId}>
+                        {t('reports_page.start_analysis')}
+                    </Button>
+                </Card>
+            </div>
+        );
+    }
+
+    if (loading) {
+        return (
+            <div className="flex flex-col items-center justify-center h-[50vh]">
+                <DaoLoadingSpinner className="w-16 h-16 text-primary mb-4" />
+                <p className="text-muted-foreground animate-pulse">{t('reports_page.analyzing_data')}</p>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <Alert variant="destructive" className="max-w-2xl mx-auto mt-10">
+                <AlertTriangle className="h-4 w-4" />
+                <AlertTitle>{t('reports_page.error_title')}</AlertTitle>
+                <AlertDescription>{error}</AlertDescription>
+                <Button variant="outline" className="mt-4" onClick={() => router.back()}>{t('common.back') || "Back"}</Button>
+            </Alert>
+        );
+    }
+
+    if (!report) return null;
 
     return (
         <div className="space-y-8 animate-in fade-in duration-500 pb-10">
@@ -303,9 +329,6 @@ function ReportContent() {
                         {t('reports_page.share')}
                         </Button>
                     </div>
-
-                    {/* ✅ کانتینری که قرار است PDF شود */}
-                    <div id="report-content" ref={reportRef} className="space-y-8 p-4 bg-background rounded-lg">
                         
                         {/* 1. Main Score Card */}
                         <Card className="border-primary/20 shadow-lg bg-card/50">
@@ -450,7 +473,6 @@ function ReportContent() {
                                 </Card>
                             </div>
                         </div>
-                    </div> {/* End of report-content */}
                 </div>
             )}
         </div>
