@@ -871,6 +871,7 @@ export const en = {
     pdf: "Generate PDF report",
     share: "Share",
     ai_audit_report: "AI proposal evaluation report",
+    data_analysis: "data evaluation",
     },
     risk_level: {
     low: "low",

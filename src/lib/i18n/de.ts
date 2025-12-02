@@ -873,6 +873,7 @@ export const de = {
     pdf: "PDF-Bericht erstellen",
     share: "Teilen",
     ai_audit_report: "KI-Bewertungsbericht des Vorschlags",
+    data_analysis: "Datenauswertung",
     },
     risk_level: {
     low: "niedrig",

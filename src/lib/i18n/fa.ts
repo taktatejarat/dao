@@ -890,6 +890,7 @@ export const fa = {
     pdf: "ایجاد گزارش PDF",
     share: "اشتراک گذاری",
     ai_audit_report: "گزارش ارزیابی هوش مصنوعی پروپوزال",
+    data_analysis: "ارزیابی داده ها",
   },
    risk_level: {
     low: "پایین",

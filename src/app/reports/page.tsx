@@ -17,8 +17,6 @@ import { useTranslation } from '@/hooks/use-translation';
 import { DaoLoadingSpinner } from '@/components/icons/dao-loading-spinner';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
-import { pdf } from '@react-pdf/renderer';
-import { ProposalReportPDF } from '@/components/reports/pdf-template'; 
 import { saveAs } from 'file-saver';
 
 
@@ -125,80 +123,87 @@ function ReportContent() {
     // --- تابع دانلود PDF جامع ---
     // تابع اصلاح شده و کامل تولید PDF
     const handleDownloadPDF = async () => {
-        // ۱. بررسی اولیه وجود داده‌ها
-        if (!report) return;
-        
-        // اگر اطلاعات پروپوزال هنوز لود نشده، هشدار بده اما متوقف نشو (می‌تواند با داده خالی ادامه دهد)
-        if (!proposalData) {
-            toast.warning("Proposal details are loading... please wait a moment.");
-            // اگر می‌خواهید سخت‌گیرانه باشد، اینجا return کنید.
-            // اما بهتر است اجازه دهیم ادامه یابد، تمپلت PDF داده‌های خالی را هندل می‌کند.
+        if (!report || !proposalData) {
+            toast.warning("Loading data...");
+            return;
         }
-
         setPdfLoading(true);
         
         try {
-            // ۲. تعریف تابع کمکی برای ترجمه متغیرها (فقط داخل همین اسکوپ استفاده می‌شود)
-            const replaceVars = (key: string, values?: Record<string, string | number>) => {
-                let text = t(key);
-                // اگر ترجمه پیدا نشد یا کلید خالی بود
-                if (!text || text === key) return key; 
-                
-                if (values) {
-                    Object.entries(values).forEach(([k, v]) => {
-                        // جایگزینی {{value}} با مقدار واقعی
-                        text = text.replace(`{{${k}}}`, String(v));
-                    });
-                }
-                return text;
+           // ساخت دیکشنری کامل ترجمه‌ها (Labels)
+            const labels = {
+                rayan_chain_vc: t('common.rayan_chain_vc') || "RayanChain VC",
+                date: t('common.date') || "Date",
+                id: t('common.id') || "ID",
+                industry: t('new_proposal_page.industry'),
+                model: t('new_proposal_page.business_model'),
+                website: t('new_proposal_page.website'),
+                teamExp: t('new_proposal_page.team_experience_years_label'),
+                details: t('new_proposal_page.tabs.details'),
+                full_description: t('new_proposal_page.full_description'),
+                problem: t('new_proposal_page.problem'),
+                solution: t('new_proposal_page.solution'),
+                data_analysis: "Data Analysis", // یا کلید ترجمه جدید
+                market: t('new_proposal_page.tabs.market'),
+                competitors: t('new_proposal_page.competitors'),
+                financials: t('new_proposal_page.tabs.financials'),
+                burn_rate: t('new_proposal_page.financial_stats.burn_rate_label') || "Burn Rate",
+                revenue: t('new_proposal_page.financial_stats.revenue_label') || "Revenue",
+                break_even: t('new_proposal_page.financial_stats.break_even_label') || "Break-even",
+                milestones: t('new_proposal_page.funding_milestones'),
+                milestone_name: t('new_proposal_page.milestone_name'),
+                duration: t('new_proposal_page.duration_days'),
+                amount: t('new_proposal_page.amount'),
+                ai_audit_report: t('reports_page.ai_audit_report'),
+                ai_recommendation: t('reports_page.ai_recommendation'),
+                investability_score: t('reports_page.investability_score'),
+                overall_risk_level: t('reports_page.overall_risk_level'),
+                key_metrics: "Key Metrics", // یا ترجمه
+                success_probability: t('reports_page.success_probability'),
+                financial_risk_score: t('reports_page.financial_risk_score'),
+                team_competency: t('reports_page.team_competency'),
+                market_sentiment: t('reports_page.market_sentiment'),
+                strengths: t('reports_page.xai_strengths'),
+                weaknesses: t('reports_page.xai_weaknesses'),
+                generated_footer: t('common.generated_footer'),
+                noData: t('reports_page.no_data')
             };
 
-            // ۳. آماده‌سازی و ترجمه داده‌های هوش مصنوعی
-            // ما یک کپی از گزارش می‌گیریم و فیلدهای متنی آن را برای PDF آماده می‌کنیم
+            // آماده‌سازی گزارش (مانند قبل)
             const processedReport = {
                 ...report,
-                
-                // ترجمه سطح ریسک (مثلاً: "متوسط")
-                overall_risk_level_label: t(report.overall_risk_level_key || 'risk_level.medium'),
-                
-                // ترجمه متن توصیه (مثلاً: "این پروژه...")
-                recommendation_text: t((report.xai_report?.recommendation_key || 'recommendation.medium_risk') + '_desc'),
-
-                // پردازش آرایه‌های نقاط قوت و ضعف
+                overall_risk_level_key: report.overall_risk_level_key,
+                // ترجمه متن‌های داخلی
+                overall_risk_level_label: t(report.overall_risk_level_key),
+                recommendation_text: t(report.xai_report.recommendation_key + '_desc'),
                 xai_report: {
                     ...report.xai_report,
-                    strengths: (report.xai_report?.strengths || []).map(s => ({
-                        ...s,
-                        // فیلد جدید display_text برای نمایش در PDF
-                        display_text: replaceVars(s.key, s.values)
-                    })),
-                    weaknesses: (report.xai_report?.weaknesses || []).map(w => ({
-                        ...w,
-                        display_text: replaceVars(w.key, w.values)
-                    }))
+                    strengths: report.xai_report.strengths.map(s => ({ ...s, display_text: tVar(s.key, s.values) })),
+                    weaknesses: report.xai_report.weaknesses.map(w => ({ ...w, display_text: tVar(w.key, w.values) }))
                 }
             };
 
-            // ۴. تولید فایل PDF (باینری)
-            // نکته: proposalData || {} می‌فرستیم تا اگر نال بود کرش نکند
-            const blob = await pdf(
-                <ProposalReportPDF 
-                    report={processedReport} 
-                    proposal={proposalData || {}} 
-                    proposalId={inputId}
-                    t={t}
-                    locale={locale} 
-                />
-            ).toBlob();
+            const response = await fetch('/api/generate-pdf', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    report: processedReport,
+                    proposal: proposalData,
+                    proposalId: inputId,
+                    locale: locale, // ✅ ارسال زبان
+                    labels: labels  // ✅ ارسال ترجمه‌ها
+                })
+            });
 
-            // ۵. ذخیره فایل
+            if (!response.ok) throw new Error("API Error");
+
+            const blob = await response.blob();
             saveAs(blob, `RayanChain-Report-${inputId}.pdf`);
-            
-            toast.success(t('reports_page.pdf_downloaded_success') || "PDF Downloaded successfully");
+            toast.success("PDF Downloaded");
 
         } catch (err) {
-            console.error("PDF Generation Critical Error:", err);
-            toast.error("Failed to generate PDF. Check console for details.");
+            console.error(err);
+            toast.error("Failed to generate PDF");
         } finally {
             setPdfLoading(false);
         }

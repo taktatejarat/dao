@@ -872,6 +872,7 @@ export const ru = {
     pdf: "Создать PDF-отчет",
     share: "Поделиться",
     ai_audit_report: "Отчет об оценке ИИ предложения",
+    data_analysis: "оценка данных",
     },
     risk_level: {
     low: "низкий",

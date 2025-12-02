@@ -872,6 +872,7 @@ export const ar = {
       pdf: "إنشاء تقرير PDF",
       share: "مشاركة",
       ai_audit_report: "تقرير تقييم الذكاء الاصطناعي للعرض",
+      data_analysis: "تقييم البيانات",
       },
       risk_level: {
       low: "منخفض",

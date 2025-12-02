@@ -873,6 +873,7 @@ export const tr = {
     pdf: "PDF raporu oluştur",
     share: "Paylaş",
     ai_audit_report: "Yapay zeka teklif değerlendirme raporu",
+    data_analysis: "veri değerlendirmesi",
     },
     risk_level: {
     low: "düşük",
