@@ -1,23 +1,25 @@
-// src/app/reports/page.tsx - FINAL CORRECTED VERSION (Based on User Dictionary)
+// src/app/reports/page.tsx - FINAL REDESIGNED & TYPE-SAFE
 
 "use client";
 
-import { useState, useEffect, Suspense, useRef } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { AppLayout } from '@/components/layout/app-layout';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input'; // اضافه شده برای فرم ورودی
+import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { BrainCircuit, AlertTriangle, CheckCircle, XCircle, ChevronLeft, Download, Share2, TrendingUp, Users, BarChart, Copy, Search } from 'lucide-react';
-import { RiskGaugeChart } from '@/components/reports/risk-gauge-chart';
+import { 
+    BrainCircuit, AlertTriangle, CheckCircle, XCircle, 
+    Download, Share2, TrendingUp, Users, BarChart2, 
+    Search, Target, Copy
+} from 'lucide-react';
 import { StatCard } from '@/components/dashboard/stat-card';
 import { useTranslation } from '@/hooks/use-translation';
 import { DaoLoadingSpinner } from '@/components/icons/dao-loading-spinner';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
-import { pdf } from '@react-pdf/renderer';
 import { saveAs } from 'file-saver';
 
 // --- Interfaces ---
@@ -25,17 +27,59 @@ interface XAIFactor { key: string; values?: Record<string, string | number>; imp
 interface XAIReport { strengths: XAIFactor[]; weaknesses: XAIFactor[]; key_decision_factors: XAIFactor[]; recommendation_key: string; }
 interface AIReport { investability_score: number; overall_risk_level_key: string; xai_report: XAIReport; risk_score?: number; success_probability?: number; team_competency_score?: number; market_sentiment_score?: number; }
 
+// --- Helper for Type-Safe Translation ---
+const useSafeTranslation = () => {
+    const { t: originalT, locale } = useTranslation();
+    // این تابع، تابع اصلی را کست می‌کند تا تایپ‌اسکریپت به تعداد آرگومان‌ها گیر ندهد
+    const t = (key: string, params?: any) => (originalT as any)(key, params);
+    return { t, locale };
+};
+
+// --- Custom Circular Score Component (Modern UI) ---
+const ScoreRing = ({ score, label }: { score: number, label: string }) => {
+    const radius = 58;
+    const circumference = 2 * Math.PI * radius;
+    const progress = Math.min(Math.max(score, 0), 100);
+    const strokeDashoffset = circumference - (progress / 100) * circumference;
+    
+    // رنگ‌بندی داینامیک بر اساس امتیاز
+    let colorClass = "text-red-500 drop-shadow-[0_0_8px_rgba(239,68,68,0.5)]";
+    if (score >= 50) colorClass = "text-yellow-500 drop-shadow-[0_0_8px_rgba(234,179,8,0.5)]";
+    if (score >= 75) colorClass = "text-emerald-500 drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]";
+
+    return (
+        <div className="relative flex flex-col items-center justify-center w-48 h-48">
+            <svg className="transform -rotate-90 w-full h-full">
+                {/* Background Circle */}
+                <circle cx="50%" cy="50%" r={radius} stroke="currentColor" strokeWidth="8" fill="transparent" className="text-muted/10" />
+                {/* Progress Circle */}
+                <circle 
+                    cx="50%" cy="50%" r={radius} 
+                    stroke="currentColor" strokeWidth="8" fill="transparent" 
+                    strokeDasharray={circumference} 
+                    strokeDashoffset={strokeDashoffset} 
+                    strokeLinecap="round"
+                    className={cn("transition-all duration-1000 ease-out", colorClass)}
+                />
+            </svg>
+            <div className="absolute flex flex-col items-center">
+                <span className={cn("text-4xl font-extrabold font-headline", colorClass.split(' ')[0])}>{score}</span>
+                <span className="text-xs text-muted-foreground mt-1 font-medium uppercase tracking-wider">{label}</span>
+            </div>
+        </div>
+    );
+};
+
 function ReportContent() {
-    const { t, locale } = useTranslation();
+    const { t, locale } = useSafeTranslation(); // ✅ استفاده از هوک اصلاح شده
     const router = useRouter();
     const searchParams = useSearchParams();
     
-    // دریافت ID (اولیه)
     const initialId = searchParams.get('id') || searchParams.get('proposalId') || '';
     const [inputId, setInputId] = useState(initialId);
     
     const [report, setReport] = useState<AIReport | null>(null);
-    const [proposalData, setProposalData] = useState<any>(null);
+    const [proposalData, setProposalData] = useState<any>(null); // برای PDF
     
     const [loading, setLoading] = useState(false);
     const [pdfLoading, setPdfLoading] = useState(false);
@@ -46,7 +90,6 @@ function ReportContent() {
         if (typeof navigator !== 'undefined' && (navigator as any).share) setCanShare(true);
     }, []);
 
-    // تابع اصلی دریافت گزارش
     const fetchReport = async (id: string) => {
         if (!id) return;
         setLoading(true);
@@ -66,20 +109,15 @@ function ReportContent() {
             const aiCleanData = aiDataResponse.data || aiDataResponse;
             setReport(aiCleanData);
 
-            // 2. دریافت اطلاعات کامل پروپوزال (برای PDF)
+            // 2. دریافت اطلاعات پروپوزال برای PDF
             try {
                 const propRes = await fetch(`/api/proposals/${id}`);
                 if (propRes.ok) {
                     const propJson = await propRes.json();
                     setProposalData(propJson.data);
-                } else {
-                    console.warn("Failed to fetch proposal details for PDF.");
                 }
-            } catch (e) {
-                console.warn("Error fetching proposal details:", e);
-            }
+            } catch (e) { console.warn("Proposal fetch error", e); }
 
-            // آپدیت URL
             const newUrl = `/reports?id=${id}`;
             window.history.pushState({ path: newUrl }, '', newUrl);
 
@@ -91,12 +129,11 @@ function ReportContent() {
         }
     };
 
-    // اگر با ID باز شد، اجرا شود
     useEffect(() => {
         if (initialId) fetchReport(initialId);
     }, []);
 
-    // --- تابع ترجمه متغیرها ---
+    // Helper: جایگذاری متغیرها در ترجمه
     const tVar = (key: string, values?: Record<string, string | number>) => {
         let text = t(key);
         if (!text || text === key) return key; 
@@ -108,22 +145,25 @@ function ReportContent() {
         return text;
     };
 
-    // --- تابع دانلود PDF ---
+    const getRiskColor = (key: string) => {
+        if (!key) return 'text-muted-foreground border-muted';
+        if (key.includes('low')) return 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20';
+        if (key.includes('medium')) return 'bg-amber-500/10 text-amber-600 border-amber-500/20';
+        return 'bg-rose-500/10 text-rose-600 border-rose-500/20';
+    };
+
+    // --- PDF Handler ---
     const handleDownloadPDF = async () => {
         if (!report) return;
-        if (!proposalData) {
-            toast.warning(t('reports_page.analyzing_data')); // پیام موقت
-        }
         setPdfLoading(true);
-        
         try {
-            // ساخت دیکشنری ترجمه‌ها (دقیقاً طبق فایل زبان ارسالی)
+            // ساخت دیکشنری ترجمه‌ها برای PDF Generator
             const labels = {
                 // Header & Footer
                 rayan_chain_vc: t('common.rayan_chain_vc'),
                 date: t('common.date'), 
                 id: t('proposal_detail.proposal_id'), 
-                generated_footer: t('common.generated_footer'), 
+                generated_footer: t('proposal_detail.generated_footer'), 
 
                 // Page 1 Info
                 industry: t('new_proposal_page.industry'),
@@ -165,44 +205,25 @@ function ReportContent() {
                 market_sentiment: t('reports_page.market_sentiment'),
                 strengths: t('reports_page.xai_strengths'),
                 weaknesses: t('reports_page.xai_weaknesses'),               
-                noData: t('reports_page.no_data'),
+                noData: t('reports_page.no_data')
             };
 
-            // پردازش داده‌ها
-            const processedReport = {
-                ...report,
-                overall_risk_level_key: report.overall_risk_level_key, // کلید اصلی
-                overall_risk_level_label: t(report.overall_risk_level_key), // متن ترجمه شده
-                recommendation_text: t(report.xai_report.recommendation_key + '_desc'),
-                xai_report: {
-                    ...report.xai_report,
-                    strengths: report.xai_report.strengths.map(s => ({ 
-                        ...s, display_text: tVar(s.key, s.values) 
-                    })),
-                    weaknesses: report.xai_report.weaknesses.map(w => ({ 
-                        ...w, display_text: tVar(w.key, w.values) 
-                    }))
-                }
-            };
-
-            // ارسال به API Puppeteer
             const response = await fetch('/api/generate-pdf', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    report: processedReport,
+                    report,
                     proposal: proposalData || {},
                     proposalId: inputId,
-                    locale: locale,
-                    labels: labels
+                    locale,
+                    labels
                 })
             });
 
             if (!response.ok) throw new Error("API Error");
-
             const blob = await response.blob();
             saveAs(blob, `RayanChain-Report-${inputId}.pdf`);
-            toast.success(t('reports_page.pdf') + " " + t('status.succeeded')); // "ایجاد گزارش PDF انجام شد"
+            toast.success(t('status.succeeded'));
 
         } catch (err) {
             console.error(err);
@@ -212,43 +233,39 @@ function ReportContent() {
         }
     };
 
-    // --- Share ---
+    // --- Share Handler ---
     const handleShare = async () => {
         const url = window.location.href;
-        const title = `RayanChain AI Report #${inputId}`;
-        const text = `Check out this AI analysis for proposal #${inputId}`;
         if (canShare) {
-            try { await (navigator as any).share({ title, text, url }); } catch (err) {}
+            try { await (navigator as any).share({ title: 'AI Report', url }); } catch (err) {}
         } else {
             try { await navigator.clipboard.writeText(url); toast.success("Link copied!"); } catch (err) {}
         }
     };
 
-    const getRiskColor = (key: string) => {
-        if (!key) return 'text-muted-foreground';
-        if (key.includes('low')) return 'text-green-600 bg-green-100 border-green-200';
-        if (key.includes('medium')) return 'text-yellow-600 bg-yellow-100 border-yellow-200';
-        return 'text-red-600 bg-red-100 border-red-200';
-    };
+    // --- UI STATES ---
 
-    // --- Render ---
-    
-    // اگر ID نداریم، فرم جستجو نشان بده
+    // 1. Search Mode
     if (!inputId && !initialId) {
         return (
-            <div className="flex flex-col items-center justify-center min-h-[50vh] space-y-4">
-                <Card className="w-full max-w-md p-6 border-primary/20 shadow-lg">
-                    <h2 className="text-xl font-bold mb-2 text-center text-primary">{t('reports_page.card_title')}</h2>
-                    <p className="text-sm text-muted-foreground text-center mb-6">{t('reports_page.card_desc')}</p>
+            <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-6 animate-in zoom-in-95 duration-500">
+                <div className="p-6 rounded-full bg-primary/5 mb-2">
+                    <BrainCircuit className="w-12 h-12 text-primary" />
+                </div>
+                <div className="text-center max-w-lg space-y-2">
+                    <h2 className="text-2xl font-bold text-gradient font-headline">{t('reports_page.card_title')}</h2>
+                    <p className="text-muted-foreground">{t('reports_page.card_desc')}</p>
+                </div>
+                <Card className="w-full max-w-md p-2 border-primary/20 shadow-xl">
                     <div className="flex gap-2">
                         <Input 
                             value={inputId} 
                             onChange={e => setInputId(e.target.value)} 
                             placeholder={t('reports_page.input_placeholder')} 
-                            className="text-center"
+                            className="border-0 focus-visible:ring-0 bg-transparent text-lg text-center"
                         />
                     </div>
-                    <Button className="w-full mt-4" onClick={() => fetchReport(inputId)} disabled={!inputId}>
+                    <Button className="w-full mt-2 h-12 text-lg" onClick={() => fetchReport(inputId)} disabled={!inputId}>
                         {t('reports_page.start_analysis')}
                     </Button>
                 </Card>
@@ -256,225 +273,171 @@ function ReportContent() {
         );
     }
 
+    // 2. Loading Mode
     if (loading) {
         return (
-            <div className="flex flex-col items-center justify-center h-[50vh]">
-                <DaoLoadingSpinner className="w-16 h-16 text-primary mb-4" />
-                <p className="text-muted-foreground animate-pulse">{t('reports_page.analyzing_data')}</p>
+            <div className="flex flex-col items-center justify-center h-[60vh] space-y-6">
+                <div className="relative">
+                    <DaoLoadingSpinner className="w-20 h-20 text-primary opacity-20" />
+                    <div className="absolute inset-0 flex items-center justify-center">
+                        <BrainCircuit className="w-8 h-8 text-primary animate-pulse" />
+                    </div>
+                </div>
+                <p className="text-lg font-medium text-muted-foreground animate-pulse">{t('reports_page.analyzing_data')}</p>
             </div>
         );
     }
 
+    // 3. Error Mode
     if (error) {
         return (
             <Alert variant="destructive" className="max-w-2xl mx-auto mt-10">
                 <AlertTriangle className="h-4 w-4" />
                 <AlertTitle>{t('reports_page.error_title')}</AlertTitle>
                 <AlertDescription>{error}</AlertDescription>
-                <Button variant="outline" className="mt-4" onClick={() => router.back()}>{t('common.back') || "Back"}</Button>
+                <Button variant="outline" className="mt-4 bg-background/50" onClick={() => router.back()}>{t('common.back')}</Button>
             </Alert>
         );
     }
 
     if (!report) return null;
 
+    // 4. Report View (Bento Grid)
     return (
-        <div className="space-y-8 animate-in fade-in duration-500 pb-10">
-            <div className="flex flex-col gap-6">
-                <header>
-                    <h1 className="text-3xl font-bold font-headline text-gradient">{t('reports_page.title')}</h1>
-                    <p className="text-muted-foreground">{t('reports_page.subtitle')}</p>
-                </header>
+        <div className="space-y-8 pb-10 max-w-[1400px] mx-auto animate-in fade-in slide-in-from-bottom-8 duration-700">
+            
+            {/* Header */}
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b pb-6">
+                <div>
+                    <div className="flex items-center gap-3 mb-3">
+                        <Badge variant="secondary" className="font-mono text-xs px-3 py-1 bg-muted/80">ID: {inputId.substring(0, 8)}...</Badge>
+                        <Badge variant="outline" className={cn("text-xs px-3 py-1 font-bold uppercase", getRiskColor(report.overall_risk_level_key))}>
+                            {t(report.overall_risk_level_key)}
+                        </Badge>
+                    </div>
+                    <h1 className="text-4xl md:text-5xl font-extrabold font-headline text-gradient leading-tight">{t('reports_page.ai_audit_report')}</h1>
+                    <p className="text-lg text-muted-foreground mt-2">{t('reports_page.subtitle')}</p>
+                </div>
+                <div className="flex gap-3">
+                    <Button variant="outline" onClick={handleDownloadPDF} disabled={pdfLoading} className="h-10 gap-2">
+                        {pdfLoading ? <DaoLoadingSpinner className="w-4 h-4"/> : <Download className="w-4 h-4"/>} 
+                        {t('reports_page.pdf')}
+                    </Button>
+                    <Button variant="outline" onClick={handleShare} className="h-10 w-10 p-0">
+                        {canShare ? <Share2 className="w-4 h-4"/> : <Copy className="w-4 h-4"/>}
+                    </Button>
+                </div>
+            </div>
 
-                <Card className="border-primary/20 shadow-sm">
-                    <CardHeader>
-                        <CardTitle>{t('reports_page.card_title')}</CardTitle>
-                        <CardDescription>{t('reports_page.card_desc')}</CardDescription>
+            {/* BENTO GRID */}
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+                
+                {/* A. Overall Score (Large Box) - Col Span 4 */}
+                <Card className="md:col-span-12 lg:col-span-4 flex flex-col items-center justify-center p-8 bg-gradient-to-br from-card to-muted/30 border-primary/20 shadow-lg">
+                    <ScoreRing score={report.investability_score} label={t('reports_page.investability_score')} />
+                    
+                    <div className="grid grid-cols-2 gap-4 w-full mt-8 pt-6 border-t border-border/50">
+                        <div className="text-center">
+                            <span className="text-xs text-muted-foreground uppercase tracking-wide block mb-1">{t('reports_page.overall_risk_level')}</span>
+                            <span className={cn("font-bold text-lg", getRiskColor(report.overall_risk_level_key).replace('bg-', 'text-').replace('/10', ''))}>
+                                {t(report.overall_risk_level_key)}
+                            </span>
+                        </div>
+                        <div className="text-center border-l border-border/50">
+                            <span className="text-xs text-muted-foreground uppercase tracking-wide block mb-1">{t('reports_page.ai_risk_score')}</span>
+                            <span className="font-bold text-lg">{report.risk_score ?? '-'} / 100</span>
+                        </div>
+                    </div>
+                </Card>
+
+                {/* B. Key Metrics (4 Small Cards) - Col Span 8 */}
+                <div className="md:col-span-12 lg:col-span-8 grid grid-cols-1 sm:grid-cols-2 gap-4 h-full">
+                    <StatCard 
+                        title={t('reports_page.success_probability')} 
+                        value={`${report.success_probability ?? 0}%`} 
+                        icon={Target} 
+                        variant={report.success_probability && report.success_probability > 70 ? "positive" : "neutral"}
+                        description={t('reports_page.success_probability_desc')}
+                    />
+                    <StatCard 
+                        title={t('reports_page.market_sentiment')} 
+                        value={`${(report.market_sentiment_score ? report.market_sentiment_score * 100 : 0).toFixed(0)}%`} 
+                        icon={TrendingUp} 
+                        variant="default"
+                        description={t('reports_page.market_sentiment_desc')}
+                    />
+                    <StatCard 
+                        title={t('reports_page.team_competency')} 
+                        value={`${report.team_competency_score ?? 0}/100`} 
+                        icon={Users} 
+                        variant="neutral"
+                        description={t('reports_page.team_competency_desc')}
+                    />
+                    <StatCard 
+                        title={t('reports_page.financial_risk_score')} 
+                        value={`${report.risk_score ?? 0}/100`} 
+                        icon={AlertTriangle} 
+                        variant={report.risk_score && report.risk_score > 50 ? "negative" : "positive"}
+                        description={t('reports_page.financial_risk_score_desc')}
+                    />
+                </div>
+
+                {/* C. AI Recommendation (Full Width) */}
+                <Card className="md:col-span-12 bg-primary/5 border-primary/20 shadow-inner">
+                    <CardHeader className="pb-2">
+                        <CardTitle className="flex items-center gap-2 text-primary text-lg">
+                            <BrainCircuit className="w-5 h-5" /> 
+                            {t('reports_page.ai_recommendation')}
+                        </CardTitle>
                     </CardHeader>
-                    <CardContent className="flex flex-col sm:flex-row gap-4">
-                        <Input 
-                            placeholder={t('reports_page.input_placeholder')} 
-                            value={inputId}
-                            onChange={(e) => setInputId(e.target.value)}
-                            disabled={loading}
-                            className="flex-1"
-                        />
-                        <Button onClick={() => fetchReport(inputId)} disabled={loading || !inputId} className="min-w-[140px]">
-                            {loading ? <DaoLoadingSpinner className="me-2"/> : <Search className="me-2 h-4 w-4"/>}
-                            {t('reports_page.start_analysis')}
-                        </Button>
+                    <CardContent>
+                        <p className="text-lg font-medium leading-relaxed text-foreground/90">
+                            {t(report.xai_report.recommendation_key + '_desc')}
+                        </p>
+                    </CardContent>
+                </Card>
+
+                {/* D. Strengths (xAI) */}
+                <Card className="md:col-span-6 border-l-4 border-l-emerald-500 shadow-sm hover:shadow-md transition-shadow">
+                    <CardHeader className="pb-4 border-b">
+                        <CardTitle className="text-emerald-600 flex items-center gap-2">
+                            <CheckCircle className="w-5 h-5" /> 
+                            {t('reports_page.xai_strengths')}
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4 pt-6">
+                        {report.xai_report.strengths.length > 0 ? report.xai_report.strengths.map((item, i) => (
+                            <div key={i} className="flex gap-4 items-start p-3 rounded-lg bg-emerald-50/50 dark:bg-emerald-950/10">
+                                <div className="mt-1 h-2 w-2 rounded-full bg-emerald-500 shrink-0 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
+                                <div className="space-y-1">
+                                    <p className="font-semibold text-sm">{tVar(item.key, item.values)}</p>
+                                    {/* اگر توضیحاتی در آینده اضافه شد */}
+                                </div>
+                            </div>
+                        )) : <p className="text-muted-foreground italic text-sm p-4 text-center">{t('reports_page.no_data')}</p>}
+                    </CardContent>
+                </Card>
+
+                {/* E. Weaknesses (xAI) */}
+                <Card className="md:col-span-6 border-l-4 border-l-rose-500 shadow-sm hover:shadow-md transition-shadow">
+                    <CardHeader className="pb-4 border-b">
+                        <CardTitle className="text-rose-600 flex items-center gap-2">
+                            <XCircle className="w-5 h-5" /> 
+                            {t('reports_page.xai_weaknesses')}
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4 pt-6">
+                        {report.xai_report.weaknesses.length > 0 ? report.xai_report.weaknesses.map((item, i) => (
+                            <div key={i} className="flex gap-4 items-start p-3 rounded-lg bg-rose-50/50 dark:bg-rose-950/10">
+                                <div className="mt-1 h-2 w-2 rounded-full bg-rose-500 shrink-0 shadow-[0_0_8px_rgba(244,63,94,0.5)]" />
+                                <div className="space-y-1">
+                                    <p className="font-semibold text-sm">{tVar(item.key, item.values)}</p>
+                                </div>
+                            </div>
+                        )) : <p className="text-muted-foreground italic text-sm p-4 text-center">{t('reports_page.no_risks_found')}</p>}
                     </CardContent>
                 </Card>
             </div>
-
-            {error && (
-                <Alert variant="destructive">
-                    <AlertTriangle className="h-4 w-4" />
-                    <AlertTitle>{t('reports_page.error_title')}</AlertTitle>
-                    <AlertDescription>{error}</AlertDescription>
-                </Alert>
-            )}
-
-            {report && (
-                <div className="space-y-8">
-                    {/* Actions Row */}
-                    <div className="flex justify-end gap-2">
-                        <Button variant="outline" size="sm" onClick={handleDownloadPDF} disabled={pdfLoading}>
-                            {pdfLoading ? <DaoLoadingSpinner className="mr-2 h-4 w-4"/> : <Download className="mr-2 h-4 w-4"/>}
-                            {t('reports_page.pdf')}
-                        </Button>
-                        <Button variant="outline" size="sm" onClick={handleShare}>
-                            {/* آیکون هوشمند: اگر Share API نبود، آیکون Copy نشان بده */}
-                            {canShare ? <Share2 className="mr-2 h-4 w-4"/> : <Copy className="mr-2 h-4 w-4"/>}
-                        {t('reports_page.share')}
-                        </Button>
-                    </div>
-                        
-                        {/* 1. Main Score Card */}
-                        <Card className="border-primary/20 shadow-lg bg-card/50">
-                            <CardHeader>
-                                <div className="flex justify-between items-start">
-                                    <div>
-                                        <CardTitle className="text-2xl flex items-center gap-2">
-                                            <BrainCircuit className="text-primary h-6 w-6" />
-                                            {t('reports_page.ai_summary_title')}
-                                        </CardTitle>
-                                        <CardDescription>
-                                            {t('reports_page.proposal_report_title').replace('{id}', inputId)}
-                                        </CardDescription>
-                                    </div>
-                                    <Badge variant="outline" className={cn("text-lg px-4 py-1", getRiskColor(report.overall_risk_level_key))}>
-                                        {t(report.overall_risk_level_key)}
-                                    </Badge>
-                                </div>
-                            </CardHeader>
-                            <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-                                <div className="flex justify-center">
-                                    <RiskGaugeChart 
-                                        value={report.investability_score} 
-                                        label={t('reports_page.investability_score')} 
-                                    />
-                                </div>
-                                <div className="space-y-6">
-                                    <div className="p-4 rounded-lg bg-muted/50 border">
-                                        <h3 className="font-semibold mb-2 text-primary">{t('reports_page.ai_recommendation')}</h3>
-                                        <p className="text-muted-foreground leading-relaxed text-sm">
-                                            {t(report.xai_report.recommendation_key + '_desc')}
-                                        </p>
-                                    </div>
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div className="text-center p-2 bg-muted/30 rounded">
-                                            <span className="text-xs text-muted-foreground block">{t('reports_page.overall_risk_level')}</span>
-                                            <span className={cn("font-bold", getRiskColor(report.overall_risk_level_key))}>
-                                                {t(report.overall_risk_level_key)}
-                                            </span>
-                                        </div>
-                                        <div className="text-center p-2 bg-muted/30 rounded">
-                                            <span className="text-xs text-muted-foreground block">{t('reports_page.ai_risk_score')}</span>
-                                            <span className="font-bold">{report.risk_score ?? 'N/A'}/100</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </CardContent>
-                        </Card>
-
-                        {/* 2. Financial & Team Stats */}
-                        <div>
-                            <h3 className="text-xl font-bold flex items-center gap-2 mb-4">
-                                <TrendingUp className="w-5 h-5" />
-                                {t('reports_page.financial_analysis_title')}
-                            </h3>
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                                <StatCard 
-                                    icon={BarChart} 
-                                    title={t('reports_page.success_probability')} 
-                                    value={`${report.success_probability ?? 0}%`} 
-                                    description={t('reports_page.success_probability_desc')}
-                                    variant="default"
-                                />
-                                <StatCard 
-                                    icon={AlertTriangle} 
-                                    title={t('reports_page.financial_risk_score')} 
-                                    value={`${report.risk_score ?? 0} / 100`} 
-                                    description={t('reports_page.financial_risk_score_desc')}
-                                    variant={report.risk_score && report.risk_score > 50 ? "negative" : "positive"}
-                                />
-                                <StatCard 
-                                    icon={Users} 
-                                    title={t('reports_page.team_competency')} 
-                                    value={`${report.team_competency_score ?? 0} / 100`} 
-                                    description={t('reports_page.team_competency_desc')}
-                                    variant="neutral"
-                                />
-                                <StatCard 
-                                    icon={TrendingUp} 
-                                    title={t('reports_page.market_sentiment')} 
-                                    value={report.market_sentiment_score ? `${(report.market_sentiment_score * 100).toFixed(0)}%` : 'N/A'} 
-                                    description={t('reports_page.market_sentiment_desc')}
-                                    variant="neutral"
-                                />
-                            </div>
-                        </div>
-                        {/* 3. Detailed Factors (xAI) */}
-                        <div>
-                            <h3 className="text-xl font-bold flex items-center gap-2 mb-4">
-                                <BrainCircuit className="w-5 h-5" />
-                                {t('reports_page.xai_title')}
-                            </h3>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                {/* Strengths */}
-                                <Card className="border-l-4 border-l-green-500">
-                                    <CardHeader className="pb-2">
-                                        <CardTitle className="text-lg text-green-700 flex items-center gap-2">
-                                            <CheckCircle className="w-5 h-5" />
-                                            {t('reports_page.xai_strengths')}
-                                        </CardTitle>
-                                    </CardHeader>
-                                    <CardContent className="space-y-3 pt-2">
-                                        {report.xai_report.strengths.length > 0 ? report.xai_report.strengths.map((item, i) => (
-                                            <div key={i} className="flex items-start gap-2 text-sm bg-green-50/50 p-2 rounded">
-                                                <div className="mt-1 h-1.5 w-1.5 rounded-full bg-green-500 shrink-0" />
-                                                <span className="font-medium text-foreground">
-                                                    {tVar(item.key, item.values)}
-                                                </span>
-                                            </div>
-                                        )) : (
-                                            // ✅ اصلاح شد: استفاده از کلید ترجمه
-                                            <p className="text-muted-foreground text-sm italic">
-                                                {t('reports_page.no_data')}
-                                            </p>
-                                        )}
-                                    </CardContent>
-                                </Card>
-
-                                {/* Weaknesses */}
-                                <Card className="border-l-4 border-l-red-500">
-                                    <CardHeader className="pb-2">
-                                        <CardTitle className="text-lg text-red-700 flex items-center gap-2">
-                                            <XCircle className="w-5 h-5" />
-                                            {t('reports_page.xai_weaknesses')}
-                                        </CardTitle>
-                                    </CardHeader>
-                                    <CardContent className="space-y-3 pt-2">
-                                        {report.xai_report.weaknesses.length > 0 ? report.xai_report.weaknesses.map((item, i) => (
-                                            <div key={i} className="flex items-start gap-2 text-sm bg-red-50/50 p-2 rounded">
-                                                <div className="mt-1 h-1.5 w-1.5 rounded-full bg-red-500 shrink-0" />
-                                                <span className="font-medium text-foreground">
-                                                    {tVar(item.key, item.values)}
-                                                </span>
-                                            </div>
-                                        )) : (
-                                            // ✅ اصلاح شد: استفاده از کلید ترجمه
-                                            <p className="text-muted-foreground text-sm italic">
-                                                {t('reports_page.no_risks_found')}
-                                            </p>
-                                        )}
-                                    </CardContent>
-                                </Card>
-                            </div>
-                        </div>
-                </div>
-            )}
         </div>
     );
 }
@@ -482,7 +445,7 @@ function ReportContent() {
 export default function ReportsPage() {
     return (
         <AppLayout>
-            <Suspense fallback={<div className="flex h-[50vh] items-center justify-center"><DaoLoadingSpinner /></div>}>
+            <Suspense fallback={<div className="flex h-screen items-center justify-center"><DaoLoadingSpinner className="w-12 h-12 text-primary" /></div>}>
                 <ReportContent />
             </Suspense>
         </AppLayout>
