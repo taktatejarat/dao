@@ -14,7 +14,7 @@ export function useDashboardStats() {
     // ۱. خواندن آدرس‌های اصلی
     const { data: addressResults, isLoading: areAddressesLoading } = useReadContracts({
         contracts: [
-            // ✅✅✅ FIX: استفاده از daoRegistryAbi برای تمام فراخوانی‌های getAddress ✅✅✅
+            //  FIX: استفاده از daoRegistryAbi برای تمام فراخوانی‌های getAddress 
             { address: registryAddress!, abi: daoRegistryAbi, functionName: 'getAddress', args: [REGISTRY_KEYS.DAO] },
             { address: registryAddress!, abi: daoRegistryAbi, functionName: 'getAddress', args: [REGISTRY_KEYS.TOKEN] },
             { address: registryAddress!, abi: daoRegistryAbi, functionName: 'getAddress', args: [REGISTRY_KEYS.FINANCE] },
@@ -34,7 +34,7 @@ export function useDashboardStats() {
     const { data: dashboardData, isLoading: areStatsLoading, refetch } = useReadContracts({
         contracts: [
             { address: token, abi: rayanChainTokenAbi, functionName: 'balanceOf', args: [address!] },
-            // ✅✅✅ FIX: اصلاح نام تابع به getStakedAmount ✅✅✅
+            //  FIX: اصلاح نام تابع به getStakedAmount 
             { address: staking, abi: stakingAbi, functionName: 'getStakedAmount', args: [address!] },
             { address: dao, abi: rayanChainDaoAbi, functionName: 'participationScores', args: [address!] },
             { address: dao, abi: rayanChainDaoAbi, functionName: 'nextProposalId' },
