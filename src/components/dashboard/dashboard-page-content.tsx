@@ -1,248 +1,348 @@
+// src/components/dashboard/dashboard-page-content.tsx
+
 "use client";
 
+import { useState, useEffect } from "react";
 import { useWeb3 } from "@/context/Web3Provider";
-import { StatCard } from "@/components/dashboard/stat-card";
-import { ProposalsList } from "@/components/dashboard/proposals-list";
-import { ActivityFeed } from "@/components/dashboard/activity-feed";
-import { InvestmentChart } from "@/components/dashboard/investment-chart";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Wallet, FileText, CheckSquare, Users, Award, Target, KeyRound, Server, Banknote, BrainCircuit, AlertTriangle, ShieldCheck, Activity } from "lucide-react";
 import { useTranslation } from "@/hooks/use-translation";
-import { useAccount, useReadContract } from "wagmi";
 import { formatEther } from "viem";
 import { formatNumber } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
-import { daoRegistryAbi, rayanChainDaoAbi, rayanChainTokenAbi, stakingAbi } from '@/lib/blockchain/generated';
-import { REGISTRY_KEYS } from '@/lib/blockchain/registry-keys';
-import type { Address } from "viem";
-import { useState, useMemo } from "react";
 import { DaoLoadingSpinner } from "@/components/icons/dao-loading-spinner";
-import { AiOracleStatus } from "./ai-oracle-status";
-import { useDashboardStats } from "@/hooks/useDashboardStats";
-import { useUserAnalytics } from '@/hooks/useUserAnalytics';
+import Link from "next/link";
+import { useSignMessage } from 'wagmi';
+import { useRouter } from 'next/navigation';
+import { toast } from "sonner";
+import { LockKeyhole } from "lucide-react";
+
+// Components
+import { StatCard } from "@/components/dashboard/stat-card";
+import { ActivityFeed } from "@/components/dashboard/activity-feed";
+import { InvestmentChart } from "@/components/dashboard/investment-chart";
+import { ProposalsList } from "@/components/dashboard/proposals-list";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"; // ✅ اضافه شدن تب‌ها
+
+// Icons
+import { Wallet, Banknote, Award, Zap, TrendingUp, Layers, FilePlus, Users, Crown, Shield, PieChart, UserCheck } from "lucide-react";
+
+// Specialized Hooks
+import { useInvestorDashboard } from "@/hooks/useInvestorDashboard";
+import { useStartupDashboard } from "@/hooks/useStartupDashboard";
+import { useDelegateDashboard } from "@/hooks/useDelegateDashboard";
+import { useAdminDashboard } from "@/hooks/useAdminDashboard";
 
 export function DashboardPageContent() {
-    const { userRole, address, isHydrated, registryAddress } = useWeb3();
+    const { userRole, isHydrated } = useWeb3();
     const { t, locale } = useTranslation();
-    const { isConnected } = useAccount();
+    
+    // فراخوانی هوک‌ها
+    // نکته: React Query به صورت خودکار درخواست‌های تکراری را کش می‌کند، پس فراخوانی همزمان مشکلی ندارد
+    const investorData = useInvestorDashboard();
+    const startupData = useStartupDashboard();
+    const delegateData = useDelegateDashboard();
+    const adminData = useAdminDashboard();
+    // تشخیص خودکار قابلیت نماینده بودن
+    // اگر کاربر قدرت رای وکالتی (receivedDelegation) داشته باشد، یعنی نماینده هم هست
+    const hasDelegatedPower = delegateData.stats && delegateData.stats.receivedDelegation > 0n;
 
-  // مرحله ۱: خواندن آدرس‌ها
-  // تمام منطق واکشی اکنون در این هوک قرار دارد
-  const { stats, addresses, isLoading } = useDashboardStats();
-  const { totalProposals, totalRaised, recentStatus, isLoading: isAnalyticsLoading } = useUserAnalytics();
-  const formatBigInt = (value?: bigint) => {
-        return value ? formatNumber(formatEther(value), locale) : '0';
-  };
+    const formatVal = (val: bigint) => formatNumber(formatEther(val), locale);
 
-  const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000' as const;
-  const isNonZero = (addr?: Address) => !!addr && addr !== ZERO_ADDRESS;
-  const missingModules = useMemo(() => {
-    const missing: string[] = [];
-    if (!isNonZero(addresses.dao)) missing.push('DAO');
-    if (!isNonZero(addresses.token)) missing.push(t('dashboard.token_contract'));
-    if (!isNonZero(addresses.finance)) missing.push(t('dashboard.treasury'));
-    if (!isNonZero(addresses.staking)) missing.push('Staking');
-    return missing;
-  }, [addresses, t]);
-
-   // تابع کمکی برای ترجمه وضعیت
-    const getStatusLabel = (status: string | null) => {
-        if (!status) return t('dashboard.no_proposals_status');
-        // نگاشت ساده برای وضعیت‌های رایج
-        const map: Record<string, string> = {
-            'submitted': t('proposal_detail.status.pending'),
-            'analyzed': t('proposal_detail.status.validation'),
-            'active': t('proposal_detail.status.active'),
-            'voting': t('proposal_detail.status.active'),
-            'approved': t('proposal_detail.status.succeeded'),
-            'executed': t('proposal_detail.status.executed'),
-            'rejected': t('proposal_detail.status.defeated'),
-        };
-        return status.charAt(0).toUpperCase() + status.slice(1); 
+    // --- 1. INVESTOR VIEW ---
+    const InvestorView = () => {
+        const { stats, isLoading } = investorData;
+        return (
+            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <StatCard title={t('dashboard.wallet_balance')} value={`${stats ? formatVal(stats.walletBalance) : '0'} RYC`} icon={Wallet} description={t('dashboard.available_to_stake')} isLoading={isLoading} />
+                    <StatCard title={t('dashboard.staked_amount')} value={`${stats ? formatVal(stats.stakedAmount) : '0'} RYC`} icon={Layers} description={t('dashboard.earning_rewards')} variant="default" isLoading={isLoading} />
+                    <StatCard title={t('dashboard.claimable_rewards')} value={`${stats ? formatVal(stats.claimableRewards) : '0'} RYC`} icon={TrendingUp} description={t('dashboard.unclaimed_profit')} variant="positive" isLoading={isLoading} />
+                    <StatCard title={t('dashboard.voting_power')} value={stats ? formatNumber(formatEther(stats.votingPower), locale) : '0'} icon={Zap} description={`${t('dashboard.participation_score')}: ${stats?.participationScore.toString()}`} isLoading={isLoading} />
+                </div>
+                <div className="grid gap-6 lg:grid-cols-3">
+                    <div className="lg:col-span-2"><InvestmentChart /></div>
+                    <div><ActivityFeed /></div>
+                </div>
+                <div className="mt-8">
+                    <h2 className="text-xl font-bold mb-4">{t('dashboard.active_opportunities')}</h2>
+                    <ProposalsList limit={3} />
+                </div>
+            </div>
+        );
     };
 
-  // داده‌های کاربر
-  const { data: userBalance, isLoading: l5 } = useReadContract({ address: addresses.token, abi: rayanChainTokenAbi, functionName: 'balanceOf', args: [address!], query: { enabled: isConnected && isHydrated && isNonZero(addresses.token) && !!address } });
-  const { data: userStaked, isLoading: l6 } = useReadContract({ address: addresses.staking, abi: stakingAbi, functionName: 'getStakedAmount', args: [address!], query: { enabled: isConnected && isHydrated && isNonZero(addresses.staking) && !!address } });
-  const { data: userPoPScore, isLoading: l7 } = useReadContract({ address: addresses.dao, abi: rayanChainDaoAbi, functionName: 'participationScores', args: [address!], query: { enabled: isConnected && isHydrated && isNonZero(addresses.dao) && !!address } });
-  
-  // داده‌های کلی پلتفرم
-  const { data: proposalCountResult, isLoading: l8 } = useReadContract({ address: addresses.dao, abi: rayanChainDaoAbi, functionName: 'nextProposalId', query: { enabled: isConnected && isHydrated && isNonZero(addresses.dao) } });
-  const { data: ownerResult, isLoading: l9 } = useReadContract({ address: addresses.dao, abi: rayanChainDaoAbi, functionName: 'owner', query: { enabled: isConnected && isHydrated && isNonZero(addresses.dao) } });
-  const { data: tokenTotalSupplyResult, isLoading: l10 } = useReadContract({ address: addresses.token, abi: rayanChainTokenAbi, functionName: 'totalSupply', query: { enabled: isConnected && isHydrated && isNonZero(addresses.token) } });
-  const { data: treasuryBalanceResult, isLoading: l11 } = useReadContract({ address: addresses.token, abi: rayanChainTokenAbi, functionName: 'balanceOf', args: [addresses.finance!], query: { enabled: isConnected && isHydrated && isNonZero(addresses.token) && isNonZero(addresses.finance) } });
-  const { data: totalStakedResult, isLoading: l12 } = useReadContract({ address: addresses.staking, abi: stakingAbi, functionName: 'totalSupply', query: { enabled: isConnected && isHydrated && isNonZero(addresses.staking) } });
-
- 
-    const MainContent = () => {
-      // وضعیت ۱: منتظر اتصال کیف پول
-      if (!isConnected) {
-          return (
-              <Alert>
-                  <Wallet className="h-4 w-4" />
-                  <AlertTitle>{t('dashboard.connect_to_see_data_title')}</AlertTitle>
-                  <AlertDescription>{t('dashboard.connect_to_see_data')}</AlertDescription>
-              </Alert>
-          );
-      }
-      
-      // وضعیت ۲: قرارداد رجیستری اصلاً مستقر نشده است
-      if (!registryAddress) {
-          return (
-              <Alert variant="destructive">
-                  <AlertTriangle className="h-4 w-4" />
-                  <AlertTitle>{t('dashboard.contract_not_deployed_title')}</AlertTitle>
-                  <AlertDescription>
-                      {t('dashboard.contract_not_deployed_desc')}
-                      <Button asChild size="sm" className="mt-4"><Link href="/setup">{t('setup_page.go_to_setup')}</Link></Button>
-                  </AlertDescription>
-              </Alert>
-          );
-      }
-  
-     // وضعیت ۳: در حال خواندن آدرس‌های داخلی از رجیستری (حل Race Condition)
-     // ✅ FIX: از isLoading اصلی هوک useDashboardStats استفاده می‌کنیم
-        if (isLoading && !stats.userBalance) {
+    // --- 2. STARTUP VIEW ---
+    const StartupView = () => {
+        const { stats, isLoading } = startupData;
+        if (isLoading) return <div className="flex justify-center p-12"><DaoLoadingSpinner /></div>;
+        
+        if (!stats || stats.totalProposals === 0) {
             return (
-                <div className="flex flex-col items-center justify-center min-h-[50vh]">
-                    <DaoLoadingSpinner className="w-12 h-12" />
-                    <p className="mt-4 text-muted-foreground">{t('dashboard.loading_contracts')}</p>
+                <div className="text-center py-16 border-2 border-dashed rounded-xl animate-in zoom-in duration-300">
+                    <FilePlus className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+                    <h2 className="text-2xl font-bold mb-2">{t('dashboard.start_journey')}</h2>
+                    <p className="text-muted-foreground mb-6 max-w-md mx-auto">{t('dashboard.start_journey_desc')}</p>
+                    <Button size="lg" asChild><Link href="/proposals/new">{t('dashboard.create_first_proposal')}</Link></Button>
                 </div>
             );
         }
-
-  
-      // وضعیت ۴: راه‌اندازی ناقص (برخی ماژول‌ها آدرس معتبر ندارند)
-      // ✅ FIX: ما منتظر می‌مانیم تا isLoading تمام شود، سپس missingModules را چک می‌کنیم
-      if (!isLoading && missingModules.length > 0) {
-          return (
-                <Alert variant="destructive">
-                  <AlertTriangle className="h-4 w-4" />
-                  <AlertTitle>{t('dashboard.partial_setup_title')}</AlertTitle>
-                  <AlertDescription>
-                      {t('dashboard.partial_setup_desc')}
-                      <code className="block bg-muted p-2 rounded-md my-2 text-xs">{missingModules.join(', ')}</code>
-                      <Button asChild size="sm" className="mt-4"><Link href="/setup">{t('setup_page.go_to_setup_to_reset')}</Link></Button>
-                  </AlertDescription>
-              </Alert>
-          );
-      }
-  
-      // وضعیت ۵: همه چیز عالی است! داشبورد اصلی را نمایش بده.
-      return renderDashboardByRole();
+        
+        return (
+            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                     <StatCard title={t('dashboard.total_projects')} value={stats.totalProposals.toString()} icon={Layers} description={t('dashboard.all_time')} isLoading={isLoading} />
+                     <StatCard title={t('dashboard.active_projects')} value={stats.activeProposals.toString()} icon={Zap} description={t('dashboard.currently_voting_funding')} variant="neutral" isLoading={isLoading} />
+                     <StatCard title={t('dashboard.successful_funded')} value={stats.successfulProjects.toString()} icon={Award} description={t('dashboard.fully_funded')} variant="positive" isLoading={isLoading} />
+                </div>
+                <div className="mt-8">
+                     <div className="flex justify-between items-center mb-4">
+                        <h2 className="text-xl font-bold">{t('dashboard.my_proposals')}</h2>
+                        <Button variant="outline" asChild><Link href="/proposals/new">{t('dashboard.new_proposal')}</Link></Button>
+                     </div>
+                     <ProposalsList limit={5} /> 
+                </div>
+            </div>
+        );
     };
-  // --- Rendering the dashboards based on role ---
-  const renderInvestorDashboard = () => (
-    <>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard isLoading={isLoading} title={t('dashboard.your_balance')} value={`${formatBigInt(userBalance)} RYC`} icon={Wallet} description={t('dashboard.total_balance_desc')} />
-        <StatCard isLoading={isLoading} title={t('staking_page.staked_balance')} value={`${formatBigInt(userStaked)} RYC`} icon={Banknote} description={t('staking_page.staked_balance_desc')} />
-        <StatCard isLoading={isLoading} title={t('activities.participation_score')} value={userPoPScore?.toString() ?? '0'} icon={Award} description={t('activities.participation_score_desc')} />
-        <StatCard isLoading={isLoading} title={t('dashboard.active_proposals_count')} value={proposalCountResult ? (Number(proposalCountResult) > 0 ? Number(proposalCountResult)-1 : 0).toString() : '0'} icon={FileText} description={t('dashboard.active_proposals_cta')} />
-      </div>
-      <div className="grid gap-8 lg:grid-cols-5">
-        <div className="lg:col-span-3"><InvestmentChart /></div>
-        <div className="lg:col-span-2"><ActivityFeed /></div>
-      </div>
-       <ProposalsList />
-    </>
-  );
 
-  // FIX: اصلاح بخش داشبورد استارتاپ
-    const renderStartupDashboard = () => (
-        <>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            <StatCard 
-                title={t('dashboard.your_proposals')} 
-                value={isAnalyticsLoading ? "..." : totalProposals.toString()} 
-                icon={FileText} 
-                description={t('dashboard.your_proposals_desc')} 
-                isLoading={isAnalyticsLoading}
-            />
-            <StatCard 
-                title={t('dashboard.capital_raised')} 
-                value={isAnalyticsLoading ? "..." : `${formatNumber(totalRaised)} RYC`} 
-                icon={Target} 
-                description={t('dashboard.capital_raised_desc')} 
-                variant="positive" 
-                isLoading={isAnalyticsLoading}
-            />
-            <StatCard 
-                title={t('dashboard.latest_proposal_status')} 
-                value={isAnalyticsLoading ? "..." : getStatusLabel(recentStatus)} 
-                icon={Activity} 
-                description={recentStatus ? t('dashboard.latest_update') : t('dashboard.no_proposals_status_desc')} 
-                isLoading={isAnalyticsLoading}
-            />
-          </div>
-          
-          <div className="p-6 border rounded-lg bg-card text-card-foreground mt-6"> {/* مارجین اضافه شد */}
-            <h2 className="text-2xl font-headline text-gradient mb-4">{t('dashboard.new_project_prompt_title')}</h2>
-            <p className="text-muted-foreground mb-4">{t('dashboard.new_project_prompt_desc')}</p>
-            <Button asChild><Link href="/proposals/new">{t('dashboard.new_project_prompt_cta')}</Link></Button>
-          </div>
-          
-          <div className="mt-8">
-             <ProposalsList limit={5} /> {/* نمایش لیست محدود */}
-          </div>
-        </>
+    // --- 3. DELEGATE VIEW ---
+    const DelegateView = () => {
+        const { stats, isLoading } = delegateData;
+        return (
+            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <StatCard title={t('dashboard.total_governance_power')} value={stats ? formatVal(stats.totalVotingPower) : '0'} icon={Crown} description={t('dashboard.combined_power')} variant="default" isLoading={isLoading} />
+                    <StatCard title={t('dashboard.delegated_to_me')} value={stats ? formatVal(stats.receivedDelegation) : '0'} icon={Users} description={`${t('dashboard.trust_percentage')}: ${stats?.delegationPercentage}%`} variant="neutral" isLoading={isLoading} />
+                    <StatCard title={t('dashboard.my_skin_in_game')} value={`${stats ? formatVal(stats.selfStaked) : '0'} RYC`} icon={Shield} description={t('dashboard.personal_stake')} isLoading={isLoading} />
+                    <StatCard title={t('dashboard.reputation_score')} value={stats?.participationScore.toString() ?? '0'} icon={Award} description={t('dashboard.activity_based_rank')} isLoading={isLoading} />
+                </div>
+                <div className="grid gap-6 lg:grid-cols-3">
+                    <div className="lg:col-span-2">
+                        <div className="flex items-center justify-between mb-4">
+                            <h2 className="text-xl font-bold">{t('dashboard.proposals_awaiting_vote')}</h2>
+                            <Button variant="ghost" size="sm" asChild><Link href="/proposals">{t('dashboard.view_all_proposals')}</Link></Button>
+                        </div>
+                        <ProposalsList limit={5} />
+                    </div>
+                    <div><ActivityFeed /></div>
+                </div>
+            </div>
+        );
+    };
+
+    // --- 4. ADMIN VIEW (With Biometric-like Security) ---
+    const AdminView = () => {
+        const { stats, isLoading } = adminData;
+        const router = useRouter();
+        const { signMessageAsync } = useSignMessage();
+        const [isVerifying, setIsVerifying] = useState(false);
+        // دریافت هش از env
+        const secureHash = process.env.NEXT_PUBLIC_ADMIN_HASH;
+
+        const handleSecureAccess = async () => {
+            if (!secureHash) {
+                toast.error(t('dashboard.security_config_error'));
+                return;
+            }
+
+            try {
+                setIsVerifying(true);
+                
+                // ۱. پیام امنیتی برای امضا (شامل زمان برای جلوگیری از استفاده مجدد)
+                const timestamp = new Date().toLocaleString();
+                const message = `${t('dashboard.security_access_request')}\n\nTime: ${timestamp}\nAdmin: ${stats?.owner}`;
+
+                // ۲. درخواست امضا از کیف پول
+                await signMessageAsync({ message });
+
+                // ۳. اگر امضا موفق بود (ارور نداد)، هدایت کن
+                toast.success(t('dashboard.access_granted'));
+                router.push(`/admin/${secureHash}/`);
+
+            } catch (error) {
+                // اگر کاربر در کیف پول "Reject" را زد یا مشکلی پیش آمد
+                console.error("Signature denied:", error);
+                toast.error(t('dashboard.access_denied'));
+            } finally {
+                setIsVerifying(false);
+            }
+        };
+
+        return (
+            <div className="space-y-6">
+                {/* هشدارهای سیستمی */}
+                {stats?.isPaused && (
+                    <Alert variant="destructive" className="animate-pulse">
+                        <Shield className="h-4 w-4" />
+                        <AlertTitle>{t('dashboard.system_paused_title')}</AlertTitle>
+                        <AlertDescription>{t('dashboard.system_paused_desc')}</AlertDescription>
+                    </Alert>
+                )}
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <StatCard 
+                        title={t('dashboard.treasury_balance')} 
+                        value={`${stats ? formatVal(stats.treasuryBalance) : '0'} RYC`} 
+                        icon={Banknote} 
+                        description={t('dashboard.available_funds')}
+                        variant="default" 
+                        isLoading={isLoading}
+                    />
+                    <StatCard 
+                        title={t('dashboard.total_proposals_title')} 
+                        value={stats?.totalProposals.toString() ?? '0'} 
+                        icon={Layers} 
+                        description={t('dashboard.all_time_stats')}
+                        isLoading={isLoading}
+                    />
+                    <StatCard 
+                        title={t('dashboard.contract_owner')} 
+                        value={stats ? `${stats.owner.substring(0, 6)}...` : '...'} 
+                        icon={Crown} 
+                        description={t('dashboard.current_admin')}
+                        variant="neutral"
+                        isLoading={isLoading}
+                    />
+                    <StatCard 
+                        title={t('dashboard.system_status')} 
+                        value={stats?.isPaused ? t('dashboard.status_paused') : t('dashboard.status_active')} 
+                        icon={Shield} 
+                        description={t('dashboard.operational_status')}
+                        variant={stats?.isPaused ? "negative" : "positive"}
+                        isLoading={isLoading}
+                    />
+                </div>
+
+                {/* بخش دسترسی سریع با لایه امنیتی اضافی */}
+                <div className="grid gap-4 md:grid-cols-2">
+                    <div className="p-6 border rounded-lg bg-muted/20 hover:bg-muted/30 transition-colors">
+                        <h3 className="text-lg font-bold mb-2 flex items-center gap-2">
+                            <LockKeyhole className="h-5 w-5 text-primary" />
+                            {t('dashboard.security_settings')}
+                        </h3>
+                        <p className="text-sm text-muted-foreground mb-4">{t('dashboard.security_settings_desc')}</p>
+                        
+                        {/* دکمه با عملکرد امنیتی */}
+                        <Button 
+                            variant="default" 
+                            onClick={handleSecureAccess} 
+                            disabled={isVerifying || isLoading}
+                            className="w-full sm:w-auto"
+                        >
+                            {isVerifying ? (
+                                <>
+                                    <DaoLoadingSpinner className="mr-2 h-4 w-4" />
+                                    {t('dashboard.verifying_identity')}
+                                </>
+                            ) : (
+                                t('dashboard.manage_security')
+                            )}
+                        </Button>
+                    </div>
+
+                    <div className="p-6 border rounded-lg bg-muted/20">
+                        <h3 className="text-lg font-bold mb-2 flex items-center gap-2">
+                            <Users className="h-5 w-5 text-primary" />
+                            {t('dashboard.user_management')}
+                        </h3>
+                        <p className="text-sm text-muted-foreground mb-4">{t('dashboard.user_management_desc')}</p>
+                        <Button variant="outline" asChild>
+                            <Link href="/admin/users">{t('dashboard.manage_users')}</Link>
+                        </Button>
+                    </div>
+                </div>
+
+                <div className="grid gap-6 lg:grid-cols-3">
+                    <div className="lg:col-span-2"><InvestmentChart /></div>
+                    <div><ActivityFeed /></div>
+                </div>
+            </div>
+        );
+    };
+
+    // --- Main Render Logic (Hybrid Dashboard) ---
+    if (!isHydrated) return <div className="flex justify-center p-8"><DaoLoadingSpinner /></div>;
+
+    const renderDashboard = () => {
+        // ۱. منطق هوشمند برای سرمایه‌گذاران و رای‌دهندگان
+        // اگر کاربر نقش Investor یا Voter دارد، بررسی می‌کنیم آیا قدرتی به او تفویض شده؟
+        if (userRole === 'investor' || userRole === 'voter') {
+            if (hasDelegatedPower) {
+                // ✅ اگر قدرت تفویضی داشت، تب‌ها را نشان بده
+                return (
+                    <Tabs defaultValue="investor" className="w-full">
+                        <div className="flex items-center justify-between mb-6">
+                            <TabsList>
+                                <TabsTrigger value="investor">
+                                    <PieChart className="w-4 h-4 me-2" />
+                                    {t('dashboard.tab_investor')}
+                                </TabsTrigger>
+                                <TabsTrigger value="delegate">
+                                    <UserCheck className="w-4 h-4 me-2" />
+                                    {t('dashboard.tab_delegate')}
+                                </TabsTrigger>
+                            </TabsList>
+                        </div>
+                        
+                        <TabsContent value="investor">
+                            <InvestorView />
+                        </TabsContent>
+                        <TabsContent value="delegate">
+                            <DelegateView />
+                        </TabsContent>
+                    </Tabs>
+                );
+            }
+            
+            // ✅ اگر قدرت تفویضی نداشت، فقط نمای ساده سرمایه‌گذار را برگردان (بدون تب)
+            // در اینجا اگر نقش voter بود و استیک نداشت، می‌توانیم DelegateView خالی نشان دهیم
+            if (userRole === 'voter') return <DelegateView />;
+            return <InvestorView />;
+        }
+
+        // ۲. منطق ساده برای سایر نقش‌ها
+        switch (userRole) {
+            case 'startup': return <StartupView />;
+            case 'delegate': return <DelegateView />; // اگر کسی فقط نقش Delegate داشت
+            case 'admin': return <AdminView />;
+            default: return <InvestorView />;
+        }
+    };
+
+    return (
+        <div className="space-y-8">
+            <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <h1 className="text-3xl font-bold font-headline text-gradient">{t('dashboard.title')}</h1>
+                    <p className="text-muted-foreground">
+                        {userRole === 'investor' && !hasDelegatedPower && t('dashboard.investor_welcome')}
+                        {(userRole === 'investor' || userRole === 'voter') && hasDelegatedPower && t('dashboard.hybrid_welcome')}
+                        {userRole === 'startup' && t('dashboard.startup_welcome')}
+                        {userRole === 'delegate' && t('dashboard.delegate_welcome')}
+                        {userRole === 'admin' && t('dashboard.admin_welcome')}
+                        {!userRole && t('dashboard.guest_welcome')}
+                    </p>
+                </div>
+                
+                {/* دکمه‌های میانبر هوشمند بر اساس وضعیت */}
+                <div className="flex gap-2 w-full md:w-auto">
+                     {hasDelegatedPower && (
+                         <Button className="flex-1 md:flex-none" asChild>
+                            <Link href="/proposals">{t('dashboard.cast_votes')}</Link>
+                         </Button>
+                     )}
+                     <Button variant="outline" className="flex-1 md:flex-none" asChild><Link href="/staking">{t('menu.staking')}</Link></Button>
+                </div>
+            </header>
+
+            {!userRole ? (
+                <Alert>
+                    <AlertTitle>{t('dashboard.connect_wallet_title')}</AlertTitle>
+                    <AlertDescription>{t('dashboard.connect_wallet_desc')}</AlertDescription>
+                </Alert>
+            ) : (
+                renderDashboard()
+            )}
+        </div>
     );
-
-
-  const renderAdminDashboard = () => (
-    <>
-      <h2 className="text-2xl font-semibold mb-4">{t('dashboard.admin_overview_title')}</h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <AiOracleStatus />
-        <StatCard isLoading={isLoading} title={t('dashboard.contract_owner')} value={ownerResult ? `${(ownerResult as string).substring(0, 6)}...` : '...'} icon={KeyRound} description={t('dashboard.contract_owner_desc')} />
-        <StatCard isLoading={isLoading} title={t('dashboard.total_proposals_title')} value={proposalCountResult ? (Number(proposalCountResult) > 0 ? Number(proposalCountResult)-1 : 0).toString() : '0'} icon={FileText} description={t('dashboard.total_proposals_desc')} />
-        <StatCard isLoading={isLoading} title={t('dashboard.treasury_balance')} value={`${formatBigInt(treasuryBalanceResult)} RYC`} icon={ShieldCheck} description={t('dashboard.treasury_balance_desc')} />
-        <StatCard isLoading={isLoading} title={t('dashboard.total_staked')} value={`${formatBigInt(totalStakedResult)} RYC`} icon={Users} description={t('dashboard.total_staked_desc')} />
-      </div>
-      <div className="grid gap-8 lg:grid-cols-5 mt-8">
-        <div className="lg:col-span-3"><InvestmentChart /></div>
-        <div className="lg:col-span-2"><ActivityFeed /></div>
-      </div>
-      <ProposalsList />
-    </>
-  );
-  
-  const renderVoterDashboard = () => (
-     <>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard isLoading={isLoading} title={t('dashboard.your_balance')} value={`${formatBigInt(userBalance)} RYC`} icon={Wallet} description={t('dashboard.total_balance_desc')} />
-        <StatCard isLoading={isLoading} title={t('dashboard.staked_balance')} value={`${formatBigInt(userStaked)} RYC`} icon={Banknote} description={t('dashboard.staked_balance_desc')} />
-        <StatCard isLoading={isLoading} title={t('activities.participation_score')} value={userPoPScore?.toString() ?? '0'} icon={BrainCircuit} description={t('activities.participation_score_desc')} />
-        <StatCard isLoading={isLoading} title={t('dashboard.active_proposals_count')} value={proposalCountResult ? (Number(proposalCountResult) > 0 ? Number(proposalCountResult)-1 : 0).toString() : '0'} icon={CheckSquare} description={t('dashboard.active_proposals_cta')} />
-      </div>
-       <ActivityFeed />
-       <ProposalsList />
-    </>
-  );
-
-  const renderDashboardByRole = () => {
-    switch (userRole) {
-      case 'admin': return renderAdminDashboard();
-      case 'investor': return renderInvestorDashboard();
-      case 'startup': return renderStartupDashboard();
-      case 'voter': return renderVoterDashboard();
-      default: return renderVoterDashboard();
-    }
-  };
-
-
-  return (
-    <div className="space-y-8">
-      <header className="mb-6">
-        <h1 className="text-3xl font-bold font-headline text-gradient">{t('dashboard.title')}</h1>
-        <p className="text-muted-foreground">{t('dashboard.welcome_message')}</p>
-      </header>
-
-      {/* فقط کامپوننت MainContent را رندر می‌کنیم که تمام منطق را در خود دارد */}
-      {isHydrated ? <MainContent /> : (
-          <div className="flex justify-center p-8"><DaoLoadingSpinner /></div>
-      )}
-    </div>
-  );
 }

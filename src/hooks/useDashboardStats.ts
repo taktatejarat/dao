@@ -1,74 +1,55 @@
-// src/hooks/useDashboardStats.ts - STABLE & FINAL VERSION
+// src/hooks/useDashboardStats.ts - FINAL LITE VERSION (Global Protocol Stats)
 
 import { useMemo } from 'react';
 import { useAccount, useReadContracts } from 'wagmi';
 import { useWeb3 } from '@/context/Web3Provider';
-import { daoRegistryAbi, rayanChainDaoAbi, rayanChainTokenAbi, stakingAbi } from '@/lib/blockchain/generated';
+import { daoRegistryAbi, rayanChainTokenAbi, stakingAbi, rayanChainDaoAbi } from '@/lib/blockchain/generated';
 import { REGISTRY_KEYS } from '@/lib/blockchain/registry-keys';
 import type { Address } from "viem";
 
 export function useDashboardStats() {
-    const { address, isConnected } = useAccount();
-    const { registryAddress, isHydrated } = useWeb3();
+    const { isConnected } = useAccount();
+    const { registryAddress, isHydrated, userRole } = useWeb3();
 
-    // ۱. خواندن آدرس‌های اصلی
-    const { data: addressResults, isLoading: areAddressesLoading } = useReadContracts({
+    // ۱. فقط آدرس‌های حیاتی را می‌خوانیم
+    const { data: addressesData, isLoading: isAddrLoading } = useReadContracts({
         contracts: [
-            //  FIX: استفاده از daoRegistryAbi برای تمام فراخوانی‌های getAddress 
-            { address: registryAddress!, abi: daoRegistryAbi, functionName: 'getAddress', args: [REGISTRY_KEYS.DAO] },
-            { address: registryAddress!, abi: daoRegistryAbi, functionName: 'getAddress', args: [REGISTRY_KEYS.TOKEN] },
-            { address: registryAddress!, abi: daoRegistryAbi, functionName: 'getAddress', args: [REGISTRY_KEYS.FINANCE] },
-            { address: registryAddress!, abi: daoRegistryAbi, functionName: 'getAddress', args: [REGISTRY_KEYS.STAKING] },
+            { address: registryAddress, abi: daoRegistryAbi, functionName: 'getAddress', args: [REGISTRY_KEYS.DAO] },
+            { address: registryAddress, abi: daoRegistryAbi, functionName: 'getAddress', args: [REGISTRY_KEYS.TOKEN] },
+            { address: registryAddress, abi: daoRegistryAbi, functionName: 'getAddress', args: [REGISTRY_KEYS.STAKING] },
+            { address: registryAddress, abi: daoRegistryAbi, functionName: 'getAddress', args: [REGISTRY_KEYS.FINANCE] },
         ],
-        query: { enabled: !!registryAddress && isHydrated }
+        query: { enabled: !!registryAddress && isHydrated, staleTime: Infinity } // آدرس‌ها به ندرت عوض می‌شوند
     });
-    
-    const { dao, token, finance, staking } = useMemo(() => ({
-        dao: addressResults?.[0]?.result as Address | undefined,
-        token: addressResults?.[1]?.result as Address | undefined,
-        finance: addressResults?.[2]?.result as Address | undefined,
-        staking: addressResults?.[3]?.result as Address | undefined,
-    }), [addressResults]);
 
-    // ۲. خواندن تمام آمارهای داشبورد
-    const { data: dashboardData, isLoading: areStatsLoading, refetch } = useReadContracts({
+    const addresses = useMemo(() => ({
+        dao: addressesData?.[0]?.result as Address | undefined,
+        token: addressesData?.[1]?.result as Address | undefined,
+        staking: addressesData?.[2]?.result as Address | undefined,
+        finance: addressesData?.[3]?.result as Address | undefined,
+    }), [addressesData]);
+
+    // ۲. خواندن آمار کلی پلتفرم (فقط چیزهایی که برای هدر یا فوتر داشبورد لازم است)
+    const { data: globalData, isLoading: isGlobalLoading } = useReadContracts({
         contracts: [
-            { address: token, abi: rayanChainTokenAbi, functionName: 'balanceOf', args: [address!] },
-            //  FIX: اصلاح نام تابع به getStakedAmount 
-            { address: staking, abi: stakingAbi, functionName: 'getStakedAmount', args: [address!] },
-            { address: dao, abi: rayanChainDaoAbi, functionName: 'participationScores', args: [address!] },
-            { address: dao, abi: rayanChainDaoAbi, functionName: 'nextProposalId' },
-            { address: token, abi: rayanChainTokenAbi, functionName: 'balanceOf', args: [finance!] },
-            { address: staking, abi: stakingAbi, functionName: 'totalSupply' },
+            { address: addresses.staking, abi: stakingAbi, functionName: 'totalVotingPower' },
+            { address: addresses.token, abi: rayanChainTokenAbi, functionName: 'totalSupply' },
         ],
         query: { 
-            enabled: isConnected && !!dao && !!token && !!finance && !!staking,
-            refetchInterval: 30000,
+            enabled: isConnected && !!addresses.staking && !!addresses.token,
+            refetchInterval: 60000 // هر ۱ دقیقه (نیازی به آپدیت لحظه‌ای نیست)
         }
     });
 
-    // ۳. پارس کردن نتایج
-    const stats = useMemo(() => {
-        if (!dashboardData) return {};
-        const [
-            userBalance, userStaked, userPoPScore,
-            proposalCountResult, treasuryBalanceResult, totalStakedResult
-        ] = dashboardData.map(d => d.result);
-
-        return {
-            userBalance: userBalance as bigint | undefined,
-            userStaked: userStaked as bigint | undefined,
-            userPoPScore: userPoPScore as bigint | undefined,
-            proposalCount: proposalCountResult ? (Number(proposalCountResult as bigint) > 0 ? Number(proposalCountResult as bigint) - 1 : 0) : 0,
-            treasuryBalance: treasuryBalanceResult as bigint | undefined,
-            totalStaked: totalStakedResult as bigint | undefined,
-        };
-    }, [dashboardData]);
+    const globalStats = useMemo(() => ({
+        totalVotingPower: globalData?.[0]?.result as bigint | undefined,
+        totalSupply: globalData?.[1]?.result as bigint | undefined,
+    }), [globalData]);
 
     return {
-        stats,
-        addresses: { dao, token, finance, staking },
-        isLoading: areAddressesLoading || (isConnected && areStatsLoading),
-        refetchStats: refetch
+        addresses,
+        globalStats,
+        userRole,
+        isLoading: isAddrLoading || (isConnected && isGlobalLoading)
     };
 }

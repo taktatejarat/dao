@@ -1,4 +1,4 @@
-// src/app/proposals/[id]/page.tsx - STRICTLY ALIGNED WITH CONTRACTS
+// src/app/proposals/[id]/page.tsx - FINAL CORRECTED VERSION
 
 "use client";
 
@@ -21,15 +21,19 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { BrainCircuit, AlertTriangle, Banknote, 
-    Calendar, Check, Clock, Info, ShieldCheck, User, 
+import { 
+    BrainCircuit, AlertTriangle, Banknote, 
+    Calendar, Check, Clock, ShieldCheck, User, 
     Users, X, PlayCircle, CheckCircle, LineChart, 
-    Scale, Lock, XCircle } from 'lucide-react';
+    Scale, Lock, XCircle, TrendingUp, Wallet,
+    Info,
+    Hash
+} from 'lucide-react';
 import { formatNumber, formatLocaleDate, formatAddress } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useReadContract, useWriteContract } from 'wagmi';
-import { rayanChainDaoAbi, rayanChainTokenAbi } from '@/lib/blockchain/generated'; // stakingAbi حذف شد چون دستی استفاده می‌کنیم
+import { rayanChainDaoAbi, rayanChainTokenAbi } from '@/lib/blockchain/generated';
 import { DaoLoadingSpinner } from '@/components/icons/dao-loading-spinner';
 import { useProposalVote } from '@/hooks/useProposalVote'; 
 import { useProposalExecute } from '@/hooks/useProposalExecute'; 
@@ -41,8 +45,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Progress } from "@/components/ui/progress"; 
 import { Input } from "@/components/ui/input"; 
 import { toast } from 'sonner';
+import { StatCard } from '@/components/dashboard/stat-card'; // ✅ کامپوننت جدید
 
-// اینترفیس دقیق داده‌های خوانده شده از قرارداد
+// تعریف دقیق اینترفیس داده‌های بلاکچین
 interface OnChainProposal { 
     id: bigint; 
     proposer: Address; 
@@ -57,16 +62,7 @@ interface OnChainProposal {
     fundingDeadline: bigint;
 }
 
-const InfoCard = ({ icon: Icon, title, value }: { icon: React.ElementType, title: string, value: string | number }) => (
-    <div className="flex items-center gap-4 p-4 bg-muted/50 rounded-lg">
-        <Icon className="w-6 h-6 text-muted-foreground" />
-        <div>
-            <p className="text-sm text-muted-foreground">{title}</p>
-            <p className="font-semibold">{value}</p>
-        </div>
-    </div>
-);
-
+// تابع کمکی برای وضعیت‌ها
 const getStatusInfo = (state: number, t: (key: string) => string) => {
     switch (state) {
         case 0: return { text: t('proposal_detail.status.pending'), color: 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20', icon: Clock };
@@ -77,7 +73,6 @@ const getStatusInfo = (state: number, t: (key: string) => string) => {
         case 5: return { text: t('proposal_detail.status.executed'), color: 'bg-emerald-600/10 text-emerald-600 border-emerald-600/20', icon: ShieldCheck };
         case 6: return { text: t('proposal_detail.status.expired'), color: 'bg-orange-500/10 text-orange-500 border-orange-500/20', icon: AlertTriangle };
         case 7: return { text: t('proposal_detail.status.canceled'), color: 'bg-gray-500/10 text-gray-500 border-gray-500/20', icon: X };
-        // وضعیت‌های جدید Investment DAO
         case 8: return { text: "Funding", color: 'bg-cyan-500/10 text-cyan-500 border-cyan-500/20', icon: Banknote };
         case 9: return { text: "Funded", color: 'bg-teal-500/10 text-teal-500 border-teal-500/20', icon: CheckCircle };
         case 10: return { text: "Funding Failed", color: 'bg-rose-500/10 text-rose-500 border-rose-500/20', icon: AlertTriangle };
@@ -85,6 +80,7 @@ const getStatusInfo = (state: number, t: (key: string) => string) => {
     }
 };
 
+// ثابت‌های وضعیت
 const PROPOSAL_STATE_VOTING = 2;
 const PROPOSAL_STATE_APPROVED = 3;
 const PROPOSAL_STATE_FUNDING = 8;
@@ -108,7 +104,7 @@ export default function ProposalDetailPage() {
     const [isReleaseDialogOpen, setIsReleaseDialogOpen] = useState(false);
     const [investAmount, setInvestAmount] = useState("");
 
-    // 1. Fetch Off-chain Data
+    // 1. دریافت داده‌های آف-چین (MongoDB)
     useEffect(() => {
         const fetchAllData = async () => {
             if (!proposalIdParam) { setIsLoading(false); return; }
@@ -130,7 +126,7 @@ export default function ProposalDetailPage() {
         try { return BigInt(raw.toString()); } catch { return null; }
     }, [offChainData]);
 
-    // 2. Fetch On-chain Data (DAO)
+    // 2. دریافت داده‌های آن-چین (Smart Contract)
     const { data: onChainResult, isLoading: isOnChainLoading, error: onChainError } = useReadContract({
         address: daoAddress,
         abi: rayanChainDaoAbi,
@@ -139,7 +135,7 @@ export default function ProposalDetailPage() {
         query: { enabled: isWeb3Hydrated && !!daoAddress && !!onChainProposalId },
     });
 
-    // 3. Fetch User Voting Power
+    // 3. دریافت قدرت رای کاربر
     const { data: userVotingPower } = useReadContract({
         address: stakingAddress, 
         abi: parseAbi(['function votingPower(address account) view returns (uint256)']),
@@ -148,7 +144,7 @@ export default function ProposalDetailPage() {
         query: { enabled: !!address && !!stakingAddress }
     });
 
-    // 4. Fetch Token Supply (for percentage calc)
+    // 4. دریافت کل عرضه توکن (برای محاسبه درصد)
     const { data: tokenTotalSupply } = useReadContract({
         address: tokenAddress,
         abi: rayanChainTokenAbi,
@@ -156,17 +152,10 @@ export default function ProposalDetailPage() {
         query: { enabled: !!tokenAddress }
     });
 
-    // Parsed On-chain Data (Strict Index Mapping)
+    // پارس کردن داده‌های آن-چین
     const onChainData = useMemo((): OnChainProposal | null => {
         if (!onChainResult || !Array.isArray(onChainResult)) return null;
         const result = onChainResult as any[];
-        
-        // IMPORTANT: Solidity Getter skips arrays (milestones).
-        // Mapping based on 'struct Proposal' in RayanChainDAO.sol:
-        // 0:id, 1:pType, 2:proposer, 3:hash, 4:recipient, 5:amount, 6:tokenType, 
-        // 7:creationTime, 8:votingDeadline, 9:forVotes, 10:againstVotes, 11:state, 12:executed
-        // -- milestones skipped --
-        // 13:currentMilestoneIndex, 14:aiRiskScore, 15:threshold, 16:roleToGrant, 17:totalRaised, 18:softCap, 19:fundingDeadline
         
         return {
             id: result[0],
@@ -177,22 +166,37 @@ export default function ProposalDetailPage() {
             againstVotes: result[10],
             state: Number(result[11]), 
             executed: result[12],
-            aiRiskScore: result[14], // Index 14 confirmed
-            totalRaised: result[17] || 0n, // Index 17 (totalRaised)
-            fundingDeadline: result[19] || 0n // Index 19 (fundingDeadline)
+            aiRiskScore: result[14], 
+            totalRaised: result[17] || 0n, 
+            fundingDeadline: result[19] || 0n 
         };
     }, [onChainResult]);
 
-    // --- Actions ---
+    // ✅✅✅ FIX: استخراج دقیق و ایمن داده‌های هوش مصنوعی از JSON ✅✅✅
+    const aiMetrics = useMemo(() => {
+        if (!offChainData?.aiAnalysis) return null;
+        
+        // تلاش برای پیدا کردن داده در ساختارهای مختلف
+        const financial = offChainData.aiAnalysis.financialAnalysis || {};
+        
+        // گاهی اوقات داده‌ها مستقیم هستند، گاهی داخل financialAnalysis
+        const marketScoreRaw = financial.market_sentiment_score ?? offChainData.aiAnalysis.market_sentiment ?? 0;
+        const teamScoreRaw = financial.team_competency_score ?? offChainData.aiAnalysis.team_score ?? 0;
 
-    // Invest Action
+        return {
+            // تبدیل 0.85 به 85%
+            marketScore: typeof marketScoreRaw === 'number' ? `${(marketScoreRaw * 100).toFixed(0)}%` : 'N/A',
+            teamScore: typeof teamScoreRaw === 'number' ? `${(teamScoreRaw * 100).toFixed(0)}%` : 'N/A',
+        };
+    }, [offChainData]);
+
+    // --- Actions ---
     const { writeContractAsync: investAsync } = useWriteContract();
     
     const handleInvest = async () => {
         if (!daoAddress || !onChainProposalId) return;
         try {
             const toastId = toast.loading("Processing investment...");
-            // Manual ABI for 'invest' function in DAO
             await investAsync({
                 address: daoAddress,
                 abi: parseAbi(['function invest(uint256 _proposalId, uint256 _amount) external']),
@@ -207,9 +211,7 @@ export default function ProposalDetailPage() {
         }
     };
 
-    // Refund Action
     const { writeContractAsync: refundAsync } = useWriteContract();
-    
     const handleRefund = async () => {
         if (!daoAddress || !onChainProposalId) return;
         try {
@@ -227,15 +229,13 @@ export default function ProposalDetailPage() {
         }
     };
 
-    // Milestone Release Hook
+    // Milestone Logic
     const { requestRelease, isreleasing } = useMilestoneRelease({
         daoAddress,
         originalProposalId: onChainProposalId || 0n
     });
 
-    // Logic Checks
-    const isProjectOwner = address && onChainData && 
-        (address.toLowerCase() === onChainData.proposer.toLowerCase());
+    const isProjectOwner = address && onChainData && (address.toLowerCase() === onChainData.proposer.toLowerCase());
 
     const { handleVote: submitVote, isVotingPending, hasVoted } = useProposalVote({
         daoAddress,
@@ -282,121 +282,225 @@ export default function ProposalDetailPage() {
 
     const { text: statusText, color: statusColor, icon: StatusIcon } = getStatusInfo(onChainData?.state ?? -1, t);
 
-   return (
+  return (
         <AppLayout>
-            <header className="mb-6 flex flex-wrap items-center justify-between gap-4">
-                <div>
-                    <h1 className="text-3xl font-bold font-headline text-gradient">
-                        {offChainData?.projectName ?? (onChainData ? `${t('proposal_detail.proposal')} #${onChainData.id}` : t('common.loading'))}
-                    </h1>
-                    {offChainData?.tagline && <p className="text-muted-foreground mt-1">{offChainData.tagline}</p>}
+            {/*  RE-DESIGNED HEADER  */}
+            <header className="mb-10 bg-card border rounded-2xl p-6 shadow-sm relative overflow-hidden">
+                {/* Background Decoration */}
+                <div className="absolute top-0 right-0 p-10 opacity-[0.03] pointer-events-none">
+                    <BrainCircuit className="w-64 h-64" />
                 </div>
-                <div className="flex items-center gap-4">
-                    {offChainData?._id && (<Link href={`/reports?id=${offChainData._id}`} passHref><Button variant="outline"><BrainCircuit className="w-4 h-4 mr-2" />{t('proposal_detail.view_ai_report')}</Button></Link>)}
-                    {onChainData && (<Badge variant="outline" className={`${statusColor} text-sm px-3 py-1.5 flex gap-2`}><StatusIcon className="w-4 h-4" /><span>{statusText}</span></Badge>)}
+
+                <div className="flex flex-col gap-6 relative z-10">
+                    {/* Top Row: ID & Status */}
+                    <div className="flex flex-wrap justify-between items-center gap-4">
+                        <div className="flex items-center gap-3">
+                            <Link href="/proposals">
+                                <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
+                                    ← {t('dashboard.view_all')}
+                                </Button>
+                            </Link>
+                            {/* Proposal ID (Improved Visibility) */}
+                            <Badge variant="secondary" className="px-3 py-1.5 text-sm font-mono flex items-center gap-1.5 bg-muted/80">
+                                <Hash className="w-3.5 h-3.5 text-muted-foreground" />
+                                <span className="font-semibold text-foreground">
+                                    {onChainData ? onChainData.id.toString() : "..."}
+                                </span>
+                            </Badge>
+                        </div>
+
+                        {/* Status Badge (Prominent Position) */}
+                        <div className="flex items-center gap-3">
+                            {onChainData && (
+                                <Badge variant="outline" className={`${statusColor} px-4 py-1.5 text-sm font-medium flex items-center gap-2 border-2`}>
+                                    <StatusIcon className="w-4 h-4" />
+                                    <span>{statusText}</span>
+                                </Badge>
+                            )}
+                            {offChainData?._id && (
+                                <Link href={`/reports?id=${offChainData._id}`} passHref>
+                                    <Button variant="outline" size="sm" className="hidden sm:flex gap-2">
+                                        <BrainCircuit className="w-4 h-4" />
+                                        {t('proposal_detail.view_ai_report')}
+                                    </Button>
+                                </Link>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Middle Row: Title & Tagline */}
+                    <div>
+                        <h1 className="text-3xl sm:text-4xl font-extrabold font-headline text-gradient leading-tight mb-3">
+                            {offChainData?.projectName ?? t('common.loading')}
+                        </h1>
+                        <p className="text-lg text-muted-foreground leading-relaxed max-w-4xl">
+                            {offChainData?.tagline}
+                        </p>
+                    </div>
                 </div>
             </header>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="lg:col-span-2 space-y-6">
-                     {/* AI Analysis Card */}
-                     <Card>
-                        <CardHeader><CardTitle className="flex items-center gap-2"><BrainCircuit /> {t('proposal_detail.ai_analysis')}</CardTitle></CardHeader>
-                        <CardContent className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                            <InfoCard icon={LineChart} title={t('proposal_detail.ai_risk_score')} value={`${onChainData?.aiRiskScore?.toString() ?? t('proposal_detail.status.pending')}`} />
-                            <InfoCard icon={Scale} title={t('proposal_detail.market_sentiment')} value={offChainData?.aiAnalysis?.financialAnalysis?.market_sentiment_score ? `${(offChainData.aiAnalysis.financialAnalysis.market_sentiment_score * 100).toFixed(0)}%` : 'N/A'} />
-                            <InfoCard icon={Users} title={t('proposal_detail.team_competency')} value={offChainData?.aiAnalysis?.financialAnalysis?.team_competency_score ?? 'N/A'} />
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                
+                {/* --- Left Column: Main Content --- */}
+                <div className="lg:col-span-2 space-y-8">
+                     
+                     {/* 1. AI Analysis Stats */}
+                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <StatCard 
+                            title={t('proposal_detail.ai_risk_score')} 
+                            value={onChainData?.aiRiskScore?.toString() ?? "..."} 
+                            icon={LineChart} 
+                            variant="default" 
+                            isLoading={isOnChainLoading}
+                        />
+                        <StatCard 
+                            title={t('proposal_detail.market_sentiment')} 
+                            value={aiMetrics?.marketScore ?? "N/A"} 
+                            icon={TrendingUp} 
+                            variant="positive" 
+                            isLoading={!offChainData}
+                        />
+                        <StatCard 
+                            title={t('proposal_detail.team_competency')} 
+                            value={aiMetrics?.teamScore ?? "N/A"} 
+                            icon={Users} 
+                            variant="neutral" 
+                            isLoading={!offChainData}
+                        />
+                    </div>
+
+                    {/* 2. Description (Increased Font Size) */}
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2 text-xl">
+                                <BrainCircuit className="w-6 h-6 text-muted-foreground"/> 
+                                {t('proposal_detail.description')}
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <p className="text-base text-muted-foreground whitespace-pre-wrap leading-relaxed">
+                                {offChainData?.description ?? t('proposal_detail.no_offchain_data')}
+                            </p>
                         </CardContent>
                     </Card>
 
-                    {/* Description Card */}
-                    <Card>
-                        <CardHeader><CardTitle>{t('proposal_detail.description')}</CardTitle></CardHeader>
-                        <CardContent><p className="text-muted-foreground whitespace-pre-wrap leading-relaxed">{offChainData?.description ?? t('proposal_detail.no_offchain_data')}</p></CardContent>
-                    </Card>
-
-                   {/* Voting Card */}
+                   {/* 3. Voting Section */}
                    <Card>
                         <CardHeader>
-                            <CardTitle className="flex justify-between items-center">
+                            <CardTitle className="flex justify-between items-center text-xl">
                                 <span>{t('proposal_detail.voting_results')}</span>
-                                <Badge variant="secondary" className="text-xs font-normal">
+                                <Badge variant="secondary" className="text-sm font-normal px-3">
                                     {t('common.quorum')}: 4% 
                                 </Badge>
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
                             {isOnChainLoading ? (
-                                <div className="space-y-3"><Skeleton className="h-6 w-3/4" /><Skeleton className="h-4 w-1/2" /></div>
+                                <div className="space-y-4"><Skeleton className="h-8 w-3/4" /><Skeleton className="h-6 w-1/2" /></div>
                             ) : onChainData ? (
-                                <div className="space-y-6">
+                                <div className="space-y-8">
                                     {/* Votes For */}
                                     <div>
-                                        <div className="flex justify-between mb-2 text-sm">
+                                        <div className="flex justify-between mb-2 text-base">
                                             <span className="font-medium text-green-600 flex items-center gap-2">
-                                                <CheckCircle className="w-4 h-4" />
+                                                <CheckCircle className="w-5 h-5" />
                                                 {t('proposal_detail.votes_for')}
                                             </span>
                                             <div className="text-right">
-                                                <span className="font-bold block">{forVotesFormatted} RYC</span>
-                                                <span className="text-xs text-muted-foreground">{displayForPct}% {t('proposal_detail.total_supply')}</span>
+                                                <span className="font-bold block text-lg">{forVotesFormatted} RYC</span>
+                                                <span className="text-sm text-muted-foreground">{displayForPct}% {t('proposal_detail.total_supply')}</span>
                                             </div>
                                         </div>
-                                        <div className="h-4 w-full bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden border border-border relative shadow-inner">
-                                            <div 
-                                                className="h-full bg-green-600 transition-all duration-1000 ease-out shadow-[0_0_15px_rgba(22,163,74,0.6)] relative" 
-                                                style={{ width: `${forVotesBig > 0n ? Math.max(forPercentageRaw, 1) : 0}%` }} 
-                                            >
-                                                 <div className="absolute inset-0 bg-white/20 w-full h-full animate-pulse"></div>
-                                            </div>
-                                        </div>
+                                        <Progress value={Math.max(forPercentageRaw, 1)} className="h-4 bg-green-100 dark:bg-green-950 [&>div]:bg-green-600" />
                                     </div>
 
                                     {/* Votes Against */}
                                     <div>
-                                        <div className="flex justify-between mb-2 text-sm">
+                                        <div className="flex justify-between mb-2 text-base">
                                             <span className="font-medium text-destructive flex items-center gap-2">
-                                                <XCircle className="w-4 h-4" />
+                                                <XCircle className="w-5 h-5" />
                                                 {t('proposal_detail.votes_against')}
                                             </span>
                                             <div className="text-right">
-                                                <span className="font-bold block">{againstVotesFormatted} RYC</span>
-                                                <span className="text-xs text-muted-foreground">{displayAgainstPct}% {t('proposal_detail.total_supply')}</span>
+                                                <span className="font-bold block text-lg">{againstVotesFormatted} RYC</span>
+                                                <span className="text-sm text-muted-foreground">{displayAgainstPct}% {t('proposal_detail.total_supply')}</span>
                                             </div>
                                         </div>
-                                        <div className="h-4 w-full bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden border border-border shadow-inner">
-                                            <div 
-                                                className="h-full bg-destructive transition-all duration-1000 ease-out shadow-[0_0_15px_rgba(220,38,38,0.6)] relative" 
-                                                style={{ width: `${againstVotesBig > 0n ? Math.max(againstPercentageRaw, 1) : 0}%` }} 
-                                            >
-                                                 <div className="absolute inset-0 bg-white/10 w-full h-full"></div>
-                                            </div>
-                                        </div>
+                                        <Progress value={Math.max(againstPercentageRaw, 1)} className="h-4 bg-red-100 dark:bg-red-950 [&>div]:bg-destructive" />
                                     </div>
 
                                     {hasVoted && (
-                                        <Alert className="mt-4 border-green-500/50 bg-green-500/10">
-                                            <CheckCircle className="h-4 w-4 text-green-600" />
-                                            <AlertTitle className="text-green-600">{t('proposal_detail.you_have_voted_title')}</AlertTitle>
+                                        <Alert className="mt-6 border-green-500/50 bg-green-500/10">
+                                            <CheckCircle className="h-5 w-5 text-green-600" />
+                                            <AlertTitle className="text-green-600 text-base font-semibold">{t('proposal_detail.you_have_voted_title')}</AlertTitle>
                                         </Alert>
                                     )}
                                 </div>
-                            ) : <div className="text-sm text-muted-foreground">{t('proposal_detail.onchain_data_unavailable')}</div>}
+                            ) : <div className="text-base text-muted-foreground">{t('proposal_detail.onchain_data_unavailable')}</div>}
                         </CardContent>
                         
-                            {onChainData && onChainData.state === PROPOSAL_STATE_VOTING && !hasVoted && (
-                                <CardFooter className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                    <Button size="lg" className="bg-green-600 hover:bg-green-700 w-full" onClick={() => handleVoteClick('for')} disabled={isVotingPending}>
-                                        {isVotingPending ? <DaoLoadingSpinner /> : <Check className="me-2"/>}{t('proposal_detail.vote_for')}
-                                    </Button>
-                                    <Button size="lg" variant="destructive" className="w-full" onClick={() => handleVoteClick('against')} disabled={isVotingPending}>
-                                        {isVotingPending ? <DaoLoadingSpinner /> : <X className="me-2"/>}{t('proposal_detail.vote_against')}
-                                    </Button>
-                                </CardFooter>
-                            )}
+                        {onChainData && onChainData.state === PROPOSAL_STATE_VOTING && !hasVoted && (
+                            <CardFooter className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                                <Button size="lg" className="bg-green-600 hover:bg-green-700 w-full text-base h-12" onClick={() => handleVoteClick('for')} disabled={isVotingPending}>
+                                    {isVotingPending ? <DaoLoadingSpinner /> : <Check className="me-2 w-5 h-5"/>}{t('proposal_detail.vote_for')}
+                                </Button>
+                                <Button size="lg" variant="destructive" className="w-full text-base h-12" onClick={() => handleVoteClick('against')} disabled={isVotingPending}>
+                                    {isVotingPending ? <DaoLoadingSpinner /> : <X className="me-2 w-5 h-5"/>}{t('proposal_detail.vote_against')}
+                                </Button>
+                            </CardFooter>
+                        )}
                     </Card>
 
-                    {/* Milestone Management (Only for Project Owner & When Funded) */}
+                    {/* 4. Funding / Investment Section */}
+                    {(onChainData?.state === PROPOSAL_STATE_FUNDING) && (
+                        <Card className="border-primary/50 shadow-lg shadow-primary/10 overflow-hidden relative">
+                            <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none"><Banknote className="w-32 h-32 text-primary" /></div>
+                            <CardHeader>
+                                <CardTitle className="text-primary flex items-center gap-2"><Banknote className="w-5 h-5"/> Funding In Progress</CardTitle>
+                                <CardDescription>This project is approved and currently raising funds.</CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-6">
+                                <div className="space-y-2">
+                                    <div className="flex justify-between text-sm font-medium">
+                                        <span>Raised: {formatEther(onChainData.totalRaised)} RYC</span>
+                                        <span>Goal: {formatEther(onChainData.amount)} RYC</span>
+                                    </div>
+                                    <Progress value={Number((onChainData.totalRaised || 0n) * 100n / (onChainData.amount || 1n))} className="h-4" />
+                                </div>
+                                
+                                <div className="flex gap-4 items-end">
+                                    <div className="space-y-2 flex-1">
+                                        <label className="text-xs font-medium text-muted-foreground">Investment Amount (RYC)</label>
+                                        <Input 
+                                            type="number" 
+                                            placeholder="0.0" 
+                                            value={investAmount} 
+                                            onChange={e => setInvestAmount(e.target.value)} 
+                                        />
+                                    </div>
+                                    <Button onClick={handleInvest} className="bg-primary hover:bg-primary/90 min-w-[120px]">
+                                        Invest Now
+                                    </Button>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    )}
+
+                    {/* 5. Refund Section */}
+                    {(onChainData?.state === PROPOSAL_STATE_FUNDING_FAILED) && (
+                        <Card className="border-destructive/50 bg-destructive/5">
+                            <CardHeader>
+                                <CardTitle className="text-destructive flex items-center gap-2"><AlertTriangle /> Funding Failed</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <p className="text-sm text-muted-foreground mb-4">This project did not reach the soft cap. You can claim a refund for your investment.</p>
+                                <Button variant="destructive" onClick={handleRefund}>Claim Refund</Button>
+                            </CardContent>
+                        </Card>
+                    )}
+
+                    {/* 6. Milestone Management (Owner Only) */}
                     {isProjectOwner && onChainData?.state === PROPOSAL_STATE_FUNDED && (
                         <Card className="border-blue-500/50 bg-blue-500/5 shadow-lg shadow-blue-500/10">
                             <CardHeader>
@@ -446,65 +550,56 @@ export default function ProposalDetailPage() {
                             </CardContent>
                         </Card>
                     )}
-
-                    {/* FUNDING SECTION (State 8) */}
-                    {(onChainData?.state === PROPOSAL_STATE_FUNDING) && (
-                        <Card className="border-primary/50 shadow-lg shadow-primary/10 mt-6">
-                            <CardHeader>
-                                <CardTitle className="text-primary">Funding In Progress</CardTitle>
-                                <CardDescription>This project is approved and raising funds.</CardDescription>
-                            </CardHeader>
-                            <CardContent>
-                                <div className="space-y-4">
-                                    <div className="flex justify-between text-sm">
-                                        <span>Raised: {formatEther(onChainData.totalRaised)} RYC</span>
-                                        <span>Goal: {formatEther(onChainData.amount)} RYC</span>
-                                    </div>
-                                    
-                                    {/* درصد سرمایه جذب شده */}
-                                    <Progress value={Number((onChainData.totalRaised || 0n) * 100n / (onChainData.amount || 1n))} className="h-3" />
-                                    
-                                    <div className="flex gap-2 pt-2">
-                                        <Input 
-                                            type="number" 
-                                            placeholder="Amount to invest" 
-                                            value={investAmount} 
-                                            onChange={e => setInvestAmount(e.target.value)} 
-                                        />
-                                        <Button onClick={handleInvest} className="bg-primary hover:bg-primary/90">Invest</Button>
-                                    </div>
-                                </div>
-                            </CardContent>
-                        </Card>
-                    )}
-
-                    {/* REFUND SECTION (State 10) */}
-                    {(onChainData?.state === PROPOSAL_STATE_FUNDING_FAILED) && (
-                        <Card className="border-destructive/50 mt-6">
-                            <CardHeader><CardTitle className="text-destructive">Funding Failed</CardTitle></CardHeader>
-                            <CardContent>
-                                <p className="text-sm text-muted-foreground mb-4">This project did not reach the soft cap. You can claim a refund.</p>
-                                <Button variant="destructive" onClick={handleRefund}>Claim Refund</Button>
-                            </CardContent>
-                        </Card>
-                    )}
                 </div>
 
+                {/* --- Right Column: Sidebar Info --- */}
                 <div className="space-y-6">
                     {onChainData && <ProposalTimeline currentState={BigInt(onChainData.state)} />}
-                    <Card>
-                        <CardHeader><CardTitle>{t('proposal_detail.details')}</CardTitle></CardHeader>
-                        <CardContent className="space-y-4">
-                            <InfoCard icon={User} title={t('proposal_detail.proposer')} value={formatAddress(onChainData?.proposer || offChainData?.proposerAddress)} />
-                            <InfoCard icon={Banknote} title={t('proposal_detail.total_requested')} value={`${formatNumber(offChainData?.milestones.reduce((acc: number, m: any) => acc + parseFloat(m.amount), 0) ?? 0)} RYC`} />
-                            {onChainData && <InfoCard icon={Calendar} title={t('proposal_detail.voting_deadline')} value={formatLocaleDate(new Date(Number(onChainData.deadline) * 1000), locale)} />}
-                            {onChainData && <InfoCard icon={Users} title={t('proposal_detail.total_votes')} value={formatNumber(formatEther(forVotesBig + againstVotesBig), locale)} />}
-                        </CardContent>
-                    </Card>
                     
-                    {/* Admin Actions: Execute is only for APPROVED (3) state to transition to FUNDING */}
+                    {/* ✅ Detailed Stats using StatCard (Compact Grid) */}
+                    <div className="space-y-4">
+                        <StatCard 
+                            title={t('proposal_detail.proposer')} 
+                            value={formatAddress(onChainData?.proposer || offChainData?.proposerAddress)} 
+                            icon={User} 
+                            variant="neutral"
+                            description="Project Lead"
+                        />
+                        <StatCard 
+                            title={t('proposal_detail.total_requested')} 
+                            value={`${formatNumber(offChainData?.milestones.reduce((acc: number, m: any) => acc + parseFloat(m.amount), 0) ?? 0)} RYC`} 
+                            icon={Wallet} 
+                            variant="warning" // Yellow for financial
+                        />
+                        {onChainData && (
+                            <>
+                                <StatCard 
+                                    title={t('proposal_detail.voting_deadline')} 
+                                    value={formatLocaleDate(new Date(Number(onChainData.deadline) * 1000), locale)} 
+                                    icon={Calendar} 
+                                    variant="neutral"
+                                />
+                                <StatCard 
+                                    title={t('proposal_detail.total_votes')} 
+                                    value={formatNumber(formatEther(BigInt(onChainData.forVotes) + BigInt(onChainData.againstVotes)), locale)} 
+                                    icon={Users} 
+                                    variant="default"
+                                />
+                            </>
+                        )}
+                    </div>
+                    
+                    {/* Admin Actions */}
                     {userRole === 'admin' && onChainData && (onChainData.state === PROPOSAL_STATE_APPROVED) && !onChainData.executed && (
-                         <Card className="border-primary"><CardHeader><CardTitle>{t('proposal_detail.admin_actions')}</CardTitle></CardHeader><CardContent><Button className="w-full" onClick={handleExecute} disabled={isExecuting}>{isExecuting ? <DaoLoadingSpinner className="me-2" /> : <PlayCircle className="me-2" />}{t('proposal_detail.execute_proposal')}</Button></CardContent></Card>
+                         <Card className="border-primary border-dashed bg-primary/5">
+                             <CardHeader><CardTitle className="text-primary text-sm">{t('proposal_detail.admin_actions')}</CardTitle></CardHeader>
+                             <CardContent>
+                                 <Button className="w-full" onClick={handleExecute} disabled={isExecuting}>
+                                     {isExecuting ? <DaoLoadingSpinner className="me-2" /> : <PlayCircle className="me-2" />}
+                                     {t('proposal_detail.execute_proposal')}
+                                 </Button>
+                             </CardContent>
+                         </Card>
                     )}
                 </div>
             </div>

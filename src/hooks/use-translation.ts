@@ -14,7 +14,7 @@ export function useTranslation() {
   // Fallback to English if the current locale's dictionary is missing
   const dictionary = translations[locale] || translations.en;
 
-  const t = (key: string): string => {
+  const t = (key: string, $: any, p0: { nativeSymbol: string; }): string => {
     const value = getNestedValue(dictionary, key);
     // If translation is not found in the current locale, try falling back to English
     if (!value) {
