@@ -1,6 +1,7 @@
-
 export const tr = {
-  // Common
+  // ==============================================================================
+  // 1. GLOBAL & COMMON (Genel ve Ortak)
+  // ==============================================================================
   actions: "Eylemler",
   status: "Durum",
   active: "Aktif",
@@ -10,14 +11,18 @@ export const tr = {
   edit_profile: "Profili Düzenle",
   view_details: "Detayları Görüntüle",
   risk_assessment: "Risk Değerlendirmesi",
+
+  // Roles (Root Level)
   admin: "Yönetici",
   investor: "Yatırımcı",
   startup: "Girişim",
   voter: "Oy Sahibi",
+
+  // Simple Boolean (Root Level - Duplicate of common)
   yes: "Evet",
   no: "Hayır",
 
-  common:{
+  common: {
     error: "Hata",
     yes: "Evet",
     no: "Hayır",
@@ -32,10 +37,8 @@ export const tr = {
     generated_footer: "RayanChain yapay zeka motoru tarafından oluşturulmuştur | Bu rapor kesin bir finansal teklif değildir.",
     rayan_chain_vc: "RayanChain yatırım platformu",
     comming_soon: "Yakında",
+  },
 
-    },
-
-  // Header
   header: {
     search: "Ara...",
     toggle_theme: "Temayı Değiştir",
@@ -44,25 +47,7 @@ export const tr = {
     profile: "Profil",
     back: "Geri",
   },
-  
-    page_titles:{
-      dashboard: "Ana gösterge paneli",
-      proposals: "Teklif listesi",
-      new_proposal: "Yeni teklif oluştur",
-      proposal_details: "Teklif detayları",
-      staking: "Staking yönetimi",
-      treasury: "Akıllı hazine",
-      reports: "Yapay zeka raporları",
-      ai_report_detail: "Projenin kapsamlı analizi",
-      analytics: "Kullanıcı davranış analizi",
-      contract_analyzer: "Akıllı sözleşme teşhis aracı",
-      profile: "Kullanıcı profili",
-      logs: "Sistem etkinlik kayıtları",
-      admin: "Yönetim merkezi",
-      admin_settings: "Sistem ayarları",
-      setup: "Altyapı kurulumu",
-  },
-  // Sidebar
+
   sidebar: {
     dashboard: "Gösterge Paneli",
     proposals: "Teklifler",
@@ -81,17 +66,83 @@ export const tr = {
     group_admin: "Sistem yönetimi",
     guest_mode: "Misafir modu",
     all_proposals: "Tüm teklifler",
-
   },
 
-  // AuthGuard
+  menu: {
+    staking: "Stake etme",
+    proposals: "Teklifler",
+  },
+
+  page_titles: {
+    dashboard: "Ana gösterge paneli",
+    proposals: "Teklif listesi",
+    new_proposal: "Yeni teklif oluştur",
+    proposal_details: "Teklif detayları",
+    staking: "Staking yönetimi",
+    treasury: "Akıllı hazine",
+    reports: "Yapay zeka raporları",
+    ai_report_detail: "Projenin kapsamlı analizi",
+    analytics: "Kullanıcı davranış analizi",
+    contract_analyzer: "Akıllı sözleşme teşhis aracı",
+    profile: "Kullanıcı profili",
+    logs: "Sistem etkinlik kayıtları",
+    admin: "Yönetim merkezi",
+    admin_settings: "Sistem ayarları",
+    setup: "Altyapı kurulumu",
+  },
+
+  not_found: {
+    title: "404 - Sayfa Bulunamadı",
+    message: "Üzgünüz, aradığınız sayfa mevcut değil veya taşınmış.",
+    go_home: "Gösterge Paneline Git",
+  },
+
+  guide_page: {
+    title: "Platform kullanım rehberi",
+    subtitle: "RayanChain’de kullanıcı rolünüze göre nasıl çalışacağınızı öğrenin",
+    tabs: {
+      investor: "💰 Yatırımcı",
+      startup: "🚀 Girişim",
+      voter: "🗳️ Oy veren"
+    },
+    actions: {
+      go_to_staking: "Staking sayfasına git",
+      create_proposal: "Teklif oluştur",
+      view_proposals: "Aktif oylamaları görüntüle"
+    },
+    investor: {
+      step1_title: "Cüzdan bağlama ve token alma",
+      step1_desc: "Cüzdanınızı bağlayın Eğer RYC tokeniniz yoksa MATIC’i panelden veya borsalardan dönüştürebilirsiniz",
+      step2_title: "Teklifleri inceleme",
+      step2_desc: "Aktif teklifleri inceleyin Risk seviyesi ekip yeterliliği ve piyasa duyarlılığını analiz etmek için yapay zeka raporlarını kullanın",
+      step3_title: "Yönetişim için staking",
+      step3_desc: "Kararlarda etkili olmak için RYC tokenlerinizi stake edin Bu işlem yatırdığınız miktar oranında oy gücü sağlar"
+    },
+    startup: {
+      step1_title: "Teklif kaydı",
+      step1_desc: "Detaylı teklif formunu doldurun Finansal ve hukuki belgeleri ve sunum dosyasını yükleyin Veriler IPFS üzerinde güvenli şekilde saklanır",
+      step2_title: "Yapay zeka analizi",
+      step2_desc: "Kayıt sonrası çok katmanlı yapay zekamız projeyi risk ve uygulanabilirlik açısından analiz eder ve rapor teklife eklenir",
+      step3_title: "Topluluk oylaması",
+      step3_desc: "Toplulukla etkileşime geçin Eğer teklif yeterli oy alırsa fonlar aşamalar halinde serbest bırakılır"
+    },
+    voter: {
+      step1_title: "Oy gücü elde etme",
+      step1_desc: "Sadece cüzdandaki tokenlarla oy kullanamazsınız Tokenlerin stake edilmesi veya oy hakkının size devredilmiş olması gerekir",
+      step2_title: "Oy kaydı",
+      step2_desc: "Aktif bir teklife gidin ve olumlu oy veya olumsuz oy seçin Oy ağırlığınız stake miktarınıza bağlıdır"
+    }
+  },
+
+  // ==============================================================================
+  // 2. AUTH & ONBOARDING (Kimlik Doğrulama ve Karşılama)
+  // ==============================================================================
   auth_guard: {
     connecting_blockchain: "Blockchain'e bağlanılıyor...",
     connecting_dashboard: "Gösterge paneline bağlanılıyor...",
     loading: "Yükleniyor...",
   },
 
-  // Landing Page
   landing_page: {
     hero_title: "Geleceğin Girişimleri İçin Fırlatma Rampası",
     hero_subtitle: "RayanChain DAO, dönüştürücü projeleri belirlemek ve desteklemek için yapay zeka ile merkezi olmayan yönetimi birleştirir.",
@@ -125,15 +176,14 @@ export const tr = {
     coming_soon: "Yakında",
     finished: "Tamamlandı",
     no_featured_proposals: "Öne çıkan proje yok",
-    status:{
+    status: {
       under_review: "Değerlendirme aşamasında",
       not_funded: "Fon sağlanamadı",
       funded: "Fon sağlandı",
       voting: "Oylama aşamasında",
     },
   },
-  
-  // Role Selection Page
+
   role_selection: {
     welcome: "RayanChain'e Hoş Geldiniz!",
     prompt: "Başlamak için lütfen platformdaki rolünüzü belirtin.",
@@ -179,10 +229,14 @@ export const tr = {
     redirecting: "Yönlendiriliyor...",
   },
 
-  // Dashboard Page
+  // ==============================================================================
+  // 3. DASHBOARD (Gösterge Paneli)
+  // ==============================================================================
   dashboard: {
     title: "Gösterge Paneli",
     welcome_message: "RayanChain gösterge panelinize hoş geldiniz. İşte platform etkinliğine genel bir bakış.",
+    
+    // Stats & Balance
     your_balance: "Bakiyeniz (RYC)",
     total_balance_desc: "Cüzdanınızdaki toplam bakiye",
     active_investments: "Aktif Yatırımlar",
@@ -195,9 +249,6 @@ export const tr = {
     your_proposals_desc: "Gönderilen toplam teklif sayısı",
     capital_raised: "Toplanan Sermaye",
     capital_raised_desc: "Projeleriniz için toplanan toplam sermaye",
-    latest_proposal_status: "Son Teklif Durumu",
-    latest_proposal_status_desc: "Projenizin en son durumu",
-    in_voting: "Oylamada",
     total_users: "Toplam Kullanıcı",
     total_users_desc: "+{count} bu ay",
     active_proposals_count: "Aktif Teklifler",
@@ -208,7 +259,29 @@ export const tr = {
     participation_rate_desc: "Oylamalarda ortalama katılım",
     your_voting_power: "Oy Gücünüz",
     your_voting_power_desc: "Aktivitenize ve varlıklarınıza göre",
+    wallet_balance: "Cüzdan bakiyesi",
+    native_balance: "Cüzdan Bakiyesi",
+    native_balance_desc: "Ağın yerel para biriminin bakiyesi",
+    staked_balance: "Stake Edilen Bakiye",
+    staked_balance_desc: "Stake edilmiş tokenlarınız",
+
+    // Proposal tracking
+    latest_proposal_status: "Son Teklif Durumu",
+    latest_proposal_status_desc: "Projenizin en son durumu",
+    in_voting: "Oylamada",
     active_proposals_cta: "Oyunuzu bekliyor",
+    your_proposals_list_title: "Teklifleriniz",
+    your_proposals_list_desc: "Gönderdiğiniz tekliflerin listesi.",
+    active_proposals_list_title: "Aktif Teklifler",
+    active_proposals_list_desc: "Şu anda oylamaya açık olan tekliflerin listesi.",
+    all_proposals_list_title: "Tüm Teklifler",
+    all_proposals_list_desc: "Tüm teklifleri yönetmek ve izlemek için.",
+    no_proposals_title: "Henüz Teklif Yok",
+    no_proposals_desc: "Görüntülenecek aktif veya geçmiş teklif yok.",
+    no_proposals_status: "Teklif Yok",
+    no_proposals_status_desc: "Henüz hiç teklif göndermediniz",
+
+    // Charts & Analysis
     investment_analysis: "Yatırım Analizi",
     investment_analysis_desc: "Son 6 aydaki yeni yatırımlar",
     investment_analysis_footer1: "Son çeyrekte pozitif trend",
@@ -216,15 +289,10 @@ export const tr = {
     investment_chart_label: "Yatırım (RYC)",
     recent_activities: "Son Aktiviteler",
     recent_activities_desc: "Platformdaki en son aktivitelere genel bir bakış.",
-    new_project_prompt_title: "Yeni bir projeniz mi var?",
-    new_project_prompt_desc: "Yenilikçi fikrinizi yatırımcı topluluğumuza tanıtın ve hayata geçirmek için sermaye toplayın.",
-    new_project_prompt_cta: "Yeni Teklif Gönder",
-    your_proposals_list_title: "Teklifleriniz",
-    your_proposals_list_desc: "Gönderdiğiniz tekliflerin listesi.",
-    active_proposals_list_title: "Aktif Teklifler",
-    active_proposals_list_desc: "Şu anda oylamaya açık olan tekliflerin listesi.",
-    all_proposals_list_title: "Tüm Teklifler",
-    all_proposals_list_desc: "Tüm teklifleri yönetmek ve izlemek için.",
+    no_chart_data: "Grafik göstermek için veri bulunmuyor",
+    trending_up: "Geçen aya göre yükseliş trendi",
+
+    // Contracts & System Data
     contract_interaction_title: "Sözleşme Etkileşimi",
     contract_interaction_desc: "Dağıtılan akıllı sözleşmeden canlı veriler:",
     total_proposals_title: "Toplam Teklif Sayısı",
@@ -233,22 +301,14 @@ export const tr = {
     connect_to_see_data: "Gösterge panelini görüntülemek ve platformla etkileşimde bulunmak için lütfen cüzdanınızı bağlayın.",
     contract_not_deployed_title: "Sözleşme Dağıtılmadı",
     contract_not_deployed_desc: "Ana platform sözleşmesi henüz dağıtılmadı. Dağıtmak için lütfen kurulum sayfasına gidin.",
-    native_balance: "Cüzdan Bakiyesi",
-    native_balance_desc: "Ağın yerel para biriminin bakiyesi",
     contract_owner: "DAO Sözleşme Sahibi",
     contract_owner_desc: "Ana DAO sözleşmesinin mevcut sahibi",
     token_contract: "Token Sözleşmesi",
     token_contract_desc: "RYC token sözleşmesinin adresi",
     finance_contract: "Finans Sözleşmesi",
     finance_contract_desc: "DAO'nun hazine sözleşmesinin adresi",
-    your_role: "Rolünüz",
-    your_role_desc: "Platformdaki mevcut rolünüz",
     loading_data: "Veriler yükleniyor...",
     error_fetching_proposals: "Teklifler getirilemedi.",
-    no_proposals_title: "Henüz Teklif Yok",
-    no_proposals_desc: "Görüntülenecek aktif veya geçmiş teklif yok.",
-    no_proposals_status: "Teklif Yok",
-    no_proposals_status_desc: "Henüz hiç teklif göndermediniz",
     total_token_supply: "Toplam Token Arzı",
     total_token_supply_desc: "Oluşturulan toplam RYC token sayısı",
     treasury_balance: "Hazine Bakiyesi",
@@ -257,13 +317,13 @@ export const tr = {
     total_staked_desc: "Toplam stake edilen RYC tokenları",
     burned_tokens: "Yakılan Tokenlar",
     burned_tokens_desc: "Sıfır adresine gönderilen tokenlar",
-    admin_overview_title: "Yönetici Genel Bakışı",
-    admin_overview_desc: "Sistem yöneticisi için genel bir bakış.",
     loading_contracts: "Sözleşme bilgileri blockchain'den yükleniyor...",
     partial_setup_title: "Eksik Kurulum",
     partial_setup_desc: "Kayıt sözleşmesi dağıtıldı, ancak aşağıdaki sözleşme adresleri bulunamadı:",
     treasury: "Hazine",
     go_to_setup: "Kurulum Sayfasına Git",
+
+    // AI Status
     ai_oracle_status_title: "Yapay Zeka Motoru Durumu",
     ai_status_online: "Aktif ve Kullanılabilir",
     ai_status_offline: "Etkin Değil/Bağlantı Kesildi",
@@ -271,39 +331,26 @@ export const tr = {
     ai_status_loading: "Kontrol ediliyor...",
     last_checked: "Son Kontrol",
     checking_now: "Durum şimdi kontrol ediliyor",
-    staked_balance: "Stake Edilen Bakiye",
-    staked_balance_desc: "Stake edilmiş tokenlarınız",
-    view_all: "Tümünü göster",
-    latest_update: "son güncelleme",
-      admin: {
-          title: "Yönetim Kontrol Merkezi",
-          title_se: "Platform Yapılandırması",
-          governance_card_title: "Yönetişim Parametreleri",
-          voting_period_label: "Oylama Süresi (saniye)",
-          update_button: "Güncelle",
-          financial_card_title: "Finansal Parametreler (SaaS)",
-          protocol_fee_label: "Protokol Ücreti (%)",
-          update_fee_button: "Ücreti Güncelle",
-          timelock_notice: "Bu işlem genellikle Timelock’ta teklif gerektirir.",
-          client_fee_label: "Müşteri Ücreti (VC) (%)",
-          hub_title: "Güvenlik Komuta Merkezi",
-          hub_subtitle: "Platform yapılandırmaları, erişimler ve kritik sistem altyapısını yönetme",
-          secure_session_active: "Güvenli oturum aktif",
-          settings_card_title: "Yönetişim ve Finans Ayarları",
-          settings_card_desc: "DAO parametrelerini, platform ücretlerini ve oylama zamanlamalarını değiştirme.",
-          manage: "Yönet",
-          danger_zone: "Tehlike Bölgesi",
-          security_card_title: "Altyapı Yönetimi (Setup)",
-          security_card_desc: "Sözleşmeleri yeniden dağıtma, anahtarları sıfırlama ve ilk yapılandırmaya erişim. (Tekrar imza gerektirir)",
-          access_setup: "Altyapı bölümüne giriş",
-          critical_access_warning: "Uyarı: Kritik altyapı bölümüne giriş yapıyorsunuz.",
-          verifying: "Güvenli kimlik doğrulama sürüyor...",
-      },
+
+    // Welcome Messages & Role Specifics
     investor_welcome: "Yatırım paneline hoş geldiniz. Varlıklarınızı yönetin.",
     startup_welcome: "Startup paneline hoş geldiniz. Projelerinizi takip edin.",
     admin_welcome: "Yönetim paneline hoş geldiniz.",
     guest_welcome: "Hoş geldiniz. Tam erişim için lütfen cüzdanınızı bağlayın.",
-    wallet_balance: "Cüzdan bakiyesi",
+    delegate_welcome: "Temsilci paneline hoş geldiniz. Gücünüz sorumluluğunuzdur.",
+    hybrid_welcome: "Kapsamlı panele hoş geldiniz. Hem yatırımcı hem temsilcisiniz.",
+    your_role: "Rolünüz",
+    your_role_desc: "Platformdaki mevcut rolünüz",
+    new_project_prompt_title: "Yeni bir projeniz mi var?",
+    new_project_prompt_desc: "Yenilikçi fikrinizi yatırımcı topluluğumuza tanıtın ve hayata geçirmek için sermaye toplayın.",
+    new_project_prompt_cta: "Yeni Teklif Gönder",
+    create_first_proposal: "İlk teklifi oluştur",
+    start_journey: "Yolculuğunuza başlayın",
+    start_journey_desc: "Henüz herhangi bir teklif oluşturmadınız. İlk büyük fikrinizi şimdi gönderin ve yatırım alın.",
+    connect_wallet_title: "Cüzdan bağlama",
+    connect_wallet_desc: "Kişisel istatistikleri görüntülemek için lütfen cüzdanınızı bağlayın.",
+
+    // Staking & Rewards in Dashboard
     available_to_stake: "Stake için uygun",
     staked_amount: "Stake edilen miktar",
     earning_rewards: "Ödüller kazanılıyor",
@@ -312,9 +359,6 @@ export const tr = {
     voting_power: "Oy gücü",
     participation_score: "Katılım puanı",
     active_opportunities: "Aktif yatırım fırsatları",
-    start_journey: "Yolculuğunuza başlayın",
-    start_journey_desc: "Henüz herhangi bir teklif oluşturmadınız. İlk büyük fikrinizi şimdi gönderin ve yatırım alın.",
-    create_first_proposal: "İlk teklifi oluştur",
     total_projects: "Toplam proje",
     all_time: "Tüm zamanlar",
     active_projects: "Aktif projeler",
@@ -323,9 +367,8 @@ export const tr = {
     fully_funded: "Tamamlandı",
     my_proposals: "Tekliflerim",
     new_proposal: "Yeni teklif",
-    connect_wallet_title: "Cüzdan bağlama",
-    connect_wallet_desc: "Kişisel istatistikleri görüntülemek için lütfen cüzdanınızı bağlayın.",
-    delegate_welcome: "Temsilci paneline hoş geldiniz. Gücünüz sorumluluğunuzdur.",
+
+    // Governance / Delegate
     total_governance_power: "Toplam yönetişim gücü",
     combined_power: "Kişisel stake + delegasyon toplamı",
     delegated_to_me: "Başkalarından devredilen",
@@ -339,9 +382,10 @@ export const tr = {
     cast_votes: "Oylamaya katıl",
     tab_investor: "Yatırım paneli",
     tab_delegate: "Temsilci paneli",
-    hybrid_welcome: "Kapsamlı panele hoş geldiniz. Hem yatırımcı hem temsilcisiniz.",
-    no_chart_data: "Grafik göstermek için veri bulunmuyor",
-    trending_up: "Geçen aya göre yükseliş trendi",
+
+    // Admin in Dashboard
+    admin_overview_title: "Yönetici Genel Bakışı",
+    admin_overview_desc: "Sistem yöneticisi için genel bir bakış.",
     system_paused_title: "Uyarı: Sistem durduruldu",
     system_paused_desc: "Tüm finansal işlemler ve oylamalar, yönetici tarafından durdurma kaldırılana kadar askıya alınmıştır.",
     available_funds: "Kullanılabilir fonlar",
@@ -363,14 +407,51 @@ export const tr = {
     access_denied: "Erişim reddedildi. İmza doğrulanamadı.",
     verifying_identity: "İmza bekleniyor...",
     critical_access_warning: "Çok önemli güvenlik uyarısı!\n\n«Altyapı Yönetimi» (Setup) bölümüne giriş yapmaya çalışıyorsunuz. Bu bölüm tüm sözleşmeleri sıfırlayabilir.\n\nLütfen nihai onay için imzalayın.",
+    view_all: "Tümünü göster",
+    latest_update: "son güncelleme",
 
-  },
-  menu: {
-    staking: "Stake etme",
-    proposals: "Teklifler",
+    // Dashboard Admin Sub-object
+    admin: {
+      title: "Yönetim Kontrol Merkezi",
+      title_se: "Platform Yapılandırması",
+      governance_card_title: "Yönetişim Parametreleri",
+      voting_period_label: "Oylama Süresi (saniye)",
+      update_button: "Güncelle",
+      financial_card_title: "Finansal Parametreler (SaaS)",
+      protocol_fee_label: "Protokol Ücreti (%)",
+      update_fee_button: "Ücreti Güncelle",
+      timelock_notice: "Bu işlem genellikle Timelock’ta teklif gerektirir.",
+      client_fee_label: "Müşteri Ücreti (VC) (%)",
+      hub_title: "Güvenlik Komuta Merkezi",
+      hub_subtitle: "Platform yapılandırmaları, erişimler ve kritik sistem altyapısını yönetme",
+      secure_session_active: "Güvenli oturum aktif",
+      settings_card_title: "Yönetişim ve Finans Ayarları",
+      settings_card_desc: "DAO parametrelerini, platform ücretlerini ve oylama zamanlamalarını değiştirme.",
+      manage: "Yönet",
+      danger_zone: "Tehlike Bölgesi",
+      security_card_title: "Altyapı Yönetimi (Setup)",
+      security_card_desc: "Sözleşmeleri yeniden dağıtma, anahtarları sıfırlama ve ilk yapılandırmaya erişim. (Tekrar imza gerektirir)",
+      access_setup: "Altyapı bölümüne giriş",
+      critical_access_warning: "Uyarı: Kritik altyapı bölümüne giriş yapıyorsunuz.",
+      verifying: "Güvenli kimlik doğrulama sürüyor...",
+    },
   },
 
-  // Proposals Page
+  // ==============================================================================
+  // 4. PROPOSALS (Teklifler)
+  // ==============================================================================
+  
+  // List Names
+  proposals: {
+    network_upgrade: "Ağ Altyapısı Yükseltmesi",
+    marketing_project: "Yeni Pazarlama Projesi",
+    mobile_dapp: "Mobil DApp Geliştirme",
+    defi_integration: "DeFi Protokolü ile Entegrasyon",
+    community_fund: "Topluluk Rezerv Fonu Oluşturma",
+    platform_x_partnership: "Platform X ile Ortaklık",
+  },
+
+  // Proposal List Page
   proposals_page: {
     title: "Teklif Listesi",
     subtitle: "Tüm tekliflerin bir listesi burada. Teklifleri filtreleyin, sıralayın ve her birinin ayrıntılarını görüntüleyin.",
@@ -390,25 +471,16 @@ export const tr = {
     vote_success_desc: "İşleminiz başarıyla gönderildi. Hash: {hash}",
     vote_error_title: "Oy kullanırken hata oluştu",
     no_proposals_found: "Teklif bulunamadı",
-      status: {
-        pending_submission: "Gönderim bekleniyor",
-        confirmed: "Onaylandı",
-        voting: "Oylama yapılıyor",
-        approved: "Onaylandı",
-        rejected: "Reddedildi",
-      },
+    status: {
+      pending_submission: "Gönderim bekleniyor",
+      confirmed: "Onaylandı",
+      voting: "Oylama yapılıyor",
+      approved: "Onaylandı",
+      rejected: "Reddedildi",
+    },
   },
-  
-  proposals: {
-    network_upgrade: "Ağ Altyapısı Yükseltmesi",
-    marketing_project: "Yeni Pazarlama Projesi",
-    mobile_dapp: "Mobil DApp Geliştirme",
-    defi_integration: "DeFi Protokolü ile Entegrasyon",
-    community_fund: "Topluluk Rezerv Fonu Oluşturma",
-    platform_x_partnership: "Platform X ile Ortaklık",
-  },
-  
-  // New Proposal Page
+
+  // New Proposal Form
   new_proposal_page: {
     title: "Yeni Teklif Gönder",
     subtitle: "Projenizi kaydetmek ve fon toplamak için aşağıdaki formu doldurun.",
@@ -416,14 +488,18 @@ export const tr = {
     card_title: "Teklif Detayları",
     card_desc: "Ayrıntılı bilgi, yatırımcıların karar vermesine yardımcı olur.",
     card_desc_professional: "Lütfen tüm bölümleri dikkatlice ve eksiksiz doldurun.",
+    
+    // Tabs
     tabs: {
-        overview: "Genel Bakış",
-        details: "Proje Detayları",
-        team: "Ekip",
-        market: "Pazar",
-        financials: "Finansallar",
-        documents: "Belgeler"
+      overview: "Genel Bakış",
+      details: "Proje Detayları",
+      team: "Ekip",
+      market: "Pazar",
+      financials: "Finansallar",
+      documents: "Belgeler"
     },
+
+    // Fields
     project_title: "Proje Başlığı",
     project_title_placeholder: "Örn: Web3 Eğitim Platformu",
     project_name: "Proje Adı",
@@ -437,84 +513,102 @@ export const tr = {
     summary_placeholder: "Projenizin genel ve ilgi çekici bir açıklamasını yapın...",
     full_description: "Tam Açıklama",
     full_description_placeholder: "Projenizin hedeflerini, çözümünü ve rekabet avantajını açıklayın...",
+    description: "Her aşama için görevlerin açıklamasını girin.",
+    description_required: "Lütfen projenizin detaylı açıklamasını sağlayın.",
+    funding_goal: "Finansman Hedefi (RYC)",
+    recipient_address: "Alıcı Cüzdan Adresi",
     problem: "Sorun",
     problem_placeholder: "Piyasada tespit ettiğiniz ve çözmeyi planladığınız sorun nedir?",
     solution: "Çözüm",
     solution_placeholder: "Ürününüz veya hizmetiniz bu sorunu nasıl çözüyor?",
+    
+    // Business & Market
     business_model: "İş Modeli",
     business_model_placeholder: "Gelir modelinizi seçin",
-    team_experience_years_label: "Çekirdek ekibin birleşik deneyimi (yıl)",
-    team_bio_label: "Ekip Geçmişi ve Biyografileri",
-    team_bio_placeholder: "Her bir kilit üyenin deneyimlerini, başarılarını ve rollerini açıklayın...",
     market_size_label: "Hedef Pazar Büyüklüğü (USD cinsinden)",
     competitors: "Rakip Analizi",
     competitors_placeholder: "Ana rakipleriniz kimler ve rekabet avantajınız nedir?",
+    market_stats: {
+      tam_label: "TAM (toplam pazar) ($)",
+      tam_desc: "toplam erişilebilir pazar (Total Accessible Market)",
+      sam_label: "SAM (erişilebilir pazar) ($)",
+      sam_desc: "hizmet verilebilir erişilebilir pazar (Serviceable Available Market)",
+      som_label: "SOM (pazar payı) ($)",
+      som_desc: "elde edilebilir pazar payı (Serviceable Obtainable Market)",
+    },
+    
+    // Team
+    team_experience_label: "Ekip ve Kurucuların Geçmişi",
+    team_experience_placeholder: "Çekirdek ekibin profesyonel ve teknik geçmişinin bir özeti (Yapay zeka analizi için).",
+    team_experience_years_label: "Çekirdek ekibin birleşik deneyimi (yıl)",
+    team_bio_label: "Ekip Geçmişi ve Biyografileri",
+    team_bio_placeholder: "Her bir kilit üyenin deneyimlerini, başarılarını ve rollerini açıklayın...",
+    startup_industry_label: "Girişim Sektörü",
+    startup_industry_placeholder: "Örn: Sağlık Teknolojisi, Fintek Yapay Zeka",
+
+    // Financials
+    financial_stats: {
+      burn_rate_label: "aylık gider (Burn Rate) ($)",
+      revenue_label: "ilk yıl geliri ($)",
+      break_even_label: "başabaş noktası (ay)",
+    },
     has_previous_funding_label: "Daha önce fon toplama geçmişiniz var mı?",
-      industries: {
-        defi: "merkeziyetsiz finans modeli / web 3",
-        ai: "yapay zeka / makine öğrenimi",
-        gaming: "oyun / metaverse",
-        saas: "hizmet olarak yazılım (SaaS)",
-        placeholder: "sektör seçimi",
-        },
-      business_models: {
-        placeholder: "iş modeli seçimi",
-        b2b: "B2B (işletmeden işletmeye)",
-        b2c: "B2C (işletmeden tüketiciye)",
-        b2b2c: "B2B2C (aracılı model)",
-        saas: "SaaS (bulut yazılım hizmetleri)",
-        marketplace: "e-ticaret pazaryeri",
-        },
-     market_stats: {
-        tam_label: "TAM (toplam pazar) ($)",
-        tam_desc: "toplam erişilebilir pazar (Total Accessible Market)",
-        sam_label: "SAM (erişilebilir pazar) ($)",
-        sam_desc: "hizmet verilebilir erişilebilir pazar (Serviceable Available Market)",
-        som_label: "SOM (pazar payı) ($)",
-        som_desc: "elde edilebilir pazar payı (Serviceable Obtainable Market)",
-      },
-        financial_stats: {
-        burn_rate_label: "aylık gider (Burn Rate) ($)",
-        revenue_label: "ilk yıl geliri ($)",
-        break_even_label: "başabaş noktası (ay)",
-      },
     funding_details: "Önceki Fonlama Detayları",
     funding_details_placeholder: "Miktarı, tarihi ve önceki yatırımcıların adlarını belirtin...",
+    
+    // Milestones
+    milestones_required: "Lütfen geçerli bir miktarla en az bir aşama ekleyin.",
+    milestone_amounts_required: "Lütfen tüm aşamalar için geçerli miktarlar girin.",
+    no_milestones_added: "Henüz hiç finansman aşaması eklenmedi.",
+    add_first_milestone: "İlk Aşamayı Ekle",
+    funding_milestones: "Finansman Kilometre Taşları",
     milestone_name: "Aşama Adı",
     milestone_name_placeholder: "Örn: MVP Geliştirme",
     duration_days: "Süre (gün olarak)",
+    amount: "Miktar",
+    add_milestone: "Kilometre Taşı Ekle",
+    milestone: "Kilometre Taşı",
+    remove: "Kaldır",
+
+    // Documents
     pitch_deck: "Sunum Dosyası (PDF)",
     financials_doc: "Finansal Projeksiyonlar (PDF, XLSX)",
     legal_doc: "Yasal Belgeler (İsteğe Bağlı)",
+    off_chain_note: "Tam açıklama, zincir dışı bir veritabanında güvenli bir şekilde saklanır ve yalnızca karması blok zincirine kaydedilir.",
+
+    // Options
+    industries: {
+      defi: "merkeziyetsiz finans modeli / web 3",
+      ai: "yapay zeka / makine öğrenimi",
+      gaming: "oyun / metaverse",
+      saas: "hizmet olarak yazılım (SaaS)",
+      placeholder: "sektör seçimi",
+    },
+    business_models: {
+      placeholder: "iş modeli seçimi",
+      b2b: "B2B (işletmeden işletmeye)",
+      b2c: "B2C (işletmeden tüketiciye)",
+      b2b2c: "B2B2C (aracılı model)",
+      saas: "SaaS (bulut yazılım hizmetleri)",
+      marketplace: "e-ticaret pazaryeri",
+    },
+    
+    // Actions & Errors
     submit_for_review: "İncelemeye Gönder",
-    connect_to_submit: "Bir teklif göndermek için lütfen cüzdanınızı bağlayın.",
-    funding_goal: "Finansman Hedefi (RYC)",
-    recipient_address: "Alıcı Cüzdan Adresi",
-    funding_milestones: "Finansman Kilometre Taşları",
-    milestone: "Kilometre Taşı",
-    amount: "Miktar",
-    remove: "Kaldır",
-    add_milestone: "Kilometre Taşı Ekle",
     success_title: "Teklif Başarıyla Gönderildi",
     success_desc: "İşleminiz gönderildi. Hash:",
     form_invalid_error: "Lütfen tüm alanları doğru bir şekilde doldurun.",
-    access_denied_title: "Erişim Reddedildi",
-    access_denied_desc: "Bir teklif sunmak için 'Girişim' rolüne sahip olmalısınız.",
+    form_incomplete_title: "Form Eksik",
+    form_incomplete_tooltip: "Öneriyi göndermek için lütfen tüm gerekli alanları doldurun.",
     contract_not_deployed_title: "Sözleşme Dağıtılmadı",
     contract_not_deployed_desc: "DAO sözleşmesi henüz dağıtılmadı. Lütfen bir yönetici ile iletişime geçin.",
     loading: "Yükleniyor...",
     back_to_dashboard: "Gösterge Paneline Dön",
-    description: "Her aşama için görevlerin açıklamasını girin.",
-    description_required: "Lütfen projenizin detaylı açıklamasını sağlayın.",
     invalid_address: "Lütfen geçerli bir Ethereum adresi girin (0x ardından 40 karakter).",
     valid_address: "Geçerli Ethereum adresi.",
-    milestone_amounts_required: "Lütfen tüm aşamalar için geçerli miktarlar girin.",
-    form_incomplete_title: "Form Eksik",
-    form_incomplete_tooltip: "Öneriyi göndermek için lütfen tüm gerekli alanları doldurun.",
     recipient_required: "Lütfen geçerli bir alıcı cüzdan adresi girin.",
-    milestones_required: "Lütfen geçerli bir miktarla en az bir aşama ekleyin.",
-    no_milestones_added: "Henüz hiç finansman aşaması eklenmedi.",
-    add_first_milestone: "İlk Aşamayı Ekle",
+
+    // Permissions & Roles
     blockchain_role_missing_title: "Blockchain Rolü Eksik",
     blockchain_role_missing_desc: "Teklif sunmak için blockchain'de DAO_MEMBER_ROLE'e ihtiyacınız var. Lütfen bu rolü size vermesi için bir yönetici ile iletişime geçin.",
     request_role_button: "Rol Talep Et",
@@ -523,18 +617,376 @@ export const tr = {
     grant_role_info_title: "Rol Talebi Gönderildi",
     grant_role_info_desc: "Rol talebiniz gönderildi. Bir yönetici bunu inceleyecek ve gerekli izinleri verecektir.",
     contract_write_error: "Teklif blockchain'e gönderilemedi. Lütfen tekrar deneyin.",
+    access_denied_title: "Erişim Reddedildi",
+    access_denied_desc: "Bir teklif sunmak için 'Girişim' rolüne sahip olmalısınız.",
+    connect_to_submit: "Bir teklif göndermek için lütfen cüzdanınızı bağlayın.",
+
+    // AI Integration
     ai_check_triggered: "Yapay zeka risk değerlendirme süreci başlatıldı.",
     ai_check_failed_title: "Yapay Zeka Aktivasyonu Başarısız",
     ai_check_failed_desc: "Yapay zeka risk değerlendirmesi başlatılamadı. Sistem manuel olarak inceleyecektir.",
-    startup_industry_label: "Girişim Sektörü",
-    startup_industry_placeholder: "Örn: Sağlık Teknolojisi, Fintek Yapay Zeka",
-    team_experience_label: "Ekip ve Kurucuların Geçmişi",
-    team_experience_placeholder: "Çekirdek ekibin profesyonel ve teknik geçmişinin bir özeti (Yapay zeka analizi için).",
-    off_chain_note: "Tam açıklama, zincir dışı bir veritabanında güvenli bir şekilde saklanır ve yalnızca karması blok zincirine kaydedilir.",
+    
+    // Feedback
     redirecting: "Yönlendiriliyor...",
   },
 
-  // Profile Page
+  // Proposal Detail View
+  proposal_detail: {
+    proposal_id: "Teklif ID",
+    not_found: "Teklif bulunamadı.",
+    details: "Detaylar",
+    status_desc: "Teklifin mevcut durumu.",
+    proposer_info: "Teklif Sahibi Bilgileri",
+    funding_info: "Finansman Bilgileri",
+    total_requested: "Talep Edilen Toplam Miktar",
+    milestones: "Aşamalar",
+    milestone: "Aşama",
+    voting_results: "Oylama Sonuçları",
+    vote_for: "Lehine",
+    vote_against: "Aleyhine",
+    for: "Lehine",
+    against: "Aleyhine",
+    votes_for: "Lehine Oy Ver",
+    votes_against: "Aleyhine Oy Ver",
+    total_votes: "Toplam Oy",
+    created_on: "Oluşturulma Tarihi",
+    voting_deadline: "Oylama Son Tarihi",
+    description: "teklif açıklaması",
+    proposer: "öneren kişi",
+    total_supply: "mevcut toplam token arasından",
+    
+    // AI Section in Detail
+    ai_analysis: "yapay zeka değerlendirmesi",
+    ai_risk_score: "yapay zeka risk puanı",
+    market_sentiment: "piyasa duyarlılığı",
+    team_competency: "ekip yetkinliği",
+    view_ai_report: "yapay zeka raporunu görüntüle",
+    
+    // Milestone Management
+    milestone_management: "Proje sermayesi yönetimi",
+    milestone_management_desc: "Projeniz finanse edilmiştir. Bir sonraki sermaye diliminin serbest bırakılması için ilerleme raporunu gönderin.",
+    request_next_milestone: "Bir sonraki aşamanın serbest bırakılmasını talep et",
+    submit_progress_report: "İlerleme raporunu gönder",
+    progress_description: "Bu aşamada yapılan çalışmaları açıklayın:",
+    progress_placeholder: "Örneğin: MVP geliştirmesinin tamamlanması, kullanıcı testlerinin bitmesi...",
+    submit_request: "Talebi gönder",
+
+    // Actions & Voting
+    you_have_voted_title: "Oyunuzu kaydettiniz",
+    you_have_voted_desc: "Yönetişim sürecine katılımınız için teşekkür ederiz Sonuç oylama süresi tamamlandıktan sonra belirlenecektir",
+    admin_actions: "Yönetim işlemleri",
+    execute_proposal: "Teklifi yürüt",
+    
+    timeline: {
+      title: "Teklif durumu",
+      submitted: "Gönderildi",
+      voting: "Oylama aşamasında",
+      approved: "Nihai sonuç",
+      executed: "Uygulandı",
+    },
+    status: {
+      pending: "Beklemede",
+      active: "Oylama devam ediyor",
+      canceled: "İptal edildi",
+      defeated: "Reddedildi",
+      succeeded: "Onaylandı",
+      queued: "Yürütme sırasında",
+      expired: "Süresi doldu",
+      executed: "Uygulandı",
+      unknown: "Bilinmiyor",
+      validation: "Doğrulanıyor",
+    },
+    alert: {
+      insufficient_power_title: "Yetersiz oy hakkı",
+      insufficient_power_desc: "Yönetişime katılmak için (RYC) tokenlarını stake etmelisiniz Şu anda oy gücünüz sıfır Staking sayfasına gitmek ister misiniz",
+      cancel: "İptal",
+      go_to_staking: "Staking sayfasına git"
+    },
+  },
+
+  // ==============================================================================
+  // 5. STAKING & FINANCE (Staking ve Finans)
+  // ==============================================================================
+  staking_page: {
+    title: "Staking & Ödüller",
+    subtitle: "RYC tokenlarınızı stake edin, yönetime katılın ve ödüller kazanın.",
+    subtitle_for_role: "Rol için staking yönetim sayfası:",
+    
+    // Balance & Actions
+    ryc_balance: "RYC Bakiyesi",
+    staked_balance: "Stake Edilen Bakiye",
+    staked_balance_desc: "Stake edilmiş tokenlarınız",
+    earned_rewards: "Kazanılan Ödüller",
+    stake_tokens_title: "Token Stake Et",
+    stake_tokens_desc: "Ödül ve oy gücü kazanmak için RYC tokenlarınızı kilitleyin.",
+    amount_to_stake: "Stake Edilecek Miktar",
+    stake: "Stake Et",
+    unstake_tokens_title: "Stake'ten Çek",
+    unstake_tokens_desc: "Stake ettiğiniz RYC tokenlarınızı çekin.",
+    amount_to_unstake: "Çekilecek Miktar",
+    unstake: "Unstake",
+    claim_rewards_title: "Ödülleri Talep Et",
+    claim_rewards_desc: "Kazandığınız ödülleri cüzdanınıza aktarın.",
+    claim_rewards: "Ödülleri Talep Et",
+    manage_stake_title: "Stake Yönetimi",
+    manage_stake_desc: "Stake'inizi çekin veya kazanılan ödülleri talep edin.",
+    card_label_balance: "Cüzdanda satın alınan RYC token miktarı",
+    card_label_staked: "Stake edilen RYC token bakiyesi",
+    card_label_earned: "Alınan performans ödülleri miktarı",
+    unclaimed_rewards: "Toplam alınmamış ödüller",
+    
+    // Delegation
+    delegate_title: "Oy Gücünü Devret",
+    delegate_desc: "Katılım Kanıtı (PoP) puanını ve ağ güvenliğini artırmak için oy haklarınızı güvenilir bir temsilciye (Delege) devredin.",
+    delegate_error: "Rol devredilirken hata oluştu",
+    delegatee_address: "İstenen delege adresi",
+    delegate_cta: "Devret",
+    undelegate_cta: "Devri Geri Al",
+    current_delegatee: "Mevcut Delege",
+    no_delegatee: "Delege Yok",
+
+    // Plans
+    staking_plans_title: "Staking Planları",
+    staking_plans_desc: "Aşağıdaki planlardan birini seçerek hızlıca stake yapın.",
+    plans_for_role: "Rol için staking planları",
+    plans_for_role_desc: "Güvenlik gereksinimlerini karşılamak ve rol özelliklerine erişmek için minimum stake miktarı.",
+    plan_voter_title: "Oy Sahibi Planı (Temel)",
+    plan_startup_title: "Girişim Planı (Teklif Oluşturma)",
+    plan_delegate_title: "Delege Planı (Yönetişim)",
+    voter_feat1: "Teklifler üzerinde oy kullanma yeteneği",
+    voter_feat2: "Katılım Kanıtı (PoP) ödülleri kazanın",
+    startup_feat1: "Yeni teklif gönderme formuna erişim",
+    startup_feat2: "Teklifler için ilk yapay zeka doğrulaması",
+    delegate_feat1: "Diğer kullanıcılardan devredilen oy gücü kazanın",
+    delegate_feat2: "Doğrulayıcı olarak atanma yeteneği",
+    plan_voter_desc: "Platform güvenliği ve oy hakları için gereken minimum stake.",
+    plan_startup_desc: "Teklif sunma hakları kazanmak için gereken minimum stake.",
+    plan_delegate_desc: "Delegelere katılmak ve yönetişim etkisini en üst düzeye çıkarmak için gereken stake miktarı.",
+    plan_selected_toast: "Plan seçildi. Şimdi 'Stake Et' düğmesine tıklayın.",
+
+    // Buying RYC
+    buy_ryc_desc: "Her RYC tokenının fiyatı yaklaşık olarak",
+    buy_ryc_title: "RYC Token Satın Al",
+    buy_ryc_cta: "RYC Satın Al",
+    add_to_wallet: "RYC tokenini cüzdana ekle",
+    amount_of_matic_to_spend: "Harcanacak para birimi miktarı",
+    buy_ryc_warning: "Nihai maliyet, blok zincirindeki canlı oracle fiyatına göre hesaplanır.",
+    buy_in_progress: "Satın alma işlemi gönderiliyor. Lütfen cüzdanınızda onaylayın.",
+    buy_amount_error: "Satın alma miktarı sıfırdan büyük olmalıdır.",
+    buy_success_title: "Satın Alma Başarılı",
+    buy_success_desc: "RYC tokenları cüzdanınıza eklendi. Lütfen bakiyenizi kontrol edin.",
+    you_will_receive: "Alınacak token sayısı",
+
+    // Notifications & Errors
+    stake_success: "Stake işlemi başarılı",
+    stake_error: "Stake işlemi sırasında hata",
+    unstake_success: "Unstake işlemi başarılı",
+    unstake_error: "Unstake işlemi sırasında hata",
+    claim_success: "Ödüller başarıyla talep edildi",
+    claim_error: "Ödül talebi sırasında hata",
+    approve_button: "Çekimi Onayla",
+    approve_success: "Onay başarılı",
+    approve_error: "Onay sırasında hata",
+    tx_success_title: "İşlem Başarılı",
+    tx_success_desc: "İşleminiz blok zincirinde onaylandı.",
+    approve_in_progress: "Onay işlemi işleniyor. Lütfen onayı bekleyin.",
+    revert_reason_approve: "Onaylamak için yeterli token yok veya geçersiz erişim.",
+    revert_reason_stake_zero: "Stake miktarı sıfırdan büyük olmalıdır.",
+    revert_reason_delegate_stake: "Oy gücünü devretmek için önce RYC tokenlarını stake etmelisiniz.",
+    contract_addresses_missing: "Gerekli sözleşme adresleri (Token/Staking) henüz yüklenmedi. Lütfen bekleyin.",
+  },
+
+  treasury_page: {
+    title: "Hazine",
+    subtitle: "Platform hazinesinin varlıklarını görüntüleyin ve yönetin.",
+    total_assets: "Toplam Varlıklar",
+    assets_in_treasury: "Hazinede tutulan varlıklar",
+    native_token_balance: "Yerel Token Bakiyesi",
+    ryc_token_balance: "RYC Token Bakiyesi",
+    withdraw_funds: "Fon Çek",
+    withdraw_native: "Yerel Token Çek",
+    withdraw_ryc: "RYC Çek",
+    amount: "Miktar",
+    withdraw: "Çek",
+    withdraw_success: "Çekme işlemi başarılı",
+    withdraw_error: "Çekme işlemi sırasında hata",
+    fund_treasury_title: "Haziyeyi Fonla",
+    fund_treasury_desc: "Giderleri ödemek ve projeleri finanse etmek için hazinenin RYC token bakiyesine ihtiyacı var. Cüzdanınızdan hazine sözleşmesine bazı tokenlar transfer edin.",
+    fund_button: "Haziyeyi Fonla",
+    deposit_success: "Hazine başarıyla fonlandı",
+    deposit_error: "Haziyeyi fonlarken hata oluştu",
+    simulation_failed_desc: "İşlem simülasyonu başarısız oldu. Lütfen girdilerinizi kontrol edip tekrar deneyin.",
+    public_view_title: "Genel Görünüm",
+    public_view_desc: "Bu, hazinenin genel bir görünümüdür. Yalnızca yöneticiler fon çekebilir.",
+    native_token: "Yerel Para Birimi",
+    withdraw_funds_desc_admin: "Bir yönetici olarak, hazineden herhangi bir belirtilen cüzdan adresine fon (yerel para birimi veya RYC tokenları) çekebilirsiniz.",
+  },
+
+  // ==============================================================================
+  // 6. AI, ANALYTICS & REPORTS (YZ, Analitik ve Raporlar)
+  // ==============================================================================
+  analytics_page: {
+    title: "Kullanıcı davranışlarının analizi",
+    card_title: "Yapay zekâ tabanlı analiz",
+    start_analysis: "Analizi başlat",
+    select_proposal: "Teklif seçimi",
+    select_placeholder: "Bir teklif seçin",
+    proposal: "Teklif",
+    analysis_results: "Analiz sonuçları",
+    participation_rate: "Katılım oranı",
+    participation_rate_desc: "Aktif oy verenlerin yüzdesi",
+    voter_concentration: "Oy veren yoğunluğu",
+    voter_concentration_desc: "En üst yüzde 10 oy verenin oy oranı",
+    voting_power_distribution: "Oy gücü dağılımı",
+    voting_power_distribution_desc: "Oy gücü dağılımı için Gini katsayısı",
+    collusion_risk: "İş birliği riski",
+    collusion_risk_desc: "Oy verenler arasında koordinasyon olasılığı",
+    gini_low: "Düşük",
+    gini_high: "Yüksek",
+    risk_low: "Düşük",
+    risk_medium: "Orta",
+    risk_high: "Yüksek",
+    analysis_error: "Teklif analizinde hata oluştu",
+    summary_title: "Analiz özeti",
+    subtitle: "Kullanıcıların zincir içi ve zincir dışı aktivitelerinin analiz edilmesiyle kalıpların belirlenmesi ve katılım puanının değerlendirilmesi",
+    card_desc: "Kullanıcının davranış analizi raporunu ve güven puanını almak için cüzdan adresini girin",
+    label: "Kullanıcı cüzdan adresi",
+    analyze_button: "Analizi başlat",
+    report_title: "Davranış analiz raporu",
+    report_desc: "Aşağıdaki adrese sahip kullanıcı için analiz sonuçlarının gösterimi ...{address}",
+    trust_score: "Güven puanı",
+    trust_score_desc: "Geçmiş aktiviteler oylar ve yönetişimdeki katılım temelinde hesaplanan puan",
+    anomaly_status: "Anomali durumu",
+    fetch_error: "Kullanıcı analiz raporu alınırken hata oluştu",
+    invalid_address_error: "Lütfen geçerli bir cüzdan adresi girin",
+  },
+
+  reports_page: {
+    title: "YZ Değerlendirmesi",
+    no_proposals_found: "Hiç teklif bulunamadı",
+    ai_risk_score: "YZ Risk Puanı",
+    ai_risk_score_desc: "0 ile 100 arasında bir puan",
+    subtitle: "Her teklif için YZ destekli derin analiz ve tahminler",
+    card_title: "Akıllı Teklif Analizi",
+    card_desc: "YZ motorundan tam analiz raporu almak için teklif ID'nizi girin",
+    input_placeholder: "Teklif ID’sini girin...",
+    start_analysis: "Analizi başlat",
+    proposal_report_title: "Teklif No {id} için Analiz Raporu",
+    ai_summary_title: "YZ Analiz Özeti",
+    investability_score: "Yatırım yapılabilirlik puanı",
+    overall_risk_level: "Genel risk seviyesi",
+    ai_recommendation: "YZ Tavsiyesi",
+    financial_analysis_title: "Finansal ve ekip analizi",
+    success_probability: "Başarı olasılığı",
+    financial_risk_score: "Finansal risk puanı",
+    team_competency: "Ekip yeterliliği",
+    market_sentiment: "Piyasa eğilimi",
+    error_title: "Hata",
+    success_probability_desc: "Bu puan projenin uzun vadeli başarısına ilişkin YZ güven düzeyini tarihi veriler ve proje özellikleri temelinde gösterir",
+    financial_risk_score_desc: "Bu puan projenin finansal riskini değerlendirir Daha düşük puan daha düşük risk anlamına gelir",
+    team_competency_desc: "Bu puan çekirdek ekibin toplam deneyim yılı ve geçmiş performansına göre hesaplanır",
+    market_sentiment_desc: "Bu puan bu projenin sektörü ve teknolojisine yönelik genel piyasa eğilimini ve beklentilerini gösterir gelecekteki sürümlerde etkinleştirilecektir",
+    xai_title: "Puanlamanın temel sebepleri",
+    xai_strengths: "Temel güçlü yönler",
+    xai_weaknesses: "Temel zayıf yönler",
+    analyzing_data: "Veriler değerlendiriliyor",
+    no_data: "Herhangi bir özel öğe tespit edilmedi.",
+    no_risks_found: "Herhangi bir büyük risk tespit edilmedi.",
+    pdf: "PDF raporu oluştur",
+    share: "Paylaş",
+    ai_audit_report: "Yapay zeka teklif değerlendirme raporu",
+    data_analysis: "veri değerlendirmesi",
+  },
+
+  contract_analyzer_page: {
+    title: "Akıllı sözleşmenin iyileştirilmesi",
+    subtitle: "Akıllı sözleşme kodunuzu yapay zekâ tarafından analiz edilmesi ve iyileştirme önerileri alınması için girin",
+    card_title: "Sözleşme kodu analizi",
+    analyze_button: "Sözleşmeyi analiz et",
+    card_desc: "Aşağıdaki alana Solidity kodunuzu ekleyerek gas tüketimini azaltma güvenliği artırma ve okunabilirliği geliştirme önerileri alın",
+    label: "Akıllı sözleşme kodu (Solidity)",
+    placeholder: "// Akıllı sözleşme kodunuzu buraya ekleyin...\npragma solidity ^0.8.24;\n\ncontract MyContract {\n // ...\n}",
+    suggestions_title: "İyileştirme önerileri",
+    line: "Satır",
+    fetch_error: "Analiz önerileri alınırken hata oluştu",
+    code_too_short_error: "Kod analizi için çok kısa Lütfen tam bir sözleşme girin",
+  },
+
+  security_report: {
+    normal_behavior: "Bu kullanıcının davranış modellerinde herhangi bir şüpheli faaliyet veya anormallik tespit edilmedi.",
+    no_history: "Tam analiz için yeterli aktivite geçmişi bulunmamaktadır.",
+    trusted_user: "Gönderen cüzdanın davranışı güvenilir ağ kullanıcılarının örüntüsüyle uyumludur.",
+    anomaly_detected: "Yapay zeka cüzdan geçmişinde anormal bir davranış örüntüsü tespit etti.",
+    low_activity: "Cüzdanın aktivite geçmişi doğrulama için yeterli değildir (düşük aktivite).",
+    new_wallet: "Bu cüzdan yenidir ve herhangi bir işlem geçmişine sahip değildir.",
+    no_model: "Güvenlik modeli şu anda kullanılamıyor.",
+    error: "Güvenlik analizinde bir hata oluştu.",
+  },
+
+  optimizer: {
+    suggestion: {
+      uint_comparison: "Gas optimizasyonu Unsigned integer değişkenlerde var > 0 yerine var != 0 kullanmak daha az gas maliyetine sahiptir",
+      for_loop_gas: "Gas optimizasyonu for döngülerinde önek ++i sonek i++ kullanımına göre daha az gas tüketir",
+      string_literal: "Gas optimizasyonu Uzun dizelerin 32 bayttan büyük olanların doğrudan sözleşmede saklanması yüksek maliyetlidir constant kullanmayı veya zincir dışı depolamayı değerlendirin",
+      external_visibility: "Gas optimizasyonu Eğer bir public fonksiyon dahili olarak hiç çağrılmıyorsa gas maliyetini azaltmak için onu external olarak değiştirin",
+      safe_math: "Güvenlik önerisi Doğrudan aritmetik işlemler (+ - * /) kullanmışsınız Solidity 0.8 sürümünden önce overflow ve underflow hatalarını önlemek için SafeMath kütüphanesinin kullanılması gereklidir",
+      no_issues_found: "Harika Açık bir otomatik optimizasyon önerisi bulunamadı Kodunuz temiz görünüyor",
+    },
+  },
+
+  risk_level: {
+    low: "düşük",
+    medium: "orta",
+    high: "yüksek",
+    very_high: "çok yüksek",
+  },
+
+  recommendation: {
+    low_risk_desc: "Makine öğrenimi algoritmalarına göre bu proje güçlü temellere sahiptir ve düşük risk taşımaktadır. Büyüme ve sürdürülebilirlik göstergeleri ideal durumdadır.",
+    medium_risk_desc: "Projede başarı potansiyeli görülmektedir ancak risk değişkenleri orta seviyededir. Yatırım yapmadan önce bildirilen zayıf noktaların incelenmesi önerilir.",
+    high_risk_desc: "Yapay zeka önemli yapısal veya finansal riskler tespit etmiştir. Bu yatırım yüksek riskli kabul edilir ve azami dikkat gerektirir.",
+    low: "Düşük",
+    medium: "Orta",
+    high: "Yüksek",
+    very_high: "Çok yüksek",
+  },
+
+  xai: {
+    strength: {
+      strong_team: "Proje ekibi yüksek deneyime sahiptir.",
+      strong_financials: "Projenin finansal modeli ve ekonomik tahminleri güçlü olarak değerlendirilmiştir.",
+      top_factor: "Karar verme sürecindeki ana faktör: ({{factor}})",
+      positive_tam: "Hedef pazarın (TAM) büyüklüğü geniştir ve yüksek büyüme potansiyeline sahiptir ({{value}}).",
+      positive_burn: "Aylık harcama oranı (Burn Rate) talep edilen sermayeye göre mantıklı ve sürdürülebilirdir.",
+      positive_amount: "Talep edilen sermaye miktarı sektörün başarı standartlarıyla uyumludur.",
+      positive_exp: "Yönetim ekibinin deneyimi projenin başarı şansını önemli ölçüde artırmaktadır.",
+      positive_milestones: "Sermaye serbest bırakma aşamalarının (Milestones) sayısı ve yapısı optimize edilmiştir.",
+      high_score: "Projenin genel profili istatistiksel olarak başarılı girişimlerle benzerlik göstermektedir.",
+    },
+    weakness: {
+      inexperienced_team: "Yönetim ekibinin deneyimi beklenen seviyenin altındadır.",
+      high_financial_risk: "Finansal risk ve yatırım geri dönüş riski yüksek olarak değerlendirilmiştir.",
+      negative_tam: "Hedef pazar küçük olarak değerlendirilmiştir ve ölçeklenebilirliği sınırlayabilir.",
+      negative_burn: "Harcama oranı (Burn Rate) talep edilen bütçeye göre dengesizdir (likidite riski).",
+      negative_amount: "Talep edilen miktar projenin gelişim aşamasına göre yüksek risk taşımaktadır.",
+      negative_exp: "Yönetim ekibinde belgelenmiş deneyim eksikliği risk faktörü sayılmaktadır.",
+      negative_milestones: "Aşamaların yapısı likidite baskısı veya teslimat sorunlarına yol açabilir.",
+      financial_uncertainty: "Finansal modelde belirsizlik bulunmaktadır.",
+      general_risk: "Projenin genel riskleri ortalamanın üzerindedir.",
+    },
+    feature: {
+      industry: "Proje sektörü ({{value}})",
+      requested_amount: "Talep edilen miktar",
+      milestone_count: "Finansman aşaması sayısı",
+      team_experience: "Ekip deneyimi",
+      tam: "Hedef pazar (TAM)",
+      burn_rate: "Harcama oranı (Burn Rate)",
+    },
+  },
+
+  // ==============================================================================
+  // 7. USER PROFILE (Kullanıcı Profili)
+  // ==============================================================================
   profile_page: {
     title: "Kullanıcı Profili",
     subtitle: "Hesap bilgilerinizi, aktivitelerinizi ve ayarlarınızı yönetin.",
@@ -587,7 +1039,9 @@ export const tr = {
     change_role: "Rolü Değiştir",
   },
 
-  // Setup Page
+  // ==============================================================================
+  // 8. SYSTEM & ADMIN (Sistem ve Yönetici)
+  // ==============================================================================
   setup_page: {
     title: "Platform Kurulumu",
     subtitle: "Platformun akıllı sözleşmelerini bu panelden yapılandırın ve dağıtın.",
@@ -607,103 +1061,22 @@ export const tr = {
     go_to_dashboard: "Gösterge Paneline Git",
     deploy_failed_message: "Dağıtım başarısız oldu. Lütfen kayıtları kontrol edin.",
     go_to_setup_to_reset: "Sıfırlamak için kurulum sayfasına gidin.",
-      logs: {
-        saving_config: "Yapılandırma .env dosyasına kaydediliyor...",
-        save_success: "Yapılandırma başarıyla kaydedildi. Değişiklikleri uygulamak için lütfen sunucuyu yeniden başlatın.",
-        save_failed: "Yapılandırma kaydedilirken bir hatayla karşılaşıldı.",
-        deploy_start: "Sözleşme dağıtım işlemi başladı...",
-        deploy_success: "Dağıtım işlemi başarıyla tamamlandı.",
-        reset_success: "Sunucu sıfırlama işlemi başarılı oldu.",
-        deploy_failed: "Dağıtım işlemi bir hatayla karşılaştı.",
-        already_setup_title: "Platform zaten kurulmuş.",
-        already_setup_desc: "Akıllı sözleşmelerin zaten dağıtılmış gibi görünüyor. Platformu yeniden başlatmak istiyorsanız, dağıtım bilgilerini sıfırlayabilirsiniz.",
-        reset_setup_button: "Kurulumu Sıfırla",
-        reset_confirm: "Sözleşmeleri sıfırlamak istediğinizden emin misiniz? Bu, tüm İşlemleri sıfırlayacaktır,'kayıp'",
-        resetting_in_progress:"Sözleşmeler sıfırlanıyor",
-      }
+    logs: {
+      saving_config: "Yapılandırma .env dosyasına kaydediliyor...",
+      save_success: "Yapılandırma başarıyla kaydedildi. Değişiklikleri uygulamak için lütfen sunucuyu yeniden başlatın.",
+      save_failed: "Yapılandırma kaydedilirken bir hatayla karşılaşıldı.",
+      deploy_start: "Sözleşme dağıtım işlemi başladı...",
+      deploy_success: "Dağıtım işlemi başarıyla tamamlandı.",
+      reset_success: "Sunucu sıfırlama işlemi başarılı oldu.",
+      deploy_failed: "Dağıtım işlemi bir hatayla karşılaştı.",
+      already_setup_title: "Platform zaten kurulmuş.",
+      already_setup_desc: "Akıllı sözleşmelerin zaten dağıtılmış gibi görünüyor. Platformu yeniden başlatmak istiyorsanız, dağıtım bilgilerini sıfırlayabilirsiniz.",
+      reset_setup_button: "Kurulumu Sıfırla",
+      reset_confirm: "Sözleşmeleri sıfırlamak istediğinizden emin misiniz? Bu, tüm İşlemleri sıfırlayacaktır,'kayıp'",
+      resetting_in_progress: "Sözleşmeler sıfırlanıyor",
+    }
   },
 
-  // Analytics Page
-  analytics_page:{
-    title: "Kullanıcı davranışlarının analizi",
-    card_title: "Yapay zekâ tabanlı analiz",
-    start_analysis: "Analizi başlat",
-    select_proposal: "Teklif seçimi",
-    select_placeholder: "Bir teklif seçin",
-    proposal: "Teklif",
-    analysis_results: "Analiz sonuçları",
-    participation_rate: "Katılım oranı",
-    participation_rate_desc: "Aktif oy verenlerin yüzdesi",
-    voter_concentration: "Oy veren yoğunluğu",
-    voter_concentration_desc: "En üst yüzde 10 oy verenin oy oranı",
-    voting_power_distribution: "Oy gücü dağılımı",
-    voting_power_distribution_desc: "Oy gücü dağılımı için Gini katsayısı",
-    collusion_risk: "İş birliği riski",
-    collusion_risk_desc: "Oy verenler arasında koordinasyon olasılığı",
-    gini_low: "Düşük",
-    gini_high: "Yüksek",
-    risk_low: "Düşük",
-    risk_medium: "Orta",
-    risk_high: "Yüksek",
-    analysis_error: "Teklif analizinde hata oluştu",
-    summary_title: "Analiz özeti",
-    subtitle: "Kullanıcıların zincir içi ve zincir dışı aktivitelerinin analiz edilmesiyle kalıpların belirlenmesi ve katılım puanının değerlendirilmesi",
-    card_desc: "Kullanıcının davranış analizi raporunu ve güven puanını almak için cüzdan adresini girin",
-    label: "Kullanıcı cüzdan adresi",
-    analyze_button: "Analizi başlat",
-    report_title: "Davranış analiz raporu",
-    report_desc: "Aşağıdaki adrese sahip kullanıcı için analiz sonuçlarının gösterimi ...{address}",
-    trust_score: "Güven puanı",
-    trust_score_desc: "Geçmiş aktiviteler oylar ve yönetişimdeki katılım temelinde hesaplanan puan",
-    anomaly_status: "Anomali durumu",
-    fetch_error: "Kullanıcı analiz raporu alınırken hata oluştu",
-    invalid_address_error: "Lütfen geçerli bir cüzdan adresi girin",
-    },
-
-  security_report: {
-    normal_behavior: "Bu kullanıcının davranış modellerinde herhangi bir şüpheli faaliyet veya anormallik tespit edilmedi.",
-    no_history: "Tam analiz için yeterli aktivite geçmişi bulunmamaktadır.",
-    trusted_user: "Gönderen cüzdanın davranışı güvenilir ağ kullanıcılarının örüntüsüyle uyumludur.",
-    anomaly_detected: "Yapay zeka cüzdan geçmişinde anormal bir davranış örüntüsü tespit etti.",
-    low_activity: "Cüzdanın aktivite geçmişi doğrulama için yeterli değildir (düşük aktivite).",
-    new_wallet: "Bu cüzdan yenidir ve herhangi bir işlem geçmişine sahip değildir.",
-    no_model: "Güvenlik modeli şu anda kullanılamıyor.",
-    error: "Güvenlik analizinde bir hata oluştu.",
-  },
-      optimizer:{
-        suggestion:{
-        uint_comparison: "Gas optimizasyonu Unsigned integer değişkenlerde var > 0 yerine var != 0 kullanmak daha az gas maliyetine sahiptir",
-        for_loop_gas: "Gas optimizasyonu for döngülerinde önek ++i sonek i++ kullanımına göre daha az gas tüketir",
-        string_literal: "Gas optimizasyonu Uzun dizelerin 32 bayttan büyük olanların doğrudan sözleşmede saklanması yüksek maliyetlidir constant kullanmayı veya zincir dışı depolamayı değerlendirin",
-        external_visibility: "Gas optimizasyonu Eğer bir public fonksiyon dahili olarak hiç çağrılmıyorsa gas maliyetini azaltmak için onu external olarak değiştirin",
-        safe_math: "Güvenlik önerisi Doğrudan aritmetik işlemler (+ - * /) kullanmışsınız Solidity 0.8 sürümünden önce overflow ve underflow hatalarını önlemek için SafeMath kütüphanesinin kullanılması gereklidir",
-        no_issues_found: "Harika Açık bir otomatik optimizasyon önerisi bulunamadı Kodunuz temiz görünüyor",
-        },
-    },
-  
-  // Contract Analyzer Page
-  contract_analyzer_page: {
-  title: "Akıllı sözleşmenin iyileştirilmesi",
-  subtitle: "Akıllı sözleşme kodunuzu yapay zekâ tarafından analiz edilmesi ve iyileştirme önerileri alınması için girin",
-  card_title: "Sözleşme kodu analizi",
-  analyze_button: "Sözleşmeyi analiz et",
-  card_desc: "Aşağıdaki alana Solidity kodunuzu ekleyerek gas tüketimini azaltma güvenliği artırma ve okunabilirliği geliştirme önerileri alın",
-  label: "Akıllı sözleşme kodu (Solidity)",
-  placeholder: "// Akıllı sözleşme kodunuzu buraya ekleyin...\npragma solidity ^0.8.24;\n\ncontract MyContract {\n // ...\n}",
-  suggestions_title: "İyileştirme önerileri",
-  line: "Satır",
-  fetch_error: "Analiz önerileri alınırken hata oluştu",
-  code_too_short_error: "Kod analizi için çok kısa Lütfen tam bir sözleşme girin",
-  },
-  
-  // Not Found Page
-  not_found: {
-    title: "404 - Sayfa Bulunamadı",
-    message: "Üzgünüz, aradığınız sayfa mevcut değil veya taşınmış.",
-    go_home: "Gösterge Paneline Git",
-  },
-
-  // Logs Page
   logs_page: {
     title: "Olay Günlükleri",
     subtitle: "Platformun akıllı sözleşmelerinde kayıtlı önemli olayların canlı görünümü.",
@@ -743,188 +1116,16 @@ export const tr = {
     function_at_inversebrah: "Inversebrah'ta",
   },
 
-  // Staking Page
-  staking_page: {
-    title: "Staking & Ödüller",
-    subtitle: "RYC tokenlarınızı stake edin, yönetime katılın ve ödüller kazanın.",
-    subtitle_for_role: "Rol için staking yönetim sayfası:",
-    ryc_balance: "RYC Bakiyesi",
-    staked_balance: "Stake Edilen Bakiye",
-    staked_balance_desc: "Stake edilmiş tokenlarınız",
-    earned_rewards: "Kazanılan Ödüller",
-    stake_tokens_title: "Token Stake Et",
-    stake_tokens_desc: "Ödül ve oy gücü kazanmak için RYC tokenlarınızı kilitleyin.",
-    amount_to_stake: "Stake Edilecek Miktar",
-    stake: "Stake Et",
-    unstake_tokens_title: "Stake'ten Çek",
-    unstake_tokens_desc: "Stake ettiğiniz RYC tokenlarınızı çekin.",
-    amount_to_unstake: "Çekilecek Miktar",
-    unstake: "Unstake",
-    claim_rewards_title: "Ödülleri Talep Et",
-    claim_rewards_desc: "Kazandığınız ödülleri cüzdanınıza aktarın.",
-    claim_rewards: "Ödülleri Talep Et",
-    stake_success: "Stake işlemi başarılı",
-    stake_error: "Stake işlemi sırasında hata",
-    unstake_success: "Unstake işlemi başarılı",
-    unstake_error: "Unstake işlemi sırasında hata",
-    claim_success: "Ödüller başarıyla talep edildi",
-    claim_error: "Ödül talebi sırasında hata",
-    staking_plans_title: "Staking Planları",
-    staking_plans_desc: "Aşağıdaki planlardan birini seçerek hızlıca stake yapın.",
-    approve_button: "Çekimi Onayla",
-    approve_success: "Onay başarılı",
-    approve_error: "Onay sırasında hata",
-    delegate_title: "Oy Gücünü Devret",
-    delegate_desc: "Katılım Kanıtı (PoP) puanını ve ağ güvenliğini artırmak için oy haklarınızı güvenilir bir temsilciye (Delege) devredin.",
-    delegate_error: "Rol devredilirken hata oluştu",
-    delegatee_address: "İstenen delege adresi",
-    delegate_cta: "Devret",
-    undelegate_cta: "Devri Geri Al",
-    plans_for_role: "Rol için staking planları",
-    plans_for_role_desc: "Güvenlik gereksinimlerini karşılamak ve rol özelliklerine erişmek için minimum stake miktarı.",
-    current_delegatee: "Mevcut Delege",
-    no_delegatee: "Delege Yok",
-    plan_voter_title: "Oy Sahibi Planı (Temel)",
-    plan_startup_title: "Girişim Planı (Teklif Oluşturma)",
-    plan_delegate_title: "Delege Planı (Yönetişim)",
-    voter_feat1: "Teklifler üzerinde oy kullanma yeteneği",
-    voter_feat2: "Katılım Kanıtı (PoP) ödülleri kazanın",
-    startup_feat1: "Yeni teklif gönderme formuna erişim",
-    startup_feat2: "Teklifler için ilk yapay zeka doğrulaması",
-    delegate_feat1: "Diğer kullanıcılardan devredilen oy gücü kazanın",
-    delegate_feat2: "Doğrulayıcı olarak atanma yeteneği",
-    plan_voter_desc: "Platform güvenliği ve oy hakları için gereken minimum stake.",
-    plan_startup_desc: "Teklif sunma hakları kazanmak için gereken minimum stake.",
-    plan_delegate_desc: "Delegelere katılmak ve yönetişim etkisini en üst düzeye çıkarmak için gereken stake miktarı.",
-    tx_success_title: "İşlem Başarılı",
-    tx_success_desc: "İşleminiz blok zincirinde onaylandı.",
-    approve_in_progress: "Onay işlemi işleniyor. Lütfen onayı bekleyin.",
-    revert_reason_approve: "Onaylamak için yeterli token yok veya geçersiz erişim.",
-    revert_reason_stake_zero: "Stake miktarı sıfırdan büyük olmalıdır.",
-    revert_reason_delegate_stake: "Oy gücünü devretmek için önce RYC tokenlarını stake etmelisiniz.",
-    plan_selected_toast: "Plan seçildi. Şimdi 'Stake Et' düğmesine tıklayın.",
-    contract_addresses_missing: "Gerekli sözleşme adresleri (Token/Staking) henüz yüklenmedi. Lütfen bekleyin.",
-    buy_ryc_desc: "Her RYC tokenının fiyatı yaklaşık olarak",
-    buy_ryc_title: "RYC Token Satın Al",
-    buy_ryc_cta: "RYC Satın Al",
-    amount_of_matic_to_spend: "Harcanacak para birimi miktarı",
-    buy_ryc_warning: "Nihai maliyet, blok zincirindeki canlı oracle fiyatına göre hesaplanır.",
-    buy_in_progress: "Satın alma işlemi gönderiliyor. Lütfen cüzdanınızda onaylayın.",
-    buy_amount_error: "Satın alma miktarı sıfırdan büyük olmalıdır.",
-    buy_success_title: "Satın Alma Başarılı",
-    buy_success_desc: "RYC tokenları cüzdanınıza eklendi. Lütfen bakiyenizi kontrol edin.",
-    you_will_receive: "Alınacak token sayısı",
-    manage_stake_title: "Stake Yönetimi",
-    manage_stake_desc: "Stake'inizi çekin veya kazanılan ödülleri talep edin.",
-    card_label_balance: "Cüzdanda satın alınan RYC token miktarı",
-    card_label_staked: "Stake edilen RYC token bakiyesi",
-    card_label_earned: "Alınan performans ödülleri miktarı",
-    add_to_wallet: "RYC tokenini cüzdana ekle",
-    unclaimed_rewards: "Toplam alınmamış ödüller",
-
-  },
-
-  // Treasury Page
-  treasury_page: {
-    title: "Hazine",
-    subtitle: "Platform hazinesinin varlıklarını görüntüleyin ve yönetin.",
-    total_assets: "Toplam Varlıklar",
-    assets_in_treasury: "Hazinede tutulan varlıklar",
-    native_token_balance: "Yerel Token Bakiyesi",
-    ryc_token_balance: "RYC Token Bakiyesi",
-    withdraw_funds: "Fon Çek",
-    withdraw_native: "Yerel Token Çek",
-    withdraw_ryc: "RYC Çek",
-    amount: "Miktar",
-    withdraw: "Çek",
-    withdraw_success: "Çekme işlemi başarılı",
-    withdraw_error: "Çekme işlemi sırasında hata",
-    fund_treasury_title: "Haziyeyi Fonla",
-    fund_treasury_desc: "Giderleri ödemek ve projeleri finanse etmek için hazinenin RYC token bakiyesine ihtiyacı var. Cüzdanınızdan hazine sözleşmesine bazı tokenlar transfer edin.",
-    fund_button: "Haziyeyi Fonla",
-    deposit_success: "Hazine başarıyla fonlandı",
-    deposit_error: "Haziyeyi fonlarken hata oluştu",
-    simulation_failed_desc: "İşlem simülasyonu başarısız oldu. Lütfen girdilerinizi kontrol edip tekrar deneyin.",
-    public_view_title: "Genel Görünüm",
-    public_view_desc: "Bu, hazinenin genel bir görünümüdür. Yalnızca yöneticiler fon çekebilir.",
-    native_token: "Yerel Para Birimi",
-    withdraw_funds_desc_admin: "Bir yönetici olarak, hazineden herhangi bir belirtilen cüzdan adresine fon (yerel para birimi veya RYC tokenları) çekebilirsiniz.",
-  },
-  
-  // Proposal Detail Page
-  proposal_detail: {
-    proposal_id: "Teklif ID",
-    not_found: "Teklif bulunamadı.",
-    details: "Detaylar",
-    status_desc: "Teklifin mevcut durumu.",
-    proposer_info: "Teklif Sahibi Bilgileri",
-    funding_info: "Finansman Bilgileri",
-    total_requested: "Talep Edilen Toplam Miktar",
-    milestones: "Aşamalar",
-    milestone: "Aşama",
-    voting_results: "Oylama Sonuçları",
-    vote_for: "Lehine",
-    vote_against: "Aleyhine",
-    for: "Lehine",
-    against: "Aleyhine",
-    total_votes: "Toplam Oy",
-    created_on: "Oluşturulma Tarihi",
-    voting_deadline: "Oylama Son Tarihi",
-    votes_for: "Lehine Oy Ver",
-    votes_against: "Aleyhine Oy Ver",
-    ai_analysis: "yapay zeka değerlendirmesi",
-    ai_risk_score: "yapay zeka risk puanı",
-    market_sentiment: "piyasa duyarlılığı",
-    team_competency: "ekip yetkinliği",
-    description: "teklif açıklaması",
-    proposer: "öneren kişi",
-    view_ai_report: "yapay zeka raporunu görüntüle",
-    milestone_management: "Proje sermayesi yönetimi",
-    milestone_management_desc: "Projeniz finanse edilmiştir. Bir sonraki sermaye diliminin serbest bırakılması için ilerleme raporunu gönderin.",
-    request_next_milestone: "Bir sonraki aşamanın serbest bırakılmasını talep et",
-    submit_progress_report: "İlerleme raporunu gönder",
-    progress_description: "Bu aşamada yapılan çalışmaları açıklayın:",
-    progress_placeholder: "Örneğin: MVP geliştirmesinin tamamlanması, kullanıcı testlerinin bitmesi...",
-    submit_request: "Talebi gönder",
-    total_supply: "mevcut toplam token arasından",
-    timeline:{
-      title: "Teklif durumu",
-      submitted: "Gönderildi",
-      voting: "Oylama aşamasında",
-      approved: "Nihai sonuç",
-      executed: "Uygulandı",
-      },
-      you_have_voted_title: "Oyunuzu kaydettiniz",
-      you_have_voted_desc: "Yönetişim sürecine katılımınız için teşekkür ederiz Sonuç oylama süresi tamamlandıktan sonra belirlenecektir",
-      admin_actions: "Yönetim işlemleri",
-      execute_proposal: "Teklifi yürüt",
-    status: {
-      pending: "Beklemede",
-      active: "Oylama devam ediyor",
-      canceled: "İptal edildi",
-      defeated: "Reddedildi",
-      succeeded: "Onaylandı",
-      queued: "Yürütme sırasında",
-      expired: "Süresi doldu",
-      executed: "Uygulandı",
-      unknown: "Bilinmiyor",
-      validation: "Doğrulanıyor",
-    },
-    alert: {
-      insufficient_power_title: "Yetersiz oy hakkı",
-      insufficient_power_desc: "Yönetişime katılmak için (RYC) tokenlarını stake etmelisiniz Şu anda oy gücünüz sıfır Staking sayfasına gitmek ister misiniz",
-      cancel: "İptal",
-      go_to_staking: "Staking sayfasına git"
-    },
-  },
-
-  // Dynamic Content
+  // ==============================================================================
+  // 9. UTILITIES & TOASTS (Araçlar ve Bildirimler)
+  // ==============================================================================
   users: {
     user1: "Kullanıcı 1",
     you: "Siz",
     user3: "Kullanıcı 3",
     user4: "Kullanıcı 4",
   },
+
   activities: {
     voted_positive: "{proposal} teklifine olumlu oy verdi.",
     transferred_tokens: "cüzdanınıza 25 RYC token transfer etti.",
@@ -946,100 +1147,18 @@ export const tr = {
     milestone_released: "#{id} numaralı teklif için #{milestoneIndex} finansman aşamasını serbest bıraktı",
     ownership_transferred: "Sözleşmenin sahipliğini devretti",
   },
+
   time: {
     minutes_ago: "5 dakika önce",
     hour_ago: "1 saat önce",
     hours_ago: "3 saat önce",
     yesterday: "Dün",
-},
-    reports_page: {
-    title: "YZ Değerlendirmesi",
-    no_proposals_found: "Hiç teklif bulunamadı",
-    ai_risk_score: "YZ Risk Puanı",
-    ai_risk_score_desc: "0 ile 100 arasında bir puan",
-    subtitle: "Her teklif için YZ destekli derin analiz ve tahminler",
-    card_title: "Akıllı Teklif Analizi",
-    card_desc: "YZ motorundan tam analiz raporu almak için teklif ID'nizi girin",
-    input_placeholder: "Teklif ID’sini girin...",
-    start_analysis: "Analizi başlat",
-    proposal_report_title: "Teklif No {id} için Analiz Raporu",
-    ai_summary_title: "YZ Analiz Özeti",
-    investability_score: "Yatırım yapılabilirlik puanı",
-    overall_risk_level: "Genel risk seviyesi",
-    ai_recommendation: "YZ Tavsiyesi",
-    financial_analysis_title: "Finansal ve ekip analizi",
-    success_probability: "Başarı olasılığı",
-    financial_risk_score: "Finansal risk puanı",
-    team_competency: "Ekip yeterliliği",
-    market_sentiment: "Piyasa eğilimi",
-    error_title: "Hata",
-    success_probability_desc: "Bu puan projenin uzun vadeli başarısına ilişkin YZ güven düzeyini tarihi veriler ve proje özellikleri temelinde gösterir",
-    financial_risk_score_desc: "Bu puan projenin finansal riskini değerlendirir Daha düşük puan daha düşük risk anlamına gelir",
-    team_competency_desc: "Bu puan çekirdek ekibin toplam deneyim yılı ve geçmiş performansına göre hesaplanır",
-    market_sentiment_desc: "Bu puan bu projenin sektörü ve teknolojisine yönelik genel piyasa eğilimini ve beklentilerini gösterir gelecekteki sürümlerde etkinleştirilecektir",
-    xai_title: "Puanlamanın temel sebepleri",
-    xai_strengths: "Temel güçlü yönler",
-    xai_weaknesses: "Temel zayıf yönler",
-    analyzing_data: "Veriler değerlendiriliyor",
-    no_data: "Herhangi bir özel öğe tespit edilmedi.",
-    no_risks_found: "Herhangi bir büyük risk tespit edilmedi.",
-    pdf: "PDF raporu oluştur",
-    share: "Paylaş",
-    ai_audit_report: "Yapay zeka teklif değerlendirme raporu",
-    data_analysis: "veri değerlendirmesi",
-    },
-    risk_level: {
-    low: "düşük",
-    medium: "orta",
-    high: "yüksek",
-    very_high: "çok yüksek",
-    },
-  recommendation: {
-    low_risk_desc: "Makine öğrenimi algoritmalarına göre bu proje güçlü temellere sahiptir ve düşük risk taşımaktadır. Büyüme ve sürdürülebilirlik göstergeleri ideal durumdadır.",
-    medium_risk_desc: "Projede başarı potansiyeli görülmektedir ancak risk değişkenleri orta seviyededir. Yatırım yapmadan önce bildirilen zayıf noktaların incelenmesi önerilir.",
-    high_risk_desc: "Yapay zeka önemli yapısal veya finansal riskler tespit etmiştir. Bu yatırım yüksek riskli kabul edilir ve azami dikkat gerektirir.",
-    low: "Düşük",
-    medium: "Orta",
-    high: "Yüksek",
-    very_high: "Çok yüksek",
   },
-  xai: {
-    strength: {
-      strong_team: "Proje ekibi yüksek deneyime sahiptir.",
-      strong_financials: "Projenin finansal modeli ve ekonomik tahminleri güçlü olarak değerlendirilmiştir.",
-      top_factor: "Karar verme sürecindeki ana faktör: ({{factor}})",
-      positive_tam: "Hedef pazarın (TAM) büyüklüğü geniştir ve yüksek büyüme potansiyeline sahiptir ({{value}}).",
-      positive_burn: "Aylık harcama oranı (Burn Rate) talep edilen sermayeye göre mantıklı ve sürdürülebilirdir.",
-      positive_amount: "Talep edilen sermaye miktarı sektörün başarı standartlarıyla uyumludur.",
-      positive_exp: "Yönetim ekibinin deneyimi projenin başarı şansını önemli ölçüde artırmaktadır.",
-      positive_milestones: "Sermaye serbest bırakma aşamalarının (Milestones) sayısı ve yapısı optimize edilmiştir.",
-      high_score: "Projenin genel profili istatistiksel olarak başarılı girişimlerle benzerlik göstermektedir.",
-    },
-    weakness: {
-      inexperienced_team: "Yönetim ekibinin deneyimi beklenen seviyenin altındadır.",
-      high_financial_risk: "Finansal risk ve yatırım geri dönüş riski yüksek olarak değerlendirilmiştir.",
-      negative_tam: "Hedef pazar küçük olarak değerlendirilmiştir ve ölçeklenebilirliği sınırlayabilir.",
-      negative_burn: "Harcama oranı (Burn Rate) talep edilen bütçeye göre dengesizdir (likidite riski).",
-      negative_amount: "Talep edilen miktar projenin gelişim aşamasına göre yüksek risk taşımaktadır.",
-      negative_exp: "Yönetim ekibinde belgelenmiş deneyim eksikliği risk faktörü sayılmaktadır.",
-      negative_milestones: "Aşamaların yapısı likidite baskısı veya teslimat sorunlarına yol açabilir.",
-      financial_uncertainty: "Finansal modelde belirsizlik bulunmaktadır.",
-      general_risk: "Projenin genel riskleri ortalamanın üzerindedir.",
-    },
-    feature: {
-      industry: "Proje sektörü ({{value}})",
-      requested_amount: "Talep edilen miktar",
-      milestone_count: "Finansman aşaması sayısı",
-      team_experience: "Ekip deneyimi",
-      tam: "Hedef pazar (TAM)",
-      burn_rate: "Harcama oranı (Burn Rate)",
-    },
-},
 
   toasts: {
     uploading_docs: "Belgeler yükleniyor...",
     saving_proposal: "Teklif bilgileri kaydediliyor...",
-    confirm_in_wallet: "Lütfen cüzdanınızdaki işlemi onaylayın...",
+    confirm_in_wallet: "Lütfen cüzdanınızı bağlayın ve işlemi onaylayın...",
     tx_submitted: "İşlem gönderildi. Onay bekleniyor...",
     submission_failed: "Gönderim başarısız oldu.",
     proposal_created_success: "Teklif başarıyla oluşturuldu!",
@@ -1092,45 +1211,10 @@ export const tr = {
     error_user_rejected: "İşlem kullanıcı tarafından iptal edildi.",
     error_generic: "Bilinmeyen bir hata oluştu.",
   },
-      numbers: {
+
+  numbers: {
     0: "0",
     50: "50",
     100: "100",
-  },
-    guide_page: {
-    title: "Platform kullanım rehberi",
-    subtitle: "RayanChain’de kullanıcı rolünüze göre nasıl çalışacağınızı öğrenin",
-    tabs: {
-      investor: "💰 Yatırımcı",
-      startup: "🚀 Girişim",
-      voter: "🗳️ Oy veren"
-    },
-    actions: {
-      go_to_staking: "Staking sayfasına git",
-      create_proposal: "Teklif oluştur",
-      view_proposals: "Aktif oylamaları görüntüle"
-    },
-    investor: {
-      step1_title: "Cüzdan bağlama ve token alma",
-      step1_desc: "Cüzdanınızı bağlayın Eğer RYC tokeniniz yoksa MATIC’i panelden veya borsalardan dönüştürebilirsiniz",
-      step2_title: "Teklifleri inceleme",
-      step2_desc: "Aktif teklifleri inceleyin Risk seviyesi ekip yeterliliği ve piyasa duyarlılığını analiz etmek için yapay zeka raporlarını kullanın",
-      step3_title: "Yönetişim için staking",
-      step3_desc: "Kararlarda etkili olmak için RYC tokenlerinizi stake edin Bu işlem yatırdığınız miktar oranında oy gücü sağlar"
-    },
-    startup: {
-      step1_title: "Teklif kaydı",
-      step1_desc: "Detaylı teklif formunu doldurun Finansal ve hukuki belgeleri ve sunum dosyasını yükleyin Veriler IPFS üzerinde güvenli şekilde saklanır",
-      step2_title: "Yapay zeka analizi",
-      step2_desc: "Kayıt sonrası çok katmanlı yapay zekamız projeyi risk ve uygulanabilirlik açısından analiz eder ve rapor teklife eklenir",
-      step3_title: "Topluluk oylaması",
-      step3_desc: "Toplulukla etkileşime geçin Eğer teklif yeterli oy alırsa fonlar aşamalar halinde serbest bırakılır"
-    },
-    voter: {
-      step1_title: "Oy gücü elde etme",
-      step1_desc: "Sadece cüzdandaki tokenlarla oy kullanamazsınız Tokenlerin stake edilmesi veya oy hakkının size devredilmiş olması gerekir",
-      step2_title: "Oy kaydı",
-      step2_desc: "Aktif bir teklife gidin ve olumlu oy veya olumsuz oy seçin Oy ağırlığınız stake miktarınıza bağlıdır"
-    }
   },
 };

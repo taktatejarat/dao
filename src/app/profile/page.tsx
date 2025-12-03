@@ -1,6 +1,7 @@
+// src/app/profile/page.tsx - REFACTORED & CLEAN
+
 "use client";
 
-import { useState, useEffect } from 'react';
 import { AppLayout } from '@/components/layout/app-layout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -8,357 +9,263 @@ import { useWeb3 } from '@/context/Web3Provider';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { BarChart3, Settings, FileText, ShieldCheck, Server, KeyRound, Gem, Banknote, Edit } from 'lucide-react';
+import { 
+    Settings, ShieldCheck, Server, KeyRound, 
+    Gem, Banknote, Edit, Bell, User as UserIcon,
+    History, Wallet, Crown
+} from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { formatNumber, formatLocaleDate, formatAddress } from '@/lib/utils';
 import { useTranslation } from '@/hooks/use-translation';
-import { useBalance, useReadContract } from 'wagmi';
-import { toast } from 'sonner';
-import { Skeleton } from '@/components/ui/skeleton';
-import { formatEther, type Address } from 'viem';
+import { formatEther } from 'viem';
 import { DaoLoadingSpinner } from '@/components/icons/dao-loading-spinner';
 import Link from 'next/link';
-import { daoRegistryAbi, rayanChainDaoAbi, rayanChainTokenAbi } from '@/lib/blockchain/generated';
-import { REGISTRY_KEYS } from '@/lib/blockchain/registry-keys';
-import { useOwnershipTransfer } from '@/hooks/useOwnershipTransfer';
+import { StatCard } from '@/components/dashboard/stat-card';
+import { useLanguage } from '@/context/LanguageProvider';
 
-type UserProfileData = {
-    displayName: string;
-    email: string;
-}
-type NotificationSettings = {
-    proposal: boolean;
-    result: boolean;
-    summary: boolean;
-}
+// ✅ Import Specialized Hooks
+import { NotificationSettings, useUserProfile } from '@/hooks/useUserProfile';
+import { useAdminProfile } from '@/hooks/useAdminProfile';
 
+// --- Sub-Component: Admin Config Panel ---
+const AdminConfigPanel = () => {
+    const { t } = useSafeTranslation();
+    const { info, transferLogic, isLoading } = useAdminProfile();
+    const { newOwnerAddress, setNewOwnerAddress, handleTransfer, isPending, isButtonDisabled } = transferLogic;
 
-function useProfileContractAddresses() {
-    const { registryAddress, isHydrated } = useWeb3();
+    if (isLoading) return <div className="p-4 flex justify-center"><DaoLoadingSpinner /></div>;
 
-    const { data: token, isLoading: l1 } = useReadContract({ 
-        address: registryAddress as Address,
-        abi: daoRegistryAbi, 
-        functionName: 'getAddress', 
-        args: [REGISTRY_KEYS.TOKEN] as const,
-        query: { enabled: !!registryAddress && isHydrated }
-    });
-    
-    const { data: dao, isLoading: l2 } = useReadContract({ 
-        address: registryAddress as Address,
-        abi: daoRegistryAbi, 
-        functionName: 'getAddress', 
-        args: [REGISTRY_KEYS.DAO] as const,
-        query: { enabled: !!registryAddress && isHydrated }
-    });
+    return (
+        <Card className="border-primary/20 bg-primary/5">
+            <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-primary text-start"><ShieldCheck className="w-5 h-5"/> {t('profile_page.platform_config_title')}</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+                <div className="grid md:grid-cols-2 gap-4">
+                    <div className="space-y-1 text-start">
+                        <Label className="text-xs text-muted-foreground flex gap-1 items-center"><Server className="w-3 h-3"/> DAO Contract</Label>
+                        <div className="font-mono text-sm bg-background p-2 rounded border truncate text-start" dir="ltr">{formatAddress(info.daoAddress)}</div>
+                    </div>
+                    <div className="space-y-1 text-start">
+                        <Label className="text-xs text-muted-foreground flex gap-1 items-center"><KeyRound className="w-3 h-3"/> Token Contract</Label>
+                        <div className="font-mono text-sm bg-background p-2 rounded border truncate text-start" dir="ltr">{formatAddress(info.tokenAddress)}</div>
+                    </div>
+                </div>
+                <div className="border-t pt-4 text-start">
+                    <Label className="mb-2 block">{t('profile_page.transfer_ownership_label')}</Label>
+                    <p className="text-xs text-muted-foreground mb-2">{t('profile_page.transfer_ownership_desc')}</p>
+                    <div className="flex gap-2">
+                        <Input 
+                            placeholder="New Owner Address (0x...)" 
+                            value={newOwnerAddress} 
+                            onChange={(e) => setNewOwnerAddress(e.target.value)} 
+                            className="bg-background text-start font-mono" 
+                            dir="ltr" 
+                        />
+                        <Button onClick={handleTransfer} disabled={isButtonDisabled}>
+                            {isPending ? <DaoLoadingSpinner /> : t('profile_page.transfer_button')}
+                        </Button>
+                    </div>
+                    <div className="mt-2 text-xs">
+                        <span className="text-muted-foreground">{t('profile_page.live_contract_owner')}: </span>
+                        <span className="font-mono">{info.contractOwner ? formatAddress(info.contractOwner) : '...'}</span>
+                    </div>
+                </div>
+            </CardContent>
+        </Card>
+    );
+};
 
-    return {
-        addresses: {
-            dao: dao as Address | undefined,
-            token: token as Address | undefined,
-        },
-        isLoading: l1 || l2,
-    };
-}
+// --- Helper for Type-Safe Translation ---
+const useSafeTranslation = () => {
+    const { t: originalT, locale } = useTranslation();
+    const t = (key: string, params?: any) => (originalT as any)(key, params);
+    return { t, locale };
+};
 
 export default function ProfilePage() {
-    const { address, userRole, isHydrated } = useWeb3();
-    const { t, locale } = useTranslation();
-    
-    const [profile, setProfile] = useState<UserProfileData>({ displayName: '', email: '' });
-    const [isLoadingProfile, setIsLoadingProfile] = useState(true);
-    const [notifications, setNotifications] = useState<NotificationSettings>({ proposal: true, result: true, summary: false });
+    const { address, userRole } = useWeb3();
+    const { t, locale } = useSafeTranslation();
+    const { direction } = useLanguage();
 
-    const { addresses } = useProfileContractAddresses();
-    const { dao: daoAddress, token: tokenAddress } = addresses;
+    // ✅ Using the new hooks
+    const { profile, setProfile, balances, isLoading, isSaving, updateProfile, notifications, setNotifications } = useUserProfile();
+    const { isAdmin } = useAdminProfile(); // Just to check if we should render admin panel
 
-    const {
-        newOwnerAddress,
-        setNewOwnerAddress,
-        handleTransfer,
-        isPending,
-        isButtonDisabled,
-    } = useOwnershipTransfer({ daoAddress });
-    
-    // --- Data Fetching Hooks ---
-    const { data: nativeBalance, isLoading: isNativeBalanceLoading } = useBalance({ address: address || undefined });
-    
-    const { data: rycBalance, isLoading: isRycBalanceLoading } = useReadContract({
-        address: tokenAddress,
-        abi: rayanChainTokenAbi,
-        functionName: 'balanceOf',
-        args: [address!],
-        query: { enabled: !!address && !!tokenAddress },
-    });
-
-    const { data: contractOwner, isLoading: isOwnerLoading } = useReadContract({
-        address: daoAddress,
-        abi: rayanChainDaoAbi,
-        functionName: 'owner',
-        query: { enabled: !!daoAddress },
-    });
-
-    // --- Side Effects ---
-    useEffect(() => {
-        async function fetchProfile() {
-            if (address) {
-                setIsLoadingProfile(true);
-                try {
-                    const response = await fetch(`/api/profile?address=${address}`);
-                    if (response.ok) {
-                        const data = await response.json();
-                        setProfile(data);
-                    }
-                } finally {
-                    setIsLoadingProfile(false);
-                }
-            }
-        }
-        if (isHydrated) {
-            fetchProfile();
-        }
-    }, [address, isHydrated]);
-
-    // --- Event Handlers ---
-    const handleProfileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setProfile({ ...profile, [e.target.id]: e.target.value });
-    };
-
-    const handleSaveProfile = async () => {
-        if (!profile || !address) return;
-        try {
-            const response = await fetch('/api/profile', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ address, ...profile }),
-            });
-            if (response.ok) {
-                toast.success(t('profile_page.profile_saved'));
-            } else {
-                toast.error(t('profile_page.error_title'));
-            }
-        } catch (error) {
-             toast.error(t('profile_page.error_title'));
+    const handleSave = async () => {
+        const success = await updateProfile(profile);
+        if (success) {
+            // Toast is handled in hook, but you can add more logic here
         }
     };
 
-    // --- Static Data for Display ---
-    const direction = locale === 'fa' ? 'rtl' : 'ltr';
+    // Static Data (Can be moved to a hook later)
     const votingHistory = [
       { id: 'vh001', proposalId: 'P001', titleKey: 'proposals.network_upgrade', voteKey: 'profile_page.positive', date: new Date('2024-07-01') },
       { id: 'vh002', proposalId: 'P002', titleKey: 'proposals.mobile_dapp', voteKey: 'profile_page.negative', date: new Date('2024-06-29') },
-      { id: 'vh003', proposalId: 'P003', titleKey: 'proposals.defi_integration', voteKey: 'profile_page.positive', date: new Date('2024-06-15') },
     ];
-
 
     return (
         <AppLayout>
-            <header className="mb-6">
-                <h1 className="text-3xl font-bold font-headline text-gradient">{t('profile_page.title')}</h1>
-                <p className="text-muted-foreground">{t('profile_page.subtitle')}</p>
-            </header>
-
-            <Tabs defaultValue="overview" className="w-full" dir={direction}>
-                <TabsList className="grid w-full grid-cols-1 sm:grid-cols-3">
-                    <TabsTrigger value="overview"><BarChart3 className="mx-2"/>{t('profile_page.overview')}</TabsTrigger>
-                    <TabsTrigger value="history"><FileText className="mx-2"/>{t('profile_page.activity_history')}</TabsTrigger>
-                    <TabsTrigger value="settings"><Settings className="mx-2"/>{t('settings')}</TabsTrigger>
-                </TabsList>
+            <div className="space-y-8 pb-10 max-w-6xl mx-auto animate-in fade-in duration-500">
                 
-                <TabsContent value="overview" className="mt-6 space-y-6">
-                    <Card>
-                        <CardHeader className="flex flex-col sm:flex-row items-center gap-4 text-center sm:text-start">
-                            <Avatar className="h-24 w-24 border-4 border-primary/50 shadow-md">
-                                <AvatarImage src={`https://placehold.co/96x96.png?text=${userRole?.substring(0,1).toUpperCase()}`} />
-                                <AvatarFallback>{userRole?.substring(0,1).toUpperCase()}</AvatarFallback>
+                {/* --- 1. HERO HEADER --- */}
+                <div className="relative rounded-xl overflow-hidden bg-gradient-to-r from-primary/10 via-background to-background border border-border/50 shadow-sm p-6 md:p-10">
+                    <div className="relative z-10 flex flex-col md:flex-row items-center gap-6 text-center md:text-start">
+                        <div className="relative">
+                            <Avatar className="h-28 w-28 border-4 border-background shadow-xl">
+                                <AvatarImage src={`https://api.dicebear.com/7.x/identicon/svg?seed=${address}`} />
+                                <AvatarFallback className="text-3xl bg-primary/20 text-primary">{userRole?.substring(0,1).toUpperCase()}</AvatarFallback>
                             </Avatar>
-                            <div className="flex-1">
-                                <CardTitle className="text-2xl font-headline text-gradient">
-                                    {userRole ? t('profile_page.user_role').replace('{role}', t(userRole)) : t('auth_guard.loading')}
-                                </CardTitle>
-                                <CardDescription className="break-all mt-1 font-mono text-xs">{address || '0x...'}</CardDescription>
-                                <div className="mt-2 flex gap-2 justify-center sm:justify-start">
-                                    <Badge variant="secondary">{t('profile_page.status_active')}</Badge>
-                                    <Button asChild variant="outline" size="sm">
-                                        <Link href="/role-selection"><Edit className="me-2 size-3"/> {t('profile_page.change_role')}</Link>
-                                    </Button>
-                                </div>
+                            <Badge className="absolute -bottom-2 -right-2 rtl:-right-auto rtl:-left-2 px-3 py-1 bg-primary text-primary-foreground border-2 border-background capitalize">
+                                {userRole ? t(userRole) : 'Guest'}
+                            </Badge>
+                        </div>
+                        
+                        <div className="flex-1 space-y-2">
+                            <h1 className="text-3xl font-bold font-headline text-gradient">
+                                {profile.displayName || t('profile_page.welcome_user')}
+                            </h1>
+                            <div className="flex flex-wrap justify-center md:justify-start gap-3 text-sm text-muted-foreground font-mono bg-muted/50 w-fit px-3 py-1 rounded-full mx-auto md:mx-0" dir="ltr">
+                                <Wallet className="w-4 h-4" />
+                                {address ? formatAddress(address) : '0x...'}
                             </div>
-                            <Button onClick={handleSaveProfile}>{t('save_settings')}</Button>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="grid gap-6 md:grid-cols-2">
-                               {isLoadingProfile ? (
-                                    <>
-                                        <div className="space-y-2">
-                                            <Label htmlFor="displayName">{t('profile_page.display_name')}</Label>
-                                            <Skeleton className="h-10 w-full" />
-                                        </div>
-                                         <div className="space-y-2">
-                                            <Label htmlFor="email">{t('profile_page.email_for_notifications')}</Label>
-                                            <Skeleton className="h-10 w-full" />
-                                        </div>
-                                    </>
-                               ) : (
-                                <>
-                                    <div className="space-y-2">
-                                        <Label htmlFor="displayName">{t('profile_page.display_name')}</Label>
-                                        <Input id="displayName" value={profile?.displayName || ''} onChange={handleProfileChange} />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label htmlFor="email">{t('profile_page.email_for_notifications')}</Label>
-                                        <Input id="email" type="email" placeholder="you@example.com" value={profile?.email || ''} onChange={handleProfileChange} />
-                                    </div>
-                                </>
-                               )}
-                            </div>
-                        </CardContent>
-                    </Card>
+                        </div>
 
-                    <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-2">
-                        <Card>
-                            <CardHeader className="flex-row items-center gap-3 space-y-0 pb-2">
-                                <Banknote className="w-6 h-6 text-primary"/>
-                                <CardTitle className="text-lg">{t('staking_page.ryc_balance')}</CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                {isRycBalanceLoading ? <Skeleton className="h-8 w-3/4" /> : <p className="text-3xl font-bold">{formatNumber(formatEther((rycBalance as bigint) ?? BigInt(0)), locale)} RYC</p>}
-                                <p className="text-sm text-muted-foreground">{t('dashboard.total_balance_desc')}</p>
-                            </CardContent>
-                        </Card>
-                         <Card>
-                            <CardHeader className="flex-row items-center gap-3 space-y-0 pb-2">
-                                <Gem className="w-6 h-6 text-secondary"/>
-                                <CardTitle className="text-lg">{t('dashboard.native_balance')}</CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                {isNativeBalanceLoading ? <Skeleton className="h-8 w-3/4" /> : <p className="text-3xl font-bold">{formatNumber(nativeBalance?.formatted ?? '0', locale)} {nativeBalance?.symbol}</p>}
-                                <p className="text-sm text-muted-foreground">{t('dashboard.native_balance_desc')}</p>
-                            </CardContent>
-                        </Card>
+                        <div className="flex gap-3">
+                            <Button asChild variant="outline" className="gap-2">
+                                <Link href="/role-selection"><Edit className="w-4 h-4"/> {t('profile_page.change_role')}</Link>
+                            </Button>
+                            <Button onClick={handleSave} disabled={isSaving}>
+                                {isSaving ? <DaoLoadingSpinner /> : t('save_settings')}
+                            </Button>
+                        </div>
                     </div>
+                    {/* Background decoration */}
+                    <div className="absolute top-0 right-0 rtl:left-0 rtl:right-auto p-8 opacity-[0.03] pointer-events-none transform rtl:-scale-x-100">
+                        <Crown className="w-64 h-64" />
+                    </div>
+                </div>
 
-                    {userRole === 'admin' && (
+                <Tabs defaultValue="overview" className="w-full" dir={direction}>
+                    <TabsList className="grid w-full grid-cols-3 h-12 bg-muted/50 p-1 rounded-lg">
+                        <TabsTrigger value="overview" className="gap-2 data-[state=active]:bg-background"><UserIcon className="w-4 h-4"/> {t('profile_page.overview')}</TabsTrigger>
+                        <TabsTrigger value="history" className="gap-2 data-[state=active]:bg-background"><History className="w-4 h-4"/> {t('profile_page.activity_history')}</TabsTrigger>
+                        <TabsTrigger value="settings" className="gap-2 data-[state=active]:bg-background"><Settings className="w-4 h-4"/> {t('settings')}</TabsTrigger>
+                    </TabsList>
+                    
+                    {/* --- TAB 1: OVERVIEW --- */}
+                    <TabsContent value="overview" className="space-y-6 mt-6">
+                        {/* Stats Grid */}
+                        <div className="grid gap-6 grid-cols-1 md:grid-cols-2">
+                            <StatCard 
+                                title={t('staking_page.ryc_balance')} 
+                                value={`${formatNumber(formatEther((balances.ryc) ?? BigInt(0)), locale)} RYC`} 
+                                icon={Banknote} 
+                                description={t('dashboard.total_balance_desc')}
+                                variant="default"
+                                isLoading={isLoading}
+                            />
+                            <StatCard 
+                                title={t('dashboard.native_balance')} 
+                                value={`${formatNumber(balances.native?.formatted ?? '0', locale)} ${balances.native?.symbol}`} 
+                                icon={Gem} 
+                                description={t('dashboard.native_balance_desc')}
+                                variant="neutral"
+                                isLoading={isLoading}
+                            />
+                        </div>
+
+                        {/* Edit Profile Form */}
                         <Card>
-                            <CardHeader>
-                                <CardTitle className="flex items-center gap-2"><ShieldCheck className="text-primary"/> {t('profile_page.platform_config_title')}</CardTitle>
-                                <CardDescription>{t('profile_page.platform_config_desc')}</CardDescription>
-                            </CardHeader>
-                            <CardContent className="space-y-6">
-                                        <div className="space-y-2">
-                                            <Label className="flex items-center gap-2 text-muted-foreground"><Server className="w-4 h-4" />{t('profile_page.deployed_contract_address')} (DAO)</Label>
-                                            <p className="font-mono text-sm p-3 bg-muted rounded-md mt-1 break-all">
-                                                {!isHydrated || !daoAddress ? t('profile_page.loading') : formatAddress(daoAddress)}
-                                            </p>
-                                        </div>
-                                        <div className="space-y-2">
-                                            <Label className="flex items-center gap-2 text-muted-foreground"><KeyRound className="w-4 h-4" />{t('dashboard.token_contract')}</Label>
-                                            <p className="font-mono text-sm p-3 bg-muted rounded-md mt-1 break-all">
-                                                {!isHydrated || !tokenAddress ? t('profile_page.loading') : formatAddress(tokenAddress)}
-                                            </p>
-                                        </div>
-                                        <div className="space-y-2">
-                                            <Label className="flex items-center gap-2 text-muted-foreground"><ShieldCheck className="w-4 h-4" />{t('profile_page.live_contract_owner')}</Label>
-                                            <p className="font-mono text-sm p-3 bg-muted rounded-md mt-1 break-all">
-                                                {isOwnerLoading ? t('profile_page.loading') : (contractOwner as string ? formatAddress(contractOwner as Address) : 'Not set')}
-                                            </p>
-                                        </div>
-                                        <div>
-                                    <Label htmlFor="new-owner">{t('profile_page.transfer_ownership_label')}</Label>
-                                    <p className="text-xs text-muted-foreground mb-2">
-                                        {t('profile_page.transfer_ownership_desc')}
-                                    </p>
-                                    <div className="flex flex-col sm:flex-row gap-2">
-                                        <Input
-                                            id="new-owner"
-                                            placeholder="0x..."
-                                            value={newOwnerAddress}
-                                            onChange={(e) => setNewOwnerAddress(e.target.value)}
-                                        />
-                                        <Button 
-                                            onClick={handleTransfer}
-                                            disabled={isButtonDisabled}
-                                        >
-                                            {isPending ? <DaoLoadingSpinner /> : t('profile_page.transfer_button')}
-                                        </Button>
-                                    </div>
+                            <CardHeader><CardTitle className="text-start">{t('profile_page.edit_profile')}</CardTitle></CardHeader>
+                            <CardContent className="grid gap-6 md:grid-cols-2">
+                                <div className="space-y-2 text-start">
+                                    <Label htmlFor="displayName">{t('profile_page.display_name')}</Label>
+                                    <Input 
+                                        id="displayName" 
+                                        value={profile.displayName} 
+                                        onChange={(e) => setProfile(p => ({...p, displayName: e.target.value}))} 
+                                        disabled={isLoading} 
+                                    />
+                                </div>
+                                <div className="space-y-2 text-start">
+                                    <Label htmlFor="email">{t('profile_page.email_for_notifications')}</Label>
+                                    <Input 
+                                        id="email" 
+                                        type="email" 
+                                        value={profile.email} 
+                                        onChange={(e) => setProfile(p => ({...p, email: e.target.value}))} 
+                                        disabled={isLoading} 
+                                        className="text-start" 
+                                    />
                                 </div>
                             </CardContent>
                         </Card>
-                    )}
-                </TabsContent>
-                
-                <TabsContent value="history" className="mt-6">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>{t('profile_page.voting_history')}</CardTitle>
-                            <CardDescription>{t('profile_page.voting_history_desc')}</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <Table>
-                                <TableHeader>
-                                    <TableRow>
-                                        <TableHead className="text-start">{t('profile_page.proposal_id')}</TableHead>
-                                        <TableHead className="text-start">{t('profile_page.proposal_title')}</TableHead>
-                                        <TableHead className="text-start">{t('profile_page.your_vote')}</TableHead>
-                                        <TableHead className="text-start">{t('profile_page.date')}</TableHead>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    {votingHistory.map(item => (
-                                        <TableRow key={item.id}>
-                                            <TableCell className="font-mono">{item.proposalId}</TableCell>
-                                            <TableCell className="font-medium">{t(item.titleKey)}</TableCell>
-                                            <TableCell>
-                                                <Badge variant={item.voteKey === 'profile_page.positive' ? 'success' : 'destructive'}>{t(item.voteKey)}</Badge>
-                                            </TableCell>
-                                            <TableCell>{formatLocaleDate(item.date, locale)}</TableCell>
+
+                        {/* Admin Config Panel (Only renders if admin) */}
+                        {isAdmin && <AdminConfigPanel />}
+                    </TabsContent>
+                    
+                    {/* --- TAB 2: HISTORY --- */}
+                    <TabsContent value="history" className="mt-6">
+                        <Card>
+                            <CardHeader><CardTitle className="text-start">{t('profile_page.voting_history')}</CardTitle></CardHeader>
+                            <CardContent>
+                                <Table>
+                                    <TableHeader>
+                                        <TableRow>
+                                            <TableHead className="text-start">{t('profile_page.proposal_id')}</TableHead>
+                                            <TableHead className="text-start">{t('profile_page.proposal_title')}</TableHead>
+                                            <TableHead className="text-start">{t('profile_page.your_vote')}</TableHead>
+                                            <TableHead className="text-start">{t('profile_page.date')}</TableHead>
                                         </TableRow>
-                                    ))}
-                                </TableBody>
-                            </Table>
-                        </CardContent>
-                    </Card>
-                </TabsContent>
-                
-                <TabsContent value="settings" className="mt-6">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>{t('profile_page.notification_settings')}</CardTitle>
-                            <CardDescription>{t('profile_page.notification_settings_desc')}</CardDescription>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                            <div className="flex items-center justify-between p-4 border rounded-lg">
-                                <div className="text-start">
-                                    <Label htmlFor="proposal-notif" className="font-semibold">{t('profile_page.new_proposal_notif')}</Label>
-                                    <p className="text-sm text-muted-foreground">{t('profile_page.new_proposal_notif_desc')}</p>
-                                </div>
-                                <Switch id="proposal-notif" checked={notifications.proposal} onCheckedChange={(checked) => setNotifications(prev => ({...prev, proposal: checked}))} />
-                            </div>
-                            <div className="flex items-center justify-between p-4 border rounded-lg">
-                                <div className="text-start">
-                                    <Label htmlFor="result-notif" className="font-semibold">{t('profile_page.voting_result_notif')}</Label>
-                                    <p className="text-sm text-muted-foreground">{t('profile_page.voting_result_notif_desc')}</p>
-                                </div>
-                                <Switch id="result-notif" checked={notifications.result} onCheckedChange={(checked) => setNotifications(prev => ({...prev, result: checked}))} />
-                            </div>
-                             <div className="flex items-center justify-between p-4 border rounded-lg">
-                                <div className="text-start">
-                                    <Label htmlFor="summary-notif" className="font-semibold">{t('profile_page.weekly_summary_notif')}</Label>
-                                    <p className="text-sm text-muted-foreground">{t('profile_page.weekly_summary_notif_desc')}</p>
-                                </div>
-                                <Switch id="summary-notif" checked={notifications.summary} onCheckedChange={(checked) => setNotifications(prev => ({...prev, summary: checked}))} />
-                            </div>
-                            <div className="flex justify-end pt-4">
-                                <Button>{t('save_settings')}</Button>
-                            </div>
-                        </CardContent>
-                    </Card>
-                </TabsContent>
-            </Tabs>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {votingHistory.map(item => (
+                                            <TableRow key={item.id}>
+                                                <TableCell className="font-mono text-muted-foreground text-start">{item.proposalId}</TableCell>
+                                                <TableCell className="font-medium text-start">{t(item.titleKey)}</TableCell>
+                                                <TableCell className="text-start"><Badge variant={item.voteKey.includes('positive') ? 'success' : 'destructive'}>{t(item.voteKey)}</Badge></TableCell>
+                                                <TableCell className="text-start">{formatLocaleDate(item.date, locale)}</TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            </CardContent>
+                        </Card>
+                    </TabsContent>
+                    
+                    {/* --- TAB 3: SETTINGS --- */}
+                    <TabsContent value="settings" className="mt-6">
+                        <Card>
+                            <CardHeader><CardTitle className="flex items-center gap-2 text-start"><Bell className="w-5 h-5"/> {t('profile_page.notification_settings')}</CardTitle></CardHeader>
+                            <CardContent className="space-y-6">
+                                {[
+                                    { id: 'proposal', label: 'new_proposal_notif', desc: 'new_proposal_notif_desc' },
+                                    { id: 'result', label: 'voting_result_notif', desc: 'voting_result_notif_desc' },
+                                    { id: 'summary', label: 'weekly_summary_notif', desc: 'weekly_summary_notif_desc' }
+                                ].map(item => (
+                                    <div key={item.id} className="flex items-center justify-between">
+                                        <div className="space-y-0.5 text-start">
+                                            <Label htmlFor={item.id} className="text-base">{t(`profile_page.${item.label}`)}</Label>
+                                            <p className="text-sm text-muted-foreground">{t(`profile_page.${item.desc}`)}</p>
+                                        </div>
+                                        <Switch 
+                                            id={item.id} 
+                                            checked={notifications[item.id as keyof NotificationSettings]} 
+                                            onCheckedChange={(c) => setNotifications(p => ({...p, [item.id]: c}))} 
+                                        />
+                                    </div>
+                                ))}
+                            </CardContent>
+                        </Card>
+                    </TabsContent>
+                </Tabs>
+            </div>
         </AppLayout>
     );
-  }
+}

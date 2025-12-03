@@ -1,6 +1,7 @@
-
 export const ru = {
-  // Common
+  // ==============================================================================
+  // 1. GLOBAL & COMMON (Общие и глобальные)
+  // ==============================================================================
   actions: "Действия",
   status: "Статус",
   active: "Активен",
@@ -10,14 +11,18 @@ export const ru = {
   edit_profile: "Редактировать профиль",
   view_details: "Посмотреть детали",
   risk_assessment: "Оценка рисков",
+  
+  // Roles (Root Level)
   admin: "Админ",
   investor: "Инвестор",
   startup: "Стартап",
   voter: "Голосующий",
+
+  // Simple Boolean (Root Level)
   yes: "Да",
   no: "Нет",
 
-  common:{
+  common: {
     error: "Ошибка",
     yes: "Да",
     no: "Нет",
@@ -31,11 +36,13 @@ export const ru = {
     page: "Страница",
     generated_footer: "Сгенерировано ИИ-движком RayanChain | Этот отчет не является окончательным финансовым предложением.",
     rayan_chain_vc: "Инвестиционная платформа RayanChain",
-    comming_soon: "Скоро",
+    coming_soon: "Скоро", // Fixed typo from 'comming_soon'
+    all: "Все",
+    view_tx: "Посмотреть транзакцию",
+    ai_powered: "ИИ",
+    risk: "Риск",
+  },
 
-    },
-
-  // Header
   header: {
     search: "Поиск...",
     toggle_theme: "Сменить тему",
@@ -44,26 +51,6 @@ export const ru = {
     profile: "Профиль",
   },
 
-  page_titles:{
-    dashboard: "Главная панель",
-    proposals: "Список предложений",
-    new_proposal: "Создание нового предложения",
-    proposal_details: "Детали предложения",
-    staking: "Управление стейкингом",
-    treasury: "Умная казна",
-    reports: "AI-отчёты",
-    ai_report_detail: "Полный анализ проекта",
-    analytics: "Аналитика поведения пользователей",
-    contract_analyzer: "Диагностика смарт-контракта",
-    profile: "Профиль пользователя",
-    logs: "Журнал системной активности",
-    admin: "Управленческий центр",
-    admin_settings: "Системные настройки",
-    setup: "Настройка инфраструктуры",
-
-  },
-
-  // Sidebar
   sidebar: {
     dashboard: "Панель управления",
     proposals: "Предложения",
@@ -82,17 +69,83 @@ export const ru = {
     group_admin: "Управление системой",
     guest_mode: "Гостевой режим",
     all_proposals: "Все предложения",
-
   },
 
-  // AuthGuard
+  menu: {
+    staking: "Стейкинг",
+    proposals: "Предложения",
+  },
+
+  page_titles: {
+    dashboard: "Главная панель",
+    proposals: "Список предложений",
+    new_proposal: "Создание нового предложения",
+    proposal_details: "Детали предложения",
+    staking: "Управление стейкингом",
+    treasury: "Умная казна",
+    reports: "AI-отчёты",
+    ai_report_detail: "Полный анализ проекта",
+    analytics: "Аналитика поведения пользователей",
+    contract_analyzer: "Диагностика смарт-контракта",
+    profile: "Профиль пользователя",
+    logs: "Журнал системной активности",
+    admin: "Управленческий центр",
+    admin_settings: "Системные настройки",
+    setup: "Настройка инфраструктуры",
+  },
+
+  not_found: {
+    title: "404 - Страница не найдена",
+    message: "К сожалению, страница, которую вы ищете, не существует или была перемещена.",
+    go_home: "Перейти на панель управления",
+  },
+
+  guide_page: {
+    title: "Руководство пользователя платформы",
+    subtitle: "Узнайте как работать в RayanChain в соответствии с вашей ролью",
+    tabs: {
+      investor: "💰 Инвестор",
+      startup: "🚀 Стартап",
+      voter: "🗳️ Голосующий"
+    },
+    actions: {
+      go_to_staking: "Перейти к стейкингу",
+      create_proposal: "Создать предложение",
+      view_proposals: "Просмотр активных голосований"
+    },
+    investor: {
+      step1_title: "Подключение и получение токенов",
+      step1_desc: "Подключите свой кошелек Если у вас нет токенов RYC вы можете конвертировать MATIC через панель или биржи",
+      step2_title: "Изучение предложений",
+      step2_desc: "Изучите активные предложения Используйте отчеты ИИ для анализа риска компетентности команды и настроений рынка",
+      step3_title: "Стейкинг для участия в управлении",
+      step3_desc: "Чтобы влиять на решения застейкайте свои токены RYC Это дает вам силу голоса в зависимости от суммы стейка"
+    },
+    startup: {
+      step1_title: "Подача предложения",
+      step1_desc: "Заполните полную форму предложения Загрузите финансовые и юридические документы и презентацию Данные хранятся безопасно в IPFS",
+      step2_title: "Анализ ИИ",
+      step2_desc: "После подачи многоуровневый ИИ анализирует проект на предмет риска и реализуемости и прикрепляет отчет к предложению",
+      step3_title: "Голосование сообщества",
+      step3_desc: "Взаимодействуйте с сообществом Если предложение набирает необходимый минимум голосов средства освобождаются по этапам"
+    },
+    voter: {
+      step1_title: "Получение силы голоса",
+      step1_desc: "Вы не можете голосовать только с токенами в кошельке Они должны быть застейканы или вам должно быть делегировано право голоса",
+      step2_title: "Регистрация голоса",
+      step2_desc: "Откройте активное предложение Нажмите голос за или голос против Вес вашего голоса зависит от суммы стейка"
+    }
+  },
+
+  // ==============================================================================
+  // 2. AUTH & ONBOARDING (Аутентификация и вход)
+  // ==============================================================================
   auth_guard: {
     connecting_blockchain: "Подключение к блокчейну...",
     connecting_dashboard: "Подключение к панели управления...",
     loading: "Загрузка...",
   },
 
-  // Landing Page
   landing_page: {
     hero_title: "Стартовая площадка для будущих стартапов",
     hero_subtitle: "RayanChain DAO сочетает в себе ИИ и децентрализованное управление для выявления и поддержки преобразующих проектов.",
@@ -126,15 +179,14 @@ export const ru = {
     coming_soon: "Скоро",
     finished: "Завершено",
     no_featured_proposals: "Нет избранных проектов",
-    status:{
+    status: {
       under_review: "На рассмотрении",
       not_funded: "Финансирование не получено",
       funded: "Финансирование получено",
       voting: "Идёт голосование",
-      },
+    },
   },
-  
-  // Role Selection Page
+
   role_selection: {
     welcome: "Добро пожаловать в RayanChain!",
     prompt: "Для начала, пожалуйста, укажите свою роль на платформе.",
@@ -178,12 +230,17 @@ export const ru = {
     plan_gold_feat4: "Выделенный менеджер по работе с клиентами",
     select_plan: "Выбрать план",
     redirecting: "Перенаправление...",
+    admin: "Администратор платформы", // Updated for clarity
   },
 
-  // Dashboard Page
+  // ==============================================================================
+  // 3. DASHBOARD (Панель управления)
+  // ==============================================================================
   dashboard: {
     title: "Панель управления",
     welcome_message: "Добро пожаловать на вашу панель управления RayanChain. Вот обзор активности платформы.",
+    
+    // Stats & Balance
     your_balance: "Ваш баланс (RYC)",
     total_balance_desc: "Общий баланс в вашем кошельке",
     active_investments: "Активные инвестиции",
@@ -196,9 +253,6 @@ export const ru = {
     your_proposals_desc: "Общее количество поданных предложений",
     capital_raised: "Привлеченный капитал",
     capital_raised_desc: "Общий капитал, привлеченный для ваших проектов",
-    latest_proposal_status: "Статус последнего предложения",
-    latest_proposal_status_desc: "Последний статус вашего проекта",
-    in_voting: "На голосовании",
     total_users: "Всего пользователей",
     total_users_desc: "+{count} в этом месяце",
     active_proposals_count: "Активные предложения",
@@ -209,7 +263,29 @@ export const ru = {
     participation_rate_desc: "Среднее участие в голосованиях",
     your_voting_power: "Ваша сила голоса",
     your_voting_power_desc: "На основе вашей активности и активов",
+    wallet_balance: "Баланс кошелька",
+    native_balance: "Баланс кошелька",
+    native_balance_desc: "Баланс нативной валюты сети",
+    staked_balance: "Баланс в стейкинге",
+    staked_balance_desc: "Ваши токены в стейкинге",
+
+    // Proposal tracking
+    latest_proposal_status: "Статус последнего предложения",
+    latest_proposal_status_desc: "Последний статус вашего проекта",
+    in_voting: "На голосовании",
     active_proposals_cta: "Ожидают вашего голоса",
+    your_proposals_list_title: "Ваши предложения",
+    your_proposals_list_desc: "Список поданных вами предложений.",
+    active_proposals_list_title: "Активные предложения",
+    active_proposals_list_desc: "Список предложений, открытых для голосования.",
+    all_proposals_list_title: "Все предложения",
+    all_proposals_list_desc: "Для управления и мониторинга всех предложений.",
+    no_proposals_title: "Предложений пока нет",
+    no_proposals_desc: "Нет активных или прошлых предложений для отображения.",
+    no_proposals_status: "Нет предложений",
+    no_proposals_status_desc: "Вы еще не отправили ни одного предложения",
+
+    // Charts & Analysis
     investment_analysis: "Анализ инвестиций",
     investment_analysis_desc: "Новые инвестиции за последние 6 месяцев",
     investment_analysis_footer1: "Положительная тенденция в последнем квартале",
@@ -217,15 +293,10 @@ export const ru = {
     investment_chart_label: "Инвестиции (RYC)",
     recent_activities: "Последние действия",
     recent_activities_desc: "Обзор последних действий на платформе.",
-    new_project_prompt_title: "У вас новый проект?",
-    new_project_prompt_desc: "Представьте свою инновационную идею нашему сообществу инвесторов и привлеките капитал для ее реализации.",
-    new_project_prompt_cta: "Подать новое предложение",
-    your_proposals_list_title: "Ваши предложения",
-    your_proposals_list_desc: "Список поданных вами предложений.",
-    active_proposals_list_title: "Активные предложения",
-    active_proposals_list_desc: "Список предложений, открытых для голосования.",
-    all_proposals_list_title: "Все предложения",
-    all_proposals_list_desc: "Для управления и мониторинга всех предложений.",
+    no_chart_data: "Нет данных для отображения графика",
+    trending_up: "Восходящий тренд по сравнению с прошлым месяцем",
+
+    // Contracts & System Data
     contract_interaction_title: "Взаимодействие с контрактом",
     contract_interaction_desc: "Данные в реальном времени из развернутого смарт-контракта:",
     total_proposals_title: "Всего предложений",
@@ -234,22 +305,14 @@ export const ru = {
     connect_to_see_data: "Пожалуйста, подключите свой кошелек, чтобы просмотреть панель управления и взаимодействовать с платформой.",
     contract_not_deployed_title: "Контракт не развернут",
     contract_not_deployed_desc: "Основной контракт платформы еще не развернут. Пожалуйста, перейдите на страницу настройки, чтобы развернуть его.",
-    native_balance: "Баланс кошелька",
-    native_balance_desc: "Баланс нативной валюты сети",
     contract_owner: "Владелец контракта DAO",
     contract_owner_desc: "Текущий владелец основного контракта DAO",
     token_contract: "Контракт токена",
     token_contract_desc: "Адрес контракта токена RYC",
     finance_contract: "Финансовый контракт",
     finance_contract_desc: "Адрес контракта казначейства DAO",
-    your_role: "Ваша роль",
-    your_role_desc: "Ваша текущая роль на платформе",
     loading_data: "Загрузка данных...",
     error_fetching_proposals: "Не удалось загрузить предложения.",
-    no_proposals_title: "Предложений пока нет",
-    no_proposals_desc: "Нет активных или прошлых предложений для отображения.",
-    no_proposals_status: "Нет предложений",
-    no_proposals_status_desc: "Вы еще не отправили ни одного предложения",
     total_token_supply: "Общее предложение токенов",
     total_token_supply_desc: "Общее количество созданных токенов RYC",
     treasury_balance: "Баланс казначейства",
@@ -258,13 +321,13 @@ export const ru = {
     total_staked_desc: "Общее количество токенов RYC в стейкинге",
     burned_tokens: "Сожженные токены",
     burned_tokens_desc: "Токены, отправленные на нулевой адрес",
-    admin_overview_title: "Обзор для администратора",
-    admin_overview_desc: "Обзор для системного администратора.",
     loading_contracts: "Загрузка информации о контрактах из блокчейна...",
     partial_setup_title: "Неполная настройка",
     partial_setup_desc: "Контракт реестра развернут, но следующие адреса контрактов не найдены:",
     treasury: "Казначейство",
     go_to_setup: "Перейти на страницу настройки",
+
+    // AI Status
     ai_oracle_status_title: "Статус движка ИИ",
     ai_status_online: "Активен и доступен",
     ai_status_offline: "Неактивен/Отключен",
@@ -272,39 +335,26 @@ export const ru = {
     ai_status_loading: "Проверка...",
     last_checked: "Последняя проверка",
     checking_now: "Проверка статуса",
-    staked_balance: "Баланс в стейкинге",
-    staked_balance_desc: "Ваши токены в стейкинге",
-    view_all: "Показать все",
-    latest_update: "последнее обновление",
-      admin: {
-          title: "Центр управления",
-          title_se: "Конфигурация платформы",
-          governance_card_title: "Параметры управления",
-          voting_period_label: "Период голосования (секунды)",
-          update_button: "Обновить",
-          financial_card_title: "Финансовые параметры (SaaS)",
-          protocol_fee_label: "Комиссия протокола (%)",
-          update_fee_button: "Обновить комиссию",
-          timelock_notice: "Эта операция обычно требует подачи предложения в Timelock.",
-          client_fee_label: "Комиссия клиента (VC) (%)",
-          hub_title: "Центр командования безопасностью",
-          hub_subtitle: "Управление конфигурацией, доступами и критической инфраструктурой системы",
-          secure_session_active: "Безопасная сессия активна",
-          settings_card_title: "Настройки управления и финансов",
-          settings_card_desc: "Изменение параметров DAO, комиссий платформы и расписания голосований.",
-          manage: "Управление",
-          danger_zone: "Зона опасности",
-          security_card_title: "Управление инфраструктурой (Setup)",
-          security_card_desc: "Доступ к повторному развёртыванию контрактов, сбросу ключей и первоначальной конфигурации. (Требуется повторная подпись)",
-          access_setup: "Вход в раздел инфраструктуры",
-          critical_access_warning: "Внимание: вы входите в критически важный раздел инфраструктуры.",
-          verifying: "Проверка безопасной идентификации...",
-      },
+
+    // Welcome Messages & Role Specifics
     investor_welcome: "Добро пожаловать в инвестиционную панель. Управляйте своими активами.",
     startup_welcome: "Добро пожаловать в панель стартапа. Отслеживайте свои проекты.",
     admin_welcome: "Добро пожаловать в панель управления.",
     guest_welcome: "Добро пожаловать. Пожалуйста, подключите свой кошелёк для полного доступа.",
-    wallet_balance: "Баланс кошелька",
+    delegate_welcome: "Добро пожаловать в панель делегатов. Ваша сила — ваша ответственность.",
+    hybrid_welcome: "Добро пожаловать в универсальную панель. Вы одновременно инвестор и делегат.",
+    your_role: "Ваша роль",
+    your_role_desc: "Ваша текущая роль на платформе",
+    new_project_prompt_title: "У вас новый проект?",
+    new_project_prompt_desc: "Представьте свою инновационную идею нашему сообществу инвесторов и привлеките капитал для ее реализации.",
+    new_project_prompt_cta: "Подать новое предложение",
+    create_first_proposal: "Создать первое предложение",
+    start_journey: "Начните своё путешествие",
+    start_journey_desc: "Вы ещё не зарегистрировали ни одного предложения. Зарегистрируйте свою первую большую идею прямо сейчас и привлеките инвестиции.",
+    connect_wallet_title: "Подключение кошелька",
+    connect_wallet_desc: "Чтобы увидеть личную статистику, пожалуйста, подключите свой кошелёк.",
+
+    // Staking & Rewards in Dashboard
     available_to_stake: "Доступно для стейкинга",
     staked_amount: "Сумма в стейкинге",
     earning_rewards: "Получение вознаграждений",
@@ -313,9 +363,6 @@ export const ru = {
     voting_power: "Право голоса",
     participation_score: "Оценка участия",
     active_opportunities: "Активные инвестиционные возможности",
-    start_journey: "Начните своё путешествие",
-    start_journey_desc: "Вы ещё не зарегистрировали ни одного предложения. Зарегистрируйте свою первую большую идею прямо сейчас и привлеките инвестиции.",
-    create_first_proposal: "Создать первое предложение",
     total_projects: "Всего проектов",
     all_time: "За всё время",
     active_projects: "Активные проекты",
@@ -324,9 +371,8 @@ export const ru = {
     fully_funded: "Завершено",
     my_proposals: "Мои предложения",
     new_proposal: "Новое предложение",
-    connect_wallet_title: "Подключение кошелька",
-    connect_wallet_desc: "Чтобы увидеть личную статистику, пожалуйста, подключите свой кошелёк.",
-    delegate_welcome: "Добро пожаловать в панель делегатов. Ваша сила — ваша ответственность.",
+
+    // Governance / Delegate
     total_governance_power: "Общая управляющая мощность",
     combined_power: "Сумма личного стейка + делегированного",
     delegated_to_me: "Получено от других",
@@ -340,9 +386,10 @@ export const ru = {
     cast_votes: "Принять участие в голосовании",
     tab_investor: "Панель инвестора",
     tab_delegate: "Панель делегата",
-    hybrid_welcome: "Добро пожаловать в универсальную панель. Вы одновременно инвестор и делегат.",
-    no_chart_data: "Нет данных для отображения графика",
-    trending_up: "Восходящий тренд по сравнению с прошлым месяцем",
+
+    // Admin in Dashboard
+    admin_overview_title: "Обзор для администратора",
+    admin_overview_desc: "Обзор для системного администратора.",
     system_paused_title: "Предупреждение: система приостановлена",
     system_paused_desc: "Все финансовые операции и голосования приостановлены до отмены блокировки администратором.",
     available_funds: "Доступные средства",
@@ -364,14 +411,51 @@ export const ru = {
     access_denied: "Доступ отклонён. Подпись не подтверждена.",
     verifying_identity: "Ожидание подписи...",
     critical_access_warning: "Критическое предупреждение безопасности!\n\nВы пытаетесь войти в раздел «Управление инфраструктурой» (Setup). Этот раздел позволяет сбросить все контракты.\n\nПожалуйста, подпишите для окончательного подтверждения.",
+    view_all: "Показать все",
+    latest_update: "последнее обновление",
 
+    // Dashboard Admin Sub-object
+    admin: {
+      title: "Центр управления",
+      title_se: "Конфигурация платформы",
+      governance_card_title: "Параметры управления",
+      voting_period_label: "Период голосования (секунды)",
+      update_button: "Обновить",
+      financial_card_title: "Финансовые параметры (SaaS)",
+      protocol_fee_label: "Комиссия протокола (%)",
+      update_fee_button: "Обновить комиссию",
+      timelock_notice: "Эта операция обычно требует подачи предложения в Timelock.",
+      client_fee_label: "Комиссия клиента (VC) (%)",
+      hub_title: "Центр командования безопасностью",
+      hub_subtitle: "Управление конфигурацией, доступами и критической инфраструктурой системы",
+      secure_session_active: "Безопасная сессия активна",
+      settings_card_title: "Настройки управления и финансов",
+      settings_card_desc: "Изменение параметров DAO, комиссий платформы и расписания голосований.",
+      manage: "Управление",
+      danger_zone: "Зона опасности",
+      security_card_title: "Управление инфраструктурой (Setup)",
+      security_card_desc: "Доступ к повторному развёртыванию контрактов, сбросу ключей и первоначальной конфигурации. (Требуется повторная подпись)",
+      access_setup: "Вход в раздел инфраструктуры",
+      critical_access_warning: "Внимание: вы входите в критически важный раздел инфраструктуры.",
+      verifying: "Проверка безопасной идентификации...",
+    },
   },
-  menu: {
-  staking: "Стейкинг",
-  proposals: "Предложения",
-},
 
-  // Proposals Page
+  // ==============================================================================
+  // 4. PROPOSALS (Предложения)
+  // ==============================================================================
+  
+  // List Names
+  proposals: {
+    network_upgrade: "Обновление сетевой инфраструктуры",
+    marketing_project: "Новый маркетинговый проект",
+    mobile_dapp: "Разработка мобильного DApp",
+    defi_integration: "Интеграция с протоколом DeFi",
+    community_fund: "Создание резервного фонда сообщества",
+    platform_x_partnership: "Партнерство с платформой X",
+  },
+
+  // Proposal List Page
   proposals_page: {
     title: "Список предложений",
     subtitle: "Здесь представлен список всех предложений. Фильтруйте и сортируйте предложения, а также просматривайте детали каждого из них.",
@@ -390,26 +474,18 @@ export const ru = {
     vote_success_title: "Ваш голос учтен!",
     vote_success_desc: "Ваша транзакция успешно отправлена. Хэш: {hash}",
     vote_error_title: "Ошибка при голосовании",
+    view_details: "Посмотреть детали",
     no_proposals_found: "Предложения не найдены",
-      status: {
-        pending_submission: "Ожидает рассмотрения",
-        confirmed: "Подтверждено",
-        voting: "Голосование",
-        approved: "Одобрено",
-        rejected: "Отклонено",
-      },
+    status: {
+      pending_submission: "Ожидает рассмотрения",
+      confirmed: "Подтверждено",
+      voting: "Голосование",
+      approved: "Одобрено",
+      rejected: "Отклонено",
+    },
   },
-  
-  proposals: {
-    network_upgrade: "Обновление сетевой инфраструктуры",
-    marketing_project: "Новый маркетинговый проект",
-    mobile_dapp: "Разработка мобильного DApp",
-    defi_integration: "Интеграция с протоколом DeFi",
-    community_fund: "Создание резервного фонда сообщества",
-    platform_x_partnership: "Партнерство с платформой X",
-  },
-  
-  // New Proposal Page
+
+  // New Proposal Form
   new_proposal_page: {
     title: "Подать новое предложение",
     subtitle: "Заполните форму ниже, чтобы зарегистрировать свой проект и привлечь средства.",
@@ -417,14 +493,18 @@ export const ru = {
     card_title: "Детали предложения",
     card_desc: "Подробная информация помогает инвесторам принимать решения.",
     card_desc_professional: "Пожалуйста, заполните все разделы внимательно и полностью.",
+    
+    // Tabs
     tabs: {
-        overview: "Обзор",
-        details: "Детали проекта",
-        team: "Команда",
-        market: "Рынок",
-        financials: "Финансы",
-        documents: "Документы"
+      overview: "Обзор",
+      details: "Детали проекта",
+      team: "Команда",
+      market: "Рынок",
+      financials: "Финансы",
+      documents: "Документы"
     },
+
+    // Fields
     project_title: "Название проекта",
     project_title_placeholder: "например, Образовательная платформа Web3",
     project_name: "Название проекта",
@@ -438,84 +518,102 @@ export const ru = {
     summary_placeholder: "Дайте общее и убедительное описание вашего проекта...",
     full_description: "Полное описание",
     full_description_placeholder: "Опишите цели, решение и конкурентное преимущество вашего проекта...",
+    description: "Введите описание задач для каждого этапа.",
+    description_required: "Пожалуйста, предоставьте подробное описание вашего проекта.",
+    funding_goal: "Цель финансирования (RYC)",
+    recipient_address: "Адрес кошелька получателя",
     problem: "Проблема",
     problem_placeholder: "Какую проблему вы выявили на рынке и намерены решить?",
     solution: "Решение",
     solution_placeholder: "Как ваш продукт или услуга решает эту проблему?",
+    
+    // Business & Market
     business_model: "Бизнес-модель",
     business_model_placeholder: "Выберите вашу модель дохода",
-    team_experience_years_label: "Совокупный опыт основной команды (лет)",
-    team_bio_label: "Информация о команде и биографии",
-    team_bio_placeholder: "Опишите опыт, успехи и роли каждого ключевого участника...",
     market_size_label: "Размер целевого рынка (в долларах США)",
     competitors: "Анализ конкурентов",
     competitors_placeholder: "Кто ваши основные конкуренты и в чем ваше конкурентное преимущество?",
+    market_stats: {
+      tam_label: "TAM (общий рынок) ($)",
+      tam_desc: "общий доступный рынок (Total Accessible Market)",
+      sam_label: "SAM (доступный рынок) ($)",
+      sam_desc: "обслуживаемый доступный рынок (Serviceable Available Market)",
+      som_label: "SOM (доля рынка) ($)",
+      som_desc: "обслуживаемая достижимая доля рынка (Serviceable Obtainable Market)",
+    },
+    
+    // Team
+    team_experience_label: "Опыт команды и основателей",
+    team_experience_placeholder: "Краткое изложение профессионального и технического опыта основной команды (для анализа ИИ).",
+    team_experience_years_label: "Совокупный опыт основной команды (лет)",
+    team_bio_label: "Информация о команде и биографии",
+    team_bio_placeholder: "Опишите опыт, успехи и роли каждого ключевого участника...",
+    startup_industry_label: "Отрасль стартапа",
+    startup_industry_placeholder: "например, HealthTech, Fintech AI",
+
+    // Financials
+    financial_stats: {
+      burn_rate_label: "ежемесячные расходы (Burn Rate) ($)",
+      revenue_label: "доход за первый год ($)",
+      break_even_label: "точка безубыточности (месяцы)",
+    },
     has_previous_funding_label: "У вас есть опыт привлечения средств?",
-      industries: {
-        defi: "децентрализованная финансовая модель / веб 3",
-        ai: "искусственный интеллект / машинное обучение",
-        gaming: "игры / метавселенная",
-        saas: "программное обеспечение как услуга (SaaS)",
-        placeholder: "выбор отрасли",
-        },
-      business_models: {
-        placeholder: "выбор бизнес-модели",
-        b2b: "B2B (бизнес для бизнеса)",
-        b2c: "B2C (бизнес для потребителя)",
-        b2b2c: "B2B2C (посредническая модель)",
-        saas: "SaaS (облачные программные услуги)",
-        marketplace: "электронная торговая площадка",
-        },
-      market_stats: {
-        tam_label: "TAM (общий рынок) ($)",
-        tam_desc: "общий доступный рынок (Total Accessible Market)",
-        sam_label: "SAM (доступный рынок) ($)",
-        sam_desc: "обслуживаемый доступный рынок (Serviceable Available Market)",
-        som_label: "SOM (доля рынка) ($)",
-        som_desc: "обслуживаемая достижимая доля рынка (Serviceable Obtainable Market)",
-        },
-      financial_stats: {
-        burn_rate_label: "ежемесячные расходы (Burn Rate) ($)",
-        revenue_label: "доход за первый год ($)",
-        break_even_label: "точка безубыточности (месяцы)",
-        },
     funding_details: "Детали предыдущего финансирования",
     funding_details_placeholder: "Укажите сумму, дату и имена предыдущих инвесторов...",
+
+    // Milestones
+    milestones_required: "Пожалуйста, добавьте хотя бы один этап с действительной суммой.",
+    milestone_amounts_required: "Пожалуйста, введите действительные суммы для всех этапов.",
+    no_milestones_added: "Пока не добавлено ни одного этапа финансирования.",
+    add_first_milestone: "Добавить первый этап",
+    funding_milestones: "Этапы финансирования",
     milestone_name: "Название этапа",
     milestone_name_placeholder: "например, Разработка MVP",
     duration_days: "Продолжительность (в днях)",
+    amount: "Сумма",
+    add_milestone: "Добавить этап",
+    milestone: "Этап",
+    remove: "Удалить",
+
+    // Documents
     pitch_deck: "Презентация (PDF)",
     financials_doc: "Финансовые прогнозы (PDF, XLSX)",
     legal_doc: "Юридические документы (необязательно)",
+    off_chain_note: "Полное описание надежно хранится в оффчейн-базе данных, и только его хэш записывается в блокчейн.",
+    
+    // Options
+    industries: {
+      defi: "децентрализованная финансовая модель / веб 3",
+      ai: "искусственный интеллект / машинное обучение",
+      gaming: "игры / метавселенная",
+      saas: "программное обеспечение как услуга (SaaS)",
+      placeholder: "выбор отрасли",
+    },
+    business_models: {
+      placeholder: "выбор бизнес-модели",
+      b2b: "B2B (бизнес для бизнеса)",
+      b2c: "B2C (бизнес для потребителя)",
+      b2b2c: "B2B2C (посредническая модель)",
+      saas: "SaaS (облачные программные услуги)",
+      marketplace: "электронная торговая площадка",
+    },
+
+    // Actions & Errors
     submit_for_review: "Отправить на рассмотрение",
-    connect_to_submit: "Пожалуйста, подключите свой кошелек, чтобы подать предложение.",
-    funding_goal: "Цель финансирования (RYC)",
-    recipient_address: "Адрес кошелька получателя",
-    funding_milestones: "Этапы финансирования",
-    milestone: "Этап",
-    amount: "Сумма",
-    remove: "Удалить",
-    add_milestone: "Добавить этап",
     success_title: "Предложение успешно подано",
     success_desc: "Ваша транзакция отправлена. Хэш:",
     form_invalid_error: "Пожалуйста, заполните все поля правильно.",
-    access_denied_title: "Доступ запрещен",
-    access_denied_desc: "У вас должна быть роль 'Стартап', чтобы подавать предложения.",
+    form_incomplete_title: "Форма неполная",
+    form_incomplete_tooltip: "Пожалуйста, заполните все обязательные поля для отправки предложения.",
     contract_not_deployed_title: "Контракт не развернут",
     contract_not_deployed_desc: "Контракт DAO еще не развернут. Пожалуйста, свяжитесь с администратором.",
     loading: "Загрузка...",
     back_to_dashboard: "Вернуться к панели управления",
-    description: "Введите описание задач для каждого этапа.",
-    description_required: "Пожалуйста, предоставьте подробное описание вашего проекта.",
     invalid_address: "Пожалуйста, введите действительный адрес Ethereum (0x, за которым следует 40 символов).",
     valid_address: "Действительный адрес Ethereum.",
-    milestone_amounts_required: "Пожалуйста, введите действительные суммы для всех этапов.",
-    form_incomplete_title: "Форма неполная",
-    form_incomplete_tooltip: "Пожалуйста, заполните все обязательные поля для отправки предложения.",
     recipient_required: "Пожалуйста, введите действительный адрес кошелька получателя.",
-    milestones_required: "Пожалуйста, добавьте хотя бы один этап с действительной суммой.",
-    no_milestones_added: "Пока не добавлено ни одного этапа финансирования.",
-    add_first_milestone: "Добавить первый этап",
+
+    // Permissions & Roles
     blockchain_role_missing_title: "Роль в блокчейне отсутствует",
     blockchain_role_missing_desc: "Вам нужна роль DAO_MEMBER_ROLE в блокчейне для подачи предложений. Пожалуйста, свяжитесь с администратором, чтобы получить эту роль.",
     request_role_button: "Запросить роль",
@@ -524,18 +622,385 @@ export const ru = {
     grant_role_info_title: "Запрос роли отправлен",
     grant_role_info_desc: "Ваш запрос на роль отправлен. Администратор рассмотрит и предоставит необходимые разрешения.",
     contract_write_error: "Не удалось отправить предложение в блокчейн. Пожалуйста, попробуйте еще раз.",
+    access_denied_title: "Доступ запрещен",
+    access_denied_desc: "У вас должна быть роль 'Стартап', чтобы подавать предложения.",
+    connect_to_submit: "Пожалуйста, подключите свой кошелек, чтобы подать предложение.",
+
+    // AI Integration
     ai_check_triggered: "Процесс оценки рисков ИИ запущен.",
     ai_check_failed_title: "Ошибка активации ИИ",
     ai_check_failed_desc: "Не удалось запустить оценку рисков ИИ. Система рассмотрит его вручную.",
-    startup_industry_label: "Отрасль стартапа",
-    startup_industry_placeholder: "например, HealthTech, Fintech AI",
-    team_experience_label: "Опыт команды и основателей",
-    team_experience_placeholder: "Краткое изложение профессионального и технического опыта основной команды (для анализа ИИ).",
-    off_chain_note: "Полное описание надежно хранится в оффчейн-базе данных, и только его хэш записывается в блокчейн.",
+
+    // Feedback
     redirecting: "Перенаправление...",
+    success_toast_title: "Транзакция успешно отправлена",
+    confirmed_toast_desc: "Транзакция подтверждена в блокчейне",
+    pending_toast_title: "Транзакция обрабатывается",
+    error_toast_title: "Ошибка отправки транзакции",
+    unexpected_error_desc: "Произошла неизвестная ошибка. Пожалуйста, проверьте журналы.",
   },
 
-  // Profile Page
+  // Proposal Detail View
+  proposal_detail: {
+    proposal_id: "ID предложения",
+    not_found: "Предложение не найдено.",
+    details: "Детали",
+    status_desc: "Текущий статус предложения.",
+    proposer_info: "Информация о заявителе",
+    funding_info: "Информация о финансировании",
+    total_requested: "Общая запрашиваемая сумма",
+    milestones: "Этапы",
+    milestone: "Этап",
+    voting_results: "Результаты голосования",
+    vote_for: "За",
+    vote_against: "Против",
+    for: "За",
+    against: "Против",
+    votes_for: "Голосовать 'За'",
+    votes_against: "Голосовать 'Против'",
+    total_votes: "Всего голосов",
+    created_on: "Дата создания",
+    voting_deadline: "Крайний срок голосования",
+    description: "описание предложения",
+    proposer: "предлагающий",
+    onchain_data_unavailable: "Данные On-Chain недоступны",
+    no_offchain_data: "Данные Off-Chain отсутствуют",
+    error_loading_title: "Ошибка загрузки заголовка",
+    error_loading_desc: "Ошибка загрузки описания",
+    total_supply: "из общего количества доступных токенов",
+    
+    // AI Section in Detail
+    ai_analysis: "оценка искусственного интеллекта",
+    ai_risk_score: "балл риска искусственного интеллекта",
+    market_sentiment: "рыночные настроения",
+    team_competency: "компетентность команды",
+    view_ai_report: "просмотр отчета об искусственном интеллекте",
+
+    // Milestone Management
+    milestone_management: "Управление капиталом проекта",
+    milestone_management_desc: "Ваш проект профинансирован. Для получения следующего транша предоставьте отчет о ходе работ.",
+    request_next_milestone: "Запрос на получение следующего этапа",
+    submit_progress_report: "Отправить отчет о прогрессе",
+    progress_description: "Опишите, какие работы выполнены на данном этапе:",
+    progress_placeholder: "Например: завершение разработки MVP, окончание пользовательского тестирования...",
+    submit_request: "Отправить запрос",
+    
+    // Actions & Voting
+    you_have_voted_title: "Вы уже проголосовали",
+    you_have_voted_desc: "Благодарим вас за участие в процессе управления Результат будет доступен после завершения периода голосования",
+    admin_actions: "Административные действия",
+    execute_proposal: "Исполнить предложение",
+
+    timeline: {
+      title: "Статус предложения",
+      submitted: "Отправлено",
+      voting: "Идёт голосование",
+      approved: "Окончательный результат",
+      executed: "Исполнено",
+    },
+    status: {
+      pending: "В ожидании",
+      active: "Идет голосование",
+      canceled: "Отменено",
+      defeated: "Отклонено",
+      succeeded: "Одобрено",
+      queued: "В очереди на выполнение",
+      expired: "Истек срок",
+      executed: "Выполнено",
+      unknown: "Неизвестно",
+      validation: "Проходит проверку",
+    },
+    alert: {
+      insufficient_power_title: "Недостаточно права голоса",
+      insufficient_power_desc: "Для участия в управлении необходимо застейкать токены (RYC) Сейчас ваша сила голоса равна нулю Хотите перейти на страницу стейкинга",
+      cancel: "Отмена",
+      go_to_staking: "Перейти к стейкингу"
+    },
+  },
+
+  // ==============================================================================
+  // 5. STAKING & FINANCE (Стейкинг и Финансы)
+  // ==============================================================================
+  staking_page: {
+    title: "Стейкинг и вознаграждения",
+    subtitle: "Внесите свои токены RYC, участвуйте в управлении и получайте вознаграждения.",
+    subtitle_for_role: "Страница управления стейкингом для роли:",
+    
+    // Balance & Actions
+    ryc_balance: "Баланс RYC",
+    staked_balance: "Баланс в стейкинге",
+    staked_balance_desc: "Ваши токены в стейкинге",
+    earned_rewards: "Заработанные вознаграждения",
+    stake_tokens_title: "Внести токены в стейкинг",
+    stake_tokens_desc: "Заблокируйте свои токены RYC, чтобы получать вознаграждения и силу голоса.",
+    amount_to_stake: "Сумма для стейкинга",
+    stake: "Внести",
+    unstake_tokens_title: "Вывести токены из стейкинга",
+    unstake_tokens_desc: "Выведите свои внесенные токены RYC.",
+    amount_to_unstake: "Сумма для вывода",
+    unstake: "Вывести",
+    claim_rewards_title: "Получить вознаграждения",
+    claim_rewards_desc: "Переведите заработанные вознаграждения на свой кошелек.",
+    claim_rewards: "Получить вознаграждения",
+    manage_stake_title: "Управление стейкингом",
+    manage_stake_desc: "Выведите свой стейкинг или получите заработанные вознаграждения.",
+    card_label_balance: "В кошельке приобретенное количество токенов RYC",
+    card_label_staked: "Баланс стейкнутых токенов RYC",
+    card_label_earned: "Полученное количество вознаграждений за деятельность",
+    unclaimed_rewards: "Всего невостребованных наград",
+
+    // Delegation
+    delegate_title: "Делегировать право голоса",
+    delegate_desc: "Делегируйте свое право голоса доверенному представителю (делегату) для повышения показателя Proof-of-Participation (PoP) и безопасности сети.",
+    delegate_error: "Ошибка при делегировании роли",
+    delegatee_address: "Адрес желаемого делегата",
+    delegate_cta: "Делегировать",
+    undelegate_cta: "Отменить делегирование",
+    current_delegatee: "Текущий делегат",
+    no_delegatee: "Нет делегата",
+
+    // Plans
+    staking_plans_title: "Планы стейкинга",
+    staking_plans_desc: "Выберите один из планов ниже, чтобы быстро внести средства.",
+    plans_for_role: "Планы стейкинга для роли",
+    plans_for_role_desc: "Минимальная сумма стейкинга для выполнения требований безопасности и доступа к функциям роли.",
+    plan_voter_title: "План голосующего (базовый)",
+    plan_startup_title: "План стартапа (создание предложений)",
+    plan_delegate_title: "План делегата (управление)",
+    voter_feat1: "Возможность голосовать по предложениям",
+    voter_feat2: "Получение вознаграждений Proof-of-Participation (PoP)",
+    startup_feat1: "Доступ к форме подачи нового предложения",
+    startup_feat2: "Первичная проверка ИИ для предложений",
+    delegate_feat1: "Получение делегированной силы голоса от других пользователей",
+    delegate_feat2: "Возможность быть назначенным валидатором",
+    plan_voter_desc: "Минимальный стейкинг, необходимый для безопасности платформы и права голоса.",
+    plan_startup_desc: "Минимальный стейкинг, необходимый для получения права подачи предложений.",
+    plan_delegate_desc: "Сумма стейкинга, необходимая для присоединения к делегатам и максимального влияния на управление.",
+    plan_selected_toast: "План выбран. Теперь нажмите кнопку 'Внести'.",
+
+    // Buying RYC
+    buy_ryc_desc: "Каждый токен RYC стоит примерно",
+    buy_ryc_title: "Купить токен RYC",
+    buy_ryc_cta: "Купить RYC",
+    add_to_wallet: "Добавить токен RYC в кошелёк",
+    amount_of_matic_to_spend: "Сумма валюты для траты",
+    buy_ryc_warning: "Окончательная стоимость рассчитывается на основе текущей цены оракула в блокчейне.",
+    buy_in_progress: "Транзакция покупки отправляется. Пожалуйста, подтвердите в своем кошельке.",
+    buy_amount_error: "Сумма покупки должна быть больше нуля.",
+    buy_success_title: "Покупка успешна",
+    buy_success_desc: "Токены RYC были добавлены в ваш кошелек. Пожалуйста, проверьте свой баланс.",
+    you_will_receive: "Количество токенов к получению",
+
+    // Notifications & Errors
+    stake_success: "Стейкинг прошел успешно",
+    stake_error: "Ошибка при стейкинге",
+    unstake_success: "Вывод средств прошел успешно",
+    unstake_error: "Ошибка при выводе средств",
+    claim_success: "Вознаграждения успешно получены",
+    claim_error: "Ошибка при получении вознаграждений",
+    approve_button: "Одобрить вывод",
+    approve_success: "Одобрение прошло успешно",
+    approve_error: "Ошибка при одобрении",
+    tx_success_title: "Транзакция успешна",
+    tx_success_desc: "Ваша операция была подтверждена в блокчейне.",
+    approve_in_progress: "Транзакция одобрения обрабатывается. Пожалуйста, дождитесь подтверждения.",
+    revert_reason_approve: "Недостаточно токенов для одобрения или неверный доступ.",
+    revert_reason_stake_zero: "Сумма стейкинга должна быть больше нуля.",
+    revert_reason_delegate_stake: "Чтобы делегировать право голоса, вы должны сначала внести токены RYC в стейкинг.",
+    contract_addresses_missing: "Основные адреса контрактов (Токен/Стейкинг) еще не загружены. Пожалуйста, подождите.",
+  },
+
+  treasury_page: {
+    title: "Казначейство",
+    subtitle: "Просмотр и управление активами казначейства платформы.",
+    total_assets: "Всего активов",
+    assets_in_treasury: "Активы, хранящиеся в казначействе",
+    native_token_balance: "Баланс нативной валюты",
+    ryc_token_balance: "Баланс токенов RYC",
+    withdraw_funds: "Вывести средства",
+    withdraw_native: "Вывести нативную валюту",
+    withdraw_ryc: "Вывести RYC",
+    amount: "Сумма",
+    withdraw: "Вывести",
+    withdraw_success: "Вывод средств прошел успешно",
+    withdraw_error: "Ошибка при выводе средств",
+    fund_treasury_title: "Пополнить казначейство",
+    fund_treasury_desc: "Для оплаты расходов и финансирования проектов казначейству необходим баланс токенов RYC. Переведите некоторые токены с вашего кошелька на контракт казначейства.",
+    fund_button: "Пополнить казначейство",
+    deposit_success: "Казначейство успешно пополнено",
+    deposit_error: "Ошибка при пополнении казначейства",
+    simulation_failed_desc: "Симуляция транзакции не удалась. Пожалуйста, проверьте введенные данные и попробуйте снова.",
+    public_view_title: "Публичный просмотр",
+    public_view_desc: "Это публичный просмотр казначейства. Только администраторы могут выводить средства.",
+    native_token: "Нативная валюта",
+    withdraw_funds_desc_admin: "Как администратор, вы можете выводить средства (нативную валюту или токены RYC) из казначейства на любой указанный адрес кошелька.",
+  },
+
+  // ==============================================================================
+  // 6. AI, ANALYTICS & REPORTS (ИИ, Аналитика и Отчеты)
+  // ==============================================================================
+  analytics_page: {
+    title: "Анализ поведения пользователей",
+    card_title: "Анализ на основе искусственного интеллекта",
+    start_analysis: "Начать анализ",
+    select_proposal: "Выбор предложения",
+    select_placeholder: "Выберите предложение",
+    proposal: "Предложение",
+    analysis_results: "Результаты анализа",
+    participation_rate: "Уровень участия",
+    participation_rate_desc: "Процент активных участников голосования",
+    voter_concentration: "Концентрация голосующих",
+    voter_concentration_desc: "Процент голосов от топ 10 процента голосующих",
+    voting_power_distribution: "Распределение силы голоса",
+    voting_power_distribution_desc: "Коэффициент Джини для распределения силы голоса",
+    collusion_risk: "Риск сговора",
+    collusion_risk_desc: "Вероятность координации среди голосующих",
+    gini_low: "Низкий",
+    gini_high: "Высокий",
+    risk_low: "Низкий",
+    risk_medium: "Средний",
+    risk_high: "Высокий",
+    analysis_error: "Ошибка при анализе предложения",
+    summary_title: "Сводка анализа",
+    subtitle: "Анализ ончейн и оффчейн активности пользователей для выявления паттернов и оценки уровня участия",
+    card_desc: "Введите адрес кошелька пользователя чтобы получить аналитический отчёт о поведении и рейтинг доверия",
+    label: "Адрес кошелька пользователя",
+    analyze_button: "Начать анализ",
+    report_title: "Аналитический отчёт о поведении",
+    report_desc: "Отображение результатов анализа для пользователя с адресом ...{address}",
+    trust_score: "Оценка доверия",
+    trust_score_desc: "Оценка основанная на прошлой активности голосах и участии в управлении",
+    anomaly_status: "Статус аномалии",
+    fetch_error: "Ошибка при получении аналитического отчёта пользователя",
+    invalid_address_error: "Пожалуйста введите корректный адрес кошелька",
+  },
+
+  reports_page: {
+    title: "Оценка ИИ",
+    no_proposals_found: "Предложения не найдены",
+    ai_risk_score: "Риск балл ИИ",
+    ai_risk_score_desc: "Показатель от 0 до 100",
+    subtitle: "Глубокая аналитика и прогнозы на основе ИИ для каждого предложения",
+    card_title: "Интеллектуальный анализ предложения",
+    card_desc: "Введите ID вашего предложения чтобы получить полный аналитический отчет от ИИ",
+    input_placeholder: "Введите ID предложения...",
+    start_analysis: "Начать анализ",
+    proposal_report_title: "Аналитический отчет для предложения № {id}",
+    ai_summary_title: "Сводка анализа ИИ",
+    investability_score: "Оценка инвестируемости",
+    overall_risk_level: "Общий уровень риска",
+    ai_recommendation: "Рекомендация ИИ",
+    financial_analysis_title: "Финансовый и командный анализ",
+    success_probability: "Вероятность успеха",
+    financial_risk_score: "Финансовый риск балл",
+    team_competency: "Компетентность команды",
+    market_sentiment: "Рыночное настроение",
+    error_title: "Ошибка",
+    success_probability_desc: "Этот показатель отражает уверенность ИИ в долгосрочном успехе проекта на основе исторических данных и характеристик проекта",
+    financial_risk_score_desc: "Этот показатель оценивает финансовый риск проекта Более низкий показатель означает меньший риск",
+    team_competency_desc: "Этот показатель рассчитывается на основе общего количества лет опыта и достижений основной команды",
+    market_sentiment_desc: "Этот показатель отражает общее рыночное настроение и прогнозы для отрасли и технологии проекта будет доступно в будущих версиях",
+    xai_title: "Ключевые причины оценки",
+    xai_strengths: "Ключевые сильные стороны",
+    xai_weaknesses: "Ключевые слабые стороны",
+    analyzing_data: "Анализ данных",
+    no_data: "Никаких конкретных элементов не обнаружено.",
+    no_risks_found: "Существенных рисков не выявлено.",
+    pdf: "Создать PDF-отчет",
+    share: "Поделиться",
+    ai_audit_report: "Отчет об оценке ИИ предложения",
+    data_analysis: "оценка данных",
+  },
+
+  contract_analyzer_page: {
+    title: "Улучшение смарт контракта",
+    subtitle: "Введите код своего смарт контракта чтобы получить его анализ и рекомендации по улучшению от искусственного интеллекта",
+    card_title: "Анализ кода контракта",
+    analyze_button: "Анализировать контракт",
+    card_desc: "Разместите свой код Solidity ниже чтобы получить рекомендации по снижению расхода газа повышению безопасности и улучшению читаемости",
+    label: "Код смарт контракта (Solidity)",
+    placeholder: "// Разместите здесь свой код смарт контракта...\npragma solidity ^0.8.24;\n\ncontract MyContract {\n // ...\n}",
+    suggestions_title: "Рекомендации по улучшению",
+    line: "Строка",
+    fetch_error: "Ошибка при получении результатов анализа",
+    code_too_short_error: "Код слишком короткий для анализа Пожалуйста введите полный контракт",
+  },
+
+  security_report: {
+    normal_behavior: "Не выявлено никаких подозрительных действий или аномалий в поведенческих паттернах данного пользователя.",
+    no_history: "Недостаточно истории активности для полного анализа.",
+    trusted_user: "Поведение кошелька отправителя соответствует модели надежных пользователей сети.",
+    anomaly_detected: "Искусственный интеллект обнаружил аномальный поведенческий паттерн в записях кошелька.",
+    low_activity: "История активности кошелька недостаточна для подтверждения подлинности (низкая активность).",
+    new_wallet: "Этот кошелек недавно создан и не имеет истории транзакций.",
+    no_model: "Модель безопасности в настоящее время недоступна.",
+    error: "Произошла ошибка при проведении анализа безопасности.",
+  },
+
+  optimizer: {
+    suggestion: {
+      uint_comparison: "Оптимизация газа Для переменных unsigned integer выражение var != 0 потребляет меньше газа чем var > 0",
+      for_loop_gas: "Оптимизация газа В циклах for префиксная форма ++i обходится дешевле чем постфиксная i++",
+      string_literal: "Оптимизация газа Хранение длинных строк более 32 байт напрямую в контракте стоит дорого Рассмотрите использование constant или хранение вне блокчейна",
+      external_visibility: "Оптимизация газа Если функция public никогда не вызывается внутри контракта измените её на external чтобы снизить расход газа",
+      safe_math: "Рекомендация по безопасности Вы используете прямые арифметические операции (+ - * /) В версиях Solidity до 0.8 необходимо применять библиотеку SafeMath чтобы избежать ошибок переполнения и переписывания",
+      no_issues_found: "Отлично Не найдено явных автоматических рекомендаций по оптимизации Ваш код выглядит аккуратно",
+    },
+  },
+
+  risk_level: {
+    low: "низкий",
+    medium: "средний",
+    high: "высокий",
+    very_high: "очень высокий",
+  },
+
+  recommendation: {
+    low_risk_desc: "На основе алгоритмов машинного обучения этот проект обладает прочными фундаментами и низким уровнем риска. Показатели роста и устойчивости находятся в оптимальном состоянии.",
+    medium_risk_desc: "Проект имеет потенциал успеха, однако уровень рисков оценивается как средний. Рекомендуется изучить выявленные слабые стороны перед инвестированием.",
+    high_risk_desc: "Искусственный интеллект выявил существенные структурные или финансовые риски. Эта инвестиция считается высокорискованной и требует максимальной осторожности.",
+    low: "Низкий",
+    medium: "Средний",
+    high: "Высокий",
+    very_high: "Очень высокий",
+  },
+
+  xai: {
+    strength: {
+      strong_team: "Команда проекта обладает высоким уровнем опыта.",
+      strong_financials: "Финансовая модель и экономические прогнозы проекта оценены как сильные.",
+      top_factor: "Ключевой фактор в принятии решения: ({{factor}})",
+      positive_tam: "Размер целевого рынка (TAM) велик и имеет высокий потенциал роста ({{value}}).",
+      positive_burn: "Месячный расход (Burn Rate) является логичным и устойчивым относительно запрашиваемого капитала.",
+      positive_amount: "Запрашиваемая сумма соответствует стандартам успеха в данной отрасли.",
+      positive_exp: "Опыт исполнительной команды значительно повышает шансы на успех проекта.",
+      positive_milestones: "Количество и структура этапов финансирования (Milestones) оптимизированы.",
+      high_score: "Общий профиль проекта статистически похож на успешные стартапы.",
+    },
+    weakness: {
+      inexperienced_team: "Опыт исполнительной команды ниже ожидаемого уровня.",
+      high_financial_risk: "Финансовый риск и риск возврата инвестиций оценены как высокие.",
+      negative_tam: "Размер целевого рынка оценён как небольшой, что может ограничить масштабируемость.",
+      negative_burn: "Расходы (Burn Rate) несбалансированы относительно запрашиваемого бюджета (риск ликвидности).",
+      negative_amount: "Запрашиваемая сумма несоразмерно высока для стадии развития проекта.",
+      negative_exp: "Недостаток подтверждённого опыта в команде считается фактором риска.",
+      negative_milestones: "Структура этапов может привести к давлению на ликвидность или невыполнению обязательств.",
+      financial_uncertainty: "В финансовой модели наблюдается неопределённость.",
+      general_risk: "Общие риски проекта выше среднего уровня.",
+    },
+    feature: {
+      industry: "Индустрия проекта ({{value}})",
+      requested_amount: "Запрашиваемая сумма",
+      milestone_count: "Количество этапов финансирования",
+      team_experience: "Опыт команды",
+      tam: "Целевой рынок (TAM)",
+      burn_rate: "Темп расходов (Burn Rate)",
+    },
+  },
+
+  // ==============================================================================
+  // 7. USER PROFILE (Профиль пользователя)
+  // ==============================================================================
   profile_page: {
     title: "Профиль пользователя",
     subtitle: "Управляйте информацией о своей учетной записи, действиями и настройками.",
@@ -588,7 +1053,9 @@ export const ru = {
     change_role: "Изменить роль",
   },
 
-   // Setup Page
+  // ==============================================================================
+  // 8. SYSTEM & ADMIN (Система и Администратор)
+  // ==============================================================================
   setup_page: {
     title: "Настройка платформы",
     subtitle: "Настраивайте и развертывайте смарт-контракты платформы с этой панели.",
@@ -608,103 +1075,22 @@ export const ru = {
     go_to_dashboard: "Перейти на панель управления",
     deploy_failed_message: "Развертывание не удалось. Пожалуйста, проверьте журналы.",
     go_to_setup_to_reset: "Перейдите на страницу настройки для сброса.",
-      logs: {
-        saving_config: "Сохранение конфигурации в файл .env...",
-        save_success: "Конфигурация успешно сохранена. Перезапустите сервер, чтобы изменения вступили в силу",
-        save_failed: "Произошла ошибка при сохранении конфигурации",
-        deploy_start: "Процесс развертывания контрактов запущен...",
-        deploy_success: "Процесс развертывания успешно завершен",
-        reset_success: "Процесс сброса сервера прошел успешно",
-        deploy_failed: "В процессе развертывания произошла ошибка",
-        already_setup_title: "Платформа уже настроена",
-        already_setup_desc: "Похоже, смарт-контракты уже развернуты. Если вы хотите перезапустить платформу, вы можете сбросить информацию о развертывании",
-        reset_setup_button: "Сбросить настройки",
-        reset_confirm: "Вы уверены, что хотите сбросить контракты? Это приведет к сбросу всех транзакций. потерян",
-        resetting_in_progress:"Идет сброс контрактов",
-      }
+    logs: {
+      saving_config: "Сохранение конфигурации в файл .env...",
+      save_success: "Конфигурация успешно сохранена. Перезапустите сервер, чтобы изменения вступили в силу",
+      save_failed: "Произошла ошибка при сохранении конфигурации",
+      deploy_start: "Процесс развертывания контрактов запущен...",
+      deploy_success: "Процесс развертывания успешно завершен",
+      reset_success: "Процесс сброса сервера прошел успешно",
+      deploy_failed: "В процессе развертывания произошла ошибка",
+      already_setup_title: "Платформа уже настроена",
+      already_setup_desc: "Похоже, смарт-контракты уже развернуты. Если вы хотите перезапустить платформу, вы можете сбросить информацию о развертывании",
+      reset_setup_button: "Сбросить настройки",
+      reset_confirm: "Вы уверены, что хотите сбросить контракты? Это приведет к сбросу всех транзакций. потерян",
+      resetting_in_progress: "Идет сброс контрактов",
+    }
   },
 
-  // Analytics Page
-  analytics_page:{
-    title: "Анализ поведения пользователей",
-    card_title: "Анализ на основе искусственного интеллекта",
-    start_analysis: "Начать анализ",
-    select_proposal: "Выбор предложения",
-    select_placeholder: "Выберите предложение",
-    proposal: "Предложение",
-    analysis_results: "Результаты анализа",
-    participation_rate: "Уровень участия",
-    participation_rate_desc: "Процент активных участников голосования",
-    voter_concentration: "Концентрация голосующих",
-    voter_concentration_desc: "Процент голосов от топ 10 процента голосующих",
-    voting_power_distribution: "Распределение силы голоса",
-    voting_power_distribution_desc: "Коэффициент Джини для распределения силы голоса",
-    collusion_risk: "Риск сговора",
-    collusion_risk_desc: "Вероятность координации среди голосующих",
-    gini_low: "Низкий",
-    gini_high: "Высокий",
-    risk_low: "Низкий",
-    risk_medium: "Средний",
-    risk_high: "Высокий",
-    analysis_error: "Ошибка при анализе предложения",
-    summary_title: "Сводка анализа",
-    subtitle: "Анализ ончейн и оффчейн активности пользователей для выявления паттернов и оценки уровня участия",
-    card_desc: "Введите адрес кошелька пользователя чтобы получить аналитический отчёт о поведении и рейтинг доверия",
-    label: "Адрес кошелька пользователя",
-    analyze_button: "Начать анализ",
-    report_title: "Аналитический отчёт о поведении",
-    report_desc: "Отображение результатов анализа для пользователя с адресом ...{address}",
-    trust_score: "Оценка доверия",
-    trust_score_desc: "Оценка основанная на прошлой активности голосах и участии в управлении",
-    anomaly_status: "Статус аномалии",
-    fetch_error: "Ошибка при получении аналитического отчёта пользователя",
-    invalid_address_error: "Пожалуйста введите корректный адрес кошелька",
-  },
-
-  security_report: {
-    normal_behavior: "Не выявлено никаких подозрительных действий или аномалий в поведенческих паттернах данного пользователя.",
-    no_history: "Недостаточно истории активности для полного анализа.",
-    trusted_user: "Поведение кошелька отправителя соответствует модели надежных пользователей сети.",
-    anomaly_detected: "Искусственный интеллект обнаружил аномальный поведенческий паттерн в записях кошелька.",
-    low_activity: "История активности кошелька недостаточна для подтверждения подлинности (низкая активность).",
-    new_wallet: "Этот кошелек недавно создан и не имеет истории транзакций.",
-    no_model: "Модель безопасности в настоящее время недоступна.",
-    error: "Произошла ошибка при проведении анализа безопасности.",
-  },
-    optimizer:{
-      suggestion:{
-      uint_comparison: "Оптимизация газа Для переменных unsigned integer выражение var != 0 потребляет меньше газа чем var > 0",
-      for_loop_gas: "Оптимизация газа В циклах for префиксная форма ++i обходится дешевле чем постфиксная i++",
-      string_literal: "Оптимизация газа Хранение длинных строк более 32 байт напрямую в контракте стоит дорого Рассмотрите использование constant или хранение вне блокчейна",
-      external_visibility: "Оптимизация газа Если функция public никогда не вызывается внутри контракта измените её на external чтобы снизить расход газа",
-      safe_math: "Рекомендация по безопасности Вы используете прямые арифметические операции (+ - * /) В версиях Solidity до 0.8 необходимо применять библиотеку SafeMath чтобы избежать ошибок переполнения и переписывания",
-      no_issues_found: "Отлично Не найдено явных автоматических рекомендаций по оптимизации Ваш код выглядит аккуратно",
-      },
-   },
-  
-  // Contract Analyzer Page
-  contract_analyzer_page: {
-  title: "Улучшение смарт контракта",
-  subtitle: "Введите код своего смарт контракта чтобы получить его анализ и рекомендации по улучшению от искусственного интеллекта",
-  card_title: "Анализ кода контракта",
-  analyze_button: "Анализировать контракт",
-  card_desc: "Разместите свой код Solidity ниже чтобы получить рекомендации по снижению расхода газа повышению безопасности и улучшению читаемости",
-  label: "Код смарт контракта (Solidity)",
-  placeholder: "// Разместите здесь свой код смарт контракта...\npragma solidity ^0.8.24;\n\ncontract MyContract {\n // ...\n}",
-  suggestions_title: "Рекомендации по улучшению",
-  line: "Строка",
-  fetch_error: "Ошибка при получении результатов анализа",
-  code_too_short_error: "Код слишком короткий для анализа Пожалуйста введите полный контракт",
-  },
-  
-  // Not Found Page
-  not_found: {
-    title: "404 - Страница не найдена",
-    message: "К сожалению, страница, которую вы ищете, не существует или была перемещена.",
-    go_home: "Перейти на панель управления",
-  },
-  
-  // Logs Page
   logs_page: {
     title: "Журнал событий",
     subtitle: "Просмотр важных событий, зарегистрированных в смарт-контрактах платформы, в реальном времени.",
@@ -744,188 +1130,16 @@ export const ru = {
     function_at_inversebrah: "на Inversebrah",
   },
 
-  // Staking Page
-  staking_page: {
-    title: "Стейкинг и вознаграждения",
-    subtitle: "Внесите свои токены RYC, участвуйте в управлении и получайте вознаграждения.",
-    subtitle_for_role: "Страница управления стейкингом для роли:",
-    ryc_balance: "Баланс RYC",
-    staked_balance: "Баланс в стейкинге",
-    staked_balance_desc: "Ваши токены в стейкинге",
-    earned_rewards: "Заработанные вознаграждения",
-    stake_tokens_title: "Внести токены в стейкинг",
-    stake_tokens_desc: "Заблокируйте свои токены RYC, чтобы получать вознаграждения и силу голоса.",
-    amount_to_stake: "Сумма для стейкинга",
-    stake: "Внести",
-    unstake_tokens_title: "Вывести токены из стейкинга",
-    unstake_tokens_desc: "Выведите свои внесенные токены RYC.",
-    amount_to_unstake: "Сумма для вывода",
-    unstake: "Вывести",
-    claim_rewards_title: "Получить вознаграждения",
-    claim_rewards_desc: "Переведите заработанные вознаграждения на свой кошелек.",
-    claim_rewards: "Получить вознаграждения",
-    stake_success: "Стейкинг прошел успешно",
-    stake_error: "Ошибка при стейкинге",
-    unstake_success: "Вывод средств прошел успешно",
-    unstake_error: "Ошибка при выводе средств",
-    claim_success: "Вознаграждения успешно получены",
-    claim_error: "Ошибка при получении вознаграждений",
-    staking_plans_title: "Планы стейкинга",
-    staking_plans_desc: "Выберите один из планов ниже, чтобы быстро внести средства.",
-    approve_button: "Одобрить вывод",
-    approve_success: "Одобрение прошло успешно",
-    approve_error: "Ошибка при одобрении",
-    delegate_title: "Делегировать право голоса",
-    delegate_desc: "Делегируйте свое право голоса доверенному представителю (делегату) для повышения показателя Proof-of-Participation (PoP) и безопасности сети.",
-    delegate_error: "Ошибка при делегировании роли",
-    delegatee_address: "Адрес желаемого делегата",
-    delegate_cta: "Делегировать",
-    undelegate_cta: "Отменить делегирование",
-    plans_for_role: "Планы стейкинга для роли",
-    plans_for_role_desc: "Минимальная сумма стейкинга для выполнения требований безопасности и доступа к функциям роли.",
-    current_delegatee: "Текущий делегат",
-    no_delegatee: "Нет делегата",
-    plan_voter_title: "План голосующего (базовый)",
-    plan_startup_title: "План стартапа (создание предложений)",
-    plan_delegate_title: "План делегата (управление)",
-    voter_feat1: "Возможность голосовать по предложениям",
-    voter_feat2: "Получение вознаграждений Proof-of-Participation (PoP)",
-    startup_feat1: "Доступ к форме подачи нового предложения",
-    startup_feat2: "Первичная проверка ИИ для предложений",
-    delegate_feat1: "Получение делегированной силы голоса от других пользователей",
-    delegate_feat2: "Возможность быть назначенным валидатором",
-    plan_voter_desc: "Минимальный стейкинг, необходимый для безопасности платформы и права голоса.",
-    plan_startup_desc: "Минимальный стейкинг, необходимый для получения права подачи предложений.",
-    plan_delegate_desc: "Сумма стейкинга, необходимая для присоединения к делегатам и максимального влияния на управление.",
-    tx_success_title: "Транзакция успешна",
-    tx_success_desc: "Ваша операция была подтверждена в блокчейне.",
-    approve_in_progress: "Транзакция одобрения обрабатывается. Пожалуйста, дождитесь подтверждения.",
-    revert_reason_approve: "Недостаточно токенов для одобрения или неверный доступ.",
-    revert_reason_stake_zero: "Сумма стейкинга должна быть больше нуля.",
-    revert_reason_delegate_stake: "Чтобы делегировать право голоса, вы должны сначала внести токены RYC в стейкинг.",
-    plan_selected_toast: "План выбран. Теперь нажмите кнопку 'Внести'.",
-    contract_addresses_missing: "Основные адреса контрактов (Токен/Стейкинг) еще не загружены. Пожалуйста, подождите.",
-    buy_ryc_desc: "Каждый токен RYC стоит примерно",
-    buy_ryc_title: "Купить токен RYC",
-    buy_ryc_cta: "Купить RYC",
-    amount_of_matic_to_spend: "Сумма валюты для траты",
-    buy_ryc_warning: "Окончательная стоимость рассчитывается на основе текущей цены оракула в блокчейне.",
-    buy_in_progress: "Транзакция покупки отправляется. Пожалуйста, подтвердите в своем кошельке.",
-    buy_amount_error: "Сумма покупки должна быть больше нуля.",
-    buy_success_title: "Покупка успешна",
-    buy_success_desc: "Токены RYC были добавлены в ваш кошелек. Пожалуйста, проверьте свой баланс.",
-    you_will_receive: "Количество токенов к получению",
-    manage_stake_title: "Управление стейкингом",
-    manage_stake_desc: "Выведите свой стейкинг или получите заработанные вознаграждения.",
-    card_label_balance: "В кошельке приобретенное количество токенов RYC",
-    card_label_staked: "Баланс стейкнутых токенов RYC",
-    card_label_earned: "Полученное количество вознаграждений за деятельность",
-    add_to_wallet: "Добавить токен RYC в кошелёк",
-    unclaimed_rewards: "Всего невостребованных наград",
-
-  },
-
-  // Treasury Page
-  treasury_page: {
-    title: "Казначейство",
-    subtitle: "Просмотр и управление активами казначейства платформы.",
-    total_assets: "Всего активов",
-    assets_in_treasury: "Активы, хранящиеся в казначействе",
-    native_token_balance: "Баланс нативной валюты",
-    ryc_token_balance: "Баланс токенов RYC",
-    withdraw_funds: "Вывести средства",
-    withdraw_native: "Вывести нативную валюту",
-    withdraw_ryc: "Вывести RYC",
-    amount: "Сумма",
-    withdraw: "Вывести",
-    withdraw_success: "Вывод средств прошел успешно",
-    withdraw_error: "Ошибка при выводе средств",
-    fund_treasury_title: "Пополнить казначейство",
-    fund_treasury_desc: "Для оплаты расходов и финансирования проектов казначейству необходим баланс токенов RYC. Переведите некоторые токены с вашего кошелька на контракт казначейства.",
-    fund_button: "Пополнить казначейство",
-    deposit_success: "Казначейство успешно пополнено",
-    deposit_error: "Ошибка при пополнении казначейства",
-    simulation_failed_desc: "Симуляция транзакции не удалась. Пожалуйста, проверьте введенные данные и попробуйте снова.",
-    public_view_title: "Публичный просмотр",
-    public_view_desc: "Это публичный просмотр казначейства. Только администраторы могут выводить средства.",
-    native_token: "Нативная валюта",
-    withdraw_funds_desc_admin: "Как администратор, вы можете выводить средства (нативную валюту или токены RYC) из казначейства на любой указанный адрес кошелька.",
-  },
-  
-  // Proposal Detail Page
-  proposal_detail: {
-    proposal_id: "ID предложения",
-    not_found: "Предложение не найдено.",
-    details: "Детали",
-    status_desc: "Текущий статус предложения.",
-    proposer_info: "Информация о заявителе",
-    funding_info: "Информация о финансировании",
-    total_requested: "Общая запрашиваемая сумма",
-    milestones: "Этапы",
-    milestone: "Этап",
-    voting_results: "Результаты голосования",
-    vote_for: "За",
-    vote_against: "Против",
-    for: "За",
-    against: "Против",
-    total_votes: "Всего голосов",
-    created_on: "Дата создания",
-    voting_deadline: "Крайний срок голосования",
-    votes_for: "Голосовать 'За'",
-    votes_against: "Голосовать 'Против'",
-    ai_analysis: "оценка искусственного интеллекта",
-    ai_risk_score: "балл риска искусственного интеллекта",
-    market_sentiment: "рыночные настроения",
-    team_competency: "компетентность команды",
-    description: "описание предложения",
-    proposer: "предлагающий",
-    view_ai_report: "просмотр отчета об искусственном интеллекте",
-    milestone_management: "Управление капиталом проекта",
-    milestone_management_desc: "Ваш проект профинансирован. Для получения следующего транша предоставьте отчет о ходе работ.",
-    request_next_milestone: "Запрос на получение следующего этапа",
-    submit_progress_report: "Отправить отчет о прогрессе",
-    progress_description: "Опишите, какие работы выполнены на данном этапе:",
-    progress_placeholder: "Например: завершение разработки MVP, окончание пользовательского тестирования...",
-    submit_request: "Отправить запрос",
-    total_supply: "из общего количества доступных токенов",
-    timeline:{
-      title: "Статус предложения",
-      submitted: "Отправлено",
-      voting: "Идёт голосование",
-      approved: "Окончательный результат",
-      executed: "Исполнено",
-      },
-      you_have_voted_title: "Вы уже проголосовали",
-      you_have_voted_desc: "Благодарим вас за участие в процессе управления Результат будет доступен после завершения периода голосования",
-      admin_actions: "Административные действия",
-      execute_proposal: "Исполнить предложение",
-      status: {
-        pending: "В ожидании",
-        active: "Идет голосование",
-        canceled: "Отменено",
-        defeated: "Отклонено",
-        succeeded: "Одобрено",
-        queued: "В очереди на выполнение",
-        expired: "Истек срок",
-        executed: "Выполнено",
-        unknown: "Неизвестно",
-        validation: "Проходит проверку",
-      },
-      alert: {
-        insufficient_power_title: "Недостаточно права голоса",
-        insufficient_power_desc: "Для участия в управлении необходимо застейкать токены (RYC) Сейчас ваша сила голоса равна нулю Хотите перейти на страницу стейкинга",
-        cancel: "Отмена",
-        go_to_staking: "Перейти к стейкингу"
-      },
-  },
-
-  // Dynamic Content
+  // ==============================================================================
+  // 9. UTILITIES & TOASTS (Утилиты и Уведомления)
+  // ==============================================================================
   users: {
     user1: "Пользователь 1",
     you: "Вы",
     user3: "Пользователь 3",
     user4: "Пользователь 4",
   },
+  
   activities: {
     voted_positive: "проголосовал 'за' предложение {proposal}.",
     transferred_tokens: "перевел 25 токенов RYC на ваш кошелек.",
@@ -947,95 +1161,14 @@ export const ru = {
     milestone_released: "Освободил финансовый этап №{milestoneIndex} для предложения №{id}",
     ownership_transferred: "Передал право собственности на контракт",
   },
+
   time: {
     minutes_ago: "5 минут назад",
     hour_ago: "1 час назад",
     hours_ago: "3 часа назад",
     yesterday: "Вчера",
-},
-    reports_page: {
-    title: "Оценка ИИ",
-    no_proposals_found: "Предложения не найдены",
-    ai_risk_score: "Риск балл ИИ",
-    ai_risk_score_desc: "Показатель от 0 до 100",
-    subtitle: "Глубокая аналитика и прогнозы на основе ИИ для каждого предложения",
-    card_title: "Интеллектуальный анализ предложения",
-    card_desc: "Введите ID вашего предложения чтобы получить полный аналитический отчет от ИИ",
-    input_placeholder: "Введите ID предложения...",
-    start_analysis: "Начать анализ",
-    proposal_report_title: "Аналитический отчет для предложения № {id}",
-    ai_summary_title: "Сводка анализа ИИ",
-    investability_score: "Оценка инвестируемости",
-    overall_risk_level: "Общий уровень риска",
-    ai_recommendation: "Рекомендация ИИ",
-    financial_analysis_title: "Финансовый и командный анализ",
-    success_probability: "Вероятность успеха",
-    financial_risk_score: "Финансовый риск балл",
-    team_competency: "Компетентность команды",
-    market_sentiment: "Рыночное настроение",
-    error_title: "Ошибка",
-    success_probability_desc: "Этот показатель отражает уверенность ИИ в долгосрочном успехе проекта на основе исторических данных и характеристик проекта",
-    financial_risk_score_desc: "Этот показатель оценивает финансовый риск проекта Более низкий показатель означает меньший риск",
-    team_competency_desc: "Этот показатель рассчитывается на основе общего количества лет опыта и достижений основной команды",
-    market_sentiment_desc: "Этот показатель отражает общее рыночное настроение и прогнозы для отрасли и технологии проекта будет доступно в будущих версиях",
-    xai_title: "Ключевые причины оценки",
-    xai_strengths: "Ключевые сильные стороны",
-    xai_weaknesses: "Ключевые слабые стороны",
-    analyzing_data: "Анализ данных",
-    no_data: "Никаких конкретных элементов не обнаружено.",
-    no_risks_found: "Существенных рисков не выявлено.",
-    pdf: "Создать PDF-отчет",
-    share: "Поделиться",
-    ai_audit_report: "Отчет об оценке ИИ предложения",
-    data_analysis: "оценка данных",
-    },
-    risk_level: {
-    low: "низкий",
-    medium: "средний",
-    high: "высокий",
-    very_high: "очень высокий",
-    },
-  recommendation: {
-    low_risk_desc: "На основе алгоритмов машинного обучения этот проект обладает прочными фундаментами и низким уровнем риска. Показатели роста и устойчивости находятся в оптимальном состоянии.",
-    medium_risk_desc: "Проект имеет потенциал успеха, однако уровень рисков оценивается как средний. Рекомендуется изучить выявленные слабые стороны перед инвестированием.",
-    high_risk_desc: "Искусственный интеллект выявил существенные структурные или финансовые риски. Эта инвестиция считается высокорискованной и требует максимальной осторожности.",
-    low: "Низкий",
-    medium: "Средний",
-    high: "Высокий",
-    very_high: "Очень высокий",
   },
-    xai: {
-      strength: {
-        strong_team: "Команда проекта обладает высоким уровнем опыта.",
-        strong_financials: "Финансовая модель и экономические прогнозы проекта оценены как сильные.",
-        top_factor: "Ключевой фактор в принятии решения: ({{factor}})",
-        positive_tam: "Размер целевого рынка (TAM) велик и имеет высокий потенциал роста ({{value}}).",
-        positive_burn: "Месячный расход (Burn Rate) является логичным и устойчивым относительно запрашиваемого капитала.",
-        positive_amount: "Запрашиваемая сумма соответствует стандартам успеха в данной отрасли.",
-        positive_exp: "Опыт исполнительной команды значительно повышает шансы на успех проекта.",
-        positive_milestones: "Количество и структура этапов финансирования (Milestones) оптимизированы.",
-        high_score: "Общий профиль проекта статистически похож на успешные стартапы.",
-      },
-      weakness: {
-        inexperienced_team: "Опыт исполнительной команды ниже ожидаемого уровня.",
-        high_financial_risk: "Финансовый риск и риск возврата инвестиций оценены как высокие.",
-        negative_tam: "Размер целевого рынка оценён как небольшой, что может ограничить масштабируемость.",
-        negative_burn: "Расходы (Burn Rate) несбалансированы относительно запрашиваемого бюджета (риск ликвидности).",
-        negative_amount: "Запрашиваемая сумма несоразмерно высока для стадии развития проекта.",
-        negative_exp: "Недостаток подтверждённого опыта в команде считается фактором риска.",
-        negative_milestones: "Структура этапов может привести к давлению на ликвидность или невыполнению обязательств.",
-        financial_uncertainty: "В финансовой модели наблюдается неопределённость.",
-        general_risk: "Общие риски проекта выше среднего уровня.",
-      },
-      feature: {
-        industry: "Индустрия проекта ({{value}})",
-        requested_amount: "Запрашиваемая сумма",
-        milestone_count: "Количество этапов финансирования",
-        team_experience: "Опыт команды",
-        tam: "Целевой рынок (TAM)",
-        burn_rate: "Темп расходов (Burn Rate)",
-      },
-  },
+
   toasts: {
     uploading_docs: "Загрузка документов...",
     saving_proposal: "Сохранение информации о предложении...",
@@ -1092,45 +1225,10 @@ export const ru = {
     error_user_rejected: "Транзакция была отклонена пользователем.",
     error_generic: "Произошла неизвестная ошибка.",
   },
-      numbers: {
+
+  numbers: {
     0: "0",
     50: "50",
     100: "100",
-  },
-    guide_page: {
-    title: "Руководство пользователя платформы",
-    subtitle: "Узнайте как работать в RayanChain в соответствии с вашей ролью",
-    tabs: {
-      investor: "💰 Инвестор",
-      startup: "🚀 Стартап",
-      voter: "🗳️ Голосующий"
-    },
-    actions: {
-      go_to_staking: "Перейти к стейкингу",
-      create_proposal: "Создать предложение",
-      view_proposals: "Просмотр активных голосований"
-    },
-    investor: {
-      step1_title: "Подключение и получение токенов",
-      step1_desc: "Подключите свой кошелек Если у вас нет токенов RYC вы можете конвертировать MATIC через панель или биржи",
-      step2_title: "Изучение предложений",
-      step2_desc: "Изучите активные предложения Используйте отчеты ИИ для анализа риска компетентности команды и настроений рынка",
-      step3_title: "Стейкинг для участия в управлении",
-      step3_desc: "Чтобы влиять на решения застейкайте свои токены RYC Это дает вам силу голоса в зависимости от суммы стейка"
-    },
-    startup: {
-      step1_title: "Подача предложения",
-      step1_desc: "Заполните полную форму предложения Загрузите финансовые и юридические документы и презентацию Данные хранятся безопасно в IPFS",
-      step2_title: "Анализ ИИ",
-      step2_desc: "После подачи многоуровневый ИИ анализирует проект на предмет риска и реализуемости и прикрепляет отчет к предложению",
-      step3_title: "Голосование сообщества",
-      step3_desc: "Взаимодействуйте с сообществом Если предложение набирает необходимый минимум голосов средства освобождаются по этапам"
-    },
-    voter: {
-      step1_title: "Получение силы голоса",
-      step1_desc: "Вы не можете голосовать только с токенами в кошельке Они должны быть застейканы или вам должно быть делегировано право голоса",
-      step2_title: "Регистрация голоса",
-      step2_desc: "Откройте активное предложение Нажмите голос за или голос против Вес вашего голоса зависит от суммы стейка"
-    }
   },
 };

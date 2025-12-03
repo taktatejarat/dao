@@ -1,6 +1,7 @@
-
 export const ar = {
-  // Common
+  // ==============================================================================
+  // 1. GLOBAL & COMMON (عام وشامل)
+  // ==============================================================================
   actions: "إجراءات",
   status: "الحالة",
   active: "نشط",
@@ -10,10 +11,14 @@ export const ar = {
   edit_profile: "تعديل الملف الشخصي",
   view_details: "عرض التفاصيل",
   risk_assessment: "تقييم المخاطر",
+
+  // Roles (Root Level)
   admin: "مسؤول",
   investor: "مستثمر",
   startup: "شركة ناشئة",
   voter: "مصوّت",
+
+  // Simple Boolean (Root Level)
   yes: "نعم",
   no: "لا",
 
@@ -32,10 +37,12 @@ export const ar = {
     generated_footer: "تم إنشاؤه بواسطة محرك الذكاء الاصطناعي لريان‌تشین | هذا التقرير ليس عرضاً مالياً نهائياً.",
     rayan_chain_vc: "منصة الاستثمار ريان‌تشين",
     comming_soon: "قريبًا",
+    all: "الكل", // Added for consistency with FA
+    view_tx: "عرض المعاملة", // Added/Inferred if missing, based on FA structure
+    ai_powered: "مدعوم بالذكاء الاصطناعي", // Added/Inferred
+    risk: "المخاطرة", // Added/Inferred
+  },
 
-    },
-
-  // Header
   header: {
     search: "بحث...",
     toggle_theme: "تبديل السمة",
@@ -43,25 +50,7 @@ export const ar = {
     my_account: "حسابي",
     profile: "الملف الشخصي",
   },
-    page_titles:{
-      dashboard: "لوحة التحكم الرئيسية",
-      proposals: "قائمة المقترحات",
-      new_proposal: "تسجيل مقترح جديد",
-      proposal_details: "تفاصيل المقترح",
-      staking: "إدارة الستيكينغ",
-      treasury: "الخزانة الذكية",
-      reports: "تقارير الذكاء الاصطناعي",
-      ai_report_detail: "تحليل شامل للمشروع",
-      analytics: "تحليل سلوك المستخدمين",
-      contract_analyzer: "تشخيص العقد الذكي",
-      profile: "الملف الشخصي",
-      logs: "سجل أنشطة النظام",
-      admin: "مركز الإدارة",
-      admin_settings: "الإعدادات النظامية",
-      setup: "إعداد البنية التحتية",
-  },
 
-  // Sidebar
   sidebar: {
     dashboard: "لوحة التحكم",
     proposals: "الاقتراحات",
@@ -80,17 +69,83 @@ export const ar = {
     group_admin: "إدارة النظام",
     guest_mode: "وضع الضيف",
     all_proposals: "جميع المقترحات",
-
   },
 
-  // AuthGuard
+  menu: {
+    staking: "الإيداع",
+    proposals: "المقترحات",
+  },
+
+  page_titles:{
+    dashboard: "لوحة التحكم الرئيسية",
+    proposals: "قائمة المقترحات",
+    new_proposal: "تسجيل مقترح جديد",
+    proposal_details: "تفاصيل المقترح",
+    staking: "إدارة الستيكينغ",
+    treasury: "الخزانة الذكية",
+    reports: "تقارير الذكاء الاصطناعي",
+    ai_report_detail: "تحليل شامل للمشروع",
+    analytics: "تحليل سلوك المستخدمين",
+    contract_analyzer: "تشخيص العقد الذكي",
+    profile: "الملف الشخصي",
+    logs: "سجل أنشطة النظام",
+    admin: "مركز الإدارة",
+    admin_settings: "الإعدادات النظامية",
+    setup: "إعداد البنية التحتية",
+  },
+
+  not_found: {
+    title: "٤٠٤ - الصفحة غير موجودة",
+    message: "عفواً، الصفحة التي تبحث عنها غير موجودة أو تم نقلها.",
+    go_home: "العودة إلى لوحة التحكم",
+  },
+
+  guide_page: {
+    title: "دليل استخدام المنصة",
+    subtitle: "شرح كيفية العمل في رايان‌تشين حسب نوع دورك",
+    tabs: {
+      investor: "💰 مستثمر",
+      startup: "🚀 شركة ناشئة",
+      voter: "🗳️ ناخب"
+    },
+    actions: {
+      go_to_staking: "الانتقال إلى الإيداع",
+      create_proposal: "إنشاء مقترح",
+      view_proposals: "عرض عمليات التصويت النشطة"
+    },
+    investor: {
+      step1_title: "الاتصال واستلام الرموز",
+      step1_desc: "قم بربط محفظتك وإذا لم تكن تملك رموز RYC يمكنك تحويل MATIC من لوحة التحكم أو من منصات التداول",
+      step2_title: "مراجعة المقترحات",
+      step2_desc: "راجع المقترحات النشطة واستخدم تقارير الذكاء الاصطناعي لتحليل مستوى المخاطر وكفاءة الفريق ومشاعر السوق",
+      step3_title: "الإيداع للمشاركة في الحوكمة",
+      step3_desc: "للتأثير في القرارات قم بإيداع رموز RYC الخاصة بك وهذا يمنحك قوة تصويت تعتمد على قيمة الإيداع"
+    },
+    startup: {
+      step1_title: "تسجيل المقترح",
+      step1_desc: "املأ نموذج المقترح الكامل وارفع المستندات المالية والقانونية وملف العرض التعريفي ويتم حفظ البيانات بشكل آمن في IPFS",
+      step2_title: "تحليل الذكاء الاصطناعي",
+      step2_desc: "بعد التسجيل يقوم نظام الذكاء الاصطناعي متعدد الطبقات بتحليل المشروع من ناحية المخاطر وإمكانية التنفيذ ويتم إرفاق التقرير بمقترحك",
+      step3_title: "تصويت المجتمع",
+      step3_desc: "تفاعل مع المجتمع وإذا حصل مقترحك على الحد الأدنى من الأصوات يتم الإفراج عن التمويل وفق مراحل التنفيذ"
+    },
+    voter: {
+      step1_title: "الحصول على قوة التصويت",
+      step1_desc: "لا يمكنك التصويت باستخدام الرموز الموجودة فقط في المحفظة يجب إيداعها أو يجب أن يتم تفويضك بحق التصويت",
+      step2_title: "تسجيل التصويت",
+      step2_desc: "اذهب إلى مقترح نشط واضغط على تصويت بالموافقة أو تصويت بالرفض وتعتمد قوة تصويتك على قيمة الإيداع"
+    },
+  },
+
+  // ==============================================================================
+  // 2. AUTH & ONBOARDING (المصادقة والتهيئة)
+  // ==============================================================================
   auth_guard: {
     connecting_blockchain: "جاري الاتصال بالبلوكشين...",
     connecting_dashboard: "جاري الاتصال بلوحة التحكم...",
     loading: "جاري التحميل...",
   },
 
-  // Landing Page
   landing_page: {
     hero_title: "منصة انطلاق الشركات الناشئة المستقبلية",
     hero_subtitle: "تجمع RayanChain DAO بين الذكاء الاصطناعي والحوكمة اللامركزية لتحديد ودعم المشاريع التحويلية.",
@@ -129,10 +184,9 @@ export const ar = {
       not_funded: "لم يتم الحصول على التمويل",
       funded: "تم الحصول على التمويل",
       voting: "قيد التصويت",
-      },
+    },
   },
-  
-  // Role Selection Page
+
   role_selection: {
     welcome: "أهلاً بك في RayanChain!",
     prompt: "للبدء، يرجى تحديد دورك في المنصة.",
@@ -178,10 +232,14 @@ export const ar = {
     redirecting: "جاري إعادة التوجيه...",
   },
 
-  // Dashboard Page
+  // ==============================================================================
+  // 3. DASHBOARD (لوحة التحكم)
+  // ==============================================================================
   dashboard: {
     title: "لوحة التحكم",
     welcome_message: "أهلاً بك في لوحة تحكم RayanChain الخاصة بك. إليك نظرة عامة على نشاط المنصة.",
+    
+    // Stats & Balance
     your_balance: "رصيدك (RYC)",
     total_balance_desc: "الرصيد الإجمالي في محفظتك",
     active_investments: "الاستثمارات النشطة",
@@ -194,9 +252,6 @@ export const ar = {
     your_proposals_desc: "إجمالي عدد المقترحات المقدمة",
     capital_raised: "رأس المال المجمع",
     capital_raised_desc: "إجمالي رأس المال المجمع لمشاريعك",
-    latest_proposal_status: "حالة آخر اقتراح",
-    latest_proposal_status_desc: "آخر حالة لمشروعك",
-    in_voting: "قيد التصويت",
     total_users: "إجمالي المستخدمين",
     total_users_desc: "+{count} هذا الشهر",
     active_proposals_count: "المقترحات النشطة",
@@ -207,7 +262,29 @@ export const ar = {
     participation_rate_desc: "متوسط المشاركة في التصويت",
     your_voting_power: "قوة تصويتك",
     your_voting_power_desc: "بناءً على نشاطك وأصولك",
+    wallet_balance: "رصيد المحفظة",
+    native_balance: "رصيد المحفظة",
+    native_balance_desc: "رصيد العملة الأصلية للشبكة",
+    staked_balance: "الرصيد المودع",
+    staked_balance_desc: "الرموز المودعة الخاصة بك",
+
+    // Proposal tracking
+    latest_proposal_status: "حالة آخر اقتراح",
+    latest_proposal_status_desc: "آخر حالة لمشروعك",
+    in_voting: "قيد التصويت",
     active_proposals_cta: "بانتظار تصويتك",
+    your_proposals_list_title: "مقترحاتك",
+    your_proposals_list_desc: "قائمة المقترحات التي قدمتها.",
+    active_proposals_list_title: "المقترحات النشطة",
+    active_proposals_list_desc: "قائمة المقترحات المفتوحة للتصويت حاليًا.",
+    all_proposals_list_title: "جميع المقترحات",
+    all_proposals_list_desc: "لإدارة ومراقبة جميع المقترحات.",
+    no_proposals_title: "لا توجد مقترحات بعد",
+    no_proposals_desc: "لا توجد مقترحات نشطة أو سابقة لعرضها.",
+    no_proposals_status: "لا توجد مقترحات",
+    no_proposals_status_desc: "لم تقم بإرسال أي مقترح بعد",
+
+    // Charts & Analysis
     investment_analysis: "تحليل الاستثمار",
     investment_analysis_desc: "الاستثمارات الجديدة خلال الـ 6 أشهر الماضية",
     investment_analysis_footer1: "اتجاه إيجابي في الربع الأخير",
@@ -215,15 +292,10 @@ export const ar = {
     investment_chart_label: "الاستثمار (RYC)",
     recent_activities: "الأنشطة الأخيرة",
     recent_activities_desc: "نظرة عامة على آخر الأنشطة في المنصة.",
-    new_project_prompt_title: "هل لديك مشروع جديد؟",
-    new_project_prompt_desc: "قدّم فكرتك المبتكرة لمجتمع المستثمرين لدينا واجمع رأس المال لتحقيقها.",
-    new_project_prompt_cta: "إرسال اقتراح جديد",
-    your_proposals_list_title: "مقترحاتك",
-    your_proposals_list_desc: "قائمة المقترحات التي قدمتها.",
-    active_proposals_list_title: "المقترحات النشطة",
-    active_proposals_list_desc: "قائمة المقترحات المفتوحة للتصويت حاليًا.",
-    all_proposals_list_title: "جميع المقترحات",
-    all_proposals_list_desc: "لإدارة ومراقبة جميع المقترحات.",
+    no_chart_data: "لا توجد بيانات لعرض المخطط",
+    trending_up: "اتجاه صاعد مقارنة بالشهر الماضي",
+
+    // Contracts & System Data
     contract_interaction_title: "التفاعل مع العقد",
     contract_interaction_desc: "بيانات حية من العقد الذكي المنشور:",
     total_proposals_title: "إجمالي الاقتراحات",
@@ -232,22 +304,14 @@ export const ar = {
     connect_to_see_data: "يرجى توصيل محفظتك لعرض لوحة التحكم والتفاعل مع المنصة.",
     contract_not_deployed_title: "لم يتم نشر العقد",
     contract_not_deployed_desc: "لم يتم نشر العقد الرئيسي للمنصة بعد. يرجى الانتقال إلى صفحة الإعداد لنشره.",
-    native_balance: "رصيد المحفظة",
-    native_balance_desc: "رصيد العملة الأصلية للشبكة",
     contract_owner: "مالك عقد DAO",
     contract_owner_desc: "المالك الحالي لعقد DAO الرئيسي",
     token_contract: "عقد التوكن",
     token_contract_desc: "عنوان عقد توكن RYC",
     finance_contract: "عقد التمويل",
     finance_contract_desc: "عنوان عقد خزانة DAO",
-    your_role: "دورك",
-    your_role_desc: "دورك الحالي على المنصة",
     loading_data: "جاري تحميل البيانات...",
     error_fetching_proposals: "خطأ في جلب المقترحات.",
-    no_proposals_title: "لا توجد مقترحات بعد",
-    no_proposals_desc: "لا توجد مقترحات نشطة أو سابقة لعرضها.",
-    no_proposals_status: "لا توجد مقترحات",
-    no_proposals_status_desc: "لم تقم بإرسال أي مقترح بعد",
     total_token_supply: "إجمالي المعروض من التوكن",
     total_token_supply_desc: "عدد توكنات RYC الإجمالية التي تم إنشاؤها",
     treasury_balance: "رصيد الخزينة",
@@ -256,13 +320,13 @@ export const ar = {
     total_staked_desc: "إجمالي توكنات RYC المودعة",
     burned_tokens: "التوكنات المحروقة",
     burned_tokens_desc: "التوكنات المرسلة إلى العنوان الصفري",
-    admin_overview_title: "نظرة عامة للمسؤول",
-    admin_overview_desc: "نظرة عامة لمسؤول النظام.",
     loading_contracts: "جاري تحميل معلومات العقد من البلوكشين...",
     partial_setup_title: "إعداد غير مكتمل",
     partial_setup_desc: "تم نشر عقد التسجيل، ولكن لم يتم العثور على عناوين العقود التالية:",
     treasury: "الخزانة",
     go_to_setup: "الانتقال إلى صفحة الإعداد",
+
+    // AI Status
     ai_oracle_status_title: "حالة محرك الذكاء الاصطناعي",
     ai_status_online: "نشط ومتاح",
     ai_status_offline: "غير نشط/غير متصل",
@@ -270,39 +334,26 @@ export const ar = {
     ai_status_loading: "جاري التحقق...",
     last_checked: "آخر فحص",
     checking_now: "جاري فحص الحالة الآن",
-    staked_balance: "الرصيد المودع",
-    staked_balance_desc: "الرموز المودعة الخاصة بك",
-    view_all: "عرض الكل",
-    latest_update: "آخر تحديث",
-      admin: {
-          title: "مركز التحكم الإداري",
-          title_se: "تهيئة المنصة",
-          governance_card_title: "معلمات الحوكمة",
-          voting_period_label: "مدة التصويت (ثوانٍ)",
-          update_button: "تحديث",
-          financial_card_title: "المعلمات المالية (SaaS)",
-          protocol_fee_label: "رسوم البروتوكول (%)",
-          update_fee_button: "تحديث الرسوم",
-          timelock_notice: "عادةً ما تتطلب هذه العملية تسجيل مقترح في Timelock.",
-          client_fee_label: "رسوم العميل (VC) (%)",
-          hub_title: "مركز قيادة الأمان",
-          hub_subtitle: "إدارة التهيئة، الوصول، والبنية التحتية الحيوية للنظام",
-          secure_session_active: "الجلسة الآمنة نشطة",
-          settings_card_title: "إعدادات الحوكمة والمالية",
-          settings_card_desc: "تغيير معلمات DAO، رسوم المنصة، وجداول التصويت.",
-          manage: "إدارة",
-          danger_zone: "منطقة الخطر",
-          security_card_title: "إدارة البنية التحتية (Setup)",
-          security_card_desc: "الوصول إلى إعادة نشر العقود، إعادة تعيين المفاتيح، والتهيئة الأولية. (يتطلب توقيعًا مجددًا)",
-          access_setup: "دخول قسم البنية التحتية",
-          critical_access_warning: "تحذير: أنت تدخل قسم البنية التحتية الحيوي.",
-          verifying: "جارٍ التحقق من الهوية الآمنة...",
-      },
+
+    // Welcome Messages & Role Specifics
     investor_welcome: "مرحبًا بك في لوحة المستثمر. قم بإدارة أصولك.",
     startup_welcome: "مرحبًا بك في لوحة الشركات الناشئة. تابع مشاريعك.",
     admin_welcome: "مرحبًا بك في لوحة الإدارة.",
     guest_welcome: "مرحبًا بك. يرجى ربط محفظتك للوصول الكامل.",
-    wallet_balance: "رصيد المحفظة",
+    delegate_welcome: "مرحبًا بك في لوحة المندوبين. قوتك هي مسؤوليتك.",
+    hybrid_welcome: "مرحبًا بك في لوحة التحكم الشاملة. أنت مستثمر ومندوب في الوقت نفسه.",
+    your_role: "دورك",
+    your_role_desc: "دورك الحالي على المنصة",
+    new_project_prompt_title: "هل لديك مشروع جديد؟",
+    new_project_prompt_desc: "قدّم فكرتك المبتكرة لمجتمع المستثمرين لدينا واجمع رأس المال لتحقيقها.",
+    new_project_prompt_cta: "إرسال اقتراح جديد",
+    create_first_proposal: "تسجيل أول مقترح",
+    start_journey: "ابدأ رحلتك",
+    start_journey_desc: "لم تقم بتسجيل أي مقترح بعد. سجل فكرتك الكبيرة الأولى الآن واحصل على التمويل.",
+    connect_wallet_title: "ربط المحفظة",
+    connect_wallet_desc: "لعرض الإحصائيات الشخصية يرجى ربط محفظتك.",
+
+    // Staking & Rewards in Dashboard
     available_to_stake: "المتاح للرهن",
     staked_amount: "المبلغ المرهون",
     earning_rewards: "جارٍ كسب المكافآت",
@@ -311,9 +362,6 @@ export const ar = {
     voting_power: "قوة التصويت",
     participation_score: "درجة المشاركة",
     active_opportunities: "فرص الاستثمار النشطة",
-    start_journey: "ابدأ رحلتك",
-    start_journey_desc: "لم تقم بتسجيل أي مقترح بعد. سجل فكرتك الكبيرة الأولى الآن واحصل على التمويل.",
-    create_first_proposal: "تسجيل أول مقترح",
     total_projects: "إجمالي المشاريع",
     all_time: "منذ البداية",
     active_projects: "المشاريع النشطة",
@@ -322,9 +370,8 @@ export const ar = {
     fully_funded: "مكتمل",
     my_proposals: "مقترحاتي",
     new_proposal: "مقترح جديد",
-    connect_wallet_title: "ربط المحفظة",
-    connect_wallet_desc: "لعرض الإحصائيات الشخصية يرجى ربط محفظتك.",
-    delegate_welcome: "مرحبًا بك في لوحة المندوبين. قوتك هي مسؤوليتك.",
+
+    // Governance / Delegate
     total_governance_power: "إجمالي قوة الحوكمة",
     combined_power: "مجموع الحصة الشخصية + التفويض",
     delegated_to_me: "مفوَّض إلي من الآخرين",
@@ -338,9 +385,10 @@ export const ar = {
     cast_votes: "المشاركة في التصويت",
     tab_investor: "لوحة الاستثمار",
     tab_delegate: "لوحة المندوب",
-    hybrid_welcome: "مرحبًا بك في لوحة التحكم الشاملة. أنت مستثمر ومندوب في الوقت نفسه.",
-    no_chart_data: "لا توجد بيانات لعرض المخطط",
-    trending_up: "اتجاه صاعد مقارنة بالشهر الماضي",
+
+    // Admin in Dashboard
+    admin_overview_title: "نظرة عامة للمسؤول",
+    admin_overview_desc: "نظرة عامة لمسؤول النظام.",
     system_paused_title: "تحذير: تم إيقاف النظام",
     system_paused_desc: "جميع الأنشطة المالية والتصويت معلّقة حتى يقوم المدير برفع الإيقاف.",
     available_funds: "الأموال المتاحة",
@@ -362,14 +410,51 @@ export const ar = {
     access_denied: "تم رفض الوصول. لم يتم تأكيد التوقيع.",
     verifying_identity: "في انتظار التوقيع...",
     critical_access_warning: "تحذير أمني شديد الأهمية!\n\nأنت تحاول الدخول إلى قسم «إدارة البنية التحتية» (Setup). هذا القسم يتيح إعادة تعيين جميع العقود.\n\nيرجى التوقيع للتأكيد النهائي.",
+    view_all: "عرض الكل",
+    latest_update: "آخر تحديث",
 
-  },
-  menu: {
-    staking: "الإيداع",
-    proposals: "المقترحات",
+    // Dashboard Admin Sub-object
+    admin: {
+      title: "مركز التحكم الإداري",
+      title_se: "تهيئة المنصة",
+      governance_card_title: "معلمات الحوكمة",
+      voting_period_label: "مدة التصويت (ثوانٍ)",
+      update_button: "تحديث",
+      financial_card_title: "المعلمات المالية (SaaS)",
+      protocol_fee_label: "رسوم البروتوكول (%)",
+      update_fee_button: "تحديث الرسوم",
+      timelock_notice: "عادةً ما تتطلب هذه العملية تسجيل مقترح في Timelock.",
+      client_fee_label: "رسوم العميل (VC) (%)",
+      hub_title: "مركز قيادة الأمان",
+      hub_subtitle: "إدارة التهيئة، الوصول، والبنية التحتية الحيوية للنظام",
+      secure_session_active: "الجلسة الآمنة نشطة",
+      settings_card_title: "إعدادات الحوكمة والمالية",
+      settings_card_desc: "تغيير معلمات DAO، رسوم المنصة، وجداول التصويت.",
+      manage: "إدارة",
+      danger_zone: "منطقة الخطر",
+      security_card_title: "إدارة البنية التحتية (Setup)",
+      security_card_desc: "الوصول إلى إعادة نشر العقود، إعادة تعيين المفاتيح، والتهيئة الأولية. (يتطلب توقيعًا مجددًا)",
+      access_setup: "دخول قسم البنية التحتية",
+      critical_access_warning: "تحذير: أنت تدخل قسم البنية التحتية الحيوي.",
+      verifying: "جارٍ التحقق من الهوية الآمنة...",
+    },
   },
 
-  // Proposals Page
+  // ==============================================================================
+  // 4. PROPOSALS (الاقتراحات)
+  // ==============================================================================
+  
+  // List Names
+  proposals: {
+    network_upgrade: "ترقية البنية التحتية للشبكة",
+    marketing_project: "مشروع تسويق جديد",
+    mobile_dapp: "تطوير تطبيق لا مركزي للجوال",
+    defi_integration: "التكامل مع بروتوكول DeFi",
+    community_fund: "إنشاء صندوق احتياطي للمجتمع",
+    platform_x_partnership: "شراكة مع منصة X",
+  },
+
+  // Proposal List Page
   proposals_page: {
     title: "قائمة الاقتراحات",
     subtitle: "هنا قائمة بجميع الاقتراحات. قم بتصفية وفرز الاقتراحات، واعرض تفاصيل كل منها.",
@@ -388,26 +473,18 @@ export const ar = {
     vote_success_title: "تم تسجيل صوتك!",
     vote_success_desc: "تم إرسال معاملتك بنجاح. الهاش: {hash}",
     vote_error_title: "خطأ في تسجيل الصوت",
+    view_details: "عرض التفاصيل",
     no_proposals_found: "لم يتم العثور على أي مقترحات",
-      status: {
-        pending_submission: "قيد التقديم",
-        confirmed: "مؤكد",
-        voting: "جاري التصويت",
-        approved: "موافق",
-        rejected: "مرفوض",
-      },
-  },
-  
-  proposals: {
-    network_upgrade: "ترقية البنية التحتية للشبكة",
-    marketing_project: "مشروع تسويق جديد",
-    mobile_dapp: "تطوير تطبيق لا مركزي للجوال",
-    defi_integration: "التكامل مع بروتوكول DeFi",
-    community_fund: "إنشاء صندوق احتياطي للمجتمع",
-    platform_x_partnership: "شراكة مع منصة X",
+    status: {
+      pending_submission: "قيد التقديم",
+      confirmed: "مؤكد",
+      voting: "جاري التصويت",
+      approved: "موافق",
+      rejected: "مرفوض",
+    },
   },
 
-  // New Proposal Page
+  // New Proposal Form
   new_proposal_page: {
     title: "تقديم اقتراح جديد",
     subtitle: "أكمل النموذج أدناه لتسجيل مشروعك وجمع الأموال.",
@@ -415,14 +492,18 @@ export const ar = {
     card_title: "تفاصيل الاقتراح",
     card_desc: "المعلومات التفصيلية تساعد المستثمرين في اتخاذ قراراتهم.",
     card_desc_professional: "يرجى ملء جميع الأقسام بعناية وبشكل كامل.",
+
+    // Tabs
     tabs: {
-        overview: "نظرة عامة",
-        details: "تفاصيل المشروع",
-        team: "الفريق",
-        market: "السوق",
-        financials: "البيانات المالية",
-        documents: "المستندات"
+      overview: "نظرة عامة",
+      details: "تفاصيل المشروع",
+      team: "الفريق",
+      market: "السوق",
+      financials: "البيانات المالية",
+      documents: "المستندات"
     },
+
+    // Fields
     project_title: "عنوان المشروع",
     project_title_placeholder: "مثال: منصة تعليمية للويب 3",
     project_name: "اسم المشروع",
@@ -436,84 +517,102 @@ export const ar = {
     summary_placeholder: "قدم وصفًا عامًا ومقنعًا لمشروعك...",
     full_description: "الوصف الكامل",
     full_description_placeholder: "صف أهداف مشروعك، والحل، والميزة التنافسية...",
+    description: "أدخل وصف المهام لكل مرحلة.",
+    description_required: "يرجى تقديم وصف مفصل لمشروعك.",
+    funding_goal: "المبلغ المطلوب (RYC)",
+    recipient_address: "عنوان محفظة المستلم",
     problem: "المشكلة",
     problem_placeholder: "ما هي المشكلة التي حددتها في السوق وتعتزم حلها؟",
     solution: "الحل",
     solution_placeholder: "كيف يحل منتجك أو خدمتك هذه المشكلة؟",
+    
+    // Business & Market
     business_model: "نموذج العمل",
     business_model_placeholder: "اختر نموذج الإيرادات الخاص بك",
-    team_experience_years_label: "الخبرة المجمعة للفريق الأساسي (سنوات)",
-    team_bio_label: "خلفية الفريق والسير الذاتية",
-    team_bio_placeholder: "صف خبرات ونجاحات وأدوار كل عضو رئيسي...",
     market_size_label: "حجم السوق المستهدف (بالدولار الأمريكي)",
     competitors: "تحليل المنافسين",
     competitors_placeholder: "من هم منافسوك الرئيسيون وما هي ميزتك التنافسية؟",
+    market_stats: {
+      tam_label: "TAM (إجمالي السوق) ($)",
+      tam_desc: "إجمالي السوق المتاح (Total Accessible Market)",
+      sam_label: "SAM (السوق المتاح) ($)",
+      sam_desc: "السوق المتاح القابل للخدمة (Serviceable Available Market)",
+      som_label: "SOM (حصة السوق) ($)",
+      som_desc: "حصة السوق القابلة للتحقيق (Serviceable Obtainable Market)",
+    },
+
+    // Team
+    team_experience_label: "خلفية الفريق والمؤسسين",
+    team_experience_placeholder: "ملخص للخلفية المهنية والتقنية للفريق الأساسي (لتحليل الذكاء الاصطناعي).",
+    team_experience_years_label: "الخبرة المجمعة للفريق الأساسي (سنوات)",
+    team_bio_label: "خلفية الفريق والسير الذاتية",
+    team_bio_placeholder: "صف خبرات ونجاحات وأدوار كل عضو رئيسي...",
+    startup_industry_label: "صناعة الشركة الناشئة",
+    startup_industry_placeholder: "مثال: تكنولوجيا الصحة، تكنولوجيا مالية بالذكاء الاصطناعي",
+
+    // Financials
+    financial_stats: {
+      burn_rate_label: "التكلفة الشهرية (Burn Rate) ($)",
+      revenue_label: "إيرادات السنة الأولى ($)",
+      break_even_label: "نقطة التعادل (بالأشهر)",
+    },
     has_previous_funding_label: "هل لديك تاريخ في جمع التبرعات؟",
-      industries: {
-        defi: "نموذج مالي لامركزي / ويب 3",
-        ai: "الذكاء الاصطناعي / تعلم الآلة",
-        gaming: "الألعاب / الميتافيرس",
-        saas: "البرمجيات كخدمة (SaaS)",
-        placeholder: "اختيار القطاع",
-        },
-      business_models: {
-        placeholder: "اختيار نموذج العمل",
-        b2b: "B2B (شركة إلى شركة)",
-        b2c: "B2C (شركة إلى مستهلك)",
-        b2b2c: "B2B2C (نموذج وسيط)",
-        saas: "SaaS (خدمات البرمجيات السحابية)",
-        marketplace: "سوق التجارة الإلكترونية",
-        },
-      market_stats: {
-        tam_label: "TAM (إجمالي السوق) ($)",
-        tam_desc: "إجمالي السوق المتاح (Total Accessible Market)",
-        sam_label: "SAM (السوق المتاح) ($)",
-        sam_desc: "السوق المتاح القابل للخدمة (Serviceable Available Market)",
-        som_label: "SOM (حصة السوق) ($)",
-        som_desc: "حصة السوق القابلة للتحقيق (Serviceable Obtainable Market)",
-      },
-      financial_stats: {
-        burn_rate_label: "التكلفة الشهرية (Burn Rate) ($)",
-        revenue_label: "إيرادات السنة الأولى ($)",
-        break_even_label: "نقطة التعادل (بالأشهر)",
-      },
     funding_details: "تفاصيل التمويل السابق",
     funding_details_placeholder: "اذكر المبلغ والتاريخ وأسماء المستثمرين السابقين...",
+
+    // Milestones
+    milestones_required: "يرجى إضافة مرحلة واحدة على الأقل بمبلغ صحيح.",
+    milestone_amounts_required: "يرجى إدخال مبالغ صحيحة لجميع المراحل.",
+    no_milestones_added: "لم يتم إضافة مراحل التمويل بعد.",
+    add_first_milestone: "إضافة المرحلة الأولى",
+    funding_milestones: "مراحل التمويل",
     milestone_name: "اسم المرحلة",
     milestone_name_placeholder: "مثال: تطوير MVP",
     duration_days: "المدة (بالأيام)",
+    amount: "المبلغ",
+    add_milestone: "إضافة مرحلة",
+    milestone: "مرحلة",
+    remove: "إزالة",
+
+    // Documents
     pitch_deck: "عرض تقديمي (PDF)",
     financials_doc: "التوقعات المالية (PDF, XLSX)",
     legal_doc: "المستندات القانونية (اختياري)",
+    off_chain_note: "يتم تخزين الوصف الكامل بشكل آمن في قاعدة بيانات خارج السلسلة، ويتم تسجيل الهاش الخاص به فقط على البلوكشين.",
+
+    // Options
+    industries: {
+      defi: "نموذج مالي لامركزي / ويب 3",
+      ai: "الذكاء الاصطناعي / تعلم الآلة",
+      gaming: "الألعاب / الميتافيرس",
+      saas: "البرمجيات كخدمة (SaaS)",
+      placeholder: "اختيار القطاع",
+    },
+    business_models: {
+      placeholder: "اختيار نموذج العمل",
+      b2b: "B2B (شركة إلى شركة)",
+      b2c: "B2C (شركة إلى مستهلك)",
+      b2b2c: "B2B2C (نموذج وسيط)",
+      saas: "SaaS (خدمات البرمجيات السحابية)",
+      marketplace: "سوق التجارة الإلكترونية",
+    },
+
+    // Actions & Errors
     submit_for_review: "إرسال للمراجعة",
-    connect_to_submit: "يرجى توصيل محفظتك لتقديم اقتراح.",
-    funding_goal: "المبلغ المطلوب (RYC)",
-    recipient_address: "عنوان محفظة المستلم",
-    funding_milestones: "مراحل التمويل",
-    milestone: "مرحلة",
-    amount: "المبلغ",
-    remove: "إزالة",
-    add_milestone: "إضافة مرحلة",
     success_title: "تم إرسال الاقتراح بنجاح",
     success_desc: "تم إرسال معاملتك. الهاش:",
     form_invalid_error: "يرجى تعبئة جميع الحقول بشكل صحيح.",
-    access_denied_title: "تم رفض الوصول",
-    access_denied_desc: "يجب أن يكون لديك دور 'شركة ناشئة' لتقديم اقتراح.",
+    form_incomplete_title: "النموذج غير مكتمل",
+    form_incomplete_tooltip: "يرجى إكمال جميع الحقول المطلوبة لإرسال الاقتراح.",
     contract_not_deployed_title: "العقد غير منشور",
     contract_not_deployed_desc: "عقد DAO لم يتم نشره بعد. يرجى الاتصال بالمسؤول.",
     loading: "جاري التحميل...",
     back_to_dashboard: "العودة إلى لوحة التحكم",
-    description: "أدخل وصف المهام لكل مرحلة.",
-    description_required: "يرجى تقديم وصف مفصل لمشروعك.",
     invalid_address: "يرجى إدخال عنوان إيثيريوم صحيح (0x متبوع بـ 40 حرف).",
     valid_address: "عنوان إيثيريوم صحيح.",
-    milestone_amounts_required: "يرجى إدخال مبالغ صحيحة لجميع المراحل.",
-    form_incomplete_title: "النموذج غير مكتمل",
-    form_incomplete_tooltip: "يرجى إكمال جميع الحقول المطلوبة لإرسال الاقتراح.",
     recipient_required: "يرجى إدخال عنوان محفظة المستلم الصحيح.",
-    milestones_required: "يرجى إضافة مرحلة واحدة على الأقل بمبلغ صحيح.",
-    no_milestones_added: "لم يتم إضافة مراحل التمويل بعد.",
-    add_first_milestone: "إضافة المرحلة الأولى",
+
+    // Permissions & Roles
     blockchain_role_missing_title: "دور البلوكشين مفقود",
     blockchain_role_missing_desc: "تحتاج إلى دور DAO_MEMBER_ROLE على البلوكشين لإرسال المقترحات. يرجى الاتصال بالمسؤول لمنحك هذا الدور.",
     request_role_button: "طلب الدور",
@@ -522,18 +621,385 @@ export const ar = {
     grant_role_info_title: "تم إرسال طلب الدور",
     grant_role_info_desc: "تم إرسال طلب دورك. سيراجع المسؤول ويمنحك الأذونات المطلوبة.",
     contract_write_error: "فشل إرسال المقترح إلى البلوكشين. يرجى المحاولة مرة أخرى.",
+    access_denied_title: "تم رفض الوصول",
+    access_denied_desc: "يجب أن يكون لديك دور 'شركة ناشئة' لتقديم اقتراح.",
+    connect_to_submit: "يرجى توصيل محفظتك لتقديم اقتراح.",
+
+    // AI Integration
     ai_check_triggered: "بدأت عملية تقييم مخاطر الذكاء الاصطناعي.",
     ai_check_failed_title: "فشل تفعيل الذكاء الاصطناعي",
     ai_check_failed_desc: "فشل بدء تقييم مخاطر الذكاء الاصطناعي. سيقوم النظام بمراجعته يدويًا.",
-    startup_industry_label: "صناعة الشركة الناشئة",
-    startup_industry_placeholder: "مثال: تكنولوجيا الصحة، تكنولوجيا مالية بالذكاء الاصطناعي",
-    team_experience_label: "خلفية الفريق والمؤسسين",
-    team_experience_placeholder: "ملخص للخلفية المهنية والتقنية للفريق الأساسي (لتحليل الذكاء الاصطناعي).",
-    off_chain_note: "يتم تخزين الوصف الكامل بشكل آمن في قاعدة بيانات خارج السلسلة، ويتم تسجيل الهاش الخاص به فقط على البلوكشين.",
+
+    // Feedback
     redirecting: "جاري إعادة التوجيه...",
+    success_toast_title: "تم إرسال الاقتراح بنجاح",
+    confirmed_toast_desc: "تم تأكيد المعاملة في البلوكشين",
+    pending_toast_title: "المعاملة قيد المعالجة",
+    error_toast_title: "خطأ في إرسال المعاملة",
+    unexpected_error_desc: "حدث خطأ غير متوقع. يرجى التحقق من السجلات.",
   },
 
-  // Profile Page
+  // Proposal Detail View
+  proposal_detail: {
+    proposal_id: "معرف الاقتراح",
+    not_found: "الاقتراح غير موجود.",
+    details: "التفاصيل",
+    status_desc: "الحالة الحالية للاقتراح.",
+    proposer_info: "معلومات مقدم الاقتراح",
+    funding_info: "معلومات التمويل",
+    total_requested: "إجمالي المبلغ المطلوب",
+    milestones: "المراحل",
+    milestone: "المرحلة",
+    voting_results: "نتائج التصويت",
+    vote_for: "مع",
+    vote_against: "ضد",
+    for: "مع",
+    against: "ضد",
+    votes_for: "تصويت مع",
+    votes_against: "تصويت ضد",
+    total_votes: "إجمالي الأصوات",
+    created_on: "تاريخ الإنشاء",
+    voting_deadline: "الموعد النهائي للتصويت",
+    description: "وصف المقترح",
+    proposer: "مقدم المقترح",
+    onchain_data_unavailable: "بيانات السلسلة غير متاحة",
+    no_offchain_data: "لا توجد بيانات خارج السلسلة",
+    error_loading_title: "خطأ في تحميل العنوان",
+    error_loading_desc: "خطأ في تحميل الوصف",
+    total_supply: "من إجمالي عدد الرموز المتاحة",
+
+    // AI Section in Detail
+    ai_analysis: "تقييم الذكاء الاصطناعي",
+    ai_risk_score: "درجة مخاطر الذكاء الاصطناعي",
+    market_sentiment: "مشاعر السوق",
+    team_competency: "كفاءة الفريق",
+    view_ai_report: "عرض تقرير الذكاء الاصطناعي",
+
+    // Milestone Management
+    milestone_management: "إدارة رأس مال المشروع",
+    milestone_management_desc: "تم تمويل مشروعك. لتفعيل إطلاق رأس المال للمرحلة التالية قدم تقرير التقدم.",
+    request_next_milestone: "طلب إطلاق المرحلة التالية",
+    submit_progress_report: "إرسال تقرير التقدم",
+    progress_description: "اشرح ما تم إنجازه في هذه المرحلة:",
+    progress_placeholder: "مثال: إكمال تطوير MVP، الانتهاء من اختبارات المستخدم...",
+    submit_request: "تقديم الطلب",
+
+    // Actions & Voting
+    you_have_voted_title: "لقد سجلت صوتك",
+    you_have_voted_desc: "نشكرك على مشاركتك في عملية الحوكمة سيتم الإعلان عن النتيجة بعد انتهاء فترة التصويت",
+    admin_actions: "الإجراءات الإدارية",
+    execute_proposal: "تنفيذ المقترح",
+
+    timeline:{
+      title: "حالة المقترح",
+      submitted: "تم الإرسال",
+      voting: "قيد التصويت",
+      approved: "النتيجة النهائية",
+      executed: "تم التنفيذ",
+    },
+    status: {
+      pending: "قيد الانتظار",
+      active: "قيد التصويت",
+      canceled: "تم الإلغاء",
+      defeated: "مرفوض",
+      succeeded: "تمت المصادقة",
+      queued: "في قائمة التنفيذ",
+      expired: "منتهي الصلاحية",
+      executed: "تم التنفيذ",
+      unknown: "غير معروف",
+      validation: "قيد التحقق",
+    },
+    alert: {
+      insufficient_power_title: "عدم كفاية حق التصويت",
+      insufficient_power_desc: "للمشاركة في الحوكمة يجب إيداع رموز (RYC) حاليًا قوتك التصويتية تساوي صفر هل ترغب بالانتقال إلى صفحة الإيداع",
+      cancel: "إلغاء",
+      go_to_staking: "الانتقال إلى الإيداع"
+    },
+  },
+
+  // ==============================================================================
+  // 5. STAKING & FINANCE (المالية والاستيكينغ)
+  // ==============================================================================
+  staking_page: {
+    title: "الإيداع والمكافآت",
+    subtitle: "قم بإيداع رموز RYC الخاصة بك، وشارك في الحوكمة، واكسب المكافآت.",
+    subtitle_for_role: "صفحة إدارة الإيداع للدور:",
+
+    // Balance & Actions
+    ryc_balance: "رصيد RYC",
+    staked_balance: "الرصيد المودع",
+    staked_balance_desc: "الرموز المودعة الخاصة بك",
+    earned_rewards: "المكافآت المكتسبة",
+    stake_tokens_title: "إيداع الرموز",
+    stake_tokens_desc: "اقفل رموز RYC الخاصة بك لكسب المكافآت وقوة التصويت.",
+    amount_to_stake: "المبلغ المراد إيداعه",
+    stake: "إيداع",
+    unstake_tokens_title: "سحب الرموز",
+    unstake_tokens_desc: "اسحب رموز RYC المودعة.",
+    amount_to_unstake: "المبلغ المراد سحبه",
+    unstake: "سحب",
+    claim_rewards_title: "المطالبة بالمكافآت",
+    claim_rewards_desc: "انقل مكافآتك المكتسبة إلى محفظتك.",
+    claim_rewards: "المطالبة بالمكافآت",
+    manage_stake_title: "إدارة الإيداع",
+    manage_stake_desc: "اسحب إيداعك أو طالب بمكافآتك المكتسبة.",
+    card_label_balance: "كمية رموز RYC المشتراة في المحفظة",
+    card_label_staked: "رصيد رموز RYC المودعة",
+    card_label_earned: "كمية مكافآت الأداء المستلمة",
+    unclaimed_rewards: "إجمالي المكافآت غير المستلمة",
+
+    // Delegation
+    delegate_title: "تفويض قوة التصويت",
+    delegate_desc: "فوض حقوق التصويت الخاصة بك إلى ممثل موثوق به (المفوض إليه) لزيادة نقاط إثبات المشاركة (PoP) وأمان الشبكة.",
+    delegate_error: "خطأ في تفويض الدور",
+    delegatee_address: "عنوان المفوض إليه المطلوب",
+    delegate_cta: "تفويض",
+    undelegate_cta: "إلغاء التفويض",
+    current_delegatee: "المفوض إليه الحالي",
+    no_delegatee: "لا يوجد مفوض إليه",
+
+    // Plans
+    staking_plans_title: "خطط الإيداع",
+    staking_plans_desc: "اختر إحدى الخطط أدناه للإيداع بسرعة.",
+    plans_for_role: "خطط الإيداع للدور",
+    plans_for_role_desc: "الحد الأدنى لمبلغ الإيداع لتلبية متطلبات الأمان والوصول إلى ميزات الدور.",
+    plan_voter_title: "خطة المصوت (أساسي)",
+    plan_startup_title: "خطة الشركة الناشئة (إنشاء الاقتراح)",
+    plan_delegate_title: "خطة المندوب (الحوكمة)",
+    voter_feat1: "القدرة على التصويت على الاقتراحات",
+    voter_feat2: "كسب مكافآت إثبات المشاركة (PoP)",
+    startup_feat1: "الوصول إلى نموذج تقديم الاقتراح الجديد",
+    startup_feat2: "التحقق الأولي من الذكاء الاصطناعي للاقتراحات",
+    delegate_feat1: "كسب قوة التصويت المفوضة من المستخدمين الآخرين",
+    delegate_feat2: "القدرة على التعيين كمدقق",
+    plan_voter_desc: "الحد الأدنى المطلوب للإيداع لأمان المنصة وحقوق التصويت.",
+    plan_startup_desc: "الحد الأدنى المطلوب للإيداع لكسب حقوق تقديم الاقتراحات.",
+    plan_delegate_desc: "مبلغ الإيداع المطلوب للانضمام إلى المندوبين وتعظيم تأثير الحوكمة.",
+    plan_selected_toast: "تم تحديد الخطة. الآن انقر فوق زر 'إيداع'.",
+
+    // Buying RYC
+    buy_ryc_desc: "سعر كل توكن RYC تقريبًا",
+    buy_ryc_title: "شراء توكن RYC",
+    buy_ryc_cta: "شراء RYC",
+    add_to_wallet: "إضافة رمز RYC إلى المحفظة",
+    amount_of_matic_to_spend: "مبلغ العملة للإنفاق",
+    buy_ryc_warning: "يتم حساب التكلفة النهائية بناءً على سعر أوراكل المباشر على البلوكشين.",
+    buy_in_progress: "جاري إرسال معاملة الشراء. يرجى التأكيد في محفظتك.",
+    buy_amount_error: "يجب أن يكون مبلغ الشراء أكبر من الصفر.",
+    buy_success_title: "نجاح الشراء",
+    buy_success_desc: "تمت إضافة رموز RYC إلى محفظتك. يرجى التحقق من رصيدك.",
+    you_will_receive: "عدد الرموز التي ستحصل عليها",
+
+    // Notifications & Errors
+    stake_success: "تم الإيداع بنجاح",
+    stake_error: "خطأ أثناء الإيداع",
+    unstake_success: "تم السحب بنجاح",
+    unstake_error: "خطأ أثناء السحب",
+    claim_success: "تمت المطالبة بالمكافآت بنجاح",
+    claim_error: "خطأ أثناء المطالبة بالمكافآت",
+    approve_button: "الموافقة على السحب",
+    approve_success: "تمت الموافقة بنجاح",
+    approve_error: "خطأ أثناء الموافقة",
+    tx_success_title: "نجاح المعاملة",
+    tx_success_desc: "تم تأكيد عمليتك على البلوكشين.",
+    approve_in_progress: "جاري معالجة معاملة الموافقة. يرجى انتظار التأكيد.",
+    revert_reason_approve: "لا توجد رموز كافية للموافقة أو وصول غير صالح.",
+    revert_reason_stake_zero: "يجب أن يكون مبلغ الإيداع أكبر من الصفر.",
+    revert_reason_delegate_stake: "لتفويض قوة التصويت، يجب أولاً إيداع رموز RYC.",
+    contract_addresses_missing: "لم يتم تحميل عناوين العقود الأساسية (الرمز/الإيداع) بعد. يرجى الانتظار.",
+  },
+
+  treasury_page: {
+    title: "الخزانة",
+    subtitle: "عرض وإدارة أصول خزانة المنصة.",
+    total_assets: "إجمالي الأصول",
+    assets_in_treasury: "الأصول الموجودة في الخزانة",
+    native_token_balance: "رصيد العملة الأصلية",
+    ryc_token_balance: "رصيد توكن RYC",
+    withdraw_funds: "سحب الأموال",
+    withdraw_native: "سحب العملة الأصلية",
+    withdraw_ryc: "سحب RYC",
+    amount: "المبلغ",
+    withdraw: "سحب",
+    withdraw_success: "تم السحب بنجاح",
+    withdraw_error: "خطأ أثناء السحب",
+    fund_treasury_title: "تمويل الخزانة",
+    fund_treasury_desc: "لدفع المصاريف وتمويل المشاريع، تحتاج الخزانة إلى رصيد من رموز RYC. انقل بعض الرموز من محفظتك إلى عقد الخزانة.",
+    fund_button: "تمويل الخزانة",
+    deposit_success: "تم تمويل الخزانة بنجاح",
+    deposit_error: "خطأ في تمويل الخزانة",
+    simulation_failed_desc: "فشلت محاكاة المعاملة. يرجى التحقق من المدخلات والمحاولة مرة أخرى.",
+    public_view_title: "عرض عام",
+    public_view_desc: "هذا عرض عام للخزانة. يمكن للمسؤولين فقط سحب الأموال.",
+    native_token: "العملة الأصلية",
+    withdraw_funds_desc_admin: "كمسؤول، يمكنك سحب الأموال (العملة الأصلية أو رموز RYC) من الخزانة إلى أي عنوان محفظة محدد.",
+  },
+
+  // ==============================================================================
+  // 6. AI, ANALYTICS & REPORTS (الذكاء الاصطناعي والتقارير)
+  // ==============================================================================
+  analytics_page:{
+    title: "تحليل سلوك المستخدمين",
+    start_analysis: "بدء التحليل",
+    select_proposal: "اختيار المقترح",
+    select_placeholder: "اختر مقترحا",
+    proposal: "المقترح",
+    analysis_results: "نتائج التحليل",
+    participation_rate: "معدل المشاركة",
+    participation_rate_desc: "نسبة المصوتين النشطين",
+    voter_concentration: "تركيز المصوتين",
+    voter_concentration_desc: "نسبة الأصوات من أعلى 10 بالمئة من المصوتين",
+    voting_power_distribution: "توزيع قوة التصويت",
+    voting_power_distribution_desc: "معامل جيني لتوزيع قوة التصويت",
+    collusion_risk: "مخاطر التواطؤ",
+    collusion_risk_desc: "احتمال التنسيق بين المصوتين",
+    gini_low: "منخفض",
+    gini_high: "عال",
+    risk_low: "منخفض",
+    risk_medium: "متوسط",
+    risk_high: "عال",
+    analysis_error: "خطأ في تحليل المقترح",
+    summary_title: "ملخص التحليل",
+    subtitle: "تحليل أنشطة المستخدمين على السلسلة وخارجها للتعرف على الأنماط وتقييم درجة المشاركة",
+    card_desc: "أدخل عنوان محفظة المستخدم للحصول على تقرير تحليلي لسلوكه ودرجة الثقة الخاصة به",
+    label: "عنوان محفظة المستخدم",
+    trust_score: "درجة الثقة",
+    trust_score_desc: "درجة تعتمد على النشاط السابق والأصوات والمشاركة في الحوكمة",
+    anomaly_status: "حالة الشذوذ",
+    fetch_error: "خطأ في جلب تقرير تحليل المستخدم",
+    card_title: "تحليل قائم على الذكاء الاصطناعي",
+    analyze_button: "بدء التحليل",
+    report_title: "تقرير التحليل السلوكي",
+    report_desc: "عرض نتائج التحليل للمستخدم صاحب العنوان ...{address}",
+    invalid_address_error: "يرجى إدخال عنوان محفظة صالح",
+  },
+
+  reports_page: {
+    title: "تقييم الذكاء الاصطناعي",
+    no_proposals_found: "لم يتم العثور على أي مقترحات",
+    ai_risk_score: "درجة مخاطر الذكاء الاصطناعي",
+    ai_risk_score_desc: "درجة بين 0 و100",
+    subtitle: "تحليلات وتنبؤات متعمقة مدعومة بالذكاء الاصطناعي لكل مقترح",
+    card_title: "تحليل ذكي للمقترح",
+    card_desc: "أدخل معرف مقترحك للحصول على تقرير تحليل كامل من محرك الذكاء الاصطناعي",
+    input_placeholder: "أدخل معرف المقترح...",
+    start_analysis: "بدء التحليل",
+    proposal_report_title: "تقرير تحليل المقترح رقم {id}",
+    ai_summary_title: "ملخص تحليل الذكاء الاصطناعي",
+    investability_score: "درجة قابلية الاستثمار",
+    overall_risk_level: "مستوى المخاطرة الإجمالي",
+    ai_recommendation: "الذكاء الاصطناعي توصية",
+    financial_analysis_title: "التحليل المالي وتحليل الفريق",
+    success_probability: "احتمال النجاح",
+    financial_risk_score: "درجة المخاطر المالية",
+    team_competency: "كفاءة الفريق",
+    market_sentiment: "مشاعر السوق",
+    error_title: "خطأ",
+    success_probability_desc: "تشير هذه النتيجة إلى ثقة الذكاء الاصطناعي في نجاح المشروع على المدى الطويل بناءً على البيانات التاريخية وخصائص المشروع",
+    financial_risk_score_desc: "تقيّم هذه النتيجة المخاطر المالية للمشروع. انخفاض النتيجة يعني انخفاض المخاطر",
+    team_competency_desc: "تُحسب هذه النتيجة بناءً على إجمالي سنوات الخبرة وسجل إنجازات الفريق الأساسي",
+    market_sentiment_desc: "تشير هذه النتيجة إلى مشاعر السوق العامة وتوقعاته بشأن قطاع وتكنولوجيا هذا المشروع (سيتم تفعيلها في الإصدارات المستقبلية).",
+    xai_title: "الأسباب الرئيسية لـ التقييم",
+    xai_strengths: "نقاط القوة الرئيسية",
+    xai_weaknesses: "نقاط الضعف الرئيسية",
+    analyzing_data: "جارٍ تقييم البيانات",
+    no_data: "لم يتم التعرف على أي عنصر محدد.",
+    no_risks_found: "لم يتم العثور على أي مخاطر جوهرية.",
+    pdf: "إنشاء تقرير PDF",
+    share: "مشاركة",
+    ai_audit_report: "تقرير تقييم الذكاء الاصطناعي للعرض",
+    data_analysis: "تقييم البيانات",
+  },
+
+  contract_analyzer_page: {
+    title: "تحسين العقد الذكي",
+    subtitle: "أدخل كود العقد الذكي الخاص بك لتحليل الذكاء الاصطناعي والحصول على اقتراحات للتحسين",
+    analyze_button: "تحليل العقد",
+    card_desc: "ضع كود Solidity الخاص بك في الحقل أدناه للحصول على اقتراحات لتقليل استهلاك الغاز وزيادة الأمان وتحسين قابلية القراءة",
+    label: "كود العقد الذكي (Solidity)",
+    placeholder: "// ضع كود العقد الذكي هنا...\npragma solidity ^0.8.24;\n\ncontract MyContract {\n // ...\n}",
+    suggestions_title: "اقتراحات التحسين",
+    line: "السطر",
+    code_too_short_error: "الكود قصير جدًا للتحليل يرجى إدخال عقد كامل",
+    card_title: "تحليل كود العقد",
+    fetch_error: "حدث خطأ أثناء جلب نتائج التحليل",
+  },
+
+  security_report: {
+    normal_behavior: "لم يتم التعرف على أي نشاط مشبوه أو شذوذ في أنماط سلوك هذا المستخدم.",
+    no_history: "لا توجد سجلات نشاط كافية لإجراء تحليل كامل.",
+    trusted_user: "سلوك محفظة المرسل يتوافق مع نمط المستخدمين الموثوقين في الشبكة.",
+    anomaly_detected: "اكتشفت خوارزمية الذكاء الاصطناعي نمطاً سلوكياً غير طبيعي في سجلات المحفظة.",
+    low_activity: "سجل نشاط المحفظة غير كافٍ للتحقق من المصداقية (مستخدم قليل النشاط).",
+    new_wallet: "هذه المحفظة جديدة ولا تحتوي على سجل معاملات.",
+    no_model: "نموذج الأمان غير متوفر حالياً.",
+    error: "حدث خطأ أثناء تحليل الأمان.",
+  },
+
+  optimizer:{
+    suggestion:{
+      uint_comparison: "تحسين الغاز بالنسبة لمتغيرات unsigned integer فإن استخدام var != 0 أقل تكلفة من var > 0",
+      for_loop_gas: "تحسين الغاز في حلقات for فإن الأسلوب السابق ++i أقل استهلاكا للغاز من الأسلوب اللاحق i++",
+      string_literal: "تحسين الغاز تخزين السلاسل النصية الطويلة التي تتجاوز 32 بايت مباشرة في العقد مكلف جدا ينصح باستخدام constant أو التخزين خارج السلسلة",
+      external_visibility: "تحسين الغاز إذا كانت دالة public لا يتم استدعاؤها داخليا فيفضل تحويلها إلى external لتقليل تكلفة الغاز",
+      safe_math: "توصية أمنية لقد استخدمت العمليات الحسابية بشكل مباشر (+ - * /) في إصدارات Solidity قبل 0.8 يجب استخدام مكتبة SafeMath لتجنب أخطاء تجاوز السعة أو النقص",
+      no_issues_found: "رائع لم يتم العثور على أي اقتراح واضح للتحسين التلقائي كودك يبدو منظما",
+    },
+  },
+
+  risk_level: {
+    low: "منخفض",
+    medium: "متوسط",
+    high: "عالي",
+    very_high: "عالي جدًا",
+  },
+
+  recommendation: {
+    low_risk_desc: "استناداً إلى خوارزميات التعلم الآلي فإن هذا المشروع يمتلك أسساً قوية ومخاطره منخفضة. مؤشرات النمو والاستدامة في وضع مثالي.",
+    medium_risk_desc: "يظهر في المشروع احتمال للنجاح ولكن متغيرات المخاطر في مستوى متوسط. ينصح بمراجعة نقاط الضعف المذكورة قبل الاستثمار.",
+    high_risk_desc: "اكتشف الذكاء الاصطناعي مخاطر هيكلية أو مالية كبيرة. يعد هذا الاستثمار عالي المخاطرة ويتطلب أقصى درجات الحذر.",
+    low: "منخفض",
+    medium: "متوسط",
+    high: "عالٍ",
+    very_high: "عالٍ جداً",
+  },
+
+  xai: {
+    strength: {
+      strong_team: "فريق المشروع يتمتع بخبرة عالية.",
+      strong_financials: "تم تقييم النموذج المالي والتوقعات الاقتصادية للمشروع على أنها قوية.",
+      top_factor: "العامل الرئيسي في اتخاذ القرار: ({{factor}})",
+      positive_tam: "حجم السوق المستهدف (TAM) كبير ويمتلك قدرة نمو عالية ({{value}}).",
+      positive_burn: "معدل الاحتراق الشهري (Burn Rate) منطقي ومستدام مقارنة برأس المال المطلوب.",
+      positive_amount: "مبلغ الاستثمار المطلوب متوافق مع معايير النجاح في هذا القطاع.",
+      positive_exp: "خبرة الفريق التنفيذي تزيد من فرص نجاح المشروع بشكل ملحوظ.",
+      positive_milestones: "عدد وهيكلة مراحل تحرير رأس المال (Milestones) تم تحسينها.",
+      high_score: "الملف العام للمشروع يشبه إحصائيا الشركات الناشئة الناجحة.",
+    },
+    weakness: {
+      inexperienced_team: "خبرة الفريق التنفيذي أقل من المستوى المطلوب.",
+      high_financial_risk: "تم تقييم المخاطر المالية ومخاطر العائد على الاستثمار على أنها مرتفعة.",
+      negative_tam: "حجم السوق المستهدف صغير وقد يحد من قابلية التوسع.",
+      negative_burn: "معدل الاحتراق (Burn Rate) غير متوازن مقارنة بالميزانية المطلوبة مما يزيد المخاطر.",
+      negative_amount: "المبلغ المطلوب يعتبر عالي المخاطر مقارنة بمرحلة نمو المشروع.",
+      negative_exp: "نقص الخبرة الموثقة داخل الفريق يعتبر عامل خطر.",
+      negative_milestones: "قد تؤدي هيكلة المراحل إلى ضغط مالي أو عدم القدرة على التسليم.",
+      financial_uncertainty: "يوجد عدم يقين في النموذج المالي.",
+      general_risk: "المخاطر العامة للمشروع أعلى من المتوسط.",
+    },
+    feature: {
+      industry: "قطاع المشروع ({{value}})",
+      requested_amount: "المبلغ المطلوب",
+      milestone_count: "عدد مراحل التمويل",
+      team_experience: "خبرة الفريق",
+      tam: "السوق المستهدف (TAM)",
+      burn_rate: "معدل الاحتراق (Burn Rate)",
+    },
+  },
+
+  // ==============================================================================
+  // 7. USER PROFILE (الملف الشخصي)
+  // ==============================================================================
   profile_page: {
     title: "ملف المستخدم الشخصي",
     subtitle: "إدارة معلومات حسابك، وأنشطتك، وإعداداتك.",
@@ -586,7 +1052,9 @@ export const ar = {
     change_role: "تغيير الدور",
   },
 
-  // Setup Page
+  // ==============================================================================
+  // 8. SYSTEM & ADMIN (النظام والإدارة)
+  // ==============================================================================
   setup_page: {
     title: "إعداد المنصة",
     subtitle: "تتم تهيئة ونشر عقود المنصة الذكية من هذه اللوحة.",
@@ -619,93 +1087,15 @@ export const ar = {
       reset_setup_button: "إعادة تعيين الإعداد",
       reset_confirm: "هل أنت متأكد من رغبتك في إعادة تعيين العقود؟ سيؤدي هذا إلى إعادة تعيين جميع المعاملات . 'مفقود'",
       resetting_in_progress: "جاري إعادة ضبط العقود",
-      }
+    }
   },
 
-  // Analytics Page
-  analytics_page:{
-    title: "تحليل سلوك المستخدمين",
-    card_title: "تحليل قائم على الذكاء الاصطناعي",
-    start_analysis: "بدء التحليل",
-    select_proposal: "اختيار المقترح",
-    select_placeholder: "اختر مقترحا",
-    proposal: "المقترح",
-    analysis_results: "نتائج التحليل",
-    participation_rate: "معدل المشاركة",
-    participation_rate_desc: "نسبة المصوتين النشطين",
-    voter_concentration: "تركيز المصوتين",
-    voter_concentration_desc: "نسبة الأصوات من أعلى 10 بالمئة من المصوتين",
-    voting_power_distribution: "توزيع قوة التصويت",
-    voting_power_distribution_desc: "معامل جيني لتوزيع قوة التصويت",
-    collusion_risk: "مخاطر التواطؤ",
-    collusion_risk_desc: "احتمال التنسيق بين المصوتين",
-    gini_low: "منخفض",
-    gini_high: "عال",
-    risk_low: "منخفض",
-    risk_medium: "متوسط",
-    risk_high: "عال",
-    analysis_error: "خطأ في تحليل المقترح",
-    summary_title: "ملخص التحليل",
-    subtitle: "تحليل أنشطة المستخدمين على السلسلة وخارجها للتعرف على الأنماط وتقييم درجة المشاركة",
-    card_desc: "أدخل عنوان محفظة المستخدم للحصول على تقرير تحليلي لسلوكه ودرجة الثقة الخاصة به",
-    label: "عنوان محفظة المستخدم",
-    analyze_button: "بدء التحليل",
-    report_title: "تقرير التحليل السلوكي",
-    report_desc: "عرض نتائج التحليل للمستخدم صاحب العنوان ...{address}",
-    trust_score: "درجة الثقة",
-    trust_score_desc: "درجة تعتمد على النشاط السابق والأصوات والمشاركة في الحوكمة",
-    anomaly_status: "حالة الشذوذ",
-    fetch_error: "خطأ في جلب تقرير تحليل المستخدم",
-    invalid_address_error: "يرجى إدخال عنوان محفظة صالح",
-  },
-
-  security_report: {
-    normal_behavior: "لم يتم التعرف على أي نشاط مشبوه أو شذوذ في أنماط سلوك هذا المستخدم.",
-    no_history: "لا توجد سجلات نشاط كافية لإجراء تحليل كامل.",
-    trusted_user: "سلوك محفظة المرسل يتوافق مع نمط المستخدمين الموثوقين في الشبكة.",
-    anomaly_detected: "اكتشفت خوارزمية الذكاء الاصطناعي نمطاً سلوكياً غير طبيعي في سجلات المحفظة.",
-    low_activity: "سجل نشاط المحفظة غير كافٍ للتحقق من المصداقية (مستخدم قليل النشاط).",
-    new_wallet: "هذه المحفظة جديدة ولا تحتوي على سجل معاملات.",
-    no_model: "نموذج الأمان غير متوفر حالياً.",
-    error: "حدث خطأ أثناء تحليل الأمان.",
-  },
-    optimizer:{
-      suggestion:{
-      uint_comparison: "تحسين الغاز بالنسبة لمتغيرات unsigned integer فإن استخدام var != 0 أقل تكلفة من var > 0",
-      for_loop_gas: "تحسين الغاز في حلقات for فإن الأسلوب السابق ++i أقل استهلاكا للغاز من الأسلوب اللاحق i++",
-      string_literal: "تحسين الغاز تخزين السلاسل النصية الطويلة التي تتجاوز 32 بايت مباشرة في العقد مكلف جدا ينصح باستخدام constant أو التخزين خارج السلسلة",
-      external_visibility: "تحسين الغاز إذا كانت دالة public لا يتم استدعاؤها داخليا فيفضل تحويلها إلى external لتقليل تكلفة الغاز",
-      safe_math: "توصية أمنية لقد استخدمت العمليات الحسابية بشكل مباشر (+ - * /) في إصدارات Solidity قبل 0.8 يجب استخدام مكتبة SafeMath لتجنب أخطاء تجاوز السعة أو النقص",
-      no_issues_found: "رائع لم يتم العثور على أي اقتراح واضح للتحسين التلقائي كودك يبدو منظما",
-      },
-    },
-      
-  // Contract Analyzer Page
-  contract_analyzer_page: {
-    title: "تحسين العقد الذكي",
-    subtitle: "أدخل كود العقد الذكي الخاص بك لتحليل الذكاء الاصطناعي والحصول على اقتراحات للتحسين",
-    card_title: "تحليل كود العقد",
-    analyze_button: "تحليل العقد",
-    card_desc: "ضع كود Solidity الخاص بك في الحقل أدناه للحصول على اقتراحات لتقليل استهلاك الغاز وزيادة الأمان وتحسين قابلية القراءة",
-    label: "كود العقد الذكي (Solidity)",
-    placeholder: "// ضع كود العقد الذكي هنا...\npragma solidity ^0.8.24;\n\ncontract MyContract {\n // ...\n}",
-    suggestions_title: "اقتراحات التحسين",
-    line: "السطر",
-    fetch_error: "حدث خطأ أثناء جلب نتائج التحليل",
-    code_too_short_error: "الكود قصير جدًا للتحليل يرجى إدخال عقد كامل",
-  },
-  
-  // Not Found Page
-  not_found: {
-    title: "٤٠٤ - الصفحة غير موجودة",
-    message: "عفواً، الصفحة التي تبحث عنها غير موجودة أو تم نقلها.",
-    go_home: "العودة إلى لوحة التحكم",
-  },
-  
-  // Logs Page
   logs_page: {
     title: "سجل الأحداث",
     subtitle: "عرض مباشر للأحداث الهامة المسجلة في العقود الذكية للمنصة.",
+    search_placeholder: "بحث في الوصف أو الهاش...", // Inferred/Added
+    filter_placeholder: "تصفية حسب النوع", // Inferred/Added
+    no_data: "لا توجد سجلات.", // Inferred/Added
     governance_tab: "الحوكمة",
     staking_tab: "الإيداع",
     finance_tab: "المالية",
@@ -740,190 +1130,24 @@ export const ar = {
     function_grant_role: "منح الدور",
     function_transfer_ownership: "نقل الملكية",
     function_at_inversebrah: "في Inversebrah",
+    core_system: "النظام الأساسي", // Added
+    staking_protocol: "بروتوكول الرهن", // Added
+    treasury_system: "نظام الخزانة", // Added
+    filter_proposal: "المقترح", // Added
+    filter_vote: "التصويت", // Added
+    filter_transfer: "التحويل", // Added
   },
 
-  // Staking Page
-  staking_page: {
-    title: "الإيداع والمكافآت",
-    subtitle: "قم بإيداع رموز RYC الخاصة بك، وشارك في الحوكمة، واكسب المكافآت.",
-    subtitle_for_role: "صفحة إدارة الإيداع للدور:",
-    ryc_balance: "رصيد RYC",
-    staked_balance: "الرصيد المودع",
-    staked_balance_desc: "الرموز المودعة الخاصة بك",
-    earned_rewards: "المكافآت المكتسبة",
-    stake_tokens_title: "إيداع الرموز",
-    stake_tokens_desc: "اقفل رموز RYC الخاصة بك لكسب المكافآت وقوة التصويت.",
-    amount_to_stake: "المبلغ المراد إيداعه",
-    stake: "إيداع",
-    unstake_tokens_title: "سحب الرموز",
-    unstake_tokens_desc: "اسحب رموز RYC المودعة.",
-    amount_to_unstake: "المبلغ المراد سحبه",
-    unstake: "سحب",
-    claim_rewards_title: "المطالبة بالمكافآت",
-    claim_rewards_desc: "انقل مكافآتك المكتسبة إلى محفظتك.",
-    claim_rewards: "المطالبة بالمكافآت",
-    stake_success: "تم الإيداع بنجاح",
-    stake_error: "خطأ أثناء الإيداع",
-    unstake_success: "تم السحب بنجاح",
-    unstake_error: "خطأ أثناء السحب",
-    claim_success: "تمت المطالبة بالمكافآت بنجاح",
-    claim_error: "خطأ أثناء المطالبة بالمكافآت",
-    staking_plans_title: "خطط الإيداع",
-    staking_plans_desc: "اختر إحدى الخطط أدناه للإيداع بسرعة.",
-    approve_button: "الموافقة على السحب",
-    approve_success: "تمت الموافقة بنجاح",
-    approve_error: "خطأ أثناء الموافقة",
-    delegate_title: "تفويض قوة التصويت",
-    delegate_desc: "فوض حقوق التصويت الخاصة بك إلى ممثل موثوق به (المفوض إليه) لزيادة نقاط إثبات المشاركة (PoP) وأمان الشبكة.",
-    delegate_error: "خطأ في تفويض الدور",
-    delegatee_address: "عنوان المفوض إليه المطلوب",
-    delegate_cta: "تفويض",
-    undelegate_cta: "إلغاء التفويض",
-    plans_for_role: "خطط الإيداع للدور",
-    plans_for_role_desc: "الحد الأدنى لمبلغ الإيداع لتلبية متطلبات الأمان والوصول إلى ميزات الدور.",
-    current_delegatee: "المفوض إليه الحالي",
-    no_delegatee: "لا يوجد مفوض إليه",
-    plan_voter_title: "خطة المصوت (أساسي)",
-    plan_startup_title: "خطة الشركة الناشئة (إنشاء الاقتراح)",
-    plan_delegate_title: "خطة المندوب (الحوكمة)",
-    voter_feat1: "القدرة على التصويت على الاقتراحات",
-    voter_feat2: "كسب مكافآت إثبات المشاركة (PoP)",
-    startup_feat1: "الوصول إلى نموذج تقديم الاقتراح الجديد",
-    startup_feat2: "التحقق الأولي من الذكاء الاصطناعي للاقتراحات",
-    delegate_feat1: "كسب قوة التصويت المفوضة من المستخدمين الآخرين",
-    delegate_feat2: "القدرة على التعيين كمدقق",
-    plan_voter_desc: "الحد الأدنى المطلوب للإيداع لأمان المنصة وحقوق التصويت.",
-    plan_startup_desc: "الحد الأدنى المطلوب للإيداع لكسب حقوق تقديم الاقتراحات.",
-    plan_delegate_desc: "مبلغ الإيداع المطلوب للانضمام إلى المندوبين وتعظيم تأثير الحوكمة.",
-    tx_success_title: "نجاح المعاملة",
-    tx_success_desc: "تم تأكيد عمليتك على البلوكشين.",
-    approve_in_progress: "جاري معالجة معاملة الموافقة. يرجى انتظار التأكيد.",
-    revert_reason_approve: "لا توجد رموز كافية للموافقة أو وصول غير صالح.",
-    revert_reason_stake_zero: "يجب أن يكون مبلغ الإيداع أكبر من الصفر.",
-    revert_reason_delegate_stake: "لتفويض قوة التصويت، يجب أولاً إيداع رموز RYC.",
-    plan_selected_toast: "تم تحديد الخطة. الآن انقر فوق زر 'إيداع'.",
-    contract_addresses_missing: "لم يتم تحميل عناوين العقود الأساسية (الرمز/الإيداع) بعد. يرجى الانتظار.",
-    buy_ryc_desc: "سعر كل توكن RYC تقريبًا",
-    buy_ryc_title: "شراء توكن RYC",
-    buy_ryc_cta: "شراء RYC",
-    amount_of_matic_to_spend: "مبلغ العملة للإنفاق",
-    buy_ryc_warning: "يتم حساب التكلفة النهائية بناءً على سعر أوراكل المباشر على البلوكشين.",
-    buy_in_progress: "جاري إرسال معاملة الشراء. يرجى التأكيد في محفظتك.",
-    buy_amount_error: "يجب أن يكون مبلغ الشراء أكبر من الصفر.",
-    buy_success_title: "نجاح الشراء",
-    buy_success_desc: "تمت إضافة رموز RYC إلى محفظتك. يرجى التحقق من رصيدك.",
-    you_will_receive: "عدد الرموز التي ستحصل عليها",
-    manage_stake_title: "إدارة الإيداع",
-    manage_stake_desc: "اسحب إيداعك أو طالب بمكافآتك المكتسبة.",
-    card_label_balance: "كمية رموز RYC المشتراة في المحفظة",
-    card_label_staked: "رصيد رموز RYC المودعة",
-    card_label_earned: "كمية مكافآت الأداء المستلمة",
-    add_to_wallet: "إضافة رمز RYC إلى المحفظة",
-    unclaimed_rewards: "إجمالي المكافآت غير المستلمة",
-
-  },
-
-  // Treasury Page
-  treasury_page: {
-    title: "الخزانة",
-    subtitle: "عرض وإدارة أصول خزانة المنصة.",
-    total_assets: "إجمالي الأصول",
-    assets_in_treasury: "الأصول الموجودة في الخزانة",
-    native_token_balance: "رصيد العملة الأصلية",
-    ryc_token_balance: "رصيد توكن RYC",
-    withdraw_funds: "سحب الأموال",
-    withdraw_native: "سحب العملة الأصلية",
-    withdraw_ryc: "سحب RYC",
-    amount: "المبلغ",
-    withdraw: "سحب",
-    withdraw_success: "تم السحب بنجاح",
-    withdraw_error: "خطأ أثناء السحب",
-    fund_treasury_title: "تمويل الخزانة",
-    fund_treasury_desc: "لدفع المصاريف وتمويل المشاريع، تحتاج الخزانة إلى رصيد من رموز RYC. انقل بعض الرموز من محفظتك إلى عقد الخزانة.",
-    fund_button: "تمويل الخزانة",
-    deposit_success: "تم تمويل الخزانة بنجاح",
-    deposit_error: "خطأ في تمويل الخزانة",
-    simulation_failed_desc: "فشلت محاكاة المعاملة. يرجى التحقق من المدخلات والمحاولة مرة أخرى.",
-    public_view_title: "عرض عام",
-    public_view_desc: "هذا عرض عام للخزانة. يمكن للمسؤولين فقط سحب الأموال.",
-    native_token: "العملة الأصلية",
-    withdraw_funds_desc_admin: "كمسؤول، يمكنك سحب الأموال (العملة الأصلية أو رموز RYC) من الخزانة إلى أي عنوان محفظة محدد.",
-  },
-
-  // Proposal Detail Page
-  proposal_detail: {
-    proposal_id: "معرف الاقتراح",
-    not_found: "الاقتراح غير موجود.",
-    details: "التفاصيل",
-    status_desc: "الحالة الحالية للاقتراح.",
-    proposer_info: "معلومات مقدم الاقتراح",
-    funding_info: "معلومات التمويل",
-    total_requested: "إجمالي المبلغ المطلوب",
-    milestones: "المراحل",
-    milestone: "المرحلة",
-    voting_results: "نتائج التصويت",
-    vote_for: "مع",
-    vote_against: "ضد",
-    for: "مع",
-    against: "ضد",
-    total_votes: "إجمالي الأصوات",
-    created_on: "تاريخ الإنشاء",
-    voting_deadline: "الموعد النهائي للتصويت",
-    votes_for: "تصويت مع",
-    votes_against: "تصويت ضد",
-    ai_analysis: "تقييم الذكاء الاصطناعي",
-    ai_risk_score: "درجة مخاطر الذكاء الاصطناعي",
-    market_sentiment: "مشاعر السوق",
-    team_competency: "كفاءة الفريق",
-    description: "وصف المقترح",
-    proposer: "مقدم المقترح",
-    view_ai_report: "عرض تقرير الذكاء الاصطناعي",
-    milestone_management: "إدارة رأس مال المشروع",
-    milestone_management_desc: "تم تمويل مشروعك. لتفعيل إطلاق رأس المال للمرحلة التالية قدم تقرير التقدم.",
-    request_next_milestone: "طلب إطلاق المرحلة التالية",
-    submit_progress_report: "إرسال تقرير التقدم",
-    progress_description: "اشرح ما تم إنجازه في هذه المرحلة:",
-    progress_placeholder: "مثال: إكمال تطوير MVP، الانتهاء من اختبارات المستخدم...",
-    submit_request: "تقديم الطلب",
-    total_supply: "من إجمالي عدد الرموز المتاحة",
-    timeline:{
-      title: "حالة المقترح",
-      submitted: "تم الإرسال",
-      voting: "قيد التصويت",
-      approved: "النتيجة النهائية",
-      executed: "تم التنفيذ",
-      },
-      you_have_voted_title: "لقد سجلت صوتك",
-      you_have_voted_desc: "نشكرك على مشاركتك في عملية الحوكمة سيتم الإعلان عن النتيجة بعد انتهاء فترة التصويت",
-      admin_actions: "الإجراءات الإدارية",
-      execute_proposal: "تنفيذ المقترح",
-      status: {
-        pending: "قيد الانتظار",
-        active: "قيد التصويت",
-        canceled: "تم الإلغاء",
-        defeated: "مرفوض",
-        succeeded: "تمت المصادقة",
-        queued: "في قائمة التنفيذ",
-        expired: "منتهي الصلاحية",
-        executed: "تم التنفيذ",
-        unknown: "غير معروف",
-        validation: "قيد التحقق",
-      },
-      alert: {
-        insufficient_power_title: "عدم كفاية حق التصويت",
-        insufficient_power_desc: "للمشاركة في الحوكمة يجب إيداع رموز (RYC) حاليًا قوتك التصويتية تساوي صفر هل ترغب بالانتقال إلى صفحة الإيداع",
-        cancel: "إلغاء",
-        go_to_staking: "الانتقال إلى الإيداع"
-      },
-  },
-  
-  // Dynamic Content
+  // ==============================================================================
+  // 9. UTILITIES & TOASTS (الأدوات والإشعارات)
+  // ==============================================================================
   users: {
     user1: "مستخدم 1",
     you: "أنت",
     user3: "مستخدم 3",
     user4: "مستخدم 4",
   },
+
   activities: {
     voted_positive: "صوت إيجابًا على الاقتراح {proposal}.",
     transferred_tokens: "حول 25 رمز RYC إلى محفظتك.",
@@ -945,94 +1169,12 @@ export const ar = {
     milestone_released: "أطلق المرحلة المالية رقم {milestoneIndex} للمقترح رقم {id}",
     ownership_transferred: "نقل ملكية العقد",
   },
+
   time: {
     minutes_ago: "قبل 5 دقائق",
     hour_ago: "قبل ساعة",
     hours_ago: "قبل 3 ساعات",
     yesterday: "أمس",
-  },
-      reports_page: {
-      title: "تقييم الذكاء الاصطناعي",
-      no_proposals_found: "لم يتم العثور على أي مقترحات",
-      ai_risk_score: "درجة مخاطر الذكاء الاصطناعي",
-      ai_risk_score_desc: "درجة بين 0 و100",
-      subtitle: "تحليلات وتنبؤات متعمقة مدعومة بالذكاء الاصطناعي لكل مقترح",
-      card_title: "تحليل ذكي للمقترح",
-      card_desc: "أدخل معرف مقترحك للحصول على تقرير تحليل كامل من محرك الذكاء الاصطناعي",
-      input_placeholder: "أدخل معرف المقترح...",
-      start_analysis: "بدء التحليل",
-      proposal_report_title: "تقرير تحليل المقترح رقم {id}",
-      ai_summary_title: "ملخص تحليل الذكاء الاصطناعي",
-      investability_score: "درجة قابلية الاستثمار",
-      overall_risk_level: "مستوى المخاطرة الإجمالي",
-      ai_recommendation: "الذكاء الاصطناعي توصية",
-      financial_analysis_title: "التحليل المالي وتحليل الفريق",
-      success_probability: "احتمال النجاح",
-      financial_risk_score: "درجة المخاطر المالية",
-      team_competency: "كفاءة الفريق",
-      market_sentiment: "مشاعر السوق",
-      error_title: "خطأ",
-      success_probability_desc: "تشير هذه النتيجة إلى ثقة الذكاء الاصطناعي في نجاح المشروع على المدى الطويل بناءً على البيانات التاريخية وخصائص المشروع",
-      financial_risk_score_desc: "تقيّم هذه النتيجة المخاطر المالية للمشروع. انخفاض النتيجة يعني انخفاض المخاطر",
-      team_competency_desc: "تُحسب هذه النتيجة بناءً على إجمالي سنوات الخبرة وسجل إنجازات الفريق الأساسي",
-      market_sentiment_desc: "تشير هذه النتيجة إلى مشاعر السوق العامة وتوقعاته بشأن قطاع وتكنولوجيا هذا المشروع (سيتم تفعيلها في الإصدارات المستقبلية).",
-      xai_title: "الأسباب الرئيسية لـ التقييم",
-      xai_strengths: "نقاط القوة الرئيسية",
-      xai_weaknesses: "نقاط الضعف الرئيسية",
-      analyzing_data: "جارٍ تقييم البيانات",
-      no_data: "لم يتم التعرف على أي عنصر محدد.",
-      no_risks_found: "لم يتم العثور على أي مخاطر جوهرية.",
-      pdf: "إنشاء تقرير PDF",
-      share: "مشاركة",
-      ai_audit_report: "تقرير تقييم الذكاء الاصطناعي للعرض",
-      data_analysis: "تقييم البيانات",
-      },
-      risk_level: {
-      low: "منخفض",
-      medium: "متوسط",
-      high: "عالي",
-      very_high: "عالي جدًا",
-      },
-    recommendation: {
-      low_risk_desc: "استناداً إلى خوارزميات التعلم الآلي فإن هذا المشروع يمتلك أسساً قوية ومخاطره منخفضة. مؤشرات النمو والاستدامة في وضع مثالي.",
-      medium_risk_desc: "يظهر في المشروع احتمال للنجاح ولكن متغيرات المخاطر في مستوى متوسط. ينصح بمراجعة نقاط الضعف المذكورة قبل الاستثمار.",
-      high_risk_desc: "اكتشف الذكاء الاصطناعي مخاطر هيكلية أو مالية كبيرة. يعد هذا الاستثمار عالي المخاطرة ويتطلب أقصى درجات الحذر.",
-      low: "منخفض",
-      medium: "متوسط",
-      high: "عالٍ",
-      very_high: "عالٍ جداً",
-    },
-  xai: {
-    strength: {
-      strong_team: "فريق المشروع يتمتع بخبرة عالية.",
-      strong_financials: "تم تقييم النموذج المالي والتوقعات الاقتصادية للمشروع على أنها قوية.",
-      top_factor: "العامل الرئيسي في اتخاذ القرار: ({{factor}})",
-      positive_tam: "حجم السوق المستهدف (TAM) كبير ويمتلك قدرة نمو عالية ({{value}}).",
-      positive_burn: "معدل الاحتراق الشهري (Burn Rate) منطقي ومستدام مقارنة برأس المال المطلوب.",
-      positive_amount: "مبلغ الاستثمار المطلوب متوافق مع معايير النجاح في هذا القطاع.",
-      positive_exp: "خبرة الفريق التنفيذي تزيد من فرص نجاح المشروع بشكل ملحوظ.",
-      positive_milestones: "عدد وهيكلة مراحل تحرير رأس المال (Milestones) تم تحسينها.",
-      high_score: "الملف العام للمشروع يشبه إحصائيا الشركات الناشئة الناجحة.",
-    },
-    weakness: {
-      inexperienced_team: "خبرة الفريق التنفيذي أقل من المستوى المطلوب.",
-      high_financial_risk: "تم تقييم المخاطر المالية ومخاطر العائد على الاستثمار على أنها مرتفعة.",
-      negative_tam: "حجم السوق المستهدف صغير وقد يحد من قابلية التوسع.",
-      negative_burn: "معدل الاحتراق (Burn Rate) غير متوازن مقارنة بالميزانية المطلوبة مما يزيد المخاطر.",
-      negative_amount: "المبلغ المطلوب يعتبر عالي المخاطر مقارنة بمرحلة نمو المشروع.",
-      negative_exp: "نقص الخبرة الموثقة داخل الفريق يعتبر عامل خطر.",
-      negative_milestones: "قد تؤدي هيكلة المراحل إلى ضغط مالي أو عدم القدرة على التسليم.",
-      financial_uncertainty: "يوجد عدم يقين في النموذج المالي.",
-      general_risk: "المخاطر العامة للمشروع أعلى من المتوسط.",
-    },
-    feature: {
-      industry: "قطاع المشروع ({{value}})",
-      requested_amount: "المبلغ المطلوب",
-      milestone_count: "عدد مراحل التمويل",
-      team_experience: "خبرة الفريق",
-      tam: "السوق المستهدف (TAM)",
-      burn_rate: "معدل الاحتراق (Burn Rate)",
-    },
   },
 
   toasts: {
@@ -1091,45 +1233,10 @@ export const ar = {
     error_user_rejected: "تم إلغاء المعاملة من قبل المستخدم.",
     error_generic: "حدث خطأ غير معروف.",
   },
-    numbers: {
+
+  numbers: {
     0: "۰",
     50: "۵۰",
     100: "۱۰۰",
-  },
-    guide_page: {
-    title: "دليل استخدام المنصة",
-    subtitle: "شرح كيفية العمل في رايان‌تشين حسب نوع دورك",
-    tabs: {
-      investor: "💰 مستثمر",
-      startup: "🚀 شركة ناشئة",
-      voter: "🗳️ ناخب"
-    },
-    actions: {
-      go_to_staking: "الانتقال إلى الإيداع",
-      create_proposal: "إنشاء مقترح",
-      view_proposals: "عرض عمليات التصويت النشطة"
-    },
-    investor: {
-      step1_title: "الاتصال واستلام الرموز",
-      step1_desc: "قم بربط محفظتك وإذا لم تكن تملك رموز RYC يمكنك تحويل MATIC من لوحة التحكم أو من منصات التداول",
-      step2_title: "مراجعة المقترحات",
-      step2_desc: "راجع المقترحات النشطة واستخدم تقارير الذكاء الاصطناعي لتحليل مستوى المخاطر وكفاءة الفريق ومشاعر السوق",
-      step3_title: "الإيداع للمشاركة في الحوكمة",
-      step3_desc: "للتأثير في القرارات قم بإيداع رموز RYC الخاصة بك وهذا يمنحك قوة تصويت تعتمد على قيمة الإيداع"
-    },
-    startup: {
-      step1_title: "تسجيل المقترح",
-      step1_desc: "املأ نموذج المقترح الكامل وارفع المستندات المالية والقانونية وملف العرض التعريفي ويتم حفظ البيانات بشكل آمن في IPFS",
-      step2_title: "تحليل الذكاء الاصطناعي",
-      step2_desc: "بعد التسجيل يقوم نظام الذكاء الاصطناعي متعدد الطبقات بتحليل المشروع من ناحية المخاطر وإمكانية التنفيذ ويتم إرفاق التقرير بمقترحك",
-      step3_title: "تصويت المجتمع",
-      step3_desc: "تفاعل مع المجتمع وإذا حصل مقترحك على الحد الأدنى من الأصوات يتم الإفراج عن التمويل وفق مراحل التنفيذ"
-    },
-    voter: {
-      step1_title: "الحصول على قوة التصويت",
-      step1_desc: "لا يمكنك التصويت باستخدام الرموز الموجودة فقط في المحفظة يجب إيداعها أو يجب أن يتم تفويضك بحق التصويت",
-      step2_title: "تسجيل التصويت",
-      step2_desc: "اذهب إلى مقترح نشط واضغط على تصويت بالموافقة أو تصويت بالرفض وتعتمد قوة تصويتك على قيمة الإيداع"
-    },
   },
 };
