@@ -45,6 +45,23 @@ export const tr = {
     back: "Geri",
   },
   
+    page_titles:{
+      dashboard: "Ana gösterge paneli",
+      proposals: "Teklif listesi",
+      new_proposal: "Yeni teklif oluştur",
+      proposal_details: "Teklif detayları",
+      staking: "Staking yönetimi",
+      treasury: "Akıllı hazine",
+      reports: "Yapay zeka raporları",
+      ai_report_detail: "Projenin kapsamlı analizi",
+      analytics: "Kullanıcı davranış analizi",
+      contract_analyzer: "Akıllı sözleşme teşhis aracı",
+      profile: "Kullanıcı profili",
+      logs: "Sistem etkinlik kayıtları",
+      admin: "Yönetim merkezi",
+      admin_settings: "Sistem ayarları",
+      setup: "Altyapı kurulumu",
+  },
   // Sidebar
   sidebar: {
     dashboard: "Gösterge Paneli",
@@ -58,6 +75,13 @@ export const tr = {
     treasury: "Hazine",
     staking: "Staking",
     ai_reports: "Yapay Zeka Raporları",
+    group_core: "Temel",
+    group_governance: "Yönetim ve oylama",
+    group_intelligence: "Yapay zeka ve analiz",
+    group_admin: "Sistem yönetimi",
+    guest_mode: "Misafir modu",
+    all_proposals: "Tüm teklifler",
+
   },
 
   // AuthGuard

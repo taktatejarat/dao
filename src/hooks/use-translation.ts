@@ -1,3 +1,5 @@
+// src/hooks/use-translation.ts - FINAL UPGRADED VERSION
+
 'use client';
 
 import { useLanguage } from '@/context/LanguageProvider';
@@ -14,13 +16,25 @@ export function useTranslation() {
   // Fallback to English if the current locale's dictionary is missing
   const dictionary = translations[locale] || translations.en;
 
-  const t = (key: string, $: any, p0: { nativeSymbol: string; }): string => {
-    const value = getNestedValue(dictionary, key);
+  // ✅ تغییر مهم: اضافه کردن آرگومان دوم به صورت اختیاری (params?)
+  const t = (key: string, params?: Record<string, string | number>): string => {
+    let value = getNestedValue(dictionary, key);
+
     // If translation is not found in the current locale, try falling back to English
     if (!value) {
       const fallbackValue = getNestedValue(translations.en, key);
-      return fallbackValue || key; // Return the key itself if no translation is found anywhere
+      value = fallbackValue || key; // Return the key itself if no translation is found anywhere
     }
+
+    // ✅ منطق جدید: جایگذاری متغیرها (Interpolation)
+    // اگر پارامتری ارسال شده باشد، آن را در متن جایگزین می‌کند
+    if (params && value) {
+      Object.entries(params).forEach(([paramKey, paramValue]) => {
+        // تمام {{key}} ها را با مقدارشان عوض می‌کند
+        value = value!.replace(new RegExp(`{{${paramKey}}}`, 'g'), String(paramValue));
+      });
+    }
+
     return value;
   };
 

@@ -43,6 +43,23 @@ export const de = {
     my_account: "Mein Konto",
     profile: "Profil",
   },
+  page_titles:{
+      dashboard: "Haupt-Dashboard",
+      proposals: "Vorschlagsliste",
+      new_proposal: "Neuen Vorschlag erstellen",
+      proposal_details: "Vorschlagsdetails",
+      staking: "Staking-Verwaltung",
+      treasury: "Intelligente Schatzkammer",
+      reports: "KI-Berichte",
+      ai_report_detail: "Umfassende Projektanalyse",
+      analytics: "Analyse des Nutzerverhaltens",
+      contract_analyzer: "Smart-Contract-Diagnose",
+      profile: "Benutzerprofil",
+      logs: "Systemaktivitätsprotokolle",
+      admin: "Management-Hub",
+      admin_settings: "Systemeinstellungen",
+      setup: "Infrastruktur-Einrichtung",
+  },
 
   // Sidebar
   sidebar: {
@@ -57,6 +74,13 @@ export const de = {
     treasury: "Schatzkammer",
     staking: "Staking",
     ai_reports: "KI-Berichte",
+    group_core: "Kern",
+    group_governance: "Governance und Abstimmung",
+    group_intelligence: "Künstliche Intelligenz und Analyse",
+    group_admin: "Systemverwaltung",
+    guest_mode: "Gastmodus",
+    all_proposals: "Alle Vorschläge",
+
   },
 
   // AuthGuard

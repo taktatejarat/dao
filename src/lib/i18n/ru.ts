@@ -44,6 +44,25 @@ export const ru = {
     profile: "Профиль",
   },
 
+  page_titles:{
+    dashboard: "Главная панель",
+    proposals: "Список предложений",
+    new_proposal: "Создание нового предложения",
+    proposal_details: "Детали предложения",
+    staking: "Управление стейкингом",
+    treasury: "Умная казна",
+    reports: "AI-отчёты",
+    ai_report_detail: "Полный анализ проекта",
+    analytics: "Аналитика поведения пользователей",
+    contract_analyzer: "Диагностика смарт-контракта",
+    profile: "Профиль пользователя",
+    logs: "Журнал системной активности",
+    admin: "Управленческий центр",
+    admin_settings: "Системные настройки",
+    setup: "Настройка инфраструктуры",
+
+  },
+
   // Sidebar
   sidebar: {
     dashboard: "Панель управления",
@@ -57,6 +76,13 @@ export const ru = {
     treasury: "Казначейство",
     staking: "Стейкинг",
     ai_reports: "Отчеты ИИ",
+    group_core: "Основные",
+    group_governance: "Управление и голосование",
+    group_intelligence: "Искусственный интеллект и аналитика",
+    group_admin: "Управление системой",
+    guest_mode: "Гостевой режим",
+    all_proposals: "Все предложения",
+
   },
 
   // AuthGuard

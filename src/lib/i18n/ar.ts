@@ -43,6 +43,23 @@ export const ar = {
     my_account: "حسابي",
     profile: "الملف الشخصي",
   },
+    page_titles:{
+      dashboard: "لوحة التحكم الرئيسية",
+      proposals: "قائمة المقترحات",
+      new_proposal: "تسجيل مقترح جديد",
+      proposal_details: "تفاصيل المقترح",
+      staking: "إدارة الستيكينغ",
+      treasury: "الخزانة الذكية",
+      reports: "تقارير الذكاء الاصطناعي",
+      ai_report_detail: "تحليل شامل للمشروع",
+      analytics: "تحليل سلوك المستخدمين",
+      contract_analyzer: "تشخيص العقد الذكي",
+      profile: "الملف الشخصي",
+      logs: "سجل أنشطة النظام",
+      admin: "مركز الإدارة",
+      admin_settings: "الإعدادات النظامية",
+      setup: "إعداد البنية التحتية",
+  },
 
   // Sidebar
   sidebar: {
@@ -57,6 +74,13 @@ export const ar = {
     treasury: "الخزانة",
     staking: "الإيداع",
     ai_reports: "التقارير الذكية",
+    group_core: "الأساسي",
+    group_governance: "الحوكمة والتصويت",
+    group_intelligence: "الذكاء الاصطناعي والتحليل",
+    group_admin: "إدارة النظام",
+    guest_mode: "وضع الضيف",
+    all_proposals: "جميع المقترحات",
+
   },
 
   // AuthGuard

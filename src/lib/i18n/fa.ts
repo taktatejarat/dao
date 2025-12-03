@@ -31,6 +31,10 @@ export const fa = {
     generated_footer: "تولید شده توسط موتور هوش مصنوعی رایان‌چین | این گزارش پیشنهاد مالی قطعی نیست.",
     rayan_chain_vc: "پلتفرم سرمایه‌گذاری رایان‌چین",
     comming_soon: "به زودی",
+    all: "همه موارد",
+    view_tx: "مشاهده تراکنش",
+    ai_powered: "هوش مصنوعی",
+    risk: "ریسک",
   },
   // Header
   header: {
@@ -39,6 +43,23 @@ export const fa = {
     connect_wallet: "اتصال کیف پول",
     my_account: "حساب من",
     profile: "پروفایل",
+  },
+    page_titles: {
+    dashboard: "داشبورد اصلی",
+    proposals: "لیست پروپوزال‌ها",
+    new_proposal: "ثبت پروپوزال جدید",
+    proposal_details: "جزئیات پروپوزال",
+    staking: "مدیریت استیکینگ",
+    treasury: "خزانه‌داری هوشمند",
+    reports: "گزارش‌های هوش مصنوعی",
+    ai_report_detail: "تحلیل جامع پروژه",
+    analytics: "تحلیل رفتار کاربران",
+    contract_analyzer: "عیب‌یابی قرارداد هوشمند",
+    profile: "پروفایل کاربری",
+    logs: "گزارش فعالیت‌های سیستم",
+    admin: "هاب مدیریتی",
+    admin_settings: "تنظیمات سیستمی",
+    setup: "راه‌اندازی زیرساخت"
   },
 
   // Sidebar
@@ -54,6 +75,12 @@ export const fa = {
     treasury: "خزانه داری",
     staking: "سپرده‌گذاری",
     ai_reports: "گزارشهای هوشمند",
+    group_core: "اصلی",
+    group_governance: "حکمرانی و رأی‌دهی",
+    group_intelligence: "هوش مصنوعی و تحلیل",
+    group_admin: "مدیریت سیستم",
+    guest_mode: "حالت مهمان",
+    all_proposals: "همه پروپوزال‌ها"
   },
 
   // AuthGuard
@@ -107,7 +134,7 @@ export const fa = {
   
   // Role Selection Page
   role_selection: {
-    welcome: "به RayanChain خوش آمدید!",
+    welcome: "به زنجیره هوشمند رایان خوش آمدید!",
     prompt: "برای شروع، لطفا نقش خود را در پلتفرم مشخص کنید.",
     investor: "سرمایه‌گذار",
     startup: "استارت‌آپ",
@@ -118,7 +145,7 @@ export const fa = {
     delegate_title: "عنوان نماینده",
     delegate_desc: "توضیح دریاره نماینده",
     investor_title: "پلن سرمایه‌گذاری خود را انتخاب کنید",
-    investor_subtitle: "با سپرده‌گذاری توکن RYC، از مزایای ویژه برخوردار شوید.",
+    investor_subtitle: "با سپرده گذاری توکن بومی رایان کوین ، از مزایا و پاداشهای این پلتفرم بهره‌مند شوند",
     startup_title: "آیا شما یک استارت‌آپ هستید؟",
     startup_desc: "برای پروژه نوآورانه خود سرمایه جذب کنید. پیشنهاد خود را ثبت کنید تا توسط جامعه سرمایه‌گذاران ما ارزیابی شود.",
     startup_cta: "ثبت‌نام به عنوان استارت‌آپ",
@@ -128,7 +155,7 @@ export const fa = {
     role_grant_error_desc: "اعطای نقش استارتاپ ناموفق بود. لطفاً دوباره تلاش کنید.",
     granting_role: "در حال اعطای نقش...",
     voter_title: "در حاکمیت مشارکت کنید",
-    voter_desc: "به عنوان یک کاربر رأی‌دهنده، در تصمیم‌گیری‌های کلیدی پلتفرم نقش داشته باشید و به شکل‌دهی آینده RayanChain کمک کنید.",
+    voter_desc: "به عنوان یک کاربر رأی‌دهنده، در تصمیم‌گیری‌های کلیدی پلتفرم نقش داشته باشید و به شکل‌دهی آینده رایان جین کمک کنید.",
     voter_cta: "ادامه به عنوان رأی‌دهنده",
     plan_bronze_title: "برنزی",
     plan_bronze_desc: "برای شروع سرمایه‌گذاری‌های کوچک.",
@@ -604,7 +631,6 @@ export const fa = {
   // Analytics Page
   analytics_page: {
     title: "تحلیل رفتار کاربران",
-    card_title: "تحلیل مبتنی بر هوش مصنوعی",
     start_analysis: "شروع تحلیل",
     select_proposal: "انتخاب پیشنهاد",
     select_placeholder: "یک پیشنهاد را انتخاب کنید",
@@ -628,14 +654,19 @@ export const fa = {
     subtitle: "تحلیل فعالیت‌های آن‌چین و آف‌چین کاربران برای شناسایی الگوها و ارزیابی امتیاز مشارکت.",
     card_desc: "آدرس کیف پول کاربر مورد نظر را برای دریافت گزارش تحلیلی رفتار و امتیاز اعتماد وارد کنید.",
     label: "آدرس کیف پول کاربر",
-    analyze_button: "شروع تحلیل",
-    report_title: "گزارش تحلیلی رفتار",
-    report_desc: "نمایش نتایج تحلیل برای کاربر با آدرس ...{address}",
     trust_score: "امتیاز اعتماد",
-    trust_score_desc: "امتیازی مبتنی بر فعالیت‌های گذشته، رأی‌ها و مشارکت در حاکمیت.",
+    trust_score_desc: "امتیاز مبتنی بر فعالیت‌های گذشته، رأی‌ها و مشارکت در حاکمیت.",
     anomaly_status: "وضعیت ناهنجاری",
     fetch_error: "خطا در دریافت گزارش تحلیل کاربر.",
-    invalid_address_error: "لطفاً یک آدرس کیف پول معتبر وارد کنید.",
+    card_title: "جستجوی آدرس",
+    search_placeholder: "آدرس کیف پول را وارد کنید (0x...)",
+    analyze_button: "تحلیل رفتار",
+    report_title: "گزارش تحلیل رفتار",
+    report_desc: "نتایج آنالیز برای آدرس {{address}}",
+    status_detected: "مشکوک / خطرناک",
+    status_clean: "پاک / عادی",
+    graph_coming_soon: "نمودار گراف تراکنش‌ها (به زودی)",
+    invalid_address_error: "فرمت آدرس کیف پول نامعتبر است.",
     },
   security_report: {
     normal_behavior: "هیچ فعالیت مشکوک یا ناهنجاری در الگوهای رفتاری این کاربر شناسایی نشد.",
@@ -662,15 +693,19 @@ export const fa = {
   contract_analyzer_page: {
     title: "بهبود قرارداد هوشمند",
     subtitle: "کد قرارداد هوشمند خود را برای تحلیل و دریافت پیشنهادات بهبود توسط هوش مصنوعی وارد کنید.",
-    card_title: "تحلیل کد قرارداد",
     analyze_button: "تحلیل قرارداد",
     card_desc: "کد Solidity خود را در کادر زیر قرار دهید تا پیشنهاداتی برای کاهش مصرف Gas، افزایش امنیت و بهبود خوانایی دریافت کنید.",
     label: "کد قرارداد هوشمند (Solidity)",
     placeholder: "// کد قرارداد هوشمند خود را اینجا قرار دهید...\npragma solidity ^0.8.24;\n\ncontract MyContract {\n    // ...\n}",
     suggestions_title: "پیشنهادات بهبود",
     line: "خط",
-    fetch_error: "خطا در دریافت پیشنهادات تحلیل.",
-    code_too_short_error: "طول کد برای تحلیل بسیار کوتاه است. لطفاً یک قرارداد کامل وارد کنید."
+    code_too_short_error: "طول کد برای تحلیل بسیار کوتاه است. لطفاً یک قرارداد کامل وارد کنید.",
+    card_title: "کد قرارداد",
+    editor_placeholder: "// کد سالیدیتی خود را اینجا پیست کنید...",
+    ready_to_analyze: "آماده برای تحلیل",
+    analysis_error: "خطا در تحلیل",
+    fetch_error: "خطا در برقراری ارتباط با سرور تحلیلگر.",
+    found_issues: "مشکلات یافت شده ({{count}} مورد)",
   },
   
   // Not Found Page
@@ -682,17 +717,6 @@ export const fa = {
   
   // Logs Page
   logs_page: {
-    title: "گزارش تراکنش‌ها",
-    subtitle: "مشاهده زنده تراکنش‌های ثبت شده در قراردادهای هوشمند پلتفرم.",
-    governance_tab: "حاکمیت",
-    staking_tab: "سپرده‌گذاری",
-    finance_tab: "مالی",
-    governance_events: "تراکنش‌های حاکمیتی",
-    governance_events_desc: "گزارش‌های مربوط به تغییرات مدیریتی و مالکیتی قراردادها.",
-    staking_events: "تراکنش‌های سپرده‌گذاری و پاداش",
-    staking_events_desc: "گزارش تمام فعالیت‌های سپرده‌گذاری، برداشت و توزیع پاداش.",
-    finance_events: "تراکنش‌های مالی",
-    finance_events_desc: "گزارش‌های مربوط به عملیات خزانه و آزادسازی منابع مالی.",
     event_name: "رویداد",
     details: "جزئیات",
     action: "عملیات",
@@ -714,11 +738,30 @@ export const fa = {
     no_finance_logs: "هیچ گزارش مالی برای نمایش وجود ندارد.",
     error_title: "خطا در بارگذاری لاگ‌ها",
     date: "تاریخ",
-    // Function Names (from formatFunctionName)
     function_transfer: "انتقال",
     function_grant_role: "اعطای نقش",
     function_transfer_ownership: "انتقال مالکیت",
-    function_at_inversebrah: "در Inversebrah", // Assuming it's a specific label/user name if it appears in functionName
+    function_at_inversebrah: "در Inversebrah",
+    title: "گزارش فعالیت‌های سیستم",
+    subtitle: "رصد و پیگیری تمامی رویدادهای ثبت شده در قراردادهای هوشمند",
+    search_placeholder: "جستجو در توضیحات یا هش تراکنش...",
+    filter_placeholder: "فیلتر بر اساس نوع",
+    no_data: "هیچ رویدادی یافت نشد.",
+    governance_tab: "حکمرانی",
+    governance_events: "رویدادهای حاکمیتی",
+    governance_events_desc: "رأی‌گیری‌ها و پیشنهادات",
+    core_system: "هسته مرکزی DAO",
+    staking_tab: "استیکینگ",
+    staking_events: "رویدادهای استیکینگ",
+    staking_events_desc: "واریز و برداشت سهام‌داران",
+    staking_protocol: "پروتکل سهام‌گذاری",
+    finance_tab: "مالی",
+    finance_events: "رویدادهای مالی",
+    finance_events_desc: "تراکنش‌های خزانه و کارمزدها",
+    treasury_system: "مدیریت خزانه",
+    filter_proposal: "پروپوزال",
+    filter_vote: "رأی‌گیری",
+    filter_transfer: "انتقال وجه",
   },
 
   // Staking Page

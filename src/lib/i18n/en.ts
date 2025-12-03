@@ -43,6 +43,23 @@ export const en = {
     my_account: "My Account",
     profile: "Profile",
   },
+  page_titles:{
+      dashboard: "Main dashboard",
+      proposals: "Proposal list",
+      new_proposal: "Create new proposal",
+      proposal_details: "Proposal details",
+      staking: "Staking management",
+      treasury: "Smart treasury",
+      reports: "AI reports",
+      ai_report_detail: "Comprehensive project analysis",
+      analytics: "User behavior analytics",
+      contract_analyzer: "Smart contract diagnostics",
+      profile: "User profile",
+      logs: "System activity logs",
+      admin: "Management hub",
+      admin_settings: "System settings",
+      setup: "Infrastructure setup",
+  },
 
   // Sidebar
   sidebar: {
@@ -57,6 +74,13 @@ export const en = {
     treasury: "Treasury",
     staking: "Staking",
     ai_reports: "AI Reports",
+    group_core: "Core",
+    group_governance: "Governance & Voting",
+    group_intelligence: "AI & Analytics",
+    group_admin: "System Administration",
+    guest_mode: "Guest mode",
+    all_proposals: "All proposals",
+
   },
 
   // AuthGuard
