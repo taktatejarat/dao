@@ -46,7 +46,9 @@ export const tr = {
     select: "Seçin",
     file: "Dosya",
     next: "İleri",
-
+    fullscreen: "Tam ekran",
+    exit_fullscreen: "Tam ekrandan çık",
+    reset_zoom: "Yakınlaştırmayı sıfırla",
   },
 
   header: {
@@ -874,6 +876,17 @@ export const tr = {
     anomaly_status: "Anomali durumu",
     fetch_error: "Kullanıcı analiz raporu alınırken hata oluştu",
     invalid_address_error: "Lütfen geçerli bir cüzdan adresi girin",
+    graph_title: "Cüzdan bağlantıları grafiği",
+    status_inactive: "Pasif / Yeni",
+    status_bot_suspected: "Şüpheli davranış (bot)",
+    live_data: "Ağın canlı verileri",
+    showing_last_interactions: "{{count}} son işlemi göster",
+    target_wallet: "Hedef cüzdan",
+    connected_peers: "İlişkili adresler",
+    incoming_tx: "Gelen işlem (alma)",
+    outgoing_tx: "Giden işlem (gönderme)",
+    legend_title: "Grafik rehberi",
+    transaction_flow: "İşlem akışı",
   },
 
   reports_page: {
@@ -1053,6 +1066,7 @@ export const tr = {
     profile_saved: "Profil başarıyla kaydedildi.",
     change_role: "Rolü Değiştir",
     welcome_user: "Hoş geldiniz",
+    edit_profile: "Hesap profilini düzenle",
 
   },
 

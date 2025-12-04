@@ -46,7 +46,9 @@ export const de = {
     select: "Auswählen",
     file: "Datei",
     next: "Weiter",
-
+    fullscreen: "Vollbild",
+    exit_fullscreen: "Vollbild verlassen",
+    reset_zoom: "Zoom zurücksetzen",
   },
 
   header: {
@@ -874,6 +876,17 @@ export const de = {
     anomaly_status: "Anomalie Status",
     fetch_error: "Fehler beim Abrufen des Analyseberichts",
     invalid_address_error: "Bitte geben Sie eine gültige Wallet Adresse ein",
+    graph_title: "Wallet-Verbindungsdiagramm",
+    status_inactive: "Inaktiv / Neu",
+    status_bot_suspected: "Verdächtiges Verhalten (Bot)",
+    live_data: "Live-Netzwerkdaten",
+    showing_last_interactions: "Anzeige der letzten {{count}} Transaktionen",
+    target_wallet: "Ziel-Wallet",
+    connected_peers: "Verbundene Adressen",
+    incoming_tx: "Eingehende Transaktion (Empfang)",
+    outgoing_tx: "Ausgehende Transaktion (Versand)",
+    legend_title: "Grafiklegende",
+    transaction_flow: "Transaktionsfluss",
   },
 
   reports_page: {
@@ -911,6 +924,7 @@ export const de = {
     share: "Teilen",
     ai_audit_report: "KI-Bewertungsbericht des Vorschlags",
     data_analysis: "Datenauswertung",
+  
   },
 
   contract_analyzer_page: {
@@ -1053,6 +1067,7 @@ export const de = {
     profile_saved: "Profil erfolgreich gespeichert.",
     change_role: "Rolle ändern",
     welcome_user: "Willkommen",
+    edit_profile: "Profil bearbeiten",
 
   },
 

@@ -12,7 +12,7 @@ import { Button } from '@/components/ui/button';
 import { 
     Settings, ShieldCheck, Server, KeyRound, 
     Gem, Banknote, Edit, Bell, User as UserIcon,
-    History, Wallet, Crown
+    History, Wallet, Crown, ExternalLink, Inbox
 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -25,10 +25,10 @@ import { DaoLoadingSpinner } from '@/components/icons/dao-loading-spinner';
 import Link from 'next/link';
 import { StatCard } from '@/components/dashboard/stat-card';
 import { useLanguage } from '@/context/LanguageProvider';
-
-// ✅ Import Specialized Hooks
+import { useUserHistory } from '@/hooks/useUserHistory';
 import { NotificationSettings, useUserProfile } from '@/hooks/useUserProfile';
 import { useAdminProfile } from '@/hooks/useAdminProfile';
+import { Skeleton } from '@/components/ui/skeleton';
 
 // --- Sub-Component: Admin Config Panel ---
 const AdminConfigPanel = () => {
@@ -93,13 +93,19 @@ export default function ProfilePage() {
 
     // ✅ Using the new hooks
     const { profile, setProfile, balances, isLoading, isSaving, updateProfile, notifications, setNotifications } = useUserProfile();
-    const { isAdmin } = useAdminProfile(); // Just to check if we should render admin panel
-
+    const { isAdmin } = useAdminProfile();
+    const { history, isLoading: isHistoryLoading } = useUserHistory();
     const handleSave = async () => {
         const success = await updateProfile(profile);
         if (success) {
             // Toast is handled in hook, but you can add more logic here
         }
+    };
+    // تابع کمکی برای نمایش نوع رای
+    const getVoteBadge = (voteType: number) => {
+        // طبق قرارداد: 0 = For (موافق), 1 = Against (مخالف)
+        if (voteType === 0) return <Badge className="bg-green-100 text-green-700 hover:bg-green-200 border-green-200">{t('proposal_detail.vote_for')}</Badge>;
+        return <Badge className="bg-red-100 text-red-700 hover:bg-red-200 border-red-200">{t('proposal_detail.vote_against')}</Badge>;
     };
 
     // Static Data (Can be moved to a hook later)
@@ -210,34 +216,72 @@ export default function ProfilePage() {
                         {isAdmin && <AdminConfigPanel />}
                     </TabsContent>
                     
-                    {/* --- TAB 2: HISTORY --- */}
-                    <TabsContent value="history" className="mt-6">
-                        <Card>
-                            <CardHeader><CardTitle className="text-start">{t('profile_page.voting_history')}</CardTitle></CardHeader>
-                            <CardContent>
-                                <Table>
-                                    <TableHeader>
-                                        <TableRow>
-                                            <TableHead className="text-start">{t('profile_page.proposal_id')}</TableHead>
-                                            <TableHead className="text-start">{t('profile_page.proposal_title')}</TableHead>
-                                            <TableHead className="text-start">{t('profile_page.your_vote')}</TableHead>
-                                            <TableHead className="text-start">{t('profile_page.date')}</TableHead>
-                                        </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                        {votingHistory.map(item => (
-                                            <TableRow key={item.id}>
-                                                <TableCell className="font-mono text-muted-foreground text-start">{item.proposalId}</TableCell>
-                                                <TableCell className="font-medium text-start">{t(item.titleKey)}</TableCell>
-                                                <TableCell className="text-start"><Badge variant={item.voteKey.includes('positive') ? 'success' : 'destructive'}>{t(item.voteKey)}</Badge></TableCell>
-                                                <TableCell className="text-start">{formatLocaleDate(item.date, locale)}</TableCell>
+                {/* --- TAB 2: HISTORY (REAL DATA) --- */}
+                <TabsContent value="history" className="mt-6">
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="text-start">{t('profile_page.voting_history')}</CardTitle>
+                            <CardDescription className="text-start">{t('profile_page.voting_history_desc')}</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            {isHistoryLoading ? (
+                                <div className="space-y-4">
+                                    {[1, 2, 3].map(i => <Skeleton key={i} className="h-12 w-full" />)}
+                                </div>
+                            ) : history.length === 0 ? (
+                                <div className="flex flex-col items-center justify-center py-12 text-muted-foreground bg-muted/20 rounded-lg border border-dashed">
+                                    <Inbox className="w-12 h-12 mb-4 opacity-50" />
+                                    <p>{t('logs_page.no_data')}</p>
+                                </div>
+                            ) : (
+                                <div className="rounded-md border">
+                                    <Table>
+                                        <TableHeader>
+                                            <TableRow>
+                                                <TableHead className="text-start w-[150px]">{t('profile_page.proposal_id')}</TableHead>
+                                                <TableHead className="text-start">{t('profile_page.your_vote')}</TableHead>
+                                                <TableHead className="text-start">{t('profile_page.date')}</TableHead>
+                                                <TableHead className="text-end">{t('common.view_tx')}</TableHead>
                                             </TableRow>
-                                        ))}
-                                    </TableBody>
-                                </Table>
-                            </CardContent>
-                        </Card>
-                    </TabsContent>
+                                        </TableHeader>
+                                        <TableBody>
+                                            {history.map(item => (
+                                                <TableRow key={item.id}>
+                                                    <TableCell className="font-mono text-muted-foreground text-start">
+                                                        <Link href={`/proposals/${item.proposalId}`} className="hover:text-primary hover:underline transition-colors">
+                                                            #{item.proposalId}
+                                                        </Link>
+                                                    </TableCell>
+                                                    <TableCell className="text-start">
+                                                        {getVoteBadge(item.voteType)}
+                                                    </TableCell>
+                                                    <TableCell className="text-start">
+                                                        <div className="flex flex-col">
+                                                            <span className="text-sm font-medium">{formatLocaleDate(new Date(item.date * 1000), locale)}</span>
+                                                            <span className="text-xs text-muted-foreground">Block: {item.blockNumber}</span>
+                                                        </div>
+                                                    </TableCell>
+                                                    <TableCell className="text-end">
+                                                        <Button variant="ghost" size="icon" asChild>
+                                                            <a 
+                                                                href={`https://amoy.polygonscan.com/tx/${item.id}`} 
+                                                                target="_blank" 
+                                                                rel="noopener noreferrer"
+                                                                className="text-muted-foreground hover:text-primary"
+                                                            >
+                                                                <ExternalLink className="w-4 h-4" />
+                                                            </a>
+                                                        </Button>
+                                                    </TableCell>
+                                                </TableRow>
+                                            ))}
+                                        </TableBody>
+                                    </Table>
+                                </div>
+                            )}
+                        </CardContent>
+                    </Card>
+                </TabsContent>
                     
                     {/* --- TAB 3: SETTINGS --- */}
                     <TabsContent value="settings" className="mt-6">

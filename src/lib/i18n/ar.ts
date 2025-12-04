@@ -46,7 +46,9 @@ export const ar = {
     select: "اختر",
     file: "ملف",
     next: "التالي",
-
+    fullscreen: "وضع ملء الشاشة",
+    exit_fullscreen: "الخروج من وضع ملء الشاشة",
+    reset_zoom: "إعادة تعيين التكبير",
   },
 
   header: {
@@ -883,6 +885,17 @@ export const ar = {
     report_title: "تقرير التحليل السلوكي",
     report_desc: "عرض نتائج التحليل للمستخدم صاحب العنوان ...{address}",
     invalid_address_error: "يرجى إدخال عنوان محفظة صالح",
+    graph_title: "رسم بياني لارتباطات المحفظة",
+    status_inactive: "غير فعال / جديد",
+    status_bot_suspected: "سلوك مشبوه (روبوت)",
+    live_data: "بيانات الشبكة الحية",
+    showing_last_interactions: "عرض {{count}} معاملة أخيرة",
+    target_wallet: "المحفظة المستهدفة",
+    connected_peers: "العناوين المرتبطة",
+    incoming_tx: "معاملة واردة (استلام)",
+    outgoing_tx: "معاملة صادرة (إرسال)",
+    legend_title: "دليل الرسم البياني",
+    transaction_flow: "تدفق المعاملات",
   },
 
   reports_page: {
@@ -1062,7 +1075,8 @@ export const ar = {
     profile_saved: "تم حفظ الملف الشخصي بنجاح.",
     change_role: "تغيير الدور",
     welcome_user: "أهلاً وسهلاً",
-
+    edit_profile: "تعديل الحساب الشخصي",
+    
   },
 
   // ==============================================================================

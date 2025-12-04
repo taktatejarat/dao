@@ -1,27 +1,43 @@
-// src/app/analytics/page.tsx - USER PROFILE 360
+// src/app/analytics/page.tsx - FINAL CORRECTED WITH PRO GRAPH
 
 "use client";
 
 import { useState, useCallback } from 'react';
 import { AppLayout } from '@/components/layout/app-layout';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/hooks/use-translation';
 import { DaoLoadingSpinner } from '@/components/icons/dao-loading-spinner';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertTriangle, UserCheck, Search, Activity, ShieldAlert, Fingerprint } from 'lucide-react';
+import { AlertTriangle, UserCheck, Search, Activity, ShieldAlert, Fingerprint, Share2 } from 'lucide-react';
 import { isAddress } from 'viem';
-import { StatCard } from '@/components/dashboard/stat-card'; // ✅ New Import
+import { StatCard } from '@/components/dashboard/stat-card';
+import { WalletNetworkGraph } from '@/components/analytics/wallet-network-graph'; // ✅ گراف جدید
 
 interface UserReport {
     trust_score: number;
     anomaly_detected: boolean;
     report_key: string;
+    graph_data: {
+        centralNode: string;
+        connections: any[];
+    };
+    stats: {
+        txCount: number;
+        balance: number;
+    }
 }
 
+// Helper for Type-Safe Translation
+const useSafeTranslation = () => {
+    const { t: originalT, locale } = useTranslation();
+    const t = (key: string, params?: any) => (originalT as any)(key, params);
+    return { t, locale };
+};
+
 export default function UserAnalyticsPage() {
-    const { t } = useTranslation();
+    const { t } = useSafeTranslation(); // ✅ استفاده از هوک اصلاح شده
     const [userAddress, setUserAddress] = useState('');
     const [report, setReport] = useState<UserReport | null>(null);
     const [isLoading, setIsLoading] = useState(false);
@@ -40,9 +56,9 @@ export default function UserAnalyticsPage() {
 
     return (
         <AppLayout>
-            <div className="space-y-8 pb-10 max-w-4xl mx-auto">
+            <div className="space-y-8 pb-10 max-w-6xl mx-auto">
                 <header className="text-center space-y-4 py-8">
-                    <div className="inline-flex p-4 rounded-full bg-primary/5 mb-2">
+                    <div className="inline-flex p-4 rounded-full bg-primary/5 mb-2 ring-1 ring-primary/20 animate-pulse">
                         <Fingerprint className="w-12 h-12 text-primary" />
                     </div>
                     <h1 className="text-4xl font-bold font-headline text-gradient">{t('analytics_page.title')}</h1>
@@ -50,7 +66,7 @@ export default function UserAnalyticsPage() {
                 </header>
 
                 {/* Search Box */}
-                <Card className="border-primary/20 shadow-lg">
+                <Card className="border-primary/20 shadow-lg bg-card/50 backdrop-blur">
                     <CardContent className="p-6">
                         <div className="flex flex-col sm:flex-row gap-4 items-center">
                             <div className="w-full relative">
@@ -60,7 +76,8 @@ export default function UserAnalyticsPage() {
                                     value={userAddress}
                                     onChange={(e) => setUserAddress(e.target.value)}
                                     disabled={isLoading}
-                                    className="pl-10 h-12 text-lg font-mono bg-muted/30"
+                                    className="pl-10 h-12 text-lg font-mono bg-muted/30 rtl:pr-10 rtl:pl-4 text-left" // text-left برای آدرس انگلیسی در RTL
+                                    dir="ltr"
                                 />
                             </div>
                             <Button 
@@ -85,6 +102,7 @@ export default function UserAnalyticsPage() {
                 {/* Results Section */}
                 {report && (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                        {/* Stats Cards */}
                         <StatCard
                             title={t('analytics_page.trust_score')}
                             value={`${report.trust_score}/100`}
@@ -95,16 +113,33 @@ export default function UserAnalyticsPage() {
                         <StatCard
                             title={t('analytics_page.anomaly_status')}
                             value={report.anomaly_detected ? t('analytics_page.status_detected') : t('analytics_page.status_clean')}
-                            description={t(report.report_key)}
+                            description={t(report.report_key)} // این کلید از API می‌آید و باید ترجمه شود
                             icon={report.anomaly_detected ? ShieldAlert : Activity}
                             variant={report.anomaly_detected ? 'negative' : 'positive'}
                         />
                         
-                        {/* Future: Add Graph Visualization Here */}
-                        <Card className="md:col-span-2 border-dashed bg-muted/10 opacity-70">
-                            <CardContent className="p-8 text-center text-muted-foreground">
-                                <p>{t('analytics_page.graph_coming_soon')}</p>
-                            </CardContent>
+                        {/* ✅ PRO GRAPH SECTION */}
+                        <Card className="md:col-span-2 border-primary/10 overflow-hidden shadow-xl">
+                            <div className="p-4 border-b bg-muted/20 flex justify-between items-center">
+                                <div className="flex items-center gap-2">
+                                    <Share2 className="w-5 h-5 text-primary" />
+                                    <h3 className="font-bold text-lg">{t('analytics_page.graph_title')}</h3>
+                                </div>
+                                <span className="text-xs text-muted-foreground bg-background px-2 py-1 rounded border animate-pulse">
+                                    {t('analytics_page.live_data')}
+                                </span>
+                            </div>
+                            
+                            <div className="p-0">
+                                <WalletNetworkGraph 
+                                    centralAddress={userAddress}
+                                    connections={report.graph_data.connections}
+                                />
+                            </div>
+                            
+                            <div className="p-2 text-center text-xs text-muted-foreground border-t bg-muted/10">
+                                {t('analytics_page.showing_last_interactions', { count: report.graph_data.connections.length })}
+                            </div>
                         </Card>
                     </div>
                 )}

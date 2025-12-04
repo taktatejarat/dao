@@ -46,7 +46,9 @@ export const en = {
     select: "Select",
     file: "File",
     next: "Next",
-
+    fullscreen: "Fullscreen",
+    exit_fullscreen: "Exit Fullscreen",
+    reset_zoom: "Reset Zoom",
   },
 
   header: {
@@ -882,6 +884,17 @@ export const en = {
     report_title: "Behavior analysis report",
     report_desc: "Displaying analysis results for the user with address ...{address}",
     invalid_address_error: "Please enter a valid wallet address",
+    graph_title: "Wallet Connection Graph",
+    status_inactive: "Inactive / New",
+    status_bot_suspected: "Suspicious Behavior (Bot)",
+    live_data: "Live Network Data",
+    showing_last_interactions: "Showing last {{count}} transactions",
+    target_wallet: "Target Wallet",
+    connected_peers: "Connected Addresses",
+    incoming_tx: "Incoming Transaction (Receive)",
+    outgoing_tx: "Outgoing Transaction (Send)",
+    legend_title: "Graph Legend",
+    transaction_flow: "Transaction Flow",
   },
 
   reports_page: {
@@ -1061,6 +1074,7 @@ export const en = {
     profile_saved: "Profile saved successfully.",
     change_role: "Change Role",
     welcome_user: "Welcome",
+    edit_profile: "Edit profile",
 
   },
 

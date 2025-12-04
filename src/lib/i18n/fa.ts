@@ -8,7 +8,7 @@ export const fa = {
   settings: "تنظیمات",
   logout: "خروج",
   save_settings: "ذخیره تنظیمات",
-  edit_profile: "ویرایش پروفایل",
+  edit_profile: "ویرایش حساب کاربری",
   view_details: "مشاهده جزئیات",
   risk_assessment: "ارزیابی ریسک",
   
@@ -46,6 +46,9 @@ export const fa = {
     select: "انتخاب کنید",
     file: "فایل",
     next: "بعدی",
+    fullscreen: "تمام صفحه",
+    exit_fullscreen: "خروج از تمام صفحه",
+    reset_zoom: "بازنشانی زوم",
   },
 
   header: {
@@ -53,7 +56,7 @@ export const fa = {
     toggle_theme: "تغییر تم",
     connect_wallet: "اتصال کیف پول",
     my_account: "حساب من",
-    profile: "پروفایل",
+    profile: "حساب کاربری",
   },
   footer: {
     terms: "قوانین و مقررات",
@@ -68,7 +71,7 @@ export const fa = {
     user_analytics: "تحلیل رفتار کاربران",
     contract_analyzer: "بهبود قرارداد هوشمند",
     platform_setup: "راه‌اندازی پلتفرم",
-    user_profile: "پروفایل کاربری",
+    user_profile: "حساب کاربری",
     activity_logs: "گزارش فعالیت‌ها",
     treasury: "خزانه داری",
     staking: "سپرده‌گذاری",
@@ -97,7 +100,7 @@ export const fa = {
     ai_report_detail: "تحلیل جامع پروژه",
     analytics: "تحلیل رفتار کاربران",
     contract_analyzer: "عیب‌یابی قرارداد هوشمند",
-    profile: "پروفایل کاربری",
+    profile: "حساب کاربری",
     logs: "گزارش فعالیت‌های سیستم",
     admin: "هاب مدیریتی",
     admin_settings: "تنظیمات سیستمی",
@@ -904,6 +907,17 @@ export const fa = {
     graph_coming_soon: "نمودار گراف تراکنش‌ها (به زودی)",
     invalid_address_error: "فرمت آدرس کیف پول نامعتبر است.",
     found_issues: "مشکلات یافت شده ({{count}} مورد)",
+    graph_title: "گراف ارتباطات کیف پول",
+    status_inactive: "غیرفعال / جدید",
+    status_bot_suspected: "رفتار مشکوک (ربات)",
+    live_data: "داده‌های زنده شبکه",
+    showing_last_interactions: "نمایش {{count}} تراکنش اخیر",
+    target_wallet: "کیف پول هدف",
+    connected_peers: "آدرس‌های مرتبط",
+    incoming_tx: "تراکنش ورودی (دریافت)",
+    outgoing_tx: "تراکنش خروجی (ارسال)",
+    legend_title: "راهنمای گراف",
+    transaction_flow: "جریان تراکنش",
   },
 
   reports_page: {
@@ -1010,7 +1024,7 @@ export const fa = {
       positive_amount: "مبلغ سرمایه درخواستی با استانداردهای موفقیت در این صنعت همخوانی دارد.",
       positive_exp: "تجربه تیم اجرایی، شانس موفقیت پروژه را به طور قابل توجهی افزایش داده است.",
       positive_milestones: "تعداد و ساختار مراحل آزادسازی سرمایه (Milestones) بهینه‌سازی شده است.",
-      high_score: "پروفایل کلی پروژه از نظر آماری شباهت زیادی به استارتاپ‌های موفق دارد.",
+      high_score: "حساب کاربری کلی پروژه از نظر آماری شباهت زیادی به استارتاپ‌های موفق دارد.",
     },
     weakness: {
       inexperienced_team: "تجربه تیم اجرایی کمتر از حد مطلوب است.",
@@ -1034,10 +1048,10 @@ export const fa = {
   },
 
   // ==============================================================================
-  // 7. USER PROFILE (پروفایل کاربری)
+  // 7. USER PROFILE (حساب کاربری)
   // ==============================================================================
   profile_page: {
-    title: "پروفایل کاربری",
+    title: "حساب کاربری",
     subtitle: "اطلاعات حساب، فعالیت‌ها و تنظیمات خود را مدیریت کنید.",
     overview: "نمای کلی",
     activity_history: "تاریخچه فعالیت",
@@ -1084,9 +1098,10 @@ export const fa = {
     ownership_transfer_initiated_desc: "تراکنش ارسال شد: {hash}. لطفاً منتظر تأیید بمانید.",
     error_title: "خطا",
     error_desc: "ارسال تراکنش با شکست مواجه شد.",
-    profile_saved: "پروفایل با موفقیت ذخیره شد.",
+    profile_saved: "حساب کاربری با موفقیت ذخیره شد.",
     change_role: "تغییر نقش",
     welcome_user: "خوش آمدید",
+    edit_profile: "ویرایش حساب کاربری"
   },
 
   // ==============================================================================

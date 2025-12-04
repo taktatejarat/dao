@@ -46,7 +46,9 @@ export const ru = {
     select: "Выберите",
     file: "Файл",
     next: "Далее",
-
+    fullscreen: "Полноэкранный режим",
+    exit_fullscreen: "Выход из полноэкранного режима",
+    reset_zoom: "Сброс масштаба",
   },
 
   header: {
@@ -884,6 +886,17 @@ export const ru = {
     anomaly_status: "Статус аномалии",
     fetch_error: "Ошибка при получении аналитического отчёта пользователя",
     invalid_address_error: "Пожалуйста введите корректный адрес кошелька",
+    graph_title: "Граф связей кошелька",
+    status_inactive: "Неактивен / Новый",
+    status_bot_suspected: "Подозрительное поведение (бот)",
+    live_data: "Данные сети в реальном времени",
+    showing_last_interactions: "Показ последних {{count}} транзакций",
+    target_wallet: "Целевой кошелек",
+    connected_peers: "Связанные адреса",
+    incoming_tx: "Входящая транзакция (получение)",
+    outgoing_tx: "Исходящая транзакция (отправка)",
+    legend_title: "Легенда графа",
+    transaction_flow: "Поток транзакций",
   },
 
   reports_page: {
@@ -1063,6 +1076,7 @@ export const ru = {
     profile_saved: "Профиль успешно сохранен.",
     change_role: "Изменить роль",
     welcome_user: "Добро пожаловать",
+    edit_profile: "Редактировать профиль",
 
   },
 
