@@ -37,6 +37,16 @@ export const tr = {
     generated_footer: "RayanChain yapay zeka motoru tarafından oluşturulmuştur | Bu rapor kesin bir finansal teklif değildir.",
     rayan_chain_vc: "RayanChain yatırım platformu",
     comming_soon: "Yakında",
+    all: "Tüm öğeler",
+    view_tx: "İşlemi görüntüle",
+    ai_powered: "Yapay zeka",
+    risk: "Risk",
+    step_counter: "{{current}} / {{total}} adım",
+    file_too_large: "Dosya boyutu izin verilen sınırı aşıyor (maksimum {{max}})",
+    select: "Seçin",
+    file: "Dosya",
+    next: "İleri",
+
   },
 
   header: {
@@ -575,6 +585,11 @@ export const tr = {
     financials_doc: "Finansal Projeksiyonlar (PDF, XLSX)",
     legal_doc: "Yasal Belgeler (İsteğe Bağlı)",
     off_chain_note: "Tam açıklama, zincir dışı bir veritabanında güvenli bir şekilde saklanır ve yalnızca karması blok zincirine kaydedilir.",
+    file_limits_title: "Dosya Sınırları",
+    file_limits_desc: "Her dosyanın maksimum boyutu 20 MB'dir. En fazla 5 ek dosya yükleyebilirsiniz.",
+    additional_files: "Ek dosyalar (isteğe bağlı)",
+    add_more_files: "Başka dosya ekle",
+    max_files_reached: "İzin verilen maksimum dosya sayısına ulaşıldı.",
 
     // Options
     industries: {
@@ -1037,6 +1052,8 @@ export const tr = {
     error_desc: "İşlem gönderilemedi.",
     profile_saved: "Profil başarıyla kaydedildi.",
     change_role: "Rolü Değiştir",
+    welcome_user: "Hoş geldiniz",
+
   },
 
   // ==============================================================================
@@ -1210,6 +1227,25 @@ export const tr = {
     error_already_voted: "Bu teklif için daha önce oy kullandınız.",
     error_user_rejected: "İşlem kullanıcı tarafından iptal edildi.",
     error_generic: "Bilinmeyen bir hata oluştu.",
+  },
+  terms_page: {
+    title: "Kullanım şartları ve kuralları",
+    legal_binding_title: "Yasal olarak bağlayıcı sözleşme",
+    legal_binding_desc: "Bu platformu kullanmak aşağıdaki tüm koşulların kabulü ve bunların blokzincirde dijital olarak imzalanması anlamına gelir.",
+    section_1_title: "Giriş ve tanımlar",
+    section_1_text: "Bu platform blokzincir üzerinde çalışan merkeziyetsiz özerk bir organizasyondur (DAO). Tüm kararlar işlemler ve faaliyetler şeffaf ve değiştirilemez şekilde kaydedilir. Cüzdanı bağlayarak bu ekosistemin bir üyesi olduğunuzu kabul etmiş olursunuz.",
+    section_2_title: "Kullanıcı sorumlulukları",
+    section_2_text: "Özel anahtarınızın ve cüzdan kurtarma ifadelerinizin güvenliğinden siz sorumlusunuz. Platform kullanıcı ihmali veya kişisel cüzdanın hacklenmesi nedeniyle oluşan varlık kayıplarından sorumlu değildir.",
+    section_3_title: "Yatırım riskleri",
+    section_3_text: "Startuplara ve kripto projelerine yatırım yüksek risk taşır. Platformun yapay zekası yalnızca analiz aracıdır ve kâr garantisi vermez. Kullanıcılar yatırım yapmadan önce araştırma yapmalı ve riskleri bilmelidir.",
+    section_4_title: "Gizlilik ve veriler",
+    section_4_text: "Gizliliğinizi korumayı taahhüt ediyoruz. Kimlik bilgileriniz (kimlik doğrulaması yapılmışsa) şifreli bir şekilde saklanır. Cüzdan adresiniz ve işlemleriniz blokzincirin doğası gereği herkese açıktır.",
+    section_5_title: "Yönetişim ve oylama",
+    section_5_text: "Platform kararları token sahiplerinin oylamasıyla kolektif biçimde alınır. Kurallar gelecekte topluluğun çoğunluk oyu ile değiştirilebilir.",
+    accept_checkbox: "Yukarıdaki tüm kuralları dikkatlice okudum ve kabul ediyorum.",
+    sign_and_continue: "Dijital imza ve giriş",
+    accepted_success: "Sözleşmeniz blokzincir ve sunucuda başarıyla kaydedildi.",
+    sign_error: "İmza işleminde hata oluştu. Lütfen cüzdan bağlantısını kontrol edip tekrar deneyin.",
   },
 
   numbers: {

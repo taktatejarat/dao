@@ -224,8 +224,18 @@ export default function NewProposalPage() {
                                 </Button>
                             )}
                         </div>
-
-                        {!isFormValid && <Alert variant="default" className="mt-4"><AlertTriangle className="h-4 w-4" /><AlertTitle>{t('new_proposal_page.form_incomplete_title')}</AlertTitle><AlertDescription>{t('new_proposal_page.form_incomplete_tooltip')}</AlertDescription></Alert>}
+                        {/* هشدار فرم ناقص با رنگ نارنجی (Warning Style) */}
+                        {!isFormValid && isConnected && (
+                            <Alert className="mt-6 border-amber-500/50 bg-amber-500/10 text-amber-700 dark:text-amber-400">
+                                <AlertTriangle className="h-4 w-4 text-amber-700 dark:text-amber-400" />
+                                <AlertTitle className="font-bold">
+                                    {t('new_proposal_page.form_incomplete_title')}
+                                </AlertTitle>
+                                <AlertDescription className="opacity-90">
+                                    {t('new_proposal_page.form_incomplete_tooltip')}
+                                </AlertDescription>
+                            </Alert>
+                        )}
                     </div>
                 );
             default: return null;

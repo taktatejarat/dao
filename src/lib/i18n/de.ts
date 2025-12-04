@@ -36,7 +36,17 @@ export const de = {
     page: "Seite",
     generated_footer: "Erstellt durch die RayanChain KI-Engine | Dieser Bericht stellt kein endgültiges Finanzangebot dar.",
     rayan_chain_vc: "RayanChain Investmentplattform",
-    comming_soon: "Demnächst", // Typo in original key preserved
+    comming_soon: "Demnächst",
+    all: "Alle Elemente",
+    view_tx: "Transaktion ansehen",
+    ai_powered: "Künstliche Intelligenz",
+    risk: "Risiko",
+    step_counter: "Schritt {{current}} von {{total}}",
+    file_too_large: "Dateigröße überschreitet das zulässige Limit (Maximum {{max}})",
+    select: "Auswählen",
+    file: "Datei",
+    next: "Weiter",
+
   },
 
   header: {
@@ -574,6 +584,11 @@ export const de = {
     financials_doc: "Finanzprognosen (PDF, XLSX)",
     legal_doc: "Rechtliche Dokumente (Optional)",
     off_chain_note: "Die vollständige Beschreibung wird sicher in einer Off-Chain-Datenbank gespeichert, und nur ihr Hash wird in der Blockchain aufgezeichnet.",
+    file_limits_title: "Dateibeschränkungen",
+    file_limits_desc: "Die maximale Größe jeder Datei beträgt 20 MB. Sie können bis zu 5 zusätzliche Dateien anhängen.",
+    additional_files: "Zusätzliche Dateien (optional)",
+    add_more_files: "Weitere Datei hinzufügen",
+    max_files_reached: "Maximale Anzahl erlaubter Dateien erreicht.",
 
     // Options
       industries: {
@@ -1037,6 +1052,8 @@ export const de = {
     error_desc: "Transaktion konnte nicht gesendet werden.",
     profile_saved: "Profil erfolgreich gespeichert.",
     change_role: "Rolle ändern",
+    welcome_user: "Willkommen",
+
   },
 
   // ==============================================================================
@@ -1209,6 +1226,25 @@ export const de = {
     error_already_voted: "Sie haben bereits für diesen Vorschlag abgestimmt.",
     error_user_rejected: "Die Transaktion wurde vom Benutzer abgebrochen.",
     error_generic: "Ein unbekannter Fehler ist aufgetreten.",
+  },
+  terms_page: {
+    title: "Nutzungsbedingungen und Richtlinien",
+    legal_binding_title: "Rechtlich bindende Vereinbarung",
+    legal_binding_desc: "Die Nutzung dieser Plattform bedeutet die Zustimmung zu allen folgenden Bedingungen und deren digitale Signatur auf der Blockchain.",
+    section_1_title: "Einleitung und Definitionen",
+    section_1_text: "Diese Plattform ist eine dezentralisierte autonome Organisation (DAO), die auf der Blockchain betrieben wird. Alle Entscheidungen Transaktionen und Aktivitäten werden transparent und unveränderlich aufgezeichnet. Durch das Verbinden Ihrer Wallet akzeptieren Sie die Teilnahme an diesem Ökosystem.",
+    section_2_title: "Verantwortung der Nutzer",
+    section_2_text: "Sie sind für die Sicherheit Ihres privaten Schlüssels und Ihrer Wiederherstellungsphrasen verantwortlich. Die Plattform haftet nicht für Vermögensverluste aufgrund von Fahrlässigkeit oder Hacks der persönlichen Wallet.",
+    section_3_title: "Investitionsrisiken",
+    section_3_text: "Investitionen in Startups und Krypto Projekte beinhalten hohe Risiken. Die KI der Plattform dient nur als Analysewerkzeug und garantiert keinen Gewinn. Nutzer sollten erst nach gründlicher Recherche investieren.",
+    section_4_title: "Datenschutz und Daten",
+    section_4_text: "Wir verpflichten uns Ihre Privatsphäre zu schützen. Ihre Identitätsdaten werden im Falle einer Verifizierung verschlüsselt gespeichert. Ihre Wallet Adresse und Transaktionen sind aufgrund der Blockchain Natur öffentlich.",
+    section_5_title: "Governance und Abstimmung",
+    section_5_text: "Entscheidungen werden gemeinschaftlich durch Abstimmungen der Token Inhaber getroffen. Regeln können zukünftig durch Mehrheitsentscheid geändert werden.",
+    accept_checkbox: "Ich habe alle oben genannten Regeln sorgfältig gelesen und akzeptiere sie.",
+    sign_and_continue: "Digitale Signatur und Eintritt",
+    accepted_success: "Ihre Vereinbarung wurde erfolgreich in der Blockchain und auf dem Server gespeichert.",
+    sign_error: "Fehler beim Signieren. Bitte überprüfen Sie die Wallet Verbindung und versuchen Sie es erneut.",
   },
 
   numbers: {

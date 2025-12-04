@@ -1,100 +1,105 @@
+// src/components/auth/auth-guard.tsx
+
 "use client";
 
+import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { useWeb3 } from '@/context/Web3Provider';
-import { useEffect } from 'react';
 import { useAccount } from 'wagmi';
+import { useWeb3 } from '@/context/Web3Provider';
 import { DaoLoadingSpinner } from '@/components/icons/dao-loading-spinner';
 import { useTranslation } from '@/hooks/use-translation';
 
 export function AuthGuard({ children }: { children: React.ReactNode }) {
-    // ✅ Step 1: Replace contractAddress with registryAddress
-    const { userRole, isRoleLoading, registryAddress, isHydrated } = useWeb3();
-    const { status, isConnecting, isReconnecting } = useAccount();
-    const router = useRouter();
-    const pathname = usePathname();
-    const { t } = useTranslation();
-    
-    // The loading state correctly depends on wagmi's connection status and our context's hydration
-    const isLoading = isConnecting || isReconnecting || isRoleLoading || !isHydrated;
-    const isConnected = status === 'connected';
+  const { isConnected, isConnecting, isReconnecting } = useAccount();
+  const { userRole, isRoleLoading, registryAddress, isHydrated } = useWeb3();
+  const router = useRouter();
+  const pathname = usePathname();
+  const { t } = useTranslation();
+  
+  const [isAuthorized, setIsAuthorized] = useState(false);
 
-    // Define page types once
-    const isPublicPage = pathname === '/landing';
-    const isSetupPage = pathname === '/setup';
-    const isRoleSelectionPage = pathname === '/role-selection';
+  // وضعیت لودینگ اولیه (شامل چک کردن وضعیت اتصال و هیدراتاسیون کانتکست)
+  const isGlobalLoading = isConnecting || isReconnecting || isRoleLoading || !isHydrated;
 
-    useEffect(() => {
-        // Don't perform any redirects until all initial state is loaded
-        if (isLoading) {
-            return;
+  useEffect(() => {
+    // 1. تا زمانی که وضعیت کلی مشخص نشده، کاری نکن (نمایش اسپینر)
+    if (isGlobalLoading) return;
+
+    // --- لیست صفحات عمومی (Public Routes) ---
+    // این صفحات نیاز به هیچ شرطی ندارند و همیشه در دسترس هستند
+    const publicPaths = ['/landing', '/guide', '/privacy', '/terms'];
+    const isPublicPage = publicPaths.some(path => pathname.startsWith(path));
+
+    // 2. اگر کاربر متصل نیست
+    if (!isConnected) {
+        if (isPublicPage) {
+            setIsAuthorized(true); // اجازه دسترسی به صفحات عمومی
+        } else {
+            router.push('/landing'); // ریدایرکت به لندینگ برای صفحات خصوصی
         }
+        return;
+    }
 
-        // --- Rule 1: Not Connected ---
-        // If the user is not connected, they must be on the public landing page.
-        if (!isConnected) {
-            if (!isPublicPage) {
-                router.push('/landing');
-            }
-            return;
-        }
-        
-        // --- From here, we know the user is connected ---
+    // --- از اینجا به بعد کاربر متصل است (Connected) ---
 
-        // ✅ Step 2: Check for registryAddress to see if the platform is deployed.
-        // --- Rule 2: Platform Not Deployed ---
-        // If connected, but no registry contract is found, force the user to the setup page.
-        if (!registryAddress && !isSetupPage) {
+    // 3. چک کردن وضعیت استقرار پلتفرم (Setup Check)
+    // اگر رجیستری ست نشده باشد، یعنی پلتفرم هنوز بالا نیامده (فقط برای ادمین اول)
+    if (!registryAddress) {
+        if (pathname !== '/setup') {
             router.push('/setup');
+        } else {
+            setIsAuthorized(true);
+        }
+        return;
+    }
+
+    // 4. چک کردن امضای قوانین (Terms Acceptance)
+    // این مقدار در TermsPage پس از امضا در لوکال استوریج ست می‌شود
+    const hasAcceptedTerms = typeof window !== 'undefined' ? localStorage.getItem('termsAccepted') : null;
+    
+    if (!hasAcceptedTerms) {
+        // اگر هنوز قوانین را امضا نکرده، فقط اجازه دارد در صفحه Terms یا صفحات عمومی باشد
+        if (pathname !== '/terms' && !isPublicPage) {
+            router.push('/terms');
             return;
         }
-        
-        // --- From here, we know the platform is deployed (registry exists) ---
+    }
 
-        // ✅ Step 3: Use registryAddress as the condition for subsequent logic.
-        if (registryAddress) {
-            // --- Rule 3: No Role Selected ---
-            // If the platform is deployed but the user hasn't selected a role, force them to the role selection page.
-            if (!userRole && !isRoleSelectionPage) {
-                router.push('/role-selection');
-            }
-            // --- Rule 4: Role Selected, but on a Public/Auth Page ---
-            // If the user has a role, they should be in the app. Redirect them from public/auth pages to the dashboard.
-            // BUT: Allow them to stay on setup page if they want to reset or redeploy
-            else if (userRole && !isSetupPage && (isPublicPage || pathname === '/')) {router.push('/dashboard');
-            }
+    // 5. چک کردن نقش کاربر (Role Check)
+    // اگر نقش ندارد (و قوانین را پذیرفته)، باید نقش انتخاب کند
+    if (!userRole && hasAcceptedTerms) {
+        if (pathname !== '/role-selection' && !isPublicPage) {
+            router.push('/role-selection');
+            return;
         }
-
-    }, [isConnected, userRole, isLoading, pathname, router, registryAddress]);
-
-    // --- Render Logic ---
-    const isAuthPage = pathname === '/role-selection' || pathname === '/setup';
-
-    // During the initial loading phase, always show a full-screen spinner.
-    if (isLoading) {
-       return (
-           <div className="flex flex-col items-center justify-center min-h-screen bg-background">
-               <DaoLoadingSpinner className="w-16 h-16 mb-4" />
-               <p className="text-muted-foreground">{t('auth_guard.loading')}</p>
-           </div>
-       );
-    }
-    
-    // Allow access to public pages (if not connected) or auth pages (if connected but not fully set up).
-    if (isPublicPage || (isConnected && isAuthPage)) {
-        return <>{children}</>;
     }
 
-    // If the user is fully authenticated (connected + has a role), show the protected content.
-    if (isConnected && userRole) {
-        return <>{children}</>;
+    // 6. مدیریت ورود کاربران لاگین شده (Redirect Loop Prevention)
+    // اگر کاربر همه مراحل (کانکت، قوانین، نقش) را طی کرده اما می‌خواهد به لندینگ یا انتخاب نقش برود
+    // او را به داشبورد هدایت می‌کنیم (مگر اینکه در صفحه ستاپ باشد)
+    const isAuthFlowPage = ['/landing', '/role-selection', '/terms'].includes(pathname);
+    if (userRole && hasAcceptedTerms && isAuthFlowPage && pathname !== '/setup') {
+        router.push('/dashboard');
+        return;
     }
 
-    // This fallback spinner handles edge cases during state transitions, ensuring no blank screens appear.
-    return (
-        <div className="flex flex-col items-center justify-center min-h-screen bg-background">
-            <DaoLoadingSpinner className="w-16 h-16 mb-4" />
-            <p className="text-muted-foreground">{t('auth_guard.loading')}</p>
-        </div>
-    );
+    // 7. نهایتاً اجازه دسترسی
+    setIsAuthorized(true);
+
+  }, [isGlobalLoading, isConnected, registryAddress, userRole, pathname, router]);
+
+  // --- Render Logic ---
+
+  if (isGlobalLoading || !isAuthorized) {
+      return (
+          <div className="flex flex-col items-center justify-center min-h-screen bg-background animate-in fade-in duration-500">
+              <DaoLoadingSpinner className="w-16 h-16 mb-4 text-primary" />
+              <p className="text-muted-foreground font-medium animate-pulse">
+                  {t('auth_guard.loading')}
+              </p>
+          </div>
+      );
+  }
+
+  return <>{children}</>;
 }
