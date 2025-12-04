@@ -846,6 +846,14 @@ export const ar = {
     public_view_desc: "هذا عرض عام للخزانة. يمكن للمسؤولين فقط سحب الأموال.",
     native_token: "العملة الأصلية",
     withdraw_funds_desc_admin: "كمسؤول، يمكنك سحب الأموال (العملة الأصلية أو رموز RYC) من الخزانة إلى أي عنوان محفظة محدد.",
+    treasury_reserves: "الاحتياطيات التشغيلية للخزانة",
+    total_value_locked: "إجمالي القيمة المقفلة (TVL)",
+    users_staked_funds: "الأصول المجمّدة من قبل المستخدمين",
+    sales_revenue: "إيرادات بيع التوكن",
+    revenue_from_token_sales: "الـ MATIC المُجمّع في عقد التوكن",
+    circulating_supply: "العرض المتداول",
+    total_supply: "إجمالي عرض التوكن",
+    native_available: "{{amount}} {{symbol}} متاح",
   },
 
   // ==============================================================================

@@ -1,4 +1,4 @@
-// src/app/treasury/page.tsx - FINAL CORRECTED I18N & BUTTONS
+// src/app/treasury/page.tsx - FINAL POLISHED VERSION
 
 "use client";
 
@@ -8,30 +8,30 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { Banknote, Gem, ArrowRight, Wallet, Info } from 'lucide-react';
+import { Banknote, Gem, ArrowRight, Wallet, Info, Lock, TrendingUp, CircleDollarSign, PieChart } from 'lucide-react';
 import { useTranslation } from '@/hooks/use-translation';
 import { useWeb3 } from '@/context/Web3Provider';
-import { useReadContract } from 'wagmi';
+import { useReadContracts, useBalance } from 'wagmi';
 import { formatEther } from 'viem';
 import { formatNumber } from '@/lib/utils';
 import { DaoLoadingSpinner } from '@/components/icons/dao-loading-spinner';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { daoRegistryAbi } from '@/lib/blockchain/generated';
+import { daoRegistryAbi, rayanChainTokenAbi } from '@/lib/blockchain/generated';
 import { REGISTRY_KEYS } from '@/lib/blockchain/registry-keys';
 import { useTreasury } from '@/hooks/useTreasury';
 import type { Address } from 'viem';
 import { StatCard } from '@/components/dashboard/stat-card';
 
-// --- Helper to fix Type Error (Expected 3 arguments) ---
+// --- Helper for Type-Safe Translation ---
 const useSafeTranslation = () => {
     const { t: originalT, locale } = useTranslation();
-    // تبدیل تابع ترجمه برای سازگاری با تایپ‌اسکریپت
-    const t = (key: string) => (originalT as any)(key);
+    const t = (key: string, params?: any) => (originalT as any)(key, params);
     return { t, locale };
 };
 
+// --- Admin Actions Component ---
 const AdminTreasuryActions = ({ financeAddress, tokenAddress }: { financeAddress?: Address; tokenAddress?: Address }) => {
-    const { t } = useSafeTranslation(); // ✅ استفاده از هوک اصلاح شده
+    const { t } = useSafeTranslation();
     const {
         depositAmount, setDepositAmount,
         withdrawRycAmount, setWithdrawRycAmount,
@@ -44,52 +44,59 @@ const AdminTreasuryActions = ({ financeAddress, tokenAddress }: { financeAddress
     const nativeSymbol = nativeTreasuryBalance?.symbol ?? t('treasury_page.native_token');
 
     return (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 animate-in fade-in slide-in-from-bottom-4 duration-700 mt-8">
             {/* Fund Treasury */}
-            <Card className="flex flex-col border-primary/20 bg-primary/5">
+            <Card className="flex flex-col border-primary/20 bg-primary/5 shadow-lg">
                 <CardHeader>
-                    <CardTitle className="text-primary flex items-center gap-2"><Wallet className="w-5 h-5"/> {t('treasury_page.fund_treasury_title')}</CardTitle>
-                    <CardDescription>{t('treasury_page.fund_treasury_desc')}</CardDescription>
+                    <CardTitle className="text-primary flex items-center gap-2 text-xl"><Wallet className="w-6 h-6"/> {t('treasury_page.fund_treasury_title')}</CardTitle>
+                    <CardDescription className="text-base">{t('treasury_page.fund_treasury_desc')}</CardDescription>
                 </CardHeader>
-                <CardContent className="flex-1 flex flex-col justify-end gap-4">
-                   <div className="flex items-center gap-2">
-                       <Input id="deposit-ryc-amount" type="number" className="bg-background h-12 text-lg" value={depositAmount} onChange={(e) => setDepositAmount(e.target.value)} placeholder="0.0" />
-                       <Button className="h-12 px-6" disabled={isActionPending || isDepositDisabled} onClick={handleDeposit}>
-                            {isActionPending ? <DaoLoadingSpinner /> : <ArrowRight className="me-2"/>} {t('treasury_page.fund_button')}
+                <CardContent className="flex-1 flex flex-col justify-end gap-6">
+                   <div className="flex items-center gap-3">
+                       <Input 
+                            id="deposit-ryc-amount" 
+                            type="number" 
+                            className="bg-background h-12 text-lg font-mono" 
+                            value={depositAmount} 
+                            onChange={(e) => setDepositAmount(e.target.value)} 
+                            placeholder="0.0" 
+                       />
+                       <Button className="h-12 px-8 text-lg" disabled={isActionPending || isDepositDisabled} onClick={handleDeposit}>
+                            {isActionPending ? <DaoLoadingSpinner /> : <ArrowRight className="me-2 w-5 h-5"/>} {t('treasury_page.fund_button')}
                        </Button>
                     </div>
                 </CardContent>
             </Card>
 
             {/* Withdraw Funds */}
-            <Card>
+            <Card className="shadow-lg">
                 <CardHeader>
-                    <CardTitle className="flex items-center gap-2"><Banknote className="w-5 h-5"/> {t('treasury_page.withdraw_funds')}</CardTitle>
-                    <CardDescription>{t('treasury_page.withdraw_funds_desc_admin')}</CardDescription>
+                    <CardTitle className="flex items-center gap-2 text-destructive text-xl"><Banknote className="w-6 h-6"/> {t('treasury_page.withdraw_funds')}</CardTitle>
+                    <CardDescription className="text-base">{t('treasury_page.withdraw_funds_desc_admin')}</CardDescription>
                 </CardHeader>
                 <CardContent className="grid gap-6">
-                    <div className="space-y-2">
-                        <Label>{t('treasury_page.withdraw_ryc')}</Label>
-                        <div className="flex gap-2">
-                            <Input type="number" placeholder="0.0" value={withdrawRycAmount} onChange={(e) => setWithdrawRycAmount(e.target.value)} />
-                            <Button variant="outline" disabled={isActionPending || isWithdrawRycDisabled} onClick={handleWithdrawRyc}>
+                    <div className="space-y-3">
+                        <Label className="text-base">{t('treasury_page.withdraw_ryc')}</Label>
+                        <div className="flex gap-3">
+                            <Input type="number" placeholder="0.0" className="h-12 text-lg font-mono" value={withdrawRycAmount} onChange={(e) => setWithdrawRycAmount(e.target.value)} />
+                            <Button variant="outline" className="h-12 px-6" disabled={isActionPending || isWithdrawRycDisabled} onClick={handleWithdrawRyc}>
                                 {isActionPending ? <DaoLoadingSpinner /> : (
                                     <>
-                                        <Banknote className="me-2 h-4 w-4"/> 
+                                        <Banknote className="me-2 h-4 w-4" />
                                         {t('treasury_page.withdraw')} RYC
                                     </>
                                 )}
                             </Button>
                         </div>
                     </div>
-                     <div className="space-y-2">
-                        <Label>{t('treasury_page.withdraw_native')} ({nativeSymbol})</Label>
-                        <div className="flex gap-2">
-                            <Input type="number" placeholder="0.0" value={withdrawNativeAmount} onChange={(e) => setWithdrawNativeAmount(e.target.value)} />
-                            <Button variant="outline" disabled={isActionPending || isWithdrawNativeDisabled} onClick={handleWithdrawNative}>
+                     <div className="space-y-3">
+                        <Label className="text-base">{t('treasury_page.withdraw_native')} ({nativeSymbol})</Label>
+                        <div className="flex gap-3">
+                            <Input type="number" placeholder="0.0" className="h-12 text-lg font-mono" value={withdrawNativeAmount} onChange={(e) => setWithdrawNativeAmount(e.target.value)} />
+                            <Button variant="outline" className="h-12 px-6" disabled={isActionPending || isWithdrawNativeDisabled} onClick={handleWithdrawNative}>
                                 {isActionPending ? <DaoLoadingSpinner /> : (
                                     <>
-                                        <Gem className="me-2 h-4 w-4"/>
+                                        <Gem className="me-2 h-4 w-4" />
                                         {t('treasury_page.withdraw')} {nativeSymbol}
                                     </>
                                 )}
@@ -103,58 +110,146 @@ const AdminTreasuryActions = ({ financeAddress, tokenAddress }: { financeAddress
 };
 
 export default function TreasuryPage() {
-    const { t, locale } = useSafeTranslation(); // ✅ استفاده از هوک اصلاح شده
+    const { t, locale } = useSafeTranslation();
     const { userRole, registryAddress, isHydrated } = useWeb3();
 
-    const { data: financeAddressResult, isLoading: isFinanceAddrLoading } = useReadContract({
-        address: registryAddress as Address, abi: daoRegistryAbi, functionName: 'getAddress', args: [REGISTRY_KEYS.FINANCE], query: { enabled: !!registryAddress && isHydrated }
+    // 1. دریافت آدرس قراردادها
+    const { data: addresses, isLoading: isAddrLoading } = useReadContracts({
+        contracts: [
+            { address: registryAddress as Address, abi: daoRegistryAbi, functionName: 'getAddress', args: [REGISTRY_KEYS.FINANCE] },
+            { address: registryAddress as Address, abi: daoRegistryAbi, functionName: 'getAddress', args: [REGISTRY_KEYS.TOKEN] },
+            { address: registryAddress as Address, abi: daoRegistryAbi, functionName: 'getAddress', args: [REGISTRY_KEYS.STAKING] },
+        ],
+        query: { enabled: !!registryAddress && isHydrated }
     });
-    const { data: tokenAddressResult, isLoading: isTokenAddrLoading } = useReadContract({
-        address: registryAddress as Address, abi: daoRegistryAbi, functionName: 'getAddress', args: [REGISTRY_KEYS.TOKEN], query: { enabled: !!registryAddress && isHydrated }
-    });
-    const financeAddress = financeAddressResult as Address | undefined;
-    const tokenAddress = tokenAddressResult as Address | undefined;
-    
-    const { rycTreasuryBalance, nativeTreasuryBalance } = useTreasury({ financeAddress, tokenAddress });
 
-    const isLoading = isFinanceAddrLoading || isTokenAddrLoading || (!!financeAddress && (rycTreasuryBalance === undefined || nativeTreasuryBalance === undefined));
-    const nativeSymbol = nativeTreasuryBalance?.symbol ?? t('treasury_page.native_token');
+    const financeAddress = addresses?.[0].result as Address;
+    const tokenAddress = addresses?.[1].result as Address;
+    const stakingAddress = addresses?.[2].result as Address;
+
+    // 2. دریافت موجودی‌ها
+    const { data: balances, isLoading: isBalLoading } = useReadContracts({
+        contracts: [
+            { address: tokenAddress, abi: rayanChainTokenAbi, functionName: 'balanceOf', args: [financeAddress!] },
+            { address: tokenAddress, abi: rayanChainTokenAbi, functionName: 'balanceOf', args: [stakingAddress!] },
+            { address: tokenAddress, abi: rayanChainTokenAbi, functionName: 'totalSupply' },
+        ],
+        query: { enabled: !!financeAddress && !!tokenAddress && !!stakingAddress, refetchInterval: 10000 }
+    });
+
+    // 3. دریافت موجودی Native
+    const { data: tokenNativeBal } = useBalance({ address: tokenAddress });
+    const { data: financeNativeBal } = useBalance({ address: financeAddress });
+
+    const isLoading = isAddrLoading || isBalLoading;
+
+    // استخراج اعداد
+    const treasuryRyc = balances?.[0].result as bigint ?? 0n;
+    const stakedRyc = balances?.[1].result as bigint ?? 0n;
+    const totalSupply = balances?.[2].result as bigint ?? 0n;
+    const salesRevenue = tokenNativeBal?.value ?? 0n;
+    const treasuryNative = financeNativeBal?.value ?? 0n;
+    
+    const circulating = totalSupply - (treasuryRyc + stakedRyc);
+    const nativeSymbol = financeNativeBal?.symbol || 'ETH';
 
     return (
         <AppLayout>
             <header className="mb-10 flex flex-col md:flex-row justify-between items-start md:items-center">
                 <div>
-                    <h1 className="text-3xl font-bold font-headline text-gradient">{t('treasury_page.title')}</h1>
-                    <p className="text-muted-foreground">{t('treasury_page.subtitle')}</p>
+                    <h1 className="text-4xl font-bold font-headline text-gradient">{t('treasury_page.title')}</h1>
+                    <p className="text-lg text-muted-foreground mt-2">{t('treasury_page.subtitle')}</p>
                 </div>
             </header>
             
-            <div className="grid gap-6 grid-cols-1 md:grid-cols-2 mb-10">
+            {/* Section 1: Protocol Health Stats */}
+            <div className="grid gap-6 grid-cols-1 md:grid-cols-3 mb-10">
+                
+                {/* 1. Treasury Reserve */}
                 <StatCard 
-                    title={t('treasury_page.ryc_token_balance')} 
-                    value={`${formatNumber(formatEther(rycTreasuryBalance ?? BigInt(0)), locale)} RYC`} 
+                    title={t('treasury_page.treasury_reserves')} 
+                    value={`${formatNumber(formatEther(treasuryRyc), locale)} RYC`} 
                     icon={Banknote} 
-                    description={t('treasury_page.assets_in_treasury')} 
+                    // ✅ FIX: Translated dynamic string
+                    description={t('treasury_page.native_available', { 
+                        amount: formatNumber(formatEther(treasuryNative), locale),
+                        symbol: nativeSymbol
+                    })}
                     variant="default"
                     isLoading={isLoading} 
                 />
+
+                {/* 2. Staked Value (TVL) */}
                 <StatCard 
-                    title={t('treasury_page.native_token_balance')} 
-                    value={`${formatNumber(nativeTreasuryBalance?.formatted ?? '0', locale)} ${nativeSymbol}`} 
-                    icon={Gem} 
-                    description={t('treasury_page.gas_reserves')} 
+                    title={t('treasury_page.total_value_locked')} 
+                    value={`${formatNumber(formatEther(stakedRyc), locale)} RYC`} 
+                    icon={Lock} 
+                    description={t('treasury_page.users_staked_funds')} 
+                    variant="positive" 
+                    isLoading={isLoading} 
+                />
+
+                {/* 3. Sales Revenue */}
+                <StatCard 
+                    title={t('treasury_page.sales_revenue')} 
+                    value={`${formatNumber(formatEther(salesRevenue), locale)} ${nativeSymbol}`} 
+                    icon={TrendingUp} 
+                    description={t('treasury_page.revenue_from_token_sales')} 
                     variant="neutral"
                     isLoading={isLoading} 
                 />
             </div>
 
+            {/* ✅ Section 2: Circulating Supply Banner (Redesigned) */}
+            <Card className="mb-8 overflow-hidden border-none bg-gradient-to-r from-muted/50 to-background shadow-md">
+                <CardContent className="p-0">
+                    <div className="flex flex-col md:flex-row items-stretch">
+                        
+                        {/* Left Side: Circulating */}
+                        <div className="flex-1 p-8 flex items-center gap-6 border-b md:border-b-0 md:border-e border-border/50">
+                            <div className="p-4 rounded-full bg-primary/10 text-primary">
+                                <CircleDollarSign className="w-8 h-8" />
+                            </div>
+                            <div>
+                                <h3 className="text-base font-medium text-muted-foreground mb-1">{t('treasury_page.circulating_supply')}</h3>
+                                {isLoading ? (
+                                    <div className="h-8 w-32 bg-muted animate-pulse rounded" />
+                                ) : (
+                                    <div className="text-3xl font-bold tracking-tight text-foreground">
+                                        {formatNumber(formatEther(circulating), locale)} <span className="text-sm font-sans text-muted-foreground">RYC</span>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Right Side: Total Supply */}
+                        <div className="flex-1 p-8 flex items-center gap-6 bg-muted/20">
+                            <div className="p-4 rounded-full bg-secondary/10 text-secondary-foreground">
+                                <PieChart className="w-8 h-8" />
+                            </div>
+                            <div>
+                                <h3 className="text-base font-medium text-muted-foreground mb-1">{t('treasury_page.total_supply')}</h3>
+                                {isLoading ? (
+                                    <div className="h-8 w-32 bg-muted animate-pulse rounded" />
+                                ) : (
+                                    <div className="text-3xl font-bold tracking-tight text-foreground/80">
+                                        {formatNumber(formatEther(totalSupply), locale)} <span className="text-sm font-sans text-muted-foreground">RYC</span>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                    </div>
+                </CardContent>
+            </Card>
+
             {userRole === 'admin' ? (
                 <AdminTreasuryActions financeAddress={financeAddress} tokenAddress={tokenAddress} />
             ) : (
                 <Alert className="mb-8 border-blue-500/20 bg-blue-500/5">
-                    <Info className="h-4 w-4 text-blue-500" />
-                    <AlertTitle className="text-blue-500">{t('treasury_page.public_view_title')}</AlertTitle>
-                    <AlertDescription>{t('treasury_page.public_view_desc')}</AlertDescription>
+                    <Info className="h-5 w-5 text-blue-500" />
+                    <AlertTitle className="text-blue-500 font-semibold text-lg">{t('treasury_page.public_view_title')}</AlertTitle>
+                    <AlertDescription className="text-base mt-1">{t('treasury_page.public_view_desc')}</AlertDescription>
                 </Alert>
             )}
         </AppLayout>

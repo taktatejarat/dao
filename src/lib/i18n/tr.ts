@@ -837,6 +837,14 @@ export const tr = {
     public_view_desc: "Bu, hazinenin genel bir görünümüdür. Yalnızca yöneticiler fon çekebilir.",
     native_token: "Yerel Para Birimi",
     withdraw_funds_desc_admin: "Bir yönetici olarak, hazineden herhangi bir belirtilen cüzdan adresine fon (yerel para birimi veya RYC tokenları) çekebilirsiniz.",
+    treasury_reserves: "Hazine operasyon rezervleri",
+    total_value_locked: "Toplam kilitli değer (TVL)",
+    users_staked_funds: "Kullanıcıların stake ettiği varlıklar",
+    sales_revenue: "Token satış geliri",
+    revenue_from_token_sales: "Token sözleşmesinde toplanan MATIC",
+    circulating_supply: "Dolaşımdaki arz",
+    total_supply: "Toplam token arzı",
+    native_available: "{{amount}} {{symbol}} mevcut",
   },
 
   // ==============================================================================

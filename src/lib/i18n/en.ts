@@ -845,6 +845,14 @@ export const en = {
     public_view_desc: "This is a public view of the treasury. Only admins can withdraw funds.",
     native_token: "Native Currency",
     withdraw_funds_desc_admin: "As an admin, you can withdraw funds (native currency or RYC tokens) from the treasury to any specified wallet address.",
+    treasury_reserves: "Treasury Operational Reserves",
+    total_value_locked: "Total Value Locked (TVL)",
+    users_staked_funds: "Users' Staked Funds",
+    sales_revenue: "Token Sales Revenue",
+    revenue_from_token_sales: "MATIC Collected in Token Contract",
+    circulating_supply: "Circulating Supply",
+    total_supply: "Total Token Supply",
+    native_available: "{{amount}} {{symbol}} available",
   },
 
   // ==============================================================================

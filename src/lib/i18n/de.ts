@@ -837,6 +837,14 @@ export const de = {
     public_view_desc: "Dies ist eine öffentliche Ansicht der Schatzkammer. Nur Administratoren können Gelder abheben.",
     native_token: "Native Währung",
     withdraw_funds_desc_admin: "Als Administrator können Sie Gelder (native Währung oder RYC-Token) aus der Schatzkammer an eine beliebige angegebene Wallet-Adresse abheben.",
+    treasury_reserves: "Operative Treasury-Reserven",
+    total_value_locked: "Gesamtwert gesperrt (TVL)",
+    users_staked_funds: "Von Nutzern gestakte Vermögenswerte",
+    sales_revenue: "Einnahmen aus Token-Verkäufen",
+    revenue_from_token_sales: "Im Token-Vertrag gesammelte MATIC",
+    circulating_supply: "Umlaufangebot",
+    total_supply: "Gesamtangebot des Tokens",
+    native_available: "{{amount}} {{symbol}} verfügbar",
   },
 
   // ==============================================================================

@@ -1,72 +1,59 @@
-import { clsx, type ClassValue } from "clsx"
-import { twMerge } from "tailwind-merge"
-import type { Locale } from "@/context/LanguageProvider";
+// src/lib/utils.ts
+
+import { type ClassValue, clsx } from "clsx";
+import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
+  return twMerge(clsx(inputs));
 }
 
-const PERSIAN_DIGITS = "۰۱۲۳۴۵۶۷۸۹";
-const ARABIC_DIGITS = "٠١٢٣٤٥٦٧٨٩";
-
+// ✅ اصلاح شده: تبدیل هوشمند اعداد بر اساس زبان (Persian/Arabic/Latin)
 export function formatNumber(
-  value: number | string | bigint,
-  locale: Locale = 'en',
+  value: number | string | bigint, 
+  locale: string = 'en', 
   options?: Intl.NumberFormatOptions
 ): string {
-    const numericValue = Number(value);
-    
-    if (isNaN(numericValue)) {
-        return String(value);
-    }
-    
-    const defaultOptions: Intl.NumberFormatOptions = {
-        maximumFractionDigits: 4,
-        ...options,
-    };
-    
-    const formatter = new Intl.NumberFormat(locale, defaultOptions);
-    let formattedValue = formatter.format(numericValue);
+  if (value === undefined || value === null) return '0';
 
-    if (locale === 'fa') {
-        formattedValue = formattedValue.replace(/[0-9]/g, (d) => PERSIAN_DIGITS[parseInt(d, 10)]);
-    } else if (locale === 'ar') {
-        formattedValue = formattedValue.replace(/[0-9]/g, (d) => ARABIC_DIGITS[parseInt(d, 10)]);
-    }
+  const num = Number(value);
 
-    return formattedValue;
+  // تنظیمات پیش‌فرض (حداکثر ۲ رقم اعشار)
+  const defaultOptions: Intl.NumberFormatOptions = {
+    maximumFractionDigits: 2,
+    minimumFractionDigits: 0,
+    ...options
+  };
+
+  // ۱. ابتدا عدد را با فرمت استاندارد انگلیسی (سه رقم سه رقم) تولید می‌کنیم
+  // این کار باعث می‌شود جداکننده هزارگان (,) همیشه درست باشد
+  let formatted = new Intl.NumberFormat('en-US', defaultOptions).format(num);
+
+  // ۲. اگر زبان فارسی بود، ارقام را جایگزین کن
+  if (locale === 'fa') {
+    const persianDigits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
+    return formatted.replace(/\d/g, (d) => persianDigits[parseInt(d)]);
+  }
+
+  // ۳. اگر زبان عربی بود، ارقام عربی شرقی را جایگزین کن
+  if (locale === 'ar') {
+    const arabicDigits = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+    return formatted.replace(/\d/g, (d) => arabicDigits[parseInt(d)]);
+  }
+
+  // ۴. برای سایر زبان‌ها (انگلیسی، آلمانی و...) همان لاتین می‌ماند
+  return formatted;
 }
 
-export function formatLocaleDate(
-    date: Date,
-    locale: Locale,
-    options: Intl.DateTimeFormatOptions = {}
-): string {
-    let effectiveLocale = locale;
-    let calendar: 'persian' | 'islamic-umalqura' | 'gregory' | undefined;
+export function formatAddress(address: string | undefined): string {
+  if (!address) return '';
+  return `${address.slice(0, 6)}...${address.slice(-4)}`;
+}
 
-    if (locale === 'fa') {
-        calendar = 'persian';
-        effectiveLocale = 'fa-IR' as Locale;
-    } else if (locale === 'ar') {
-        calendar = 'islamic-umalqura';
-        effectiveLocale = 'ar-SA' as Locale;
-    }
-
-    const finalOptions: Intl.DateTimeFormatOptions = {
-        ...options
-    };
-    
-    if (calendar) {
-        finalOptions.calendar = calendar;
-    }
-    
-    return new Intl.DateTimeFormat(effectiveLocale, finalOptions).format(date);
-  }
-
-export function formatAddress(address?: string): string {
-    if (!address || typeof address !== 'string' || !address.startsWith('0x')) {
-      return '';
-    }
-    return `${address.substring(0, 6)}...${address.substring(address.length - 4)}`;
-  }
+export function formatLocaleDate(date: Date, locale: string = 'en', options?: Intl.DateTimeFormatOptions): string {
+  // برای تاریخ شمسی (fa) و میلادی (en)
+  return new Intl.DateTimeFormat(locale === 'fa' ? 'fa-IR' : locale === 'ar' ? 'ar-SA' : 'en-US', {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+    ...options
+  }).format(date);
+}

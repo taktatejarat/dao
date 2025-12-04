@@ -863,6 +863,14 @@ export const fa = {
     public_view_desc: "این یک نمای عمومی از خزانه است. تنها مدیران می‌توانند وجوه را برداشت کنند.",
     native_token: "ارز اصلی",
     withdraw_funds_desc_admin: "به عنوان ادمین، می‌توانید وجوه (ارز اصلی یا توکن RYC) را از خزانه به هر آدرس کیف پول مشخصی برداشت کنید.",
+    treasury_reserves: "ذخایر عملیاتی خزانه",
+    total_value_locked: "ارزش کل قفل شده (TVL)",
+    users_staked_funds: "دارایی استیک شده کاربران",
+    sales_revenue: "درآمد فروش توکن",
+    revenue_from_token_sales: "MATIC جمع‌آوری شده در قرارداد توکن",
+    circulating_supply: "عرضه در گردش",
+    total_supply: "کل عرضه توکن",
+    native_available: "{{amount}} {{symbol}} موجود",
   },
 
   // ==============================================================================
