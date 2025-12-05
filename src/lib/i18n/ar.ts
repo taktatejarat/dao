@@ -451,6 +451,12 @@ export const ar = {
       verifying: "جارٍ التحقق من الهوية الآمنة...",
       debugger_desc: "فحص حالة اتصال العقود وعناوين السجل.",
       inspect: "فحص تقني",
+      system_active_desc: "النظام يعمل بكامل طاقته التشغيلية. جميع المعاملات والتصويتات والعقود نشطة.",
+      emergency_switch: "إيقاف طارئ",
+      pause_processing: "يتم إيقاف النظام...",
+      unpause_processing: "يتم إعادة تفعيل النظام...",
+      pause_success: "تم إيقاف النظام بنجاح.",
+      unpause_success: "تم تفعيل النظام بنجاح.",
 
     },
   },

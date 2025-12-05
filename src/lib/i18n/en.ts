@@ -451,6 +451,12 @@ export const en = {
       verifying: "Verifying secure identity...",
       debugger_desc: "Inspect the connection status of contracts and registry addresses.",
       inspect: "Technical inspection",
+      system_active_desc: "The system is fully operational. All transactions, voting processes, and contracts are active.",
+      emergency_switch: "Emergency stop",
+      pause_processing: "System is pausing...",
+      unpause_processing: "System is resuming...",
+      pause_success: "System successfully paused.",
+      unpause_success: "System successfully reactivated.",
 
     },
   },

@@ -452,6 +452,12 @@ export const tr = {
       verifying: "Güvenli kimlik doğrulama sürüyor...",
       debugger_desc: "Sözleşme bağlantılarının ve kayıt adreslerinin durumunu inceleme.",
       inspect: "Teknik inceleme",
+      system_active_desc: "Sistem tam operasyonel modda çalışmaktadır. Tüm işlemler, oylamalar ve sözleşmeler aktiftir.",
+      emergency_switch: "Acil durdurma",
+      pause_processing: "Sistem durduruluyor...",
+      unpause_processing: "Sistem yeniden etkinleştiriliyor...",
+      pause_success: "Sistem başarıyla durduruldu.",
+      unpause_success: "Sistem başarıyla yeniden etkinleştirildi.",
 
     },
   },

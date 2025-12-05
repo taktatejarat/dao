@@ -19,7 +19,12 @@ const Switch = React.forwardRef<
   >
     <SwitchPrimitives.Thumb
       className={cn(
-        "pointer-events-none block h-5 w-5 rounded-full bg-background shadow-lg ring-0 transition-transform data-[state=checked]:translate-x-5 data-[state=unchecked]:translate-x-0"
+        "pointer-events-none block h-5 w-5 rounded-full bg-background shadow-lg ring-0 transition-transform",
+        // ✅ FIX: اصلاح جهت حرکت برای RTL و LTR
+        // در حالت عادی (LTR) از translateX استفاده می‌کند
+        "data-[state=checked]:translate-x-5 data-[state=unchecked]:translate-x-0",
+        // در حالت RTL باید جهت معکوس شود (یا از منطق CSS منطقی استفاده کنیم)
+        "rtl:data-[state=checked]:-translate-x-5 rtl:data-[state=unchecked]:translate-x-0"
       )}
     />
   </SwitchPrimitives.Root>

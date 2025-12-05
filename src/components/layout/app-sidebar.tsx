@@ -92,8 +92,6 @@ export function AppSidebar() {
         label: t('sidebar.group_admin'),
         items: [
           { title: t('sidebar.treasury'), url: "/treasury", icon: ShieldCheck, roles: ['admin'] },
-          { title: t('sidebar.contract_analyzer'), url: "/contract-analyzer", icon: Wrench, roles: ['admin'] },
-          { title: t('sidebar.activity_logs'), url: "/logs", icon: ScrollText, roles: ['admin'] },
         ]
       }
     ];

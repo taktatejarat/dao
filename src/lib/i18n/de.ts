@@ -451,6 +451,12 @@ export const de = {
           verifying: "Sichere Identitätsprüfung läuft...",
           debugger_desc: "Überprüfung des Verbindungsstatus von Verträgen und Registry-Adressen.",
           inspect: "Technische Analyse",
+          system_active_desc: "Das System befindet sich im vollständigen Betriebsmodus. Alle Transaktionen, Abstimmungen und Verträge sind aktiv.",
+          emergency_switch: "Notstopp",
+          pause_processing: "System wird angehalten...",
+          unpause_processing: "System wird wieder aktiviert...",
+          pause_success: "System wurde erfolgreich angehalten.",
+          unpause_success: "System wurde erfolgreich aktiviert.",
 
       },
   },
