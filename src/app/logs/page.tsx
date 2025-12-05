@@ -1,43 +1,48 @@
-// src/app/logs/page.tsx - FINAL ACTIVITY EXPLORER DESIGN
+// src/app/logs/page.tsx - FINAL FIXED (I18N + USER DETECTION)
 
 "use client";
 
 import { useState, useMemo } from 'react';
 import { AppLayout } from '@/components/layout/app-layout';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useAccount, useReadContract } from 'wagmi';
-import { type Address } from 'viem';
+import { useReadContract } from 'wagmi';
+import { type Address, formatEther } from 'viem';
 import { useTranslation } from '@/hooks/use-translation';
-import { formatLocaleDate } from "@/lib/utils";
+import { formatLocaleDate, formatAddress, formatNumber } from "@/lib/utils";
 import { 
     Activity, Search, Filter, ExternalLink, 
-    ShieldCheck, Layers, Banknote, Clock, 
-    CheckCircle, AlertTriangle
+    ShieldCheck, Layers, Banknote, Clock
 } from 'lucide-react';
 import { useWeb3 } from '@/context/Web3Provider';
 import { useQuery } from '@tanstack/react-query';
 import { daoRegistryAbi } from '@/lib/blockchain/generated';
 import { REGISTRY_KEYS } from '@/lib/blockchain/registry-keys';
 import { DaoLoadingSpinner } from '@/components/icons/dao-loading-spinner';
-import { StatCard } from '@/components/dashboard/stat-card'; // ✅ New Import
+import { StatCard } from '@/components/dashboard/stat-card';
 
 // نوع داده‌ها
 type DaoEvent = {
     eventName: string;
-    description: string;
     blockNumber: string;
     timeStamp: string;
     transactionHash: string;
     args: any;
 };
 
+// --- Helper to Fix Type Error ---
+const useSafeTranslation = () => {
+    const { t: originalT, locale } = useTranslation();
+    const t = (key: string, params?: any) => (originalT as any)(key, params);
+    return { t, locale };
+};
+
 // کامپوننت لیست رویدادها
 const EventList = ({ contractAddress, contractName, filter }: { contractAddress: Address; contractName: string; filter: string }) => {
-    const { t, locale } = useTranslation();
+    const { t, locale } = useSafeTranslation();
     const [searchTerm, setSearchTerm] = useState('');
 
     const { data: response, isLoading, error } = useQuery<{ success: boolean; result: DaoEvent[] }>({
@@ -45,35 +50,91 @@ const EventList = ({ contractAddress, contractName, filter }: { contractAddress:
         queryFn: async () => {
             const params = new URLSearchParams({ contractAddress, contractName });
             const res = await fetch(`/api/events?${params.toString()}`, { cache: 'no-store' });
-            if (!res.ok) throw new Error('Failed to fetch events.');
+            if (!res.ok) throw new Error(t('logs_page.fetch_error'));
             return res.json();
         },
         enabled: !!contractAddress, 
     });
 
-    const events = useMemo(() => {
+    // پردازش و ترجمه رویدادها
+    const processedEvents = useMemo(() => {
         if (!response?.result) return [];
-        let filtered = response.result;
 
-        // فیلتر متنی
+        return response.result.map(event => {
+            const args = event.args || {};
+            let description = '';
+            let userAddress = '';
+
+            // منطق تشخیص کاربر و ساخت توضیحات ترجمه شده
+            switch (event.eventName) {
+                case 'ProposalCreated':
+                    userAddress = args.proposer;
+                    description = t('activities.proposal_created', { id: args.id?.toString() });
+                    break;
+                case 'Voted':
+                    userAddress = args.voter;
+                    const voteText = args.vote === 0 ? t('proposal_detail.vote_for') : t('proposal_detail.vote_against');
+                    description = t('activities.voted', { id: args.proposalId?.toString(), vote: voteText });
+                    break;
+                case 'Staked':
+                    userAddress = args.user;
+                    description = t('activities.staked', { amount: formatNumber(formatEther(args.amount || 0n), locale) });
+                    break;
+                case 'Unstaked':
+                    userAddress = args.user;
+                    description = t('activities.unstaked', { amount: formatNumber(formatEther(args.amount || 0n), locale) });
+                    break;
+                case 'RewardClaimed':
+                    userAddress = args.user;
+                    description = t('activities.reward_claimed', { amount: formatNumber(formatEther(args.reward || 0n), locale) });
+                    break;
+                case 'InvestmentReceived':
+                    userAddress = args.investor;
+                    description = t('activities.invested', { amount: formatNumber(formatEther(args.amount || 0n), locale), id: args.proposalId?.toString() });
+                    break;
+                case 'ProposalStateChanged':
+                    // این رویداد سیستمی است
+                    const states = ['Pending', 'Validation', 'Voting', 'Approved', 'Rejected', 'Executed', 'Expired', 'Cancelled', 'Funding', 'Funded', 'Failed'];
+                    const stateName = states[Number(args.newState)] || 'Unknown';
+                    description = t('activities.state_changed', { id: args.id?.toString(), state: stateName });
+                    break;
+                default:
+                    userAddress = args.user || args.from || args.account;
+                    description = t('activities.unknown_action') + ` (${event.eventName})`;
+            }
+
+            return {
+                ...event,
+                processedDescription: description,
+                userDisplay: userAddress ? formatAddress(userAddress) : t('activities.system')
+            };
+        });
+    }, [response, t, locale]);
+
+    // اعمال فیلترها
+    const filteredEvents = useMemo(() => {
+        let filtered = processedEvents;
+
         if (searchTerm) {
+            const lowerTerm = searchTerm.toLowerCase();
             filtered = filtered.filter(e => 
-                e.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                e.transactionHash.toLowerCase().includes(searchTerm.toLowerCase())
+                e.processedDescription.toLowerCase().includes(lowerTerm) ||
+                e.transactionHash.toLowerCase().includes(lowerTerm) ||
+                e.userDisplay.toLowerCase().includes(lowerTerm)
             );
         }
 
-        // فیلتر نوع رویداد (ساده‌سازی شده)
         if (filter !== 'all') {
-            filtered = filtered.filter(e => e.eventName.toLowerCase().includes(filter));
+            const lowerFilter = filter.toLowerCase();
+            filtered = filtered.filter(e => e.eventName.toLowerCase().includes(lowerFilter));
         }
 
         return filtered;
-    }, [response, searchTerm, filter]);
+    }, [processedEvents, searchTerm, filter]);
 
     if (isLoading) return <div className="flex justify-center p-12"><DaoLoadingSpinner /></div>;
     if (error) return <div className="text-destructive text-center p-8">{(error as Error).message}</div>;
-    if (events.length === 0) return <div className="text-muted-foreground text-center p-12 bg-muted/20 rounded-xl border border-dashed">{t('logs_page.no_data')}</div>;
+    if (filteredEvents.length === 0) return <div className="text-muted-foreground text-center p-12 bg-muted/20 rounded-xl border border-dashed">{t('logs_page.no_data')}</div>;
 
     return (
         <div className="space-y-4">
@@ -87,30 +148,34 @@ const EventList = ({ contractAddress, contractName, filter }: { contractAddress:
                 />
             </div>
 
-            <div className="space-y-4">
-                {events.map((event, idx) => (
+            <div className="space-y-3">
+                {filteredEvents.map((event, idx) => (
                     <Card key={`${event.transactionHash}-${idx}`} className="group hover:shadow-md transition-all duration-300 border-l-4 border-l-primary/50">
                         <CardContent className="p-4 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
                             <div className="flex items-start gap-4">
-                                <div className="p-2 rounded-full bg-primary/10 mt-1 sm:mt-0">
-                                    <Activity className="h-5 w-5 text-primary" />
+                                <div className="p-2 rounded-full bg-primary/10 mt-1 sm:mt-0 text-primary">
+                                    <Activity className="h-5 w-5" />
                                 </div>
                                 <div>
                                     <div className="flex items-center gap-2 mb-1">
-                                        <Badge variant="outline" className="font-mono text-xs">{event.eventName}</Badge>
+                                        <Badge variant="outline" className="font-mono text-xs bg-muted/50">
+                                            {event.userDisplay}
+                                        </Badge>
                                         <span className="text-xs text-muted-foreground flex items-center gap-1">
                                             <Clock className="h-3 w-3" />
                                             {formatLocaleDate(new Date(Number(event.timeStamp) * 1000), locale)}
                                         </span>
                                     </div>
-                                    <p className="text-sm font-medium leading-relaxed text-foreground/90">{event.description}</p>
+                                    <p className="text-sm font-medium leading-relaxed text-foreground/90">
+                                        {event.processedDescription}
+                                    </p>
                                 </div>
                             </div>
                             
-                            <Button variant="ghost" size="sm" asChild className="shrink-0 opacity-50 group-hover:opacity-100 transition-opacity">
+                            <Button variant="ghost" size="sm" asChild className="shrink-0 opacity-70 group-hover:opacity-100 transition-opacity hover:text-primary">
                                 <a href={`https://amoy.polygonscan.com/tx/${event.transactionHash}`} target="_blank" rel="noopener noreferrer" className="gap-2">
                                     <span className="hidden sm:inline text-xs">{t('common.view_tx')}</span>
-                                    <ExternalLink className="h-4 w-4" />
+                                    <ExternalLink className="h-4 w-4 rtl:rotate-180" />
                                 </a>
                             </Button>
                         </CardContent>
@@ -122,15 +187,15 @@ const EventList = ({ contractAddress, contractName, filter }: { contractAddress:
 };
 
 export default function LogsPage() {
-    const { t } = useTranslation();
+    const { t } = useSafeTranslation();
     const { registryAddress } = useWeb3();
     const [activeTab, setActiveTab] = useState<'governance' | 'staking' | 'finance'>('governance');
     const [eventTypeFilter, setEventTypeFilter] = useState('all');
 
     // خواندن آدرس‌ها
-    const { data: daoAddress } = useReadContract({ address: registryAddress, abi: daoRegistryAbi, functionName: 'getAddress', args: [REGISTRY_KEYS.DAO] });
-    const { data: stakingAddress } = useReadContract({ address: registryAddress, abi: daoRegistryAbi, functionName: 'getAddress', args: [REGISTRY_KEYS.STAKING] });
-    const { data: financeAddress } = useReadContract({ address: registryAddress, abi: daoRegistryAbi, functionName: 'getAddress', args: [REGISTRY_KEYS.FINANCE] });
+    const { data: daoAddress } = useReadContract({ address: registryAddress as Address, abi: daoRegistryAbi, functionName: 'getAddress', args: [REGISTRY_KEYS.DAO] });
+    const { data: stakingAddress } = useReadContract({ address: registryAddress as Address, abi: daoRegistryAbi, functionName: 'getAddress', args: [REGISTRY_KEYS.STAKING] });
+    const { data: financeAddress } = useReadContract({ address: registryAddress as Address, abi: daoRegistryAbi, functionName: 'getAddress', args: [REGISTRY_KEYS.FINANCE] });
 
     return (
         <AppLayout>
@@ -145,7 +210,7 @@ export default function LogsPage() {
                     <div className="flex items-center gap-2 bg-card p-1 rounded-lg border shadow-sm">
                         <Filter className="h-4 w-4 ml-2 text-muted-foreground" />
                         <Select value={eventTypeFilter} onValueChange={setEventTypeFilter}>
-                            <SelectTrigger className="w-[180px] border-0 focus:ring-0 h-8">
+                            <SelectTrigger className="w-[180px] border-0 focus:ring-0 h-8 bg-transparent">
                                 <SelectValue placeholder={t('logs_page.filter_placeholder')} />
                             </SelectTrigger>
                             <SelectContent>
@@ -158,7 +223,7 @@ export default function LogsPage() {
                     </div>
                 </header>
 
-                {/* تب‌های اصلی با استفاده از StatCard به عنوان دکمه */}
+                {/* تب‌های اصلی */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <StatCard 
                         title={t('logs_page.governance_tab')} 
@@ -178,7 +243,7 @@ export default function LogsPage() {
                     />
                     <StatCard 
                         title={t('logs_page.finance_tab')} 
-                        value={t('logs_page.treasury_system')}
+                        value={t('logs_page.treasury_system')} 
                         icon={Banknote} 
                         variant={activeTab === 'finance' ? 'default' : 'neutral'}
                         onClick={() => setActiveTab('finance')}
@@ -188,7 +253,7 @@ export default function LogsPage() {
 
                 {/* کانتینر اصلی */}
                 <div className="mt-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                    <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+                    <h2 className="text-xl font-bold mb-4 flex items-center gap-2 text-foreground">
                         <Activity className="h-5 w-5 text-primary" />
                         {activeTab === 'governance' && t('logs_page.governance_events')}
                         {activeTab === 'staking' && t('logs_page.staking_events')}

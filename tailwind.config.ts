@@ -101,11 +101,14 @@ const config = {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "caret-blink": "caret-blink 1.25s ease-out infinite",
+        "pulse-slow": "pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite", // تپش خیلی آرام برای پس‌زمینه
+        "pulse-medium": "pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite", // تپش متوسط برای آیکون‌ها
+        "spin-slow": "spin 3s linear infinite", // چرخش آرام
+        "bounce-slow": "bounce 3s infinite",
       },
     },
   },
   plugins: [
-    require("tailwindcss-animate"),
     require("tailwindcss-animate"),
     require("tailwindcss-rtl"),
     plugin(function ({ addVariant }) {

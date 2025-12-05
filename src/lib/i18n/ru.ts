@@ -49,6 +49,10 @@ export const ru = {
     fullscreen: "Полноэкранный режим",
     exit_fullscreen: "Выход из полноэкранного режима",
     reset_zoom: "Сброс масштаба",
+    search_results: "Результаты поиска",
+    no_results_for: "Ничего не найдено для",
+    clear_search: "Очистить поиск",
+
   },
 
   header: {
@@ -446,6 +450,9 @@ export const ru = {
       access_setup: "Вход в раздел инфраструктуры",
       critical_access_warning: "Внимание: вы входите в критически важный раздел инфраструктуры.",
       verifying: "Проверка безопасной идентификации...",
+      debugger_desc: "Проверка состояния подключения контрактов и регистрационных адресов.",
+      inspect: "Техническая проверка",
+
     },
   },
 
@@ -1195,6 +1202,16 @@ export const ru = {
     unstaked_amount: "Вывел {amount} RYC",
     milestone_released: "Освободил финансовый этап №{milestoneIndex} для предложения №{id}",
     ownership_transferred: "Передал право собственности на контракт",
+    system: "Система",
+    unknown_action: "Неизвестное действие",
+    proposal_created: "Создано предложение #{{id}}",
+    voted: "Голос {{vote}} за предложение #{{id}}",
+    staked: "Стейкинг {{amount}} RYC",
+    unstaked: "Анстейкинг {{amount}} RYC",
+    reward_claimed: "Получено вознаграждение {{amount}} RYC",
+    state_changed: "Статус предложения #{{id}} изменён на {{state}}",
+    invested: "Инвестировано {{amount}} RYC в предложение #{{id}}",
+
   },
 
   time: {

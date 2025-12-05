@@ -1,358 +1,140 @@
-/* src/app/globals.css - نسخه نهایی با تم "Neural Genesis" (ادغام اصلاحات بنفش درخشان و گرادیانت طلایی-سبز-آبی) */
-
 @import "@rainbow-me/rainbowkit/styles.css";
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* =========================================================
-   THEME VARIABLES (Base + Dark)
-   همهٔ متغیرها به صورت HSL ذخیره شده‌اند تا با Tailwind و
-   افکت‌های شفافیت (alpha) به سادگی کار کنند
-   ========================================================= */
 @layer base {
   :root {
-    /* --- THEME: "Neural Genesis" (Light Mode) --- */
-    /* پس‌زمینه اصلی کمی آبی برای حس تکنولوژی */
-    --background: 210 20% 98%; /* Almost white with a hint of blue */
-    --foreground: 220 15% 20%; /* Dark slate blue for text */
+    /* --- تم روشن (شفاف و تمیز) --- */
+    --background: 210 40% 98%; /* سفید یخی */
+    --foreground: 222 47% 11%; /* سرمه‌ای خیلی تیره */
 
-    /* کارت‌ها با سایه ملایم برای عمق */
-    --card: 210 20% 100%;
-    --card-foreground: 220 15% 20%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
 
-    --popover: 210 20% 100%;
-    --popover-foreground: 220 15% 20%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
 
-    /* رنگ اصلی: بنفش نئونی/AI - تنظیم‌شده برای درخشندگی */
-    --primary: 265 95% 63%; /* AI Neon Purple (Light Mode) */
-    --primary-foreground: 210 20% 98%;
+    /* Primary: بنفش سلطنتی (تلفیق تکنولوژی و اعتماد) */
+    --primary: 262 83% 58%; 
+    --primary-foreground: 210 40% 98%;
 
-    /* رنگ ثانویه: سبز-آبی بلاکچین */
-    --secondary: 180 80% 40%; /* Strong Teal/Blockchain Green */
-    --secondary-foreground: 210 20% 98%;
+    /* Secondary: آبی فیروزه‌ای (برای المان‌های مالی) */
+    --secondary: 190 90% 45%; 
+    --secondary-foreground: 222 47% 11%;
 
-    --muted: 220 20% 94%; /* Lighter gray-blue */
-    --muted-foreground: 220 10% 45%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215 16% 47%;
 
-    /* رنگ تأکید: طلایی برای موفقیت و امور مالی */
-    --accent: 45 90% 55%; /* Rich Gold/Amber */
-    --accent-foreground: 220 15% 10%;
+    --accent: 45 93% 47%; /* طلایی برای تاکید */
+    --accent-foreground: 222 47% 11%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 100%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 40% 98%;
 
-    --border: 220 15% 90%;
-    --input: 220 15% 90%;
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 262 83% 58%;
 
-    /* کمی روشن‌تر از primary برای focus در حالت light */
-    --ring: 265 95% 70%;
-
-    --radius: 0.75rem; /* کمی گردتر برای ظاهر مدرن‌تر */
-
-    /* متغیرهای چارت */
-    --chart-1: 265 95% 63%;
-    --chart-2: 180 80% 40%;
-    --chart-3: 45 90% 55%;
-    --chart-4: 300 80% 60%;
-    --chart-5: 210 80% 60%;
-
-    /* سایدبار */
-    --sidebar-background: 220 20% 96%;
-    --sidebar-foreground: 220 15% 20%;
-    --sidebar-primary: 265 95% 63%;
-    --sidebar-primary-foreground: 210 20% 98%;
-    --sidebar-accent: 220 20% 90%;
-    --sidebar-accent-foreground: 220 15% 10%;
-    --sidebar-border: 220 15% 88%;
-    --sidebar-ring: 265 95% 70%;
+    --radius: 0.75rem;
+    
+    /* متغیرهای سایدبار */
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217 91% 60%;
   }
 
   .dark {
-    /* --- THEME: "Neural Genesis" (Dark Mode) --- */
-    /* پس‌زمینه بسیار تیره با ته‌مایه سرمه‌ای */
-    --background: 224 71% 4%; /* Very Dark Navy Blue */
-    --foreground: 210 20% 88%; /* Light gray for text */
+    /* --- تم تیره (Deep Obsidian - حرفه‌ای و چشم‌نواز) --- */
+    /* بجای مشکی خالص، از سرمه‌ای بسیار عمیق استفاده می‌کنیم */
+    --background: 222 47% 11%; 
+    --foreground: 210 40% 98%;
 
-    --card: 224 40% 9%; /* Slightly lighter navy */
-    --card-foreground: 210 20% 88%;
+    --card: 217 33% 17%; /* کمی روشن‌تر از پس‌زمینه */
+    --card-foreground: 210 40% 98%;
 
-    --popover: 224 71% 4%;
-    --popover-foreground: 210 20% 88%;
+    --popover: 222 47% 11%;
+    --popover-foreground: 210 40% 98%;
 
-    /* رنگ اصلی: بنفش نئونی تقویت‌شده برای حس AI */
-    --primary: 270 100% 75%; /* Stronger Neon Purple (Dark Mode) */
-    --primary-foreground: 224 71% 10%;
+    /* Primary: بنفش نئونی روشن */
+    --primary: 263 70% 65%;
+    --primary-foreground: 210 40% 98%;
 
-    /* رنگ ثانویه: سبز-آبی درخشان برای بلاکچین */
-    --secondary: 170 100% 45%; /* Bright Cyan/Teal */
-    --secondary-foreground: 224 71% 4%;
+    /* Secondary: فیروزه‌ای درخشان */
+    --secondary: 180 80% 45%;
+    --secondary-foreground: 222 47% 11%;
 
-    --muted: 224 40% 12%; /* Darker card color */
-    --muted-foreground: 220 15% 60%;
+    --muted: 217 33% 15%;
+    --muted-foreground: 215 20% 65%;
 
-    /* رنگ تأکید: طلایی درخشان برای موفقیت */
-    --accent: 45 100% 60%; /* Bright Gold */
-    --accent-foreground: 224 71% 4%;
+    --accent: 45 90% 50%;
+    --accent-foreground: 210 40% 98%;
 
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 100%;
+    --destructive: 0 62% 30%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217 33% 20%;
+    --input: 217 33% 20%;
+    --ring: 263 70% 65%;
     
-    --border: 224 30% 20%;
-    --input: 224 30% 20%;
-
-    /* کمی روشن‌تر برای focus در حالت dark */
-    --ring: 270 100% 82%;
-    
-    --radius: 0.75rem;
-
-    /* متغیرهای چارت */
-    --chart-1: 270 100% 75%;
-    --chart-2: 170 100% 45%;
-    --chart-3: 45 100% 60%;
-    --chart-4: 320 100% 75%;
-    --chart-5: 200 100% 50%;
-    
-    --sidebar-background: 224 50% 7%;
-    --sidebar-foreground: 210 20% 88%;
-    --sidebar-primary: 270 100% 75%;
-    --sidebar-primary-foreground: 210 20% 98%;
-    --sidebar-accent: 224 40% 12%;
-    --sidebar-accent-foreground: 210 20% 98%;
-    --sidebar-border: 224 30% 15%;
-    --sidebar-ring: 270 100% 82%;
+    /* Sidebar Dark */
+    --sidebar-background: 222 47% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 263 70% 65%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 217 33% 17%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 217 33% 20%;
+    --sidebar-ring: 217 91% 60%;
   }
 }
 
-/* =========================================================
-   پایه های عمومی و فونت‌ها
-   ========================================================= */
 @layer base {
   * {
     @apply border-border;
   }
   
-  /* ۱. تنظیم فونت پیش‌فرض برای کل برنامه */
   body {
     @apply bg-background text-foreground;
-    font-family: var(--font-sans);
-  }
-  
-  /* ۲. تغییر فونت برای بدنه متن در حالت فارسی (RTL) */
-  [dir="rtl"] body {
-    font-family: var(--font-vazir);
+    /* فونت پیش‌فرض لاتین */
+    font-family: var(--font-sans); 
   }
 
-  /* ۳. تنظیم فونت پیش‌فرض برای سرفصل‌ها */
-  h1, h2, h3, h4, h5, h6 {
+  /* ✅ اعمال اجباری فونت وزیر برای زبان‌های راست‌چین */
+  [dir="rtl"] body {
+    font-family: var(--font-vazir) !important;
+  }
+
+  /* تیترها */
+  h1, h2, h3, h4, h5, h6, .font-headline {
     font-family: var(--font-headline);
   }
 
-  /* در حالت راست‌چین، سرفصل‌ها و کلاس .font-headline از فونت وزیر استفاده کنند */
-  [dir="rtl"] h1,
-  [dir="rtl"] h2,
-  [dir="rtl"] h3,
-  [dir="rtl"] h4,
-  [dir="rtl"] h5,
+  /* تیترها در حالت فارسی */
+  [dir="rtl"] h1, 
+  [dir="rtl"] h2, 
+  [dir="rtl"] h3, 
+  [dir="rtl"] h4, 
+  [dir="rtl"] h5, 
   [dir="rtl"] h6,
   [dir="rtl"] .font-headline {
-    font-family: var(--font-vazir);
-  }
-
-  /* پایه‌ای برای عناصر تعاملی تا از متغیرهای تم استفاده کنند */
-  button, a, input, textarea, select {
-    border-radius: var(--radius);
-  }
-
-  /* کلاس کمکی برای استفاده از رنگ اصلی در پس‌زمینه */
-  .bg-primary {
-    background-color: hsl(var(--primary));
-    color: hsl(var(--primary-foreground));
-  }
-
-  /* کلاس کمکی برای متنهای رنگ اصلی */
-  .text-primary {
-    color: hsl(var(--primary));
-  }
-
-  /* کلاس برایリング فوکوس با رنگ primary */
-  .ring-primary:focus {
-    box-shadow: 0 0 0 4px color-mix(in srgb, hsl(var(--primary)) 20%, transparent);
-  }
-}
-
-/* =========================================================
-   کامپوننت‌ها و افکت‌های اختصاصی
-   ========================================================= */
-@layer components {
-  /* گرادینت متن اکنون از رنگ‌های جدید و جذاب‌تری استفاده می‌کند */
-  .text-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary via-secondary to-accent;
-    /* برای حالت‌های خاص، fallback */
-    background-image: linear-gradient(90deg, hsl(var(--primary)), hsl(var(--secondary)), hsl(var(--accent)));
-  }
-
-  /* گرادیانت جدید مخصوص تیترها:
-     طلایی -> سبز-آبی -> آبی که حسی از فناوری، ثروت و رشد می‌دهد
-  */
-  .heading-gradient {
-    @apply bg-clip-text text-transparent;
-    background-image: linear-gradient(90deg,
-      hsl(45 95% 60%) 0%,
-      hsl(170 90% 55%) 50%,
-      hsl(200 90% 60%) 100%);
-    /* برای خوانایی بهتر در پس‌زمینه‌های روشن و تیره */
-    -webkit-background-clip: text;
-    background-clip: text;
-  }
-
-  /* افکت درخشش (Glow) برای دکمه‌ها و عناصر مهم */
-  .btn-glow {
-    /* سایه‌های چندلایه برای درخشش نئونی */
-    @apply transition-shadow duration-300;
-    box-shadow:
-      0 0 20px hsla(var(--primary) / 0.8),
-      0 0 40px hsla(var(--primary) / 0.5);
-    background-color: hsl(var(--primary));
-    color: hsl(var(--primary-foreground));
-    border: 1px solid color-mix(in srgb, hsl(var(--primary)) 30%, black 10%);
-  }
-
-  .btn-glow:hover,
-  .btn-glow:focus {
-    box-shadow:
-      0 0 30px hsla(var(--primary) / 1),
-      0 0 60px hsla(var(--primary) / 0.8);
-    transform: translateY(-1px);
-  }
-
-  /* variant برای دکمه‌های ثانویه با تم بلاکچین */
-  .btn-secondary-glow {
-    @apply transition-shadow duration-300;
-    box-shadow:
-      0 0 18px hsla(var(--secondary) / 0.85),
-      0 0 36px hsla(var(--secondary) / 0.45);
-    background-color: hsl(var(--secondary));
-    color: hsl(var(--secondary-foreground));
-    border: 1px solid color-mix(in srgb, hsl(var(--secondary)) 30%, black 10%);
-  }
-
-  .btn-secondary-glow:hover,
-  .btn-secondary-glow:focus {
-    box-shadow:
-      0 0 28px hsla(var(--secondary) / 1),
-      0 0 56px hsla(var(--secondary) / 0.75);
-    transform: translateY(-1px);
-  }
-
-  /* کارت با سایهٔ نرم و لبهٔ نیمه‌گرد برای حس عمق */
-  .card {
-    background-color: hsl(var(--card));
-    color: hsl(var(--card-foreground));
-    border: 1px solid hsl(var(--border));
-    border-radius: var(--radius);
-    box-shadow: 0 6px 18px rgba(16,24,40,0.06);
-    padding: 1rem;
-  }
-
-  /* سربرگ کارت با گرادیانت ملایم */
-  .card-header {
-    background-image: linear-gradient(90deg, color-mix(in srgb, hsl(var(--primary)), white 20%), transparent);
-    padding: 0.75rem 1rem;
-    border-top-left-radius: calc(var(--radius) - 0.125rem);
-    border-top-right-radius: calc(var(--radius) - 0.125rem);
-  }
-
-  /* لینک‌های تأکیدی با رنگ طلایی و هاور آبی-سبز */
-  .link-accent {
-    color: hsl(var(--accent));
-    text-decoration: none;
-  }
-  .link-accent:hover {
-    color: hsl(var(--secondary));
-    text-decoration: underline;
-  }
-
-  /* سایدبار: هماهنگ با متغیرهای سایدبار */
-  .sidebar {
-    background-color: hsl(var(--sidebar-background));
-    color: hsl(var(--sidebar-foreground));
-    border-right: 1px solid hsl(var(--sidebar-border));
-    min-height: 100vh;
-    padding: 1rem;
-  }
-
-  .sidebar .brand {
-    color: hsl(var(--sidebar-primary));
-    background-color: transparent;
+    font-family: var(--font-vazir) !important;
     font-weight: 700;
   }
-
-  /* نوار وضعیت کوچک با رنگ تأکید */
-  .status-pill {
-    background-color: hsl(var(--accent));
-    color: hsl(var(--accent-foreground));
-    padding: 0.25rem 0.5rem;
-    border-radius: 999px;
-    font-size: 0.875rem;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-   /* ✅ NEW: استایل جدید برای کارت‌ها */
-    .card-glow {
-        @apply border-transparent bg-gradient-to-br from-card to-card/60;
-        position: relative;
-        overflow: hidden;
-    }
-    .card-glow::before {
-        content: '';
-        position: absolute;
-        inset: 0;
-        border-radius: var(--radius);
-        padding: 1px; /* ضخامت border */
-        background: linear-gradient(120deg, var(--primary), var(--secondary), var(--accent));
-        -webkit-mask:
-            linear-gradient(#fff 0 0) content-box,
-            linear-gradient(#fff 0 0);
-        -webkit-mask-composite: xor;
-        mask-composite: exclude;
-        pointer-events: none; /* اجازه می‌دهد تا کلیک‌ها از روی آن عبور کنند */
-        opacity: 0.2; /* ملایم کردن جلوه */
-        transition: opacity 0.3s;
-    }
-    .card-glow:hover::before {
-        opacity: 0.6; /* افزایش جلوه در زمان هاور */
-    }
 }
 
-/* =========================================================
-   Utilities تکمیلی (با Tailwind ترکیب‌پذیر)
-   ========================================================= */
 @layer utilities {
-  /* متن کوچک با گرادیانت مخصوص عنوان */
-  .util-heading-sm {
-    @apply text-lg font-semibold heading-gradient;
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary via-purple-400 to-secondary;
   }
-
-  /* وضعیت نئونی برای آیکون‌ها */
-  .neon-icon {
-    filter: drop-shadow(0 0 8px hsla(var(--primary) / 0.6));
-  }
-
-  /* حالت تاریک-محور برای پس‌زمینه‌های بزرگ */
-  .bg-immersive {
-    background-image: radial-gradient(circle at 10% 10%, color-mix(in srgb, hsl(var(--primary)) 25%, transparent 0%), transparent 40%),
-                      radial-gradient(circle at 90% 80%, color-mix(in srgb, hsl(var(--secondary)) 18%, transparent 0%), transparent 45%);
+  
+  .card-glow {
+    @apply transition-all duration-300 hover:shadow-lg hover:border-primary/30;
   }
 }
-
-/* =========================================================
-   نکات نهایی و توصیه‌های اجرا
-   - برای بهترین نتیجه در Tailwind، مطمئن شوید که
-     امکان استفاده از directive های @apply و color-mix در
-     پیکربندی PostCSS فعال است
-   - برای آنگونه که glow به درستی کار کند، از پس‌زمینه‌های
-     مناسب (تیره در حالت dark و میانه در light) استفاده کنید
-   ========================================================= */

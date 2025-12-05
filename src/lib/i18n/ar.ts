@@ -22,7 +22,7 @@ export const ar = {
   yes: "نعم",
   no: "لا",
 
-  common:{
+  common: {
     error: "خطأ",
     yes: "نعم",
     no: "لا",
@@ -49,6 +49,10 @@ export const ar = {
     fullscreen: "وضع ملء الشاشة",
     exit_fullscreen: "الخروج من وضع ملء الشاشة",
     reset_zoom: "إعادة تعيين التكبير",
+    search_results: "نتائج البحث",
+    no_results_for: "لا توجد نتائج لـ",
+    clear_search: "مسح البحث",
+
   },
 
   header: {
@@ -445,6 +449,9 @@ export const ar = {
       access_setup: "دخول قسم البنية التحتية",
       critical_access_warning: "تحذير: أنت تدخل قسم البنية التحتية الحيوي.",
       verifying: "جارٍ التحقق من الهوية الآمنة...",
+      debugger_desc: "فحص حالة اتصال العقود وعناوين السجل.",
+      inspect: "فحص تقني",
+
     },
   },
 
@@ -1203,6 +1210,16 @@ export const ar = {
     unstaked_amount: "قام بسحب {amount} RYC",
     milestone_released: "أطلق المرحلة المالية رقم {milestoneIndex} للمقترح رقم {id}",
     ownership_transferred: "نقل ملكية العقد",
+    system: "النظام",
+    unknown_action: "عملية غير معروفة",
+    proposal_created: "إنشاء المقترح رقم #{{id}}",
+    voted: "تصويت {{vote}} على المقترح رقم #{{id}}",
+    staked: "تم تجميد {{amount}} RYC",
+    unstaked: "سحب {{amount}} RYC من الرصيد المجمّد",
+    reward_claimed: "تم استلام مكافأة {{amount}} RYC",
+    state_changed: "تم تغيير حالة المقترح رقم #{{id}} إلى {{state}}",
+    invested: "استثمار {{amount}} RYC في المقترح رقم #{{id}}",
+
   },
 
   time: {

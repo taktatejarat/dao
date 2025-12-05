@@ -49,6 +49,10 @@ export const tr = {
     fullscreen: "Tam ekran",
     exit_fullscreen: "Tam ekrandan çık",
     reset_zoom: "Yakınlaştırmayı sıfırla",
+    search_results: "Arama sonuçları",
+    no_results_for: "Sonuç bulunamadı:",
+    clear_search: "Aramayı temizle",
+
   },
 
   header: {
@@ -446,6 +450,9 @@ export const tr = {
       access_setup: "Altyapı bölümüne giriş",
       critical_access_warning: "Uyarı: Kritik altyapı bölümüne giriş yapıyorsunuz.",
       verifying: "Güvenli kimlik doğrulama sürüyor...",
+      debugger_desc: "Sözleşme bağlantılarının ve kayıt adreslerinin durumunu inceleme.",
+      inspect: "Teknik inceleme",
+
     },
   },
 
@@ -1185,6 +1192,16 @@ export const tr = {
     unstaked_amount: "{amount} RYC çekti",
     milestone_released: "#{id} numaralı teklif için #{milestoneIndex} finansman aşamasını serbest bıraktı",
     ownership_transferred: "Sözleşmenin sahipliğini devretti",
+    system: "Sistem",
+    unknown_action: "Bilinmeyen işlem",
+    proposal_created: "Teklif #{{id}} oluşturuldu",
+    voted: "{{vote}} oyu teklif #{{id}} için",
+    staked: "{{amount}} RYC stake edildi",
+    unstaked: "{{amount}} RYC unstake edildi",
+    reward_claimed: "{{amount}} RYC ödül alındı",
+    state_changed: "Teklif #{{id}} durumu {{state}} olarak değişti",
+    invested: "Teklif #{{id}} için {{amount}} RYC yatırım yapıldı",
+
   },
 
   time: {

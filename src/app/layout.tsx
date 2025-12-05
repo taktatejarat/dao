@@ -1,3 +1,4 @@
+// src/app/layout.tsx - FONT OPTIMIZATION
 
 import type { Metadata } from 'next';
 import './globals.css';
@@ -7,48 +8,62 @@ import { cn } from '@/lib/utils';
 import { ClientRoot } from '@/components/layout/client-root';
 import { AuthGuard } from '@/components/auth/auth-guard';
 
-// فونت Exo 2 برای بدنه متن انگلیسی
+// 1. فونت اصلی متن (لاتین) - پیشنهاد: Roboto یا Inter
+// اگر فایل‌ها را ندارید، نام فایل‌های موجود خودتان را بگذارید
 const fontSans = localFont({
-  src: '../fonts/Exo2-VariableFont_wght.ttf',
+  src: [
+    { path: './fonts/Roboto-Regular.ttf', weight: '400', style: 'normal' }, // مسیر فرضی
+    { path: './fonts/Roboto-Bold.ttf', weight: '700', style: 'normal' },
+  ],
+  variable: '--font-sans',
   display: 'swap',
-  variable: '--font-sans', // ✅ متغیر برای بدنه متن
 });
 
-
-// فونت Merienda برای سرفصل‌های انگلیسی
+// 2. فونت تیترها (لاتین) - پیشنهاد: حذف Merienda و استفاده از Sans یا فونتی مثل "Montserrat"
+// اگر می‌خواهید Merienda را حذف کنید، کافیست متغیر آن را به همان فونت Sans ارجاع دهید
 const fontHeadline = localFont({
-  src: '../fonts/Merienda-VariableFont_wght.ttf',
+  src: [
+    { path: './fonts/Roboto-Black.ttf', weight: '900', style: 'normal' },
+  ],
+  variable: '--font-headline',
   display: 'swap',
-  variable: '--font-headline', // ✅ متغیر برای سرفصل‌ها
 });
 
-// فونت وزیرمتن برای زبان فارسی
+// 3. فونت فارسی (بدون تغییر)
 const fontVazir = localFont({
   src: [
-    { path: '../fonts/Vazirmatn-Regular.woff2', weight: '400', style: 'normal' },
-    { path: '../fonts/Vazirmatn-Bold.woff2', weight: '700', style: 'normal' },
+    { path: './fonts/Vazirmatn-Regular.ttf', weight: '400', style: 'normal' },
+    { path: './fonts/Vazirmatn-Bold.ttf', weight: '700', style: 'normal' },
+    { path: './fonts/Vazirmatn-Black.ttf', weight: '900', style: 'normal' },
   ],
+  variable: '--font-vazir',
   display: 'swap',
-  variable: '--font-vazir', // ✅ متغیر برای زبان فارسی
 });
 
 export const metadata: Metadata = {
-  title: 'RayanChain DAO Platform',
-  description: 'Decentralized Autonomous Organization Platform for funding new startups.',
+  title: 'RayanChain DAO',
+  description: 'AI-Powered Decentralized Investment Protocol',
 };
 
-
-export default function RootLayout({children,params: { locale }}: {children: React.ReactNode;params: { locale: string };}) {
+export default function RootLayout({
+  children,
+  params: { locale }
+}: {
+  children: React.ReactNode;
+  params: { locale: string };
+}) {
+  // تشخیص جهت (اینجا فقط برای HTML اولیه است، ClientRoot آن را مدیریت می‌کند)
   const direction = (locale === 'fa' || locale === 'ar') ? 'rtl' : 'ltr';
-    return (
-      <html lang={locale} dir={direction} suppressHydrationWarning>
-        <body className={cn(
-            "min-h-screen bg-background font-sans antialiased",
-            fontSans.variable, 
-            fontHeadline.variable,
-            fontVazir.variable
-          )}
-        >
+
+  return (
+    <html lang={locale} dir={direction} suppressHydrationWarning>
+      <body className={cn(
+          "min-h-screen bg-background font-sans antialiased",
+          fontSans.variable, 
+          fontHeadline.variable,
+          fontVazir.variable
+        )}
+      >
         <Providers>
           <ClientRoot>
             <AuthGuard>
@@ -56,7 +71,7 @@ export default function RootLayout({children,params: { locale }}: {children: Rea
             </AuthGuard>
           </ClientRoot>
         </Providers>
-        </body>
-      </html>
-    );
+      </body>
+    </html>
+  );
 }

@@ -49,6 +49,10 @@ export const en = {
     fullscreen: "Fullscreen",
     exit_fullscreen: "Exit Fullscreen",
     reset_zoom: "Reset Zoom",
+    search_results: "Search results",
+    no_results_for: "No results found for",
+    clear_search: "Clear search",
+
   },
 
   header: {
@@ -445,6 +449,9 @@ export const en = {
       access_setup: "Enter Infrastructure Section",
       critical_access_warning: "Warning: You are entering the critical infrastructure section.",
       verifying: "Verifying secure identity...",
+      debugger_desc: "Inspect the connection status of contracts and registry addresses.",
+      inspect: "Technical inspection",
+
     },
   },
 
@@ -1192,6 +1199,16 @@ export const en = {
     unstaked_amount: "Unstaked {amount} RYC",
     milestone_released: "Released milestone #{milestoneIndex} for proposal #{id}",
     ownership_transferred: "Transferred contract ownership",
+    system: "System",
+    unknown_action: "Unknown action",
+    proposal_created: "Created proposal #{{id}}",
+    voted: "Voted {{vote}} on proposal #{{id}}",
+    staked: "Staked {{amount}} RYC",
+    unstaked: "Unstaked {{amount}} RYC",
+    reward_claimed: "Claimed reward {{amount}} RYC",
+    state_changed: "Proposal #{{id}} status changed to {{state}}",
+    invested: "Invested {{amount}} RYC in proposal #{{id}}",
+
   },
 
   time: {

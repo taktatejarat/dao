@@ -12,7 +12,8 @@ import {
     Activity, 
     Lock, 
     Server,
-    ArrowRight
+    ArrowRight,
+    Bug
 } from 'lucide-react';
 import { useWeb3 } from '@/context/Web3Provider';
 import { DaoLoadingSpinner } from '@/components/icons/dao-loading-spinner';
@@ -120,7 +121,33 @@ export default function AdminSecureHub() {
                         </Button>
                     </CardFooter>
                 </Card>
-
+                {/* 4. Registry Debugger (NEW) */}
+                <Card 
+                    className="group hover:border-orange-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-orange-500/5 cursor-pointer relative overflow-hidden" 
+                    onClick={() => router.push(`/admin/${EXPECTED_HASH}/debug`)}
+                >
+                    <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                        <Bug className="w-24 h-24" />
+                    </div>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-3">
+                            <div className="p-2 bg-orange-500/10 rounded-lg group-hover:bg-orange-500/20 transition-colors">
+                                <Bug className="w-6 h-6 text-orange-500" />
+                            </div>
+                            {t('page_titles.contract_debugger')}
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <p className="text-sm text-muted-foreground leading-relaxed">
+                            {t('dashboard.admin.debugger_desc')}
+                        </p>
+                    </CardContent>
+                    <CardFooter>
+                        <Button variant="ghost" className="w-full justify-between group-hover:text-orange-500">
+                            {t('dashboard.admin.inspect')} <ArrowRight className="w-4 h-4 ml-2 rtl:rotate-180" />
+                        </Button>
+                    </CardFooter>
+                </Card>
                 {/* 2. User Management (Placeholder for Future) */}
                 <Card className="group hover:border-blue-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/5 cursor-pointer relative overflow-hidden" onClick={() => router.push('/admin/users')}>
                     <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">

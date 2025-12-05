@@ -49,6 +49,10 @@ export const de = {
     fullscreen: "Vollbild",
     exit_fullscreen: "Vollbild verlassen",
     reset_zoom: "Zoom zurücksetzen",
+    search_results: "Suchergebnisse",
+    no_results_for: "Keine Ergebnisse für",
+    clear_search: "Suche löschen",
+
   },
 
   header: {
@@ -445,6 +449,9 @@ export const de = {
           access_setup: "Zugang zum Infrastruktur-Bereich",
           critical_access_warning: "Warnung: Sie betreten den kritischen Infrastruktur-Bereich.",
           verifying: "Sichere Identitätsprüfung läuft...",
+          debugger_desc: "Überprüfung des Verbindungsstatus von Verträgen und Registry-Adressen.",
+          inspect: "Technische Analyse",
+
       },
   },
 
@@ -1186,6 +1193,16 @@ export const de = {
     unstaked_amount: "{amount} RYC abgehoben",
     milestone_released: "Finanzierungsstufe Nr. {milestoneIndex} für Vorschlag Nr. {id} freigegeben",
     ownership_transferred: "Vertragsinhaberschaft übertragen",
+    system: "System",
+    unknown_action: "Unbekannte Aktion",
+    proposal_created: "Vorschlag #{{id}} wurde erstellt",
+    voted: "Stimme {{vote}} für Vorschlag #{{id}}",
+    staked: "{{amount}} RYC gestakt",
+    unstaked: "{{amount}} RYC entstakt",
+    reward_claimed: "Belohnung von {{amount}} RYC erhalten",
+    state_changed: "Status von Vorschlag #{{id}} zu {{state}} geändert",
+    invested: "{{amount}} RYC in Vorschlag #{{id}} investiert",
+
   },
 
   time: {

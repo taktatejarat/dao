@@ -249,8 +249,8 @@ function ReportContent() {
     if (!inputId && !initialId) {
         return (
             <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-6 animate-in zoom-in-95 duration-500">
-                <div className="p-6 rounded-full bg-primary/5 mb-2">
-                    <BrainCircuit className="w-12 h-12 text-primary" />
+                <div className="p-6 rounded-full bg-primary/5 mb-2 animate-pulse-slow">
+                    <BrainCircuit className="w-12 h-12 text-primary animate-pulse-medium" />
                 </div>
                 <div className="text-center max-w-lg space-y-2">
                     <h2 className="text-2xl font-bold text-gradient font-headline">{t('reports_page.card_title')}</h2>
