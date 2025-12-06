@@ -52,7 +52,7 @@ export const tr = {
     search_results: "Arama sonuçları",
     no_results_for: "Sonuç bulunamadı:",
     clear_search: "Aramayı temizle",
-
+    confirm_continue: "Kaydet ve Devam Et",
   },
 
   header: {
@@ -112,6 +112,18 @@ export const tr = {
     message: "Üzgünüz, aradığınız sayfa mevcut değil veya taşınmış.",
     go_home: "Gösterge Paneline Git",
   },
+
+wallet: {
+  connect: "Cüzdan Bağlantısı",
+  connect_title: "Cüzdan Bağlantısı",
+  connect_subtitle: "Rayanchain ağına güvenli şekilde bağlanmak için cüzdanınızı seçin.",
+  my_account: "Hesabım",
+  copy_address: "Adres Kopyala",
+  view_explorer: "Gezginde Görüntüle",
+  disconnect: "Bağlantıyı Kes",
+  rejected: "Bağlantı kullanıcı tarafından reddedildi",
+  terms_notice: "Cüzdanınızı bağlayarak platformun şart ve koşullarını kabul etmiş olursunuz.",
+},
 
   guide_page: {
     title: "Platform kullanım rehberi",
@@ -201,16 +213,18 @@ export const tr = {
   },
 
   role_selection: {
+    title: "Rol Seçimi",
     welcome: "RayanChain'e Hoş Geldiniz!",
     prompt: "Başlamak için lütfen platformdaki rolünüzü belirtin.",
     investor: "Yatırımcı",
     startup: "Girişim",
     voter: "Oy Sahibi",
     delegate: "Delege",
-    investor_desc_short: "Yatırımcı rolü için kısa bir açıklama.",
+    investor_desc_short: "Karlılık ve risk yönetimine odaklanarak yatırım fırsatlarını değerlendirme",
+    subtitle: "Rol seçimi yönetişim ve yatırım yapısı içinde konumunuzu belirlemenizi ve katılım yolunuzu kişisel hedefleriniz ve yetenekleriniz doğrultusunda şekillendirmenizi sağlar bu bölüm karar süreçlerinde şeffaflık oluşturmak ve her üyenin ağda etkili bir rol üstlenmesini desteklemek için hazırlanmıştır",
     continue_to_staking_cta: "Yatırım Planı Seçmeye Devam Et",
-    delegate_title: "Delege Olun",
-    delegate_desc: "Oy gücünüzü güvenilir temsilcilere devredin.",
+    delegate_title: "Yönetim Delegesi",
+    delegate_desc: "DAO karar süreçlerine aktif katılım sağlayarak diğer üyelerden vekalet oy hakkı alma ve yatırımların geleceğini etkileme.",
     investor_title: "Yatırım Planınızı Seçin",
     investor_subtitle: "Özel avantajlardan yararlanmak için RYC tokenlarınızı stake edin.",
     startup_title: "Bir Girişim misiniz?",

@@ -1,8 +1,8 @@
-// src/components/dashboard/dashboard-page-content.tsx
+// src/components/dashboard/dashboard-page-content.tsx - FINAL SAFE VERSION
 
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useWeb3 } from "@/context/Web3Provider";
 import { useTranslation } from "@/hooks/use-translation";
 import { formatEther } from "viem";
@@ -21,7 +21,7 @@ import { InvestmentChart } from "@/components/dashboard/investment-chart";
 import { ProposalsList } from "@/components/dashboard/proposals-list";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"; // ✅ اضافه شدن تب‌ها
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 // Icons
 import { Wallet, Banknote, Award, Zap, TrendingUp, Layers, FilePlus, Users, Crown, Shield, PieChart, UserCheck } from "lucide-react";
@@ -36,17 +36,17 @@ export function DashboardPageContent() {
     const { userRole, isHydrated } = useWeb3();
     const { t, locale } = useTranslation();
     
-    // فراخوانی هوک‌ها
-    // نکته: React Query به صورت خودکار درخواست‌های تکراری را کش می‌کند، پس فراخوانی همزمان مشکلی ندارد
     const investorData = useInvestorDashboard();
     const startupData = useStartupDashboard();
     const delegateData = useDelegateDashboard();
     const adminData = useAdminDashboard();
-    // تشخیص خودکار قابلیت نماینده بودن
-    // اگر کاربر قدرت رای وکالتی (receivedDelegation) داشته باشد، یعنی نماینده هم هست
+    
+    // ✅ Safe check for delegation power
     const hasDelegatedPower = delegateData.stats && delegateData.stats.receivedDelegation > 0n;
 
-    const formatVal = (val: bigint) => formatNumber(formatEther(val), locale);
+    // ✅ Safe formatter utility
+    const formatVal = (val?: bigint) => formatNumber(formatEther(val ?? 0n), locale);
+    const safeToString = (val: any) => val?.toString() ?? '0';
 
     // --- 1. INVESTOR VIEW ---
     const InvestorView = () => {
@@ -54,10 +54,36 @@ export function DashboardPageContent() {
         return (
             <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <StatCard title={t('dashboard.wallet_balance')} value={`${stats ? formatVal(stats.walletBalance) : '0'} RYC`} icon={Wallet} description={t('dashboard.available_to_stake')} isLoading={isLoading} />
-                    <StatCard title={t('dashboard.staked_amount')} value={`${stats ? formatVal(stats.stakedAmount) : '0'} RYC`} icon={Layers} description={t('dashboard.earning_rewards')} variant="default" isLoading={isLoading} />
-                    <StatCard title={t('dashboard.claimable_rewards')} value={`${stats ? formatVal(stats.claimableRewards) : '0'} RYC`} icon={TrendingUp} description={t('dashboard.unclaimed_profit')} variant="positive" isLoading={isLoading} />
-                    <StatCard title={t('dashboard.voting_power')} value={stats ? formatNumber(formatEther(stats.votingPower), locale) : '0'} icon={Zap} description={`${t('dashboard.participation_score')}: ${stats?.participationScore.toString()}`} isLoading={isLoading} />
+                    <StatCard 
+                        title={t('dashboard.wallet_balance')} 
+                        value={`${formatVal(stats?.walletBalance)} RYC`} 
+                        icon={Wallet} 
+                        description={t('dashboard.available_to_stake')} 
+                        isLoading={isLoading} 
+                    />
+                    <StatCard 
+                        title={t('dashboard.staked_amount')} 
+                        value={`${formatVal(stats?.stakedAmount)} RYC`} 
+                        icon={Layers} 
+                        description={t('dashboard.earning_rewards')} 
+                        variant="default" 
+                        isLoading={isLoading} 
+                    />
+                    <StatCard 
+                        title={t('dashboard.claimable_rewards')} 
+                        value={`${formatVal(stats?.claimableRewards)} RYC`} 
+                        icon={TrendingUp} 
+                        description={t('dashboard.unclaimed_profit')} 
+                        variant="positive" 
+                        isLoading={isLoading} 
+                    />
+                    <StatCard 
+                        title={t('dashboard.voting_power')} 
+                        value={formatNumber(formatEther(stats?.votingPower ?? 0n), locale)} 
+                        icon={Zap} 
+                        description={`${t('dashboard.participation_score')}: ${safeToString(stats?.participationScore)}`} 
+                        isLoading={isLoading} 
+                    />
                 </div>
                 <div className="grid gap-6 lg:grid-cols-3">
                     <div className="lg:col-span-2"><InvestmentChart /></div>
@@ -90,9 +116,9 @@ export function DashboardPageContent() {
         return (
             <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                     <StatCard title={t('dashboard.total_projects')} value={stats.totalProposals.toString()} icon={Layers} description={t('dashboard.all_time')} isLoading={isLoading} />
-                     <StatCard title={t('dashboard.active_projects')} value={stats.activeProposals.toString()} icon={Zap} description={t('dashboard.currently_voting_funding')} variant="neutral" isLoading={isLoading} />
-                     <StatCard title={t('dashboard.successful_funded')} value={stats.successfulProjects.toString()} icon={Award} description={t('dashboard.fully_funded')} variant="positive" isLoading={isLoading} />
+                     <StatCard title={t('dashboard.total_projects')} value={safeToString(stats.totalProposals)} icon={Layers} description={t('dashboard.all_time')} isLoading={isLoading} />
+                     <StatCard title={t('dashboard.active_projects')} value={safeToString(stats.activeProposals)} icon={Zap} description={t('dashboard.currently_voting_funding')} variant="neutral" isLoading={isLoading} />
+                     <StatCard title={t('dashboard.successful_funded')} value={safeToString(stats.successfulProjects)} icon={Award} description={t('dashboard.fully_funded')} variant="positive" isLoading={isLoading} />
                 </div>
                 <div className="mt-8">
                      <div className="flex justify-between items-center mb-4">
@@ -111,10 +137,36 @@ export function DashboardPageContent() {
         return (
             <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <StatCard title={t('dashboard.total_governance_power')} value={stats ? formatVal(stats.totalVotingPower) : '0'} icon={Crown} description={t('dashboard.combined_power')} variant="default" isLoading={isLoading} />
-                    <StatCard title={t('dashboard.delegated_to_me')} value={stats ? formatVal(stats.receivedDelegation) : '0'} icon={Users} description={`${t('dashboard.trust_percentage')}: ${stats?.delegationPercentage}%`} variant="neutral" isLoading={isLoading} />
-                    <StatCard title={t('dashboard.my_skin_in_game')} value={`${stats ? formatVal(stats.selfStaked) : '0'} RYC`} icon={Shield} description={t('dashboard.personal_stake')} isLoading={isLoading} />
-                    <StatCard title={t('dashboard.reputation_score')} value={stats?.participationScore.toString() ?? '0'} icon={Award} description={t('dashboard.activity_based_rank')} isLoading={isLoading} />
+                    <StatCard 
+                        title={t('dashboard.total_governance_power')} 
+                        value={formatVal(stats?.totalVotingPower)} 
+                        icon={Crown} 
+                        description={t('dashboard.combined_power')} 
+                        variant="default" 
+                        isLoading={isLoading} 
+                    />
+                    <StatCard 
+                        title={t('dashboard.delegated_to_me')} 
+                        value={formatVal(stats?.receivedDelegation)} 
+                        icon={Users} 
+                        description={`${t('dashboard.trust_percentage')}: ${safeToString(stats?.delegationPercentage)}%`} 
+                        variant="neutral" 
+                        isLoading={isLoading} 
+                    />
+                    <StatCard 
+                        title={t('dashboard.my_skin_in_game')} 
+                        value={`${formatVal(stats?.selfStaked)} RYC`} 
+                        icon={Shield} 
+                        description={t('dashboard.personal_stake')} 
+                        isLoading={isLoading} 
+                    />
+                    <StatCard 
+                        title={t('dashboard.reputation_score')} 
+                        value={safeToString(stats?.participationScore)} 
+                        icon={Award} 
+                        description={t('dashboard.activity_based_rank')} 
+                        isLoading={isLoading} 
+                    />
                 </div>
                 <div className="grid gap-6 lg:grid-cols-3">
                     <div className="lg:col-span-2">
@@ -130,13 +182,12 @@ export function DashboardPageContent() {
         );
     };
 
-    // --- 4. ADMIN VIEW (With Biometric-like Security) ---
+    // --- 4. ADMIN VIEW ---
     const AdminView = () => {
         const { stats, isLoading } = adminData;
         const router = useRouter();
         const { signMessageAsync } = useSignMessage();
         const [isVerifying, setIsVerifying] = useState(false);
-        // دریافت هش از env
         const secureHash = process.env.NEXT_PUBLIC_ADMIN_HASH;
 
         const handleSecureAccess = async () => {
@@ -147,20 +198,15 @@ export function DashboardPageContent() {
 
             try {
                 setIsVerifying(true);
-                
-                // ۱. پیام امنیتی برای امضا (شامل زمان برای جلوگیری از استفاده مجدد)
                 const timestamp = new Date().toLocaleString();
-                const message = `${t('dashboard.security_access_request')}\n\nTime: ${timestamp}\nAdmin: ${stats?.owner}`;
+                // ✅ Safe check for owner
+                const message = `${t('dashboard.security_access_request')}\n\nTime: ${timestamp}\nAdmin: ${stats?.owner ?? 'Unknown'}`;
 
-                // ۲. درخواست امضا از کیف پول
                 await signMessageAsync({ message });
-
-                // ۳. اگر امضا موفق بود (ارور نداد)، هدایت کن
                 toast.success(t('dashboard.access_granted'));
                 router.push(`/admin/${secureHash}/`);
 
             } catch (error) {
-                // اگر کاربر در کیف پول "Reject" را زد یا مشکلی پیش آمد
                 console.error("Signature denied:", error);
                 toast.error(t('dashboard.access_denied'));
             } finally {
@@ -170,7 +216,6 @@ export function DashboardPageContent() {
 
         return (
             <div className="space-y-6">
-                {/* هشدارهای سیستمی */}
                 {stats?.isPaused && (
                     <Alert variant="destructive" className="animate-pulse">
                         <Shield className="h-4 w-4" />
@@ -182,7 +227,7 @@ export function DashboardPageContent() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     <StatCard 
                         title={t('dashboard.treasury_balance')} 
-                        value={`${stats ? formatVal(stats.treasuryBalance) : '0'} RYC`} 
+                        value={`${formatVal(stats?.treasuryBalance)} RYC`} 
                         icon={Banknote} 
                         description={t('dashboard.available_funds')}
                         variant="default" 
@@ -190,14 +235,15 @@ export function DashboardPageContent() {
                     />
                     <StatCard 
                         title={t('dashboard.total_proposals_title')} 
-                        value={stats?.totalProposals.toString() ?? '0'} 
+                        value={safeToString(stats?.totalProposals)} 
                         icon={Layers} 
                         description={t('dashboard.all_time_stats')}
                         isLoading={isLoading}
                     />
                     <StatCard 
                         title={t('dashboard.contract_owner')} 
-                        value={stats ? `${stats.owner.substring(0, 6)}...` : '...'} 
+                        // ✅ Safe substring
+                        value={stats?.owner ? `${stats.owner.substring(0, 6)}...` : '...'} 
                         icon={Crown} 
                         description={t('dashboard.current_admin')}
                         variant="neutral"
@@ -213,7 +259,6 @@ export function DashboardPageContent() {
                     />
                 </div>
 
-                {/* بخش دسترسی سریع با لایه امنیتی اضافی */}
                 <div className="grid gap-4 md:grid-cols-2">
                     <div className="p-6 border rounded-lg bg-muted/20 hover:bg-muted/30 transition-colors">
                         <h3 className="text-lg font-bold mb-2 flex items-center gap-2">
@@ -222,7 +267,6 @@ export function DashboardPageContent() {
                         </h3>
                         <p className="text-sm text-muted-foreground mb-4">{t('dashboard.security_settings_desc')}</p>
                         
-                        {/* دکمه با عملکرد امنیتی */}
                         <Button 
                             variant="default" 
                             onClick={handleSecureAccess} 
@@ -260,15 +304,11 @@ export function DashboardPageContent() {
         );
     };
 
-    // --- Main Render Logic (Hybrid Dashboard) ---
     if (!isHydrated) return <div className="flex justify-center p-8"><DaoLoadingSpinner /></div>;
 
     const renderDashboard = () => {
-        // ۱. منطق هوشمند برای سرمایه‌گذاران و رای‌دهندگان
-        // اگر کاربر نقش Investor یا Voter دارد، بررسی می‌کنیم آیا قدرتی به او تفویض شده؟
         if (userRole === 'investor' || userRole === 'voter') {
             if (hasDelegatedPower) {
-                // ✅ اگر قدرت تفویضی داشت، تب‌ها را نشان بده
                 return (
                     <Tabs defaultValue="investor" className="w-full">
                         <div className="flex items-center justify-between mb-6">
@@ -293,17 +333,13 @@ export function DashboardPageContent() {
                     </Tabs>
                 );
             }
-            
-            // ✅ اگر قدرت تفویضی نداشت، فقط نمای ساده سرمایه‌گذار را برگردان (بدون تب)
-            // در اینجا اگر نقش voter بود و استیک نداشت، می‌توانیم DelegateView خالی نشان دهیم
             if (userRole === 'voter') return <DelegateView />;
             return <InvestorView />;
         }
 
-        // ۲. منطق ساده برای سایر نقش‌ها
         switch (userRole) {
             case 'startup': return <StartupView />;
-            case 'delegate': return <DelegateView />; // اگر کسی فقط نقش Delegate داشت
+            case 'delegate': return <DelegateView />;
             case 'admin': return <AdminView />;
             default: return <InvestorView />;
         }
@@ -324,7 +360,6 @@ export function DashboardPageContent() {
                     </p>
                 </div>
                 
-                {/* دکمه‌های میانبر هوشمند بر اساس وضعیت */}
                 <div className="flex gap-2 w-full md:w-auto">
                      {hasDelegatedPower && (
                          <Button className="flex-1 md:flex-none" asChild>

@@ -6,6 +6,7 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol"; 
 import "./permission/AccControl.sol";
 import "./interfaces/IStaking.sol";
 import "./interfaces/IFinance.sol";
@@ -17,13 +18,13 @@ interface IFinanceExtended is IFinance {
     function refundInvestment(uint256 _proposalId, address _investor) external;
 }
 
-contract RayanChainDAO is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, UUPSUpgradeable {
+contract RayanChainDAO is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, UUPSUpgradeable, PausableUpgradeable {
     
     enum ProposalState { Pending, Validation, Voting, Approved, Rejected, Executed, Expired, Cancelled, Funding, Funded, FundingFailed } 
     enum ProposalType { Funding, TreasuryAction, GrantRole, MilestoneRelease }
     enum VoteType { For, Against }
     enum TokenType { Native, RYC }
-    string public constant VERSION = "3.1.0_STABLE"; 
+    string public constant VERSION = "3.2.0_PAUSABLE";
 
     struct Milestone {
         string name;
@@ -103,6 +104,7 @@ contract RayanChainDAO is Initializable, OwnableUpgradeable, ReentrancyGuardUpgr
         __Ownable_init(_initialOwner);
         __ReentrancyGuard_init();
         __UUPSUpgradeable_init();
+        __Pausable_init(); 
         transferOwnership(_initialOwner);
 
         accControl = AccControl(_accControlAddress);
@@ -117,14 +119,22 @@ contract RayanChainDAO is Initializable, OwnableUpgradeable, ReentrancyGuardUpgr
 
     function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
     
-    // ✅ NEW: تابع تغییر زمان رأی‌گیری (برای صفحه تنظیمات)
+    function pause() public onlyRole(accControl.PAUSER_ROLE()) {
+        _pause();
+    }
+
+    function unpause() public onlyRole(accControl.PAUSER_ROLE()) {
+        _unpause();
+    }
+    
+    //  NEW: تابع تغییر زمان رأی‌گیری (برای صفحه تنظیمات)
     function setVotingPeriod(uint256 _newPeriod) external onlyOwner {
         require(_newPeriod >= 60, "Period too short");
         votingPeriod = _newPeriod;
     }
 
     // --- Proposal Creation Functions ---
-    function submitFundingProposal(bytes32 _descriptionHash, address payable _recipient, Milestone[] memory _milestones) external {
+    function submitFundingProposal(bytes32 _descriptionHash, address payable _recipient, Milestone[] memory _milestones) external whenNotPaused {
         require(stakingContract.votingPower(msg.sender) > 0, "DAO: Must have voting power");
         require(_milestones.length > 0, "At least one milestone is required");
 
@@ -143,7 +153,7 @@ contract RayanChainDAO is Initializable, OwnableUpgradeable, ReentrancyGuardUpgr
         }
     }
 
-    function createMilestoneReleaseProposal(uint256 _originalProposalId, bytes32 _proofHash, bytes32 _descriptionHash) external {
+    function createMilestoneReleaseProposal(uint256 _originalProposalId, bytes32 _proofHash, bytes32 _descriptionHash) external whenNotPaused {
         Proposal storage original = proposals[_originalProposalId];
         require(original.pType == ProposalType.Funding, "Not funding proposal");
         require(
@@ -158,12 +168,12 @@ contract RayanChainDAO is Initializable, OwnableUpgradeable, ReentrancyGuardUpgr
         }));
     }
     
-    function createGrantRoleProposal(bytes32 _descriptionHash, address _recipient, bytes32 _roleToGrant) external onlyRole(accControl.DAO_MEMBER_ROLE()) {
+    function createGrantRoleProposal(bytes32 _descriptionHash, address _recipient, bytes32 _roleToGrant) external onlyRole(accControl.DAO_MEMBER_ROLE()) whenNotPaused {
         uint256 id = _createProposal(ProposalType.GrantRole, _descriptionHash, payable(_recipient), 0, TokenType.RYC);
         proposals[id].roleToGrant = _roleToGrant;
     }
 
-    function createTreasuryActionProposal(bytes32 _descriptionHash, address payable _recipient, uint256 _amount, TokenType _tokenType) external onlyRole(accControl.DEFAULT_ADMIN_ROLE()) {
+    function createTreasuryActionProposal(bytes32 _descriptionHash, address payable _recipient, uint256 _amount, TokenType _tokenType) external onlyRole(accControl.DEFAULT_ADMIN_ROLE()) whenNotPaused {
         _createProposal(ProposalType.TreasuryAction, _descriptionHash, _recipient, _amount, _tokenType);
     }
 
@@ -185,7 +195,8 @@ contract RayanChainDAO is Initializable, OwnableUpgradeable, ReentrancyGuardUpgr
         return id;
     }
 
-    function vote(uint256 _proposalId, VoteType _voteType) external nonReentrant {
+    // ✅ وقتی سیستم Pause است، نباید بتوان رأی داد
+    function vote(uint256 _proposalId, VoteType _voteType) external nonReentrant whenNotPaused {
         Proposal storage p = proposals[_proposalId];
         require(p.state == ProposalState.Voting, "Not in voting state");
         require(block.timestamp <= p.votingDeadline, "Voting ended");
@@ -229,7 +240,8 @@ contract RayanChainDAO is Initializable, OwnableUpgradeable, ReentrancyGuardUpgr
         emit ProposalStateChanged(_proposalId, ProposalState.Funding);
     }
 
-    function invest(uint256 _proposalId, uint256 _amount) external nonReentrant {
+    // ✅ سرمایه‌گذاری هم در زمان توقف سیستم باید بسته شود
+    function invest(uint256 _proposalId, uint256 _amount) external nonReentrant whenNotPaused {
         Proposal storage p = proposals[_proposalId];
         require(p.state == ProposalState.Funding, "Not in funding phase");
         require(block.timestamp <= p.fundingDeadline, "Funding ended");
@@ -267,7 +279,8 @@ contract RayanChainDAO is Initializable, OwnableUpgradeable, ReentrancyGuardUpgr
         financeContract.refundInvestment(_proposalId, msg.sender);
     }
 
-    function executeProposal(uint256 _proposalId) external nonReentrant {
+    // ✅ اجرای پروپوزال هم باید در زمان توقف متوقف شود (امنیت)
+    function executeProposal(uint256 _proposalId) external nonReentrant whenNotPaused {
         Proposal storage p = proposals[_proposalId];
         
         if (p.state == ProposalState.Voting && block.timestamp > p.votingDeadline) {
@@ -319,19 +332,17 @@ contract RayanChainDAO is Initializable, OwnableUpgradeable, ReentrancyGuardUpgr
         emit ProposalStateChanged(_proposalId, ProposalState.Executed);
     }
     
-    // --- NEW LOGIC: منطق اضطراری PAUSER ---
+    // --- Emergency Logic ---
     function emergencyCancel(uint256 _proposalId) external nonReentrant onlyRole(accControl.PAUSER_ROLE()) {
         Proposal storage p = proposals[_proposalId];
         require(p.state == ProposalState.Executed, "DAO: Proposal must be in Executed (Scheduled) state to be cancelled.");
 
-        // ✅ NEW: بازسازی دقیق داده‌ها و salt برای فراخوانی timelock.cancel()
         bytes memory data;
         address target;
-        bytes32 salt = keccak256(abi.encodePacked(_proposalId, block.timestamp)); // ✅ Salt باید با salt استفاده شده در schedule() مطابقت داشته باشد.
+        bytes32 salt = keccak256(abi.encodePacked("RayanChainProposal", _proposalId)); // Fixed salt consistency
 
         if (p.pType == ProposalType.Funding) {
-            // بازسازی داده‌ها برای Funding
-            uint256 totalAmount = 0;
+             uint256 totalAmount = 0;
             for (uint i = 0; i < p.milestones.length; i++) {
                 totalAmount += p.milestones[i].amount;
             }
@@ -344,7 +355,6 @@ contract RayanChainDAO is Initializable, OwnableUpgradeable, ReentrancyGuardUpgr
                 uint8(p.milestones.length)
             );
         } else if (p.pType == ProposalType.TreasuryAction) {
-            // بازسازی داده‌ها برای TreasuryAction
             target = address(financeContract);
             if (p.tokenType == TokenType.Native) {
                 data = abi.encodeWithSelector(IFinance(target).withdraw.selector, p.recipient, p.amount);
@@ -352,7 +362,6 @@ contract RayanChainDAO is Initializable, OwnableUpgradeable, ReentrancyGuardUpgr
                 data = abi.encodeWithSelector(IFinance(target).withdrawTokens.selector, p.recipient, p.amount);
             }
         } else if (p.pType == ProposalType.GrantRole) {
-            // بازسازی داده‌ها برای GrantRole
             target = address(accControl);
             data = abi.encodeWithSelector(
                 AccControl(target).grantRole.selector,
@@ -361,7 +370,6 @@ contract RayanChainDAO is Initializable, OwnableUpgradeable, ReentrancyGuardUpgr
             );
         }
         
-       // محاسبه شناسه عملیات (Operation ID)
         bytes32 operationId = timelock.hashOperation(
             target,
             0,
@@ -370,15 +378,13 @@ contract RayanChainDAO is Initializable, OwnableUpgradeable, ReentrancyGuardUpgr
             salt
         );
 
-        // فراخوانی تابع cancel با شناسه صحیح
         timelock.cancel(operationId);
 
-        // آپدیت وضعیت پروپوزال به Cancelled
         p.state = ProposalState.Cancelled;
         emit ProposalStateChanged(_proposalId, ProposalState.Cancelled);
     }
 
-    // --- Oracle Functions (Remains UNCHANGED) ---
+    // --- Oracle & Setters ---
     function updateParticipationScore(address _user, uint256 _score) external onlyRole(accControl.AI_ORACLE_ROLE()) {
         participationScores[_user] = _score;
         emit ParticipationScoreUpdated(_user, _score);
@@ -388,10 +394,9 @@ contract RayanChainDAO is Initializable, OwnableUpgradeable, ReentrancyGuardUpgr
         require(_riskScore <= 100, "Risk score cannot exceed 100");
         proposals[_proposalId].aiRiskScore = _riskScore;
     }
-    // ✅ NEW: Function to set the Role Token address (only by owner/DAO)
+
     function setStartupAccessTokenAddress(address _address) external onlyOwner {
         require(_address != address(0), "DAO: Cannot set zero address.");
-        // ✅ FIX: Assignment to the defined state variable
         startupAccessTokenAddress = _address; 
     }
 }

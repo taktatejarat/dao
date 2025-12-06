@@ -1,13 +1,16 @@
-// src/app/api/proposals/[id]/save-ai-report/route.ts
-
 import { NextRequest, NextResponse } from 'next/server';
 import { getDb } from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';
 
+type Props = {
+  params: Promise<{ id: string }>
+}
+
 export async function POST(
     req: NextRequest,
-    { params }: { params: { id: string } }
+    props: Props
 ) {
+    const params = await props.params; // ✅ Await
     const proposalMongoId = params.id;
     const aiReport = await req.json();
 
@@ -20,9 +23,8 @@ export async function POST(
         await db.collection('proposals').updateOne(
             { _id: new ObjectId(proposalMongoId) },
             { $set: { 
-                // یک فیلد جدید به نام aiAnalysis برای ذخیره کل گزارش اضافه می‌کنیم
                 aiAnalysis: aiReport,
-                onChainStatus: 'analyzed' // وضعیت را هم به‌روز می‌کنیم
+                onChainStatus: 'analyzed' 
             }}
         );
 

@@ -24,6 +24,8 @@ export type { ContextUpgradeable } from "./@openzeppelin/contracts-upgradeable/u
 export { ContextUpgradeable__factory } from "./factories/@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable__factory";
 export type { ERC165Upgradeable } from "./@openzeppelin/contracts-upgradeable/utils/introspection/ERC165Upgradeable";
 export { ERC165Upgradeable__factory } from "./factories/@openzeppelin/contracts-upgradeable/utils/introspection/ERC165Upgradeable__factory";
+export type { PausableUpgradeable } from "./@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable";
+export { PausableUpgradeable__factory } from "./factories/@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable__factory";
 export type { ReentrancyGuardUpgradeable } from "./@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable";
 export { ReentrancyGuardUpgradeable__factory } from "./factories/@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable__factory";
 export type { AccessControl } from "./@openzeppelin/contracts/access/AccessControl";

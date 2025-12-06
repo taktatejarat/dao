@@ -1,9 +1,8 @@
-// src/app/landing/page.tsx - FIXED BACKGROUND & I18N
+// src/app/landing/page.tsx - FINAL (Custom Wallet Connect)
 
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { ConnectButton, useConnectModal } from "@rainbow-me/rainbowkit";
 import { ArrowRight, Bot, ShieldCheck, TrendingUp, Zap, Link as LinkIcon, Sun, Moon, Globe, Rocket } from 'lucide-react';
 import Link from 'next/link';
 import { useTranslation } from "@/hooks/use-translation";
@@ -16,6 +15,9 @@ import { LanguageSwitcher } from "@/components/layout/language-switcher";
 import { useProposals } from "@/hooks/useProposals";
 import { DaoLoadingSpinner } from "@/components/icons/dao-loading-spinner";
 import { useMemo } from "react";
+import { CustomConnectButton } from "@/components/wallet/custom-connect-button";
+import { useWalletConnect } from "@/hooks/useWalletConnect";
+import { ConnectWalletModal } from "@/components/wallet/connect-wallet-modal";
 
 // --- Helper for Type-Safe Translation ---
 const useSafeTranslation = () => {
@@ -113,7 +115,11 @@ export default function LandingPage() {
     const { t } = useSafeTranslation(); // ✅ Use safe hook
     const { setTheme, theme } = useTheme();
     const { direction } = useLanguage();
-    const { openConnectModal } = useConnectModal();
+    const { 
+        isModalOpen, openModal, closeModal, 
+        connectors, connect, isPending, connectError 
+    } = useWalletConnect();
+
 
     return (
         <div dir={direction} className="bg-transparent text-foreground min-h-screen flex flex-col relative selection:bg-primary/30">
@@ -133,7 +139,7 @@ export default function LandingPage() {
                             <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
                             <span className="sr-only">{t('header.toggle_theme')}</span>
                         </Button>
-                       <ConnectButton label={t('landing_page.get_started')} />
+                       <CustomConnectButton />
                     </div>
                 </div>
             </header>
@@ -157,13 +163,23 @@ export default function LandingPage() {
                     </p>
                     
                     <div className="flex flex-col sm:flex-row justify-center gap-4 animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-200">
-                       <Button size="lg" onClick={openConnectModal} className="h-12 px-8 text-lg rounded-full shadow-lg shadow-primary/20 hover:shadow-primary/40 hover:scale-105 transition-all">
+                       <Button size="lg" onClick={openModal} className="h-12 px-8 text-lg rounded-full shadow-lg shadow-primary/20 hover:shadow-primary/40 hover:scale-105 transition-all">
                            {t('landing_page.get_started')} <Zap className="mx-2 w-5 h-5 rtl:rotate-180" />
                        </Button>
                        <Button size="lg" variant="outline" asChild className="h-12 px-8 text-lg rounded-full bg-background/50 hover:bg-background border-primary/20 hover:border-primary/50">
                            <Link href="/guide">{t('landing_page.learn_more')}</Link>
                        </Button>
                     </div>
+
+                    {/* ✅ اضافه کردن مودال مخفی برای زمانی که دکمه وسط صفحه کلیک می‌شود */}
+                    <ConnectWalletModal 
+                        isOpen={isModalOpen}
+                        onClose={closeModal}
+                        connectors={connectors}
+                        connect={connect}
+                        isPending={isPending}
+                        error={connectError}
+                    />
 
                     {/* ✅ FIX: Translated Social Proof */}
                     <div className="mt-16 pt-8 border-t border-border/40 flex flex-wrap justify-center gap-8 md:gap-12 opacity-70 grayscale hover:grayscale-0 transition-all duration-500">

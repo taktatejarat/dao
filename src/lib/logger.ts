@@ -30,6 +30,7 @@ export type LogCategory =
   | 'API_VALIDATION'// خطاهای اعتبارسنجی در API
   | 'API_ERROR'     // خطاهای عمومی در API
   | 'API_FETCH'     // درخواست‌های خروجی از API
+  | 'ID_RESOLVE'
   
   // دسته‌بندی‌های جدید برای فرآیندهای خاص
   | 'PROPOSAL_SUBMIT' // فرآیند ثبت پروپوزال

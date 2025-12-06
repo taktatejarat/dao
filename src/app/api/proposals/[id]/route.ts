@@ -1,53 +1,70 @@
-// src/app/api/proposals/[id]/route.ts (نسخه کامل و نهایی)
+// src/app/api/proposals/[id]/route.ts - NEXT.JS 15/16 COMPATIBLE
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getDb } from '@/lib/mongodb';
-import { logEvent } from '@/lib/logger';
-import { ObjectId } from 'mongodb'; // برای کار با ID های MongoDB
+import { ObjectId } from 'mongodb';
 
 export const dynamic = 'force-dynamic';
-// تابع کمکی برای تبدیل امن BigInt به string در آبجکت‌های تودرتو
-const safeStringify = (obj: any) => {
-    return JSON.parse(JSON.stringify(obj, (key, value) =>
-        typeof value === 'bigint' ? value.toString() : value
-    ));
-};
+
+// در Next.js 15+، پارامترها پرامیس هستند
+type Props = {
+  params: Promise<{ id: string }>
+}
 
 export async function GET(
     req: NextRequest,
-    { params }: { params: { id: string } }
+    props: Props
 ) {
     try {
-        const proposalId = params.id;
-        
-        // اعتبارسنجی اولیه ID (می‌تواند شناسه آن‌چین یا آف‌چین باشد)
-        if (!proposalId) {
-            return NextResponse.json({ success: false, message: 'Proposal ID is required.' }, { status: 400 });
+        // ✅✅✅ تغییر حیاتی: await کردن params
+        const params = await props.params;
+        const id = params.id;
+
+        // لاگ برای اطمینان از دریافت صحیح
+        console.log(`📡 API Received ID: "${id}"`);
+
+        if (!id) {
+            return NextResponse.json({ success: false, message: 'ID is required.' }, { status: 400 });
         }
 
         const db = await getDb();
         const collection = db.collection('proposals');
 
-        // جستجو بر اساس شناسه آن‌چین (onChainId) یا شناسه MongoDB (_id)
-        const query = ObjectId.isValid(proposalId)
-            ? { _id: new ObjectId(proposalId) }
-            : { proposalIdOnChain: proposalId };
+        // ساخت کوئری هوشمند (برای شناسه رشته‌ای یا عددی)
+        const searchConditions: any[] = [];
+
+        // 1. اگر فرمت ObjectId دارد
+        if (ObjectId.isValid(id) && id.length === 24) {
+            searchConditions.push({ _id: new ObjectId(id) });
+        }
+
+        // 2. جستجوی Exact (رشته) - برای وقتی که "4" ذخیره شده
+        searchConditions.push({ proposalIdOnChain: id });
+
+        // 3. جستجوی عددی - برای وقتی که 4 ذخیره شده
+        if (!isNaN(Number(id))) {
+            searchConditions.push({ proposalIdOnChain: Number(id) });
+        }
+
+        const query = { $or: searchConditions };
 
         const proposal = await collection.findOne(query);
 
         if (!proposal) {
+            console.warn(`❌ No proposal found for ID: ${id}`);
             return NextResponse.json({ success: false, message: 'Proposal not found.' }, { status: 404 });
         }
         
+        // تبدیل ObjectId به رشته
         const responseData = {
             ...proposal,
-            _id: proposal._id.toString(), // تبدیل ObjectId به رشته برای سازگاری با JSON
+            _id: proposal._id.toString(),
         };
 
         return NextResponse.json({ success: true, data: responseData });
 
     } catch (error) {
-        console.error(`Error fetching proposal ${params.id}:`, error);
-        return NextResponse.json({ success: false, message: (error as Error).message }, { status: 500 });
+        console.error(`🔥 API Error:`, error);
+        return NextResponse.json({ success: false, message: 'Internal Server Error' }, { status: 500 });
     }
 }

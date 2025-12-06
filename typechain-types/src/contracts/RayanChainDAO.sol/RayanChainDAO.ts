@@ -74,6 +74,8 @@ export interface RayanChainDAOInterface extends Interface {
       | "nextProposalId"
       | "owner"
       | "participationScores"
+      | "pause"
+      | "paused"
       | "proposals"
       | "proxiableUUID"
       | "quorumPercentage"
@@ -86,6 +88,7 @@ export interface RayanChainDAOInterface extends Interface {
       | "tallyVotes"
       | "timelock"
       | "transferOwnership"
+      | "unpause"
       | "updateParticipationScore"
       | "updateProposalRiskScore"
       | "upgradeToAndCall"
@@ -101,9 +104,11 @@ export interface RayanChainDAOInterface extends Interface {
       | "MilestoneReleased"
       | "OwnershipTransferred"
       | "ParticipationScoreUpdated"
+      | "Paused"
       | "ProposalCreated"
       | "ProposalExecuted"
       | "ProposalStateChanged"
+      | "Unpaused"
       | "Upgraded"
       | "Voted"
   ): EventFragment;
@@ -195,6 +200,8 @@ export interface RayanChainDAOInterface extends Interface {
     functionFragment: "participationScores",
     values: [AddressLike]
   ): string;
+  encodeFunctionData(functionFragment: "pause", values?: undefined): string;
+  encodeFunctionData(functionFragment: "paused", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "proposals",
     values: [BigNumberish]
@@ -240,6 +247,7 @@ export interface RayanChainDAOInterface extends Interface {
     functionFragment: "transferOwnership",
     values: [AddressLike]
   ): string;
+  encodeFunctionData(functionFragment: "unpause", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "updateParticipationScore",
     values: [AddressLike, BigNumberish]
@@ -327,6 +335,8 @@ export interface RayanChainDAOInterface extends Interface {
     functionFragment: "participationScores",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "pause", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "paused", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "proposals", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "proxiableUUID",
@@ -366,6 +376,7 @@ export interface RayanChainDAOInterface extends Interface {
     functionFragment: "transferOwnership",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "unpause", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "updateParticipationScore",
     data: BytesLike
@@ -489,6 +500,18 @@ export namespace ParticipationScoreUpdatedEvent {
   export type LogDescription = TypedLogDescription<Event>;
 }
 
+export namespace PausedEvent {
+  export type InputTuple = [account: AddressLike];
+  export type OutputTuple = [account: string];
+  export interface OutputObject {
+    account: string;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
 export namespace ProposalCreatedEvent {
   export type InputTuple = [
     id: BigNumberish,
@@ -532,6 +555,18 @@ export namespace ProposalStateChangedEvent {
   export interface OutputObject {
     id: bigint;
     newState: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
+export namespace UnpausedEvent {
+  export type InputTuple = [account: AddressLike];
+  export type OutputTuple = [account: string];
+  export interface OutputObject {
+    account: string;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -727,6 +762,10 @@ export interface RayanChainDAO extends BaseContract {
     "view"
   >;
 
+  pause: TypedContractMethod<[], [void], "nonpayable">;
+
+  paused: TypedContractMethod<[], [boolean], "view">;
+
   proposals: TypedContractMethod<
     [arg0: BigNumberish],
     [
@@ -822,6 +861,8 @@ export interface RayanChainDAO extends BaseContract {
     [void],
     "nonpayable"
   >;
+
+  unpause: TypedContractMethod<[], [void], "nonpayable">;
 
   updateParticipationScore: TypedContractMethod<
     [_user: AddressLike, _score: BigNumberish],
@@ -963,6 +1004,12 @@ export interface RayanChainDAO extends BaseContract {
     nameOrSignature: "participationScores"
   ): TypedContractMethod<[arg0: AddressLike], [bigint], "view">;
   getFunction(
+    nameOrSignature: "pause"
+  ): TypedContractMethod<[], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "paused"
+  ): TypedContractMethod<[], [boolean], "view">;
+  getFunction(
     nameOrSignature: "proposals"
   ): TypedContractMethod<
     [arg0: BigNumberish],
@@ -1055,6 +1102,9 @@ export interface RayanChainDAO extends BaseContract {
     nameOrSignature: "transferOwnership"
   ): TypedContractMethod<[newOwner: AddressLike], [void], "nonpayable">;
   getFunction(
+    nameOrSignature: "unpause"
+  ): TypedContractMethod<[], [void], "nonpayable">;
+  getFunction(
     nameOrSignature: "updateParticipationScore"
   ): TypedContractMethod<
     [_user: AddressLike, _score: BigNumberish],
@@ -1129,6 +1179,13 @@ export interface RayanChainDAO extends BaseContract {
     ParticipationScoreUpdatedEvent.OutputObject
   >;
   getEvent(
+    key: "Paused"
+  ): TypedContractEvent<
+    PausedEvent.InputTuple,
+    PausedEvent.OutputTuple,
+    PausedEvent.OutputObject
+  >;
+  getEvent(
     key: "ProposalCreated"
   ): TypedContractEvent<
     ProposalCreatedEvent.InputTuple,
@@ -1148,6 +1205,13 @@ export interface RayanChainDAO extends BaseContract {
     ProposalStateChangedEvent.InputTuple,
     ProposalStateChangedEvent.OutputTuple,
     ProposalStateChangedEvent.OutputObject
+  >;
+  getEvent(
+    key: "Unpaused"
+  ): TypedContractEvent<
+    UnpausedEvent.InputTuple,
+    UnpausedEvent.OutputTuple,
+    UnpausedEvent.OutputObject
   >;
   getEvent(
     key: "Upgraded"
@@ -1231,6 +1295,17 @@ export interface RayanChainDAO extends BaseContract {
       ParticipationScoreUpdatedEvent.OutputObject
     >;
 
+    "Paused(address)": TypedContractEvent<
+      PausedEvent.InputTuple,
+      PausedEvent.OutputTuple,
+      PausedEvent.OutputObject
+    >;
+    Paused: TypedContractEvent<
+      PausedEvent.InputTuple,
+      PausedEvent.OutputTuple,
+      PausedEvent.OutputObject
+    >;
+
     "ProposalCreated(uint256,address,uint8,bytes32)": TypedContractEvent<
       ProposalCreatedEvent.InputTuple,
       ProposalCreatedEvent.OutputTuple,
@@ -1262,6 +1337,17 @@ export interface RayanChainDAO extends BaseContract {
       ProposalStateChangedEvent.InputTuple,
       ProposalStateChangedEvent.OutputTuple,
       ProposalStateChangedEvent.OutputObject
+    >;
+
+    "Unpaused(address)": TypedContractEvent<
+      UnpausedEvent.InputTuple,
+      UnpausedEvent.OutputTuple,
+      UnpausedEvent.OutputObject
+    >;
+    Unpaused: TypedContractEvent<
+      UnpausedEvent.InputTuple,
+      UnpausedEvent.OutputTuple,
+      UnpausedEvent.OutputObject
     >;
 
     "Upgraded(address)": TypedContractEvent<

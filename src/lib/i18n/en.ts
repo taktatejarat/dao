@@ -52,7 +52,7 @@ export const en = {
     search_results: "Search results",
     no_results_for: "No results found for",
     clear_search: "Clear search",
-
+    confirm_continue: "Save and Continue",
   },
 
   header: {
@@ -110,6 +110,18 @@ export const en = {
     title: "404 - Page Not Found",
     message: "Sorry, the page you are looking for does not exist or has been moved.",
     go_home: "Go to Dashboard",
+  },
+
+  wallet: {
+    connect: "Connect Wallet",
+    connect_title: "Connect Wallet",
+    connect_subtitle: "Select your wallet to securely connect to the Rayanchain network.",
+    my_account: "My Account",
+    copy_address: "Copy Address",
+    view_explorer: "View in Explorer",
+    disconnect: "Disconnect",
+    rejected: "Connection rejected by user",
+    terms_notice: "By connecting your wallet you accept the platform’s terms and conditions.",
   },
 
   guide_page: {
@@ -200,16 +212,18 @@ export const en = {
   },
 
   role_selection: {
+    title: "Role Selection",
     welcome: "Welcome to RayanChain!",
     prompt: "To get started, please specify your role on the platform.",
     investor: "Investor",
     startup: "Startup",
     voter: "Voter",
     delegate: "Delegate",
-    investor_desc_short: "A short description for the investor role.",
+    investor_desc_short: "Evaluating investment opportunities with a focus on profitability and risk management",
+    subtitle: "Role selection allows you to define your position within the governance and investment structure and shape your participation path according to your personal goals and capabilities this section is designed to provide clarity in the decision making process enabling each member to take an effective role within the network",
     continue_to_staking_cta: "Continue to Select Investment Plan",
-    delegate_title: "Become a Delegate",
-    delegate_desc: "Delegate your voting power to trusted representatives.",
+    delegate_title: "Governance Delegate",
+    delegate_desc: "Active participation in DAO decision-making by receiving delegated voting power from other members and influencing the future of investments.",
     investor_title: "Choose Your Investment Plan",
     investor_subtitle: "Stake RYC tokens to enjoy special benefits.",
     startup_title: "Are you a Startup?",

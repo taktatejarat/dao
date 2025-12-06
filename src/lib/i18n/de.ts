@@ -52,7 +52,7 @@ export const de = {
     search_results: "Suchergebnisse",
     no_results_for: "Keine Ergebnisse für",
     clear_search: "Suche löschen",
-
+    confirm_continue: "Speichern und Fortfahren",
   },
 
   header: {
@@ -111,6 +111,18 @@ export const de = {
     message: "Entschuldigung, die von Ihnen gesuchte Seite existiert nicht oder wurde verschoben.",
     go_home: "Zum Dashboard gehen",
   },
+ 
+wallet: {
+  connect: "Wallet verbinden",
+  connect_title: "Wallet verbinden",
+  connect_subtitle: "Wählen Sie Ihre Wallet aus um sich sicher mit dem Rayanchain Netzwerk zu verbinden.",
+  my_account: "Mein Konto",
+  copy_address: "Adresse kopieren",
+  view_explorer: "Im Explorer ansehen",
+  disconnect: "Verbindung trennen",
+  rejected: "Verbindung wurde vom Nutzer abgelehnt",
+  terms_notice: "Durch die Verbindung der Wallet akzeptieren Sie die Regeln und Bedingungen der Plattform.",
+},
 
   guide_page: {
     title: "Nutzerhandbuch der Plattform",
@@ -200,16 +212,18 @@ export const de = {
   },
 
   role_selection: {
+    title: "Rollenwahl",
     welcome: "Willkommen bei RayanChain!",
     prompt: "Um zu beginnen, geben Sie bitte Ihre Rolle auf der Plattform an.",
     investor: "Investor",
     startup: "Startup",
     voter: "Wähler",
     delegate: "Delegierter",
-    investor_desc_short: "Eine kurze Beschreibung für die Investorenrolle.",
+    investor_desc_short: "Bewertung von Investitionsmöglichkeiten mit Fokus auf Rentabilität und Risikomanagement",
+    subtitle: "Die Rollenwahl ermöglicht es Ihnen Ihre Position innerhalb der Governance und Investitionsstruktur zu bestimmen und Ihren Beteiligungsweg entsprechend Ihren persönlichen Zielen und Fähigkeiten auszurichten dieser Abschnitt wurde geschaffen um Klarheit im Entscheidungsprozess zu fördern damit jedes Mitglied eine wirksame Rolle im Netzwerk einnehmen kann",
     continue_to_staking_cta: "Weiter zur Auswahl des Investitionsplans",
-    delegate_title: "Werden Sie Delegierter",
-    delegate_desc: "Delegieren Sie Ihr Stimmrecht an vertrauenswürdige Vertreter.",
+    delegate_title: "Governance-Delegierter",
+    delegate_desc: "Aktive Teilnahme an den Entscheidungsprozessen der DAO durch Erhalt von delegierten Stimmrechten anderer Mitglieder und Einflussnahme auf die zukünftigen Investitionen.",
     investor_title: "Wählen Sie Ihren Investitionsplan",
     investor_subtitle: "Setzen Sie RYC-Token ein, um besondere Vorteile zu genießen.",
     startup_title: "Sind Sie ein Startup?",

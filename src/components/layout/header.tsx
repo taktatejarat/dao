@@ -1,4 +1,4 @@
-// src/components/layout/header.tsx - SMART SEARCH IMPLEMENTED
+// src/components/layout/header.tsx - FINAL UPDATE
 
 "use client";
 
@@ -7,13 +7,14 @@ import { useTheme } from "next-themes";
 import { usePathname, useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, Sun, Moon, Command, Bell } from "lucide-react";
+import { Search, Sun, Moon, Bell } from "lucide-react";
 import { LanguageSwitcher } from "./language-switcher";
 import { useTranslation } from "@/hooks/use-translation";
-import { ConnectButton } from '@rainbow-me/rainbowkit';
+// import { ConnectButton } from '@rainbow-me/rainbowkit'; // ❌ حذف شد
+import { CustomConnectButton } from "@/components/wallet/custom-connect-button"; // ✅ اضافه شد
 import { SidebarTrigger } from "../ui/sidebar";
 import { Separator } from "@/components/ui/separator";
-import { isAddress } from "viem"; // برای تشخیص آدرس کیف پول
+import { isAddress } from "viem";
 
 export function Header() {
   const { setTheme, theme } = useTheme();
@@ -22,55 +23,37 @@ export function Header() {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
 
-  // منطق هوشمند جستجو
   const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       const query = searchQuery.trim();
       if (!query) return;
-
-      // 1. اگر آدرس کیف پول است -> برو به آنالیتیکس
       if (isAddress(query)) {
         router.push(`/analytics?address=${query}`);
       }
-      // 2. اگر عدد است -> برو به پروپوزال خاص
       else if (/^\d+$/.test(query)) {
         router.push(`/proposals/${query}`);
       }
-      // 3. اگر متن است -> برو به لیست پروپوزال‌ها با کوئری
       else {
         router.push(`/proposals?q=${encodeURIComponent(query)}`);
       }
-      
-      // اختیاری: پاک کردن فیلد بعد از جستجو
       setSearchQuery(""); 
     }
   };
 
   const getPageTitle = () => {
-    // 1. بررسی دقیق صفحات خاص (بدون تغییر)
     if (pathname === '/dashboard') return t('page_titles.dashboard');
     if (pathname === '/proposals/new') return t('page_titles.new_proposal');
     if (pathname.startsWith('/proposals/')) return t('page_titles.proposal_details');
     if (pathname.startsWith('/admin') && pathname.includes('/settings')) return t('page_titles.admin_settings');
     if (pathname.startsWith('/reports') && (pathname.includes('?id=') || pathname.length > 8)) return t('page_titles.ai_report_detail');
 
-    // 2. دریافت سگمنت اول URL
     let segment = pathname.split('/')[1] || 'dashboard';
-    
-    // ✅ FIX: تبدیل خط تیره به زیرخط برای هماهنگی با فایل زبان
-    // contract-analyzer -> contract_analyzer
     segment = segment.replace(/-/g, '_');
-
-    // تلاش برای یافتن کلید
     const titleKey = `page_titles.${segment}`;
     const translated = t(titleKey);
-
-    // اگر ترجمه پیدا نشد، فال‌بک را نمایش بده
     if (translated === titleKey) {
-        // تبدیل مجدد برای نمایش زیبا (حذف زیرخط و بزرگ کردن حرف اول)
         return segment.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
     }
-    
     return translated;
   };
 
@@ -120,11 +103,8 @@ export function Header() {
         
         <div className="h-8 w-[1px] bg-border mx-1 hidden sm:block"></div>
         
-        <ConnectButton 
-            accountStatus={{ smallScreen: 'avatar', largeScreen: 'full' }}
-            chainStatus="icon"
-            showBalance={false}
-        />
+        {/* ✅ دکمه جدید اینجاست */}
+        <CustomConnectButton />
       </div>
     </header>
   );

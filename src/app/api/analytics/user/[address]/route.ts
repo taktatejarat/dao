@@ -1,24 +1,26 @@
-// src/app/api/analytics/user/[address]/route.ts - REAL ON-CHAIN ANALYSIS
-
 import { NextRequest, NextResponse } from 'next/server';
 import { createPublicClient, http, formatEther, isAddress, type Address } from 'viem';
 import { polygonAmoy } from 'viem/chains';
 
-// کانفیگ کلاینت بلاکچین
 const client = createPublicClient({
     chain: polygonAmoy,
     transport: http(process.env.NEXT_PUBLIC_RPC_URL),
 });
 
 const ETHERSCAN_API_KEY = process.env.POLYGONSCAN_API_KEY;
-const ETHERSCAN_BASE_URL = 'https://api.etherscan.io/v2/api'; // یا آدرس پالیگان اسکن
+const ETHERSCAN_BASE_URL = 'https://api.etherscan.io/v2/api';
 
 export const dynamic = 'force-dynamic';
 
+type Props = {
+  params: Promise<{ address: string }>
+}
+
 export async function GET(
     req: NextRequest,
-    { params }: { params: { address: string } }
+    props: Props
 ) {
+    const params = await props.params; // ✅ Await
     const userAddress = params.address as Address;
 
     if (!isAddress(userAddress)) {

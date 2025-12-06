@@ -1,4 +1,4 @@
-# ai-engine/main.py - FINAL WITH RETRAIN
+# ai-engine/main.py - FINAL WITH RETRAIN & NETWORK FIX
 
 from fastapi import FastAPI, HTTPException, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
@@ -10,7 +10,8 @@ import sys
 # Ensure local imports work
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from config import AI_ORACLE_ADDRESS, logger
+# ایمپورت کردن NODE_API_BASE_URL از کانفیگ
+from config import AI_ORACLE_ADDRESS, logger, NODE_API_BASE_URL
 from layers.layer_1_security import analyze_user_behavior, security_engine
 from layers.layer_2_optimizer import analyze_for_gas_optimizations 
 from layers.layer_3_financial import generate_financial_report, ai_engine
@@ -22,24 +23,40 @@ from score_calculator import calculate_pop_score
 # Import training function for retraining route
 from training.train_models import train_financial_model, train_security_model
 
-NODE_API_BASE_URL = "http://localhost:3000/api"
-
 app = FastAPI(title="RayanChain AI Engine")
+
+# --- تنظیمات حیاتی CORS برای شبکه ---
+# این بخش اجازه می‌دهد وقتی با موبایل (172.16...) وصل می‌شوید، 
+# درخواست‌ها مسدود نشوند.
+origins = [
+    "http://localhost:3000",       # دسترسی از روی سرور
+    "http://127.0.0.1:3000",
+    "https://localhost:3001",      # دسترسی با پروکسی لوکال
+    "https://172.16.22.141:3001",  # دسترسی اصلی شبکه (موبایل/لپ‌تاپ)
+    "https://172.16.22.141:3000",
+    "*"                            # (اختیاری) برای تست راحت‌تر همه را باز می‌گذاریم
+]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=origins, 
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 @app.get("/")
 def health_check():
-    return {"status": "running", "oracle": AI_ORACLE_ADDRESS}
+    return {
+        "status": "running", 
+        "oracle": AI_ORACLE_ADDRESS, 
+        "connected_to_node": NODE_API_BASE_URL
+    }
 
 # --- Shared Fetch Logic ---
 async def fetch_proposal_data(proposal_id: str):
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(verify=False) as client: # verify=False برای جلوگیری از خطای SSL داخلی
+        # استفاده از آدرس وارد شده در config.py
         url = f"{NODE_API_BASE_URL}/proposals/{proposal_id}"
         logger.info(f"Fetching data: {url}")
         try:
@@ -54,19 +71,17 @@ async def fetch_proposal_data(proposal_id: str):
             logger.error(f"Fetch failed: {e}")
             raise ValueError("Failed to fetch proposal data")
 
-# --- MLOps: Retrain Route (NEW) ---
+# --- MLOps: Retrain Route ---
 def run_retraining_task():
     """Background task to retrain models without stopping the server"""
     logger.info("🔄 Background Retraining Started...")
     try:
         # 1. Train Financial Model
         train_financial_model()
-        # Reload model into memory
         ai_engine.load_models()
         
         # 2. Train Security Model
         train_security_model()
-        # Reload security model (re-init singleton)
         security_engine.__init__() 
         
         logger.info("✅ Retraining Complete & Models Reloaded.")

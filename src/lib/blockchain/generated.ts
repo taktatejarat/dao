@@ -984,6 +984,8 @@ export const rayanChainDaoAbi = [
     name: 'ERC1967InvalidImplementation',
   },
   { type: 'error', inputs: [], name: 'ERC1967NonPayable' },
+  { type: 'error', inputs: [], name: 'EnforcedPause' },
+  { type: 'error', inputs: [], name: 'ExpectedPause' },
   { type: 'error', inputs: [], name: 'FailedCall' },
   { type: 'error', inputs: [], name: 'InvalidInitialization' },
   { type: 'error', inputs: [], name: 'NotInitializing' },
@@ -1124,6 +1126,19 @@ export const rayanChainDaoAbi = [
     type: 'event',
     anonymous: false,
     inputs: [
+      {
+        name: 'account',
+        internalType: 'address',
+        type: 'address',
+        indexed: false,
+      },
+    ],
+    name: 'Paused',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
       { name: 'id', internalType: 'uint256', type: 'uint256', indexed: false },
       {
         name: 'proposer',
@@ -1167,6 +1182,19 @@ export const rayanChainDaoAbi = [
       },
     ],
     name: 'ProposalStateChanged',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'account',
+        internalType: 'address',
+        type: 'address',
+        indexed: false,
+      },
+    ],
+    name: 'Unpaused',
   },
   {
     type: 'event',
@@ -1397,6 +1425,20 @@ export const rayanChainDaoAbi = [
   },
   {
     type: 'function',
+    inputs: [],
+    name: 'pause',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'paused',
+    outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
     inputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
     name: 'proposals',
     outputs: [
@@ -1547,6 +1589,13 @@ export const rayanChainDaoAbi = [
     type: 'function',
     inputs: [{ name: 'newOwner', internalType: 'address', type: 'address' }],
     name: 'transferOwnership',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'unpause',
     outputs: [],
     stateMutability: 'nonpayable',
   },
@@ -3668,6 +3717,14 @@ export const useReadRayanChainDaoParticipationScores =
   })
 
 /**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link rayanChainDaoAbi}__ and `functionName` set to `"paused"`
+ */
+export const useReadRayanChainDaoPaused = /*#__PURE__*/ createUseReadContract({
+  abi: rayanChainDaoAbi,
+  functionName: 'paused',
+})
+
+/**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link rayanChainDaoAbi}__ and `functionName` set to `"proposals"`
  */
 export const useReadRayanChainDaoProposals =
@@ -3815,6 +3872,14 @@ export const useWriteRayanChainDaoInvest = /*#__PURE__*/ createUseWriteContract(
 )
 
 /**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link rayanChainDaoAbi}__ and `functionName` set to `"pause"`
+ */
+export const useWriteRayanChainDaoPause = /*#__PURE__*/ createUseWriteContract({
+  abi: rayanChainDaoAbi,
+  functionName: 'pause',
+})
+
+/**
  * Wraps __{@link useWriteContract}__ with `abi` set to __{@link rayanChainDaoAbi}__ and `functionName` set to `"renounceOwnership"`
  */
 export const useWriteRayanChainDaoRenounceOwnership =
@@ -3866,6 +3931,15 @@ export const useWriteRayanChainDaoTransferOwnership =
   /*#__PURE__*/ createUseWriteContract({
     abi: rayanChainDaoAbi,
     functionName: 'transferOwnership',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link rayanChainDaoAbi}__ and `functionName` set to `"unpause"`
+ */
+export const useWriteRayanChainDaoUnpause =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: rayanChainDaoAbi,
+    functionName: 'unpause',
   })
 
 /**
@@ -3992,6 +4066,15 @@ export const useSimulateRayanChainDaoInvest =
   })
 
 /**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link rayanChainDaoAbi}__ and `functionName` set to `"pause"`
+ */
+export const useSimulateRayanChainDaoPause =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: rayanChainDaoAbi,
+    functionName: 'pause',
+  })
+
+/**
  * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link rayanChainDaoAbi}__ and `functionName` set to `"renounceOwnership"`
  */
 export const useSimulateRayanChainDaoRenounceOwnership =
@@ -4043,6 +4126,15 @@ export const useSimulateRayanChainDaoTransferOwnership =
   /*#__PURE__*/ createUseSimulateContract({
     abi: rayanChainDaoAbi,
     functionName: 'transferOwnership',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link rayanChainDaoAbi}__ and `functionName` set to `"unpause"`
+ */
+export const useSimulateRayanChainDaoUnpause =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: rayanChainDaoAbi,
+    functionName: 'unpause',
   })
 
 /**
@@ -4142,6 +4234,15 @@ export const useWatchRayanChainDaoParticipationScoreUpdatedEvent =
   })
 
 /**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link rayanChainDaoAbi}__ and `eventName` set to `"Paused"`
+ */
+export const useWatchRayanChainDaoPausedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: rayanChainDaoAbi,
+    eventName: 'Paused',
+  })
+
+/**
  * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link rayanChainDaoAbi}__ and `eventName` set to `"ProposalCreated"`
  */
 export const useWatchRayanChainDaoProposalCreatedEvent =
@@ -4166,6 +4267,15 @@ export const useWatchRayanChainDaoProposalStateChangedEvent =
   /*#__PURE__*/ createUseWatchContractEvent({
     abi: rayanChainDaoAbi,
     eventName: 'ProposalStateChanged',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link rayanChainDaoAbi}__ and `eventName` set to `"Unpaused"`
+ */
+export const useWatchRayanChainDaoUnpausedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: rayanChainDaoAbi,
+    eventName: 'Unpaused',
   })
 
 /**

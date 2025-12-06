@@ -1,14 +1,17 @@
-// src/app/api/proposals/[id]/update-onchain-id/route.ts
-
 import { NextRequest, NextResponse } from 'next/server';
 import { getDb } from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';
 import { logEvent } from '@/lib/logger';
 
+type Props = {
+  params: Promise<{ id: string }>
+}
+
 export async function POST(
     req: NextRequest,
-    { params }: { params: { id: string } }
+    props: Props
 ) {
+    const params = await props.params; // ✅ Await
     const proposalMongoId = params.id;
     const { onChainId } = await req.json();
 
@@ -30,11 +33,9 @@ export async function POST(
             return NextResponse.json({ success: false, message: 'Proposal not found.' }, { status: 404 });
         }
 
-        logEvent('INFO', 'DB_UPDATE', `Updated proposal ${proposalMongoId} with on-chain ID: ${onChainId}`);
         return NextResponse.json({ success: true, message: 'Database updated.' });
 
     } catch (error) {
-        logEvent('ERROR', 'DB_UPDATE_FAIL', `Failed to update proposal ${proposalMongoId}`, { error: (error as Error).message });
         return NextResponse.json({ success: false, message: (error as Error).message }, { status: 500 });
     }
 }

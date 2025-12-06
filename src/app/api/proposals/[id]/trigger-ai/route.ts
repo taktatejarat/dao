@@ -5,18 +5,24 @@ import { getDb } from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';
 import { logEvent } from '@/lib/logger';
 
-const AI_ENGINE_URL = process.env.AI_ENGINE_URL || 'http://localhost:8000';
+const AI_ENGINE_URL = process.env.AI_ENGINE_URL || 'http://127.0.0.1:8000';
+
+// ✅ تعریف تایپ برای پراپ‌های ورودی
+type Props = {
+  params: Promise<{ id: string }>
+}
 
 export async function POST(
     req: NextRequest,
-    { params }: { params: { id: string } } // ✅ Next.js 'id' را از پوشه [id] می‌خواند
+    props: Props // ✅ استفاده از تایپ جدید
 ) {
-    const proposalMongoId = params.id;
-
     try {
+        // ✅ await کردن params برای استخراج id
+        const params = await props.params;
+        const proposalMongoId = params.id;
+
         logEvent('INFO', 'TRIGGER_AI_START', `Received request to trigger AI for proposal: ${proposalMongoId}`);
 
-        // ۱. تأیید اینکه شناسه معتبر است
         if (!ObjectId.isValid(proposalMongoId)) {
             return NextResponse.json({ success: false, message: 'Invalid proposal ID format.' }, { status: 400 });
         }
@@ -73,7 +79,7 @@ export async function POST(
         });
 
     } catch (error) {
-        logEvent('ERROR', 'TRIGGER_AI_ERROR', `Failed process for ${proposalMongoId}`, { error: (error as Error).message });
+        logEvent('ERROR', 'TRIGGER_AI_ERROR', `Failed process`, { error: (error as Error).message });
         return NextResponse.json({ success: false, message: (error as Error).message }, { status: 500 });
     }
 }

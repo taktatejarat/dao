@@ -1,17 +1,18 @@
-// src/components/dashboard/activity-feed.tsx (نسخه اصلاح شده)
+// src/components/dashboard/activity-feed.tsx (نسخه اصلاح شده نهایی)
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useTranslation } from "@/hooks/use-translation";
-import { useActivityFeed } from "@/hooks/useActivityFeed"; // ✅ هوک جدید
+import { useActivityFeed } from "@/hooks/useActivityFeed";
 import { DaoLoadingSpinner } from "../icons/dao-loading-spinner";
-import { formatDistanceToNow } from 'date-fns'; // برای نمایش زمان نسبی
+import { formatDistanceToNow } from 'date-fns';
 
 export function ActivityFeed() {
     const { t } = useTranslation();
     const { activities, isLoading, error } = useActivityFeed();
 
     const generateAvatarFallback = (user: string) => {
+        if (!user) return "UK"; // هندل کردن حالت null احتمالی
         if (user.startsWith('0x')) return user.substring(2, 4).toUpperCase();
         return user.substring(0, 2).toUpperCase();
     };
@@ -30,8 +31,11 @@ export function ActivityFeed() {
                 ) : activities.length === 0 ? (
                     <p className="text-muted-foreground text-center">{t('dashboard.no_activities_found')}</p>
                 ) : (
-                    activities.map((activity) => (
-                        <div key={activity.id} className="flex items-start gap-4">
+                    // --- تغییر اصلاحی اینجاست ---
+                    // اضافه کردن index به ورودی تابع map
+                    activities.map((activity, index) => (
+                        // ترکیب id و index برای ساخت کلید واقعاً یکتا
+                        <div key={`${activity.id}-${index}`} className="flex items-start gap-4">
                             <Avatar>
                                 <AvatarFallback>{generateAvatarFallback(activity.user)}</AvatarFallback>
                             </Avatar>

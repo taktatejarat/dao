@@ -1,47 +1,71 @@
 // src/app/api/ai-report/[proposalId]/route.ts
 
 import { NextRequest, NextResponse } from 'next/server';
+import { getDb } from '@/lib/mongodb';
+import { ObjectId } from 'mongodb';
 import { logEvent } from '@/lib/logger';
 
 export const dynamic = 'force-dynamic';
 
-// آدرس موتور AI از متغیرهای محیطی خوانده می‌شود
 const AI_ENGINE_URL = process.env.AI_ENGINE_URL || 'http://localhost:8000';
+
+// ✅ تایپ جدید برای پارامترها
+type Props = {
+  params: Promise<{ proposalId: string }>
+}
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { proposalId: string } }
+  props: Props
 ) {
-  const proposalId = params.proposalId;
-
-  if (!proposalId) {
-    return NextResponse.json({ message: 'Proposal ID is required.' }, { status: 400 });
-  }
-
   try {
-    const aiEngineUrl = `${AI_ENGINE_URL}/reports/proposal/${proposalId}`;
-    logEvent('INFO', 'AI_REPORT_FETCH', `Forwarding request to AI engine: ${aiEngineUrl}`);
+    // ✅ باز کردن پرامیس
+    const params = await props.params;
+    const inputId = params.proposalId;
+
+    if (!inputId) {
+      return NextResponse.json({ message: 'Proposal ID is required.' }, { status: 400 });
+    }
+
+    // --- بقیه منطق مثل قبل (کد هوشمند Resolver) ---
+    const db = await getDb();
+    const collection = db.collection('proposals');
+
+    let query = {};
+    if (ObjectId.isValid(inputId) && inputId.length === 24) {
+        query = { _id: new ObjectId(inputId) };
+    } else {
+        query = {
+            $or: [
+                { proposalIdOnChain: inputId },
+                { proposalIdOnChain: Number(inputId) }
+            ]
+        };
+    }
+
+    const proposal = await collection.findOne(query, { projection: { _id: 1 } });
+
+    if (!proposal) {
+        return NextResponse.json({ message: 'Proposal not found.' }, { status: 404 });
+    }
+
+    const realMongoId = proposal._id.toString();
+    const aiEngineUrl = `${AI_ENGINE_URL}/reports/proposal/${realMongoId}`;
     
-    // ✅ FIX: استفاده از fetch برای ارسال درخواست به سرویس پایتون
-    // ما از 'no-cache' استفاده می‌کنیم تا همیشه جدیدترین تحلیل دریافت شود
     const response = await fetch(aiEngineUrl, { cache: 'no-cache' });
     
     if (!response.ok) {
-      const errorBody = await response.text();
-      logEvent('ERROR', 'AI_ENGINE_ERROR', `AI engine failed with status ${response.status}`, { error: errorBody });
-      throw new Error(`Failed to fetch analysis from AI engine. Status: ${response.status}`);
+      if (response.status === 404) {
+          return NextResponse.json({ status: 'pending', message: 'Analysis not generated yet' });
+      }
+      throw new Error(`AI Engine Error: ${response.status}`);
     }
 
     const data = await response.json();
-    
-    logEvent('INFO', 'AI_REPORT_SUCCESS', `Successfully fetched AI report for proposal ${proposalId}`);
     return NextResponse.json(data);
 
   } catch (error) {
-    logEvent('ERROR', 'API_ERROR', `Error fetching AI report for proposal ${proposalId}`, { error: (error as Error).message });
-    return NextResponse.json(
-      { message: 'Error fetching proposal analysis.', error: (error as Error).message },
-      { status: 500 }
-    );
+    console.error('API Error:', error);
+    return NextResponse.json({ message: 'Error fetching AI report.' }, { status: 500 });
   }
 }
