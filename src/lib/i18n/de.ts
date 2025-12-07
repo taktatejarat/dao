@@ -124,6 +124,17 @@ wallet: {
   rejected: "Verbindung wurde vom Nutzer abgelehnt",
   terms_notice: "Durch die Verbindung der Wallet akzeptieren Sie die Regeln und Bedingungen der Plattform.",
   not_connected: "Wallet ist nicht verbunden",
+  secure_connection_note: "Durch das Verbinden der Wallet akzeptieren Sie die Plattformregeln",
+  tab_recommended: "Empfohlen",
+  tab_others: "Weitere",
+  no_other_wallets: "Keine weiteren Wallets gefunden",
+  connection_failed: "Verbindung fehlgeschlagen",
+  click_to_connect: "Klicken zum Verbinden",
+  desc_metamask: "Browser Erweiterung und mobile App",
+  desc_walletconnect: "Code scannen mit jeder Wallet",
+  desc_coinbase: "Von Coinbase verifiziert",
+  badge_mobile: "Mobil",
+
 },
 
   guide_page: {
@@ -481,6 +492,8 @@ wallet: {
       config_saved_desc: "Sie können nun das Upgrade-Skript auf dem Server ausführen.",
       save_failed: "Speichern fehlgeschlagen",
       sign_message_content: "Genehmigung zur Aktualisierung der DAO-Einstellungen:\n\nAbstimmungsperiode: {{votingPeriod}} Sekunden\nProtokollgebühr: {{protocolFee}}%\nClientgebühr: {{clientFee}}%\n\nZeitpunkt: {{timestamp}}",
+      secure_session: "Sichere Sitzung",
+
     },
   },
 
@@ -881,6 +894,15 @@ wallet: {
     circulating_supply: "Umlaufangebot",
     total_supply: "Gesamtangebot des Tokens",
     native_available: "{{amount}} {{symbol}} verfügbar",
+    deposit_amount: "Einzahlungsbetrag",
+    manage_funds_title: "Mittelverwaltung",
+    manage_funds_desc: "Auszahlungen erfordern die Zustimmung der Community",
+    secure_vault_title: "Sicheres Tresor ist aktiv",
+    secure_vault_desc: "Alle ausgehenden Transaktionen sind durch Timelock und Multi-Signatur-Governance geschützt",
+    withdrawal_instruction: "Für Auszahlungen zu Betriebs- oder Investitionszwecken müssen Sie einen formellen Vorschlag einreichen. Nach der Zustimmung der Token-Inhaber wird die Ausführung in die Warteschlange gestellt",
+    create_withdrawal_proposal: "Auszahlungsantrag erstellen",
+    dao_governance_active: "DAO-Governance ist aktiv",
+    dao_governance_desc: "Dieser Tresor ist vollständig dezentralisiert. Kein Administrator hat direkten Zugriff auf die Mittel",
   },
 
   // ==============================================================================

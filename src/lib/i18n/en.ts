@@ -124,6 +124,17 @@ export const en = {
     rejected: "Connection rejected by user",
     terms_notice: "By connecting your wallet you accept the platform’s terms and conditions.",
     not_connected: "Wallet is not connected",
+    secure_connection_note: "By connecting your wallet you accept the platform rules",
+    tab_recommended: "Recommended",
+    tab_others: "Others",
+    no_other_wallets: "No other wallets found",
+    connection_failed: "Connection failed",
+    click_to_connect: "Click to connect",
+    desc_metamask: "Browser extension and mobile app",
+    desc_walletconnect: "Scan the code with any wallet",
+    desc_coinbase: "Verified by Coinbase",
+    badge_mobile: "Mobile",
+
   },
 
   guide_page: {
@@ -481,6 +492,8 @@ export const en = {
       config_saved_desc: "You can now run the upgrade script on the server.",
       save_failed: "Saving failed",
       sign_message_content: "Authorization to update DAO settings:\n\nVoting period: {{votingPeriod}} seconds\nProtocol fee: {{protocolFee}}%\nClient fee: {{clientFee}}%\n\nTimestamp: {{timestamp}}",
+      secure_session: "Secure session",
+
     },
   },
 
@@ -889,6 +902,15 @@ export const en = {
     circulating_supply: "Circulating Supply",
     total_supply: "Total Token Supply",
     native_available: "{{amount}} {{symbol}} available",
+    deposit_amount: "Deposit amount",
+    manage_funds_title: "Funds management",
+    manage_funds_desc: "Withdrawals require community approval",
+    secure_vault_title: "Secure vault is active",
+    secure_vault_desc: "All outgoing transactions are protected by Timelock and multisig governance",
+    withdrawal_instruction: "To withdraw funds for operational expenses or investments you must submit an official proposal. After approval by token holders execution will be queued",
+    create_withdrawal_proposal: "Create withdrawal proposal",
+    dao_governance_active: "DAO governance is active",
+    dao_governance_desc: "This treasury is fully decentralized. No admin has direct access to the funds",
   },
 
   // ==============================================================================

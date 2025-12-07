@@ -1,10 +1,12 @@
 // src/hooks/useWalletConnect.ts
 
 import { useState, useCallback } from 'react';
-import { useConnect, useDisconnect, useAccount } from 'wagmi';
+import { useConnect, useDisconnect, useAccount, type Connector } from 'wagmi';
 
 export function useWalletConnect() {
     const [isModalOpen, setIsModalOpen] = useState(false);
+    
+    // دریافت توابع اتصال از Wagmi
     const { connectors, connect, error: connectError, isPending } = useConnect();
     const { disconnect } = useDisconnect();
     const { isConnected } = useAccount();
@@ -12,14 +14,10 @@ export function useWalletConnect() {
     const openModal = useCallback(() => setIsModalOpen(true), []);
     const closeModal = useCallback(() => setIsModalOpen(false), []);
 
-    const handleConnect = useCallback((connectorId: string) => {
-        const connector = connectors.find((c) => c.id === connectorId);
-        if (connector) {
-            connect({ connector });
-            // مودال بعد از اتصال موفقیت‌آمیز به صورت خودکار بسته می‌شود 
-            // (توسط افکت داخل کامپوننت مودال مدیریت خواهد شد)
-        }
-    }, [connect, connectors]);
+    // این تابع دقیقا با امضای مورد نیاز مودال هماهنگ می‌شود
+    const handleConnect = useCallback(({ connector }: { connector: Connector }) => {
+        connect({ connector });
+    }, [connect]);
 
     const handleDisconnect = useCallback(() => {
         disconnect();
@@ -30,7 +28,7 @@ export function useWalletConnect() {
         openModal,
         closeModal,
         connectors,
-        connect: handleConnect,
+        connect: handleConnect, 
         disconnect: handleDisconnect,
         isPending,
         isConnected,

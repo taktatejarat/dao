@@ -124,6 +124,17 @@ wallet: {
   rejected: "تم رفض الاتصال من قبل المستخدم",
   terms_notice: "من خلال ربط المحفظة فإنك تقبل شروط وأحكام المنصة.",
   not_connected: "المحفظة غير متصلة",
+  secure_connection_note: "عند ربط المحفظة فإنك تقبل قواعد المنصة",
+  tab_recommended: "مقترح",
+  tab_others: "أخرى",
+  no_other_wallets: "لم يتم العثور على محافظ أخرى",
+  connection_failed: "فشل الاتصال",
+  click_to_connect: "اضغط للاتصال",
+  desc_metamask: "إضافة للمتصفح وتطبيق للهاتف",
+  desc_walletconnect: "مسح الرمز بأي محفظة",
+  desc_coinbase: "معتمد من Coinbase",
+  badge_mobile: "هاتف",
+
 },
 
   guide_page: {
@@ -481,6 +492,8 @@ wallet: {
       config_saved_desc: "يمكنك الآن تشغيل سكربت الترقية على الخادم.",
       save_failed: "فشل في الحفظ",
       sign_message_content: "تفويض تحديث إعدادات DAO:\n\nمدة التصويت: {{votingPeriod}} ثانية\nرسوم البروتوكول: {{protocolFee}}%\nرسوم العميل: {{clientFee}}%\n\nالوقت: {{timestamp}}",
+      secure_session: "جلسة آمنة",
+
     },
   },
 
@@ -890,6 +903,15 @@ wallet: {
     circulating_supply: "العرض المتداول",
     total_supply: "إجمالي عرض التوكن",
     native_available: "{{amount}} {{symbol}} متاح",
+    deposit_amount: "مبلغ الإيداع",
+    manage_funds_title: "إدارة الأموال",
+    manage_funds_desc: "السحب يتطلب موافقة المجتمع",
+    secure_vault_title: "الخزنة الآمنة مفعلة",
+    secure_vault_desc: "جميع المعاملات الصادرة محمية بواسطة Timelock وحوكمة متعددة التوقيعات",
+    withdrawal_instruction: "لسحب الأموال للنفقات التشغيلية أو للاستثمار يجب تقديم مقترح رسمي. بعد موافقة حاملي الرموز يتم وضع التنفيذ في قائمة الانتظار",
+    create_withdrawal_proposal: "إنشاء مقترح سحب",
+    dao_governance_active: "حوكمة الـDAO مفعلة",
+    dao_governance_desc: "هذه الخزينة لامركزية بالكامل ولا يملك أي مسؤول وصولاً مباشراً إلى الأموال",
   },
 
   // ==============================================================================

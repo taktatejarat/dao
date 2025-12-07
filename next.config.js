@@ -10,9 +10,6 @@ const nextConfig = {
   reactStrictMode: true,
   productionBrowserSourceMaps: false,
   
-  // نکته: swcMinify حذف شد چون در Next.js جدید پیش‌فرض است
-  // نکته: تنظیمات eslint حذف شد چون در این فایل دیگر پشتیبانی نمی‌شود
-
   typescript: { 
     ignoreBuildErrors: true 
   },
@@ -52,8 +49,6 @@ const nextConfig = {
     // اضافه کردن پکیج‌های خاص Web3 به externals برای جلوگیری از خطای بیلد
     config.externals.push('pino-pretty', 'lokijs', 'encoding')
 
-    // حل مشکلات رایج کتابخانه‌های بلاکچین (Polyfills)
-    // این بخش جلوی خطاهایی مثل "Module not found: Can't resolve 'fs'" را می‌گیرد
     config.resolve.fallback = {
       ...config.resolve.fallback,
       fs: false,
@@ -65,15 +60,9 @@ const nextConfig = {
   },
 
   experimental: {
-    // لیست IPها و پورت‌هایی که اجازه دارند به سرور توسعه وصل شوند
-    ...(process.env.NODE_ENV === 'development' && {
-      allowedDevOrigins: [
-        "localhost:3000",
-        "localhost:3001",
-        "172.16.22.141:3000",
-        "172.16.22.141:3001"
-      ]
-    })
+    serverActions: {
+        bodySizeLimit: '2mb',
+    },
   }
 }
 

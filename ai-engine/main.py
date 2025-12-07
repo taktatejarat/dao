@@ -55,21 +55,37 @@ def health_check():
 
 # --- Shared Fetch Logic ---
 async def fetch_proposal_data(proposal_id: str):
-    async with httpx.AsyncClient(verify=False) as client: # verify=False برای جلوگیری از خطای SSL داخلی
-        # استفاده از آدرس وارد شده در config.py
+    # ✅ FIX: تنظیمات کلاینت برای پایداری بیشتر
+    limits = httpx.Limits(max_keepalive_connections=5, max_connections=10)
+    timeout = httpx.Timeout(15.0, connect=5.0) # 15 ثانیه کل، 5 ثانیه اتصال
+
+    async with httpx.AsyncClient(verify=False, limits=limits, timeout=timeout) as client:
         url = f"{NODE_API_BASE_URL}/proposals/{proposal_id}"
-        logger.info(f"Fetching data: {url}")
+        logger.info(f"Fetching data from: {url}")
+        
         try:
-            response = await client.get(url, timeout=10.0)
+            response = await client.get(url)
+            
+            # لاگ کردن وضعیت برای دیباگ دقیق‌تر
             if response.status_code != 200:
-                logger.error(f"Backend Error {response.status_code}: {response.text}")
-                raise ValueError(f"Backend status {response.status_code}")
+                logger.error(f"❌ Backend Error {response.status_code}: {response.text[:200]}")
+                # اگر 404 داد یعنی پروپوزال پیدا نشد
+                if response.status_code == 404:
+                     raise ValueError(f"Proposal {proposal_id} not found in Node backend.")
+                raise ValueError(f"Backend returned status {response.status_code}")
             
             data = response.json()
+            # پشتیبانی از ساختار { success: true, data: ... } یا دیتای مستقیم
             return data.get('data', data)
+
+        except httpx.ConnectError as e:
+            # خطای اتصال معمولاً یعنی سرور Next.js بالا نیست یا آدرس غلط است
+            logger.critical(f"🔥 Connection Failed to {url}. Is Next.js running on port 3000? Error: {e}")
+            raise ValueError("Connection refused by Node backend. Check if Next.js is running.")
+            
         except Exception as e:
-            logger.error(f"Fetch failed: {e}")
-            raise ValueError("Failed to fetch proposal data")
+            logger.error(f"Fetch unexpected error: {e}")
+            raise ValueError(f"Failed to fetch proposal data: {str(e)}")
 
 # --- MLOps: Retrain Route ---
 def run_retraining_task():

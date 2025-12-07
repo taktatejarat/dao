@@ -45,14 +45,14 @@ run_ml_pipeline() {
     
     # 1. Generate Synthetic Data
     if [ -f "$DATA_GEN_SCRIPT" ]; then
-        log "Step 1: Generating Synthetic Data..."
+        log "Step 1: Prepairing Synthetic Data..."
         "$PYTHON_EXECUTABLE" "$DATA_GEN_SCRIPT"
         if [ $? -ne 0 ]; then
-            log "ERROR: Data generation failed."
+            log "ERROR: Data prepair failed."
             exit 1
         fi
     else
-        log "ERROR: Data gen script not found at $DATA_GEN_SCRIPT"
+        log "ERROR: Data prepair script not found at $DATA_GEN_SCRIPT"
         exit 1
     fi
 

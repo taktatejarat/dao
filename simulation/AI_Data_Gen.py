@@ -11,7 +11,7 @@ DATA_DIR = os.path.join(BASE_DIR, '..', 'ai-engine', 'data')
 os.makedirs(DATA_DIR, exist_ok=True)
 
 def generate_financial_data(n_samples=500000):
-    print(f"Generating {n_samples} financial records...")
+    print(f"Prepairing {n_samples} financial records...")
     
     data = []
     industries = ['DeFi', 'AI', 'Gaming', 'SaaS', 'Infrastructure']
@@ -63,10 +63,10 @@ def generate_financial_data(n_samples=500000):
     
     output_path = os.path.join(DATA_DIR, 'financial_dataset.csv')
     df.to_csv(output_path, index=False)
-    print(f"✅ Financial data saved to: {output_path}")
+    print(f"✅ Financial data prepaired & save to: {output_path}")
 
 def generate_user_behavior_data(n_samples=500000):
-    print(f"Generating {n_samples} user behavior records...")
+    print(f"Pripairing {n_samples} user behavior records...")
     
     data = []
     
@@ -99,7 +99,7 @@ def generate_user_behavior_data(n_samples=500000):
     
     output_path = os.path.join(DATA_DIR, 'user_behavior_dataset.csv')
     df.to_csv(output_path, index=False)
-    print(f"✅ User data saved to: {output_path}")
+    print(f"✅ User data prepaired & saved to: {output_path}")
 
 if __name__ == "__main__":
     generate_financial_data()

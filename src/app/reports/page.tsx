@@ -1,4 +1,4 @@
-// src/app/reports/page.tsx - FINAL REDESIGNED & TYPE-SAFE
+// src/app/reports/page.tsx - BUG FIXED & SAFE
 
 "use client";
 
@@ -12,8 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { 
     BrainCircuit, AlertTriangle, CheckCircle, XCircle, 
-    Download, Share2, TrendingUp, Users, BarChart2, 
-    Search, Target, Copy
+    Download, Share2, TrendingUp, Users, Target, Copy, Search
 } from 'lucide-react';
 import { StatCard } from '@/components/dashboard/stat-card';
 import { useTranslation } from '@/hooks/use-translation';
@@ -74,13 +73,10 @@ function ReportContent() {
     const { t, locale } = useSafeTranslation(); // ✅ استفاده از هوک اصلاح شده
     const router = useRouter();
     const searchParams = useSearchParams();
-    
     const initialId = searchParams.get('id') || searchParams.get('proposalId') || '';
     const [inputId, setInputId] = useState(initialId);
-    
     const [report, setReport] = useState<AIReport | null>(null);
-    const [proposalData, setProposalData] = useState<any>(null); // برای PDF
-    
+    const [proposalData, setProposalData] = useState<any>(null); // برای PDF  
     const [loading, setLoading] = useState(false);
     const [pdfLoading, setPdfLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -96,6 +92,7 @@ function ReportContent() {
         setError(null);
         setReport(null);
         setProposalData(null);
+
 
         try {
             // 1. دریافت تحلیل هوش مصنوعی

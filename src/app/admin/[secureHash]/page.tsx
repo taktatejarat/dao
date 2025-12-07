@@ -107,7 +107,7 @@ export default function AdminSecureHub() {
                     <div className="flex items-center gap-2 mb-2">
                         <Badge variant="outline" className="text-emerald-500 border-emerald-500/30 bg-emerald-500/10 px-3 py-1 font-mono">
                             <Lock className="w-3 h-3 mr-1" />
-                            SECURE SESSION: {address?.slice(0, 6)}...{address?.slice(-4)}
+                            {t('dashboard.admin.secure_session')}: {address?.slice(0, 6)}...{address?.slice(-4)}
                         </Badge>
                     </div>
                     <h1 className="text-4xl font-bold font-headline text-gradient">{t('dashboard.admin.hub_title')}</h1>

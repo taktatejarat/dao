@@ -113,7 +113,9 @@ async function main() {
     // 5. Deploy TimelockController (این قرارداد از OpenZeppelin است و قابل ارتقاء نیست)
     console.log("\n[5/9] Deploying TimelockController...");
     const TimelockFactory = await ethers.getContractFactory("RayanChainTimelockController");
-    const minDelayInSeconds = 72 * 60 * 60; // 72 hours
+    // ⚠️ تغییر: کاهش زمان تأخیر اجرا از ۷۲ ساعت به ۵ دقیقه (برای تست)
+    // const minDelayInSeconds = 72 * 60 * 60; // Production
+    const minDelayInSeconds = 5 * 60; // 5 Minutes for Testing
     const timelock = await TimelockFactory.deploy(minDelayInSeconds, [], [], deployer.address);
     await timelock.waitForDeployment();
     const timelockAddress = await timelock.getAddress();
@@ -135,8 +137,11 @@ async function main() {
     console.log("Finance Address:", financeAddress);
     console.log("Timelock Address:", timelockAddress);
     const RayanChainDAOFactory = await ethers.getContractFactory("RayanChainDAO");
-    const votingPeriodInSeconds = 7 * 24 * 60 * 60;
-    const quorumPercentage = 10;
+    // ⚠️ تغییر: کاهش زمان رأی‌گیری از ۷ روز به ۳۰ دقیقه
+    // const votingPeriodInSeconds = 7 * 24 * 60 * 60; // Production
+    const votingPeriodInSeconds = 30 * 60; // 30 Minutes for Testing
+    //const quorumPercentage = 10;
+    const quorumPercentage = 2;
     const approvalThreshold = 51;
     const dao = await upgrades.deployProxy(RayanChainDAOFactory, [
         deployer.address, accControlAddress, stakingAddress, financeAddress, timelockAddress,
@@ -251,24 +256,50 @@ async function main() {
     await (await timelockContract.renounceRole(TIMELOCK_ADMIN_ROLE, deployer.address)).wait();
     console.log("   ✅ DAO is now fully decentralized and autonomous.");
 
-    // ✅✅✅ NEW STEP: Treasury Funding ✅✅✅
-    console.log("\n   --- Funding the DAO Treasury ---");
+    // ✅✅✅ NEW STEP: Treasury Funding (70/30 Split for Testing) ✅✅✅
+    console.log("\n   --- Funding the DAO Treasury (30% Treasury, 70% Admin) ---");
     const rayanChainTokenContract = await ethers.getContractAt("RayanChainToken", tokenAddress);
     const initialSupply = await rayanChainTokenContract.balanceOf(deployer.address);
 
     if (initialSupply > 0) {
-        process.stdout.write(`   - Transferring initial supply (${ethers.formatEther(initialSupply)} RYC) from Deployer to Finance contract...`);
-        const transferTx = await rayanChainTokenContract.transfer(financeAddress, initialSupply);
+        // محاسبه ۳۰ درصد کل عرضه
+        const treasuryShare = (initialSupply * 30n) / 100n;
+        
+        process.stdout.write(`   - Transferring 30% (${ethers.formatEther(treasuryShare)} RYC) to Finance Contract...`);
+        
+        // انتقال ۳۰ درصد به خزانه
+        const transferTx = await rayanChainTokenContract.transfer(financeAddress, treasuryShare);
         await transferTx.wait();
         process.stdout.write(" Done\n");
 
+        // نمایش موجودی‌ها برای اطمینان
         const deployerFinalBalance = await rayanChainTokenContract.balanceOf(deployer.address);
         const financeFinalBalance = await rayanChainTokenContract.balanceOf(financeAddress);
-        console.log(`   - Deployer final RYC balance: ${ethers.formatUnits(deployerFinalBalance, 18)}`); // Should be 0
-        console.log(`   - Treasury (Finance) final RYC balance: ${ethers.formatUnits(financeFinalBalance, 18)}`); // Should be 1 Billion
+        
+        console.log(`   💰 Deployer Balance (For Testing): ${ethers.formatUnits(deployerFinalBalance, 18)} RYC`); 
+        console.log(`   🏦 Treasury Balance:              ${ethers.formatUnits(financeFinalBalance, 18)} RYC`);
     } else {
         console.log("   - Deployer has no initial supply to transfer. Skipping treasury funding.");
     }
+
+    // ✅✅✅ NEW STEP: Treasury Funding ✅✅✅
+    //console.log("\n   --- Funding the DAO Treasury ---");
+    //const rayanChainTokenContract = await ethers.getContractAt("RayanChainToken", tokenAddress);
+    //const initialSupply = await rayanChainTokenContract.balanceOf(deployer.address);
+    //
+    //if (initialSupply > 0) {
+    //    process.stdout.write(`   - Transferring initial supply (${ethers.formatEther(initialSupply)} RYC) from Deployer to Finance contract...`);
+    //    const transferTx = await rayanChainTokenContract.transfer(financeAddress, initialSupply);
+    //    await transferTx.wait();
+    //    process.stdout.write(" Done\n");
+    //
+    //    const deployerFinalBalance = await rayanChainTokenContract.balanceOf(deployer.address);
+    //    const financeFinalBalance = await rayanChainTokenContract.balanceOf(financeAddress);
+    //    console.log(`   - Deployer final RYC balance: ${ethers.formatUnits(deployerFinalBalance, 18)}`); // Should be 0
+    //    console.log(`   - Treasury (Finance) final RYC balance: ${ethers.formatUnits(financeFinalBalance, 18)}`); // Should be 1 Billion
+    //} else {
+    //    console.log("   - Deployer has no initial supply to transfer. Skipping treasury funding.");
+    //}
 
     // --- STEP 9.5: Register all addresses in DAORegistry ---
     console.log("   - Registering contract addresses in DAORegistry address book...");

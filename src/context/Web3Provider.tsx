@@ -3,10 +3,12 @@
 'use client';
 
 import { useState, useEffect, createContext, useContext, ReactNode, useCallback, useMemo } from 'react';
-import { useAccount, useReadContracts } from 'wagmi';
+import { WagmiProvider, State, useAccount, useReadContracts } from 'wagmi';
 import type { Address } from 'viem';
 import { daoRegistryAbi } from '@/lib/blockchain/generated';
 import { REGISTRY_KEYS } from '@/lib/blockchain/registry-keys';
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { wagmiConfig } from "./WalletConfig";
 
 export type UserRole = 'admin' | 'investor' | 'startup' | 'voter' | 'delegate' | null;
 

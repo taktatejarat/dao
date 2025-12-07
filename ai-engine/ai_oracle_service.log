@@ -1,100 +1,17 @@
-2025-12-05 15:47:03,448 - INFO - [config.py:39] - Configuration Loaded. Oracle: 0x55138244DC1F785C4b955480Ac70410bC1D85A08 | Node API: http://localhost:3000/api
-2025-12-05 15:47:05,348 - INFO - [layer_1_security.py:19] - ✅ Security AI Model Loaded.
-2025-12-05 15:47:05,415 - INFO - [layer_3_financial.py:22] - ✅ Financial AI Model Loaded.
-INFO:     Started server process [455629]
+2025-12-07 09:12:38,320 - INFO - [config.py:40] - Configuration Loaded. Oracle: 0x55138244DC1F785C4b955480Ac70410bC1D85A08 | Node API: http://127.0.0.1:3000/api
+2025-12-07 09:12:40,275 - INFO - [layer_1_security.py:19] - ✅ Security AI Model Loaded.
+2025-12-07 09:12:40,395 - INFO - [layer_3_financial.py:22] - ✅ Financial AI Model Loaded.
+INFO:     Started server process [504714]
 INFO:     Waiting for application startup.
 INFO:     Application startup complete.
 INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
-2025-12-05 16:06:08,365 - INFO - [main.py:134] - Get Report: 692e687e5e94f233175aef7e
-2025-12-05 16:06:09,209 - INFO - [main.py:61] - Fetching data: http://localhost:3000/api/proposals/692e687e5e94f233175aef7e
-2025-12-05 16:06:12,404 - INFO - [oracle_caller.py:45] - ✅ DAO Address found in Registry: 0x092e9141221A819570CDb7719e80933CaB98F8dE
-[READER] Real data for 0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2: {'address': '0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2', 'amount': 23.828083316285074, 'gas_used': 861000, 'transaction_count': 41, 'dao_score': 0}
-/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
-  warnings.warn(
-/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
-  warnings.warn(
-INFO:     127.0.0.1:45168 - "GET /reports/proposal/692e687e5e94f233175aef7e HTTP/1.1" 200 OK
-2025-12-05 16:06:13,507 - INFO - [main.py:134] - Get Report: 692e687e5e94f233175aef7e
-2025-12-05 16:06:13,509 - INFO - [main.py:61] - Fetching data: http://localhost:3000/api/proposals/692e687e5e94f233175aef7e
-[READER] Real data for 0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2: {'address': '0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2', 'amount': 23.828083316285074, 'gas_used': 861000, 'transaction_count': 41, 'dao_score': 0}
-/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
-  warnings.warn(
-/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
-  warnings.warn(
-INFO:     127.0.0.1:45168 - "GET /reports/proposal/692e687e5e94f233175aef7e HTTP/1.1" 200 OK
-2025-12-05 16:18:00,451 - INFO - [main.py:134] - Get Report: 692e687e5e94f233175aef7e
-2025-12-05 16:18:00,453 - INFO - [main.py:61] - Fetching data: http://localhost:3000/api/proposals/692e687e5e94f233175aef7e
-[READER] Real data for 0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2: {'address': '0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2', 'amount': 23.828083316285074, 'gas_used': 861000, 'transaction_count': 41, 'dao_score': 0}
-/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
-  warnings.warn(
-/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
-  warnings.warn(
-INFO:     127.0.0.1:49744 - "GET /reports/proposal/692e687e5e94f233175aef7e HTTP/1.1" 200 OK
-2025-12-05 16:18:04,989 - INFO - [main.py:134] - Get Report: 692e687e5e94f233175aef7e
-2025-12-05 16:18:04,990 - INFO - [main.py:61] - Fetching data: http://localhost:3000/api/proposals/692e687e5e94f233175aef7e
-[READER] Real data for 0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2: {'address': '0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2', 'amount': 23.828083316285074, 'gas_used': 861000, 'transaction_count': 41, 'dao_score': 0}
-/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
-  warnings.warn(
-/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
-  warnings.warn(
-INFO:     127.0.0.1:49744 - "GET /reports/proposal/692e687e5e94f233175aef7e HTTP/1.1" 200 OK
-2025-12-05 22:43:29,296 - INFO - [main.py:134] - Get Report: 692e687e5e94f233175aef7e
-2025-12-05 22:43:29,335 - INFO - [main.py:61] - Fetching data: http://localhost:3000/api/proposals/692e687e5e94f233175aef7e
-[READER] Real data for 0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2: {'address': '0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2', 'amount': 23.828083316285074, 'gas_used': 861000, 'transaction_count': 41, 'dao_score': 0}
-/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
-  warnings.warn(
-/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
-  warnings.warn(
-INFO:     127.0.0.1:42616 - "GET /reports/proposal/692e687e5e94f233175aef7e HTTP/1.1" 200 OK
-2025-12-05 22:43:40,614 - INFO - [main.py:134] - Get Report: 692e687e5e94f233175aef7e
-2025-12-05 22:43:40,615 - INFO - [main.py:61] - Fetching data: http://localhost:3000/api/proposals/692e687e5e94f233175aef7e
-[READER] Real data for 0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2: {'address': '0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2', 'amount': 23.828083316285074, 'gas_used': 861000, 'transaction_count': 41, 'dao_score': 0}
-/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
-  warnings.warn(
-/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
-  warnings.warn(
-INFO:     127.0.0.1:35316 - "GET /reports/proposal/692e687e5e94f233175aef7e HTTP/1.1" 200 OK
-2025-12-05 22:45:06,993 - INFO - [main.py:134] - Get Report: 692e687e5e94f233175aef7e
-2025-12-05 22:45:06,995 - INFO - [main.py:61] - Fetching data: http://localhost:3000/api/proposals/692e687e5e94f233175aef7e
-[READER] Real data for 0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2: {'address': '0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2', 'amount': 23.828083316285074, 'gas_used': 861000, 'transaction_count': 41, 'dao_score': 0}
-/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
-  warnings.warn(
-/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
-  warnings.warn(
-INFO:     127.0.0.1:41050 - "GET /reports/proposal/692e687e5e94f233175aef7e HTTP/1.1" 200 OK
-2025-12-05 22:45:11,645 - INFO - [main.py:134] - Get Report: 692e687e5e94f233175aef7e
-2025-12-05 22:45:11,646 - INFO - [main.py:61] - Fetching data: http://localhost:3000/api/proposals/692e687e5e94f233175aef7e
-[READER] Real data for 0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2: {'address': '0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2', 'amount': 23.828083316285074, 'gas_used': 861000, 'transaction_count': 41, 'dao_score': 0}
-/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
-  warnings.warn(
-/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
-  warnings.warn(
-INFO:     127.0.0.1:48194 - "GET /reports/proposal/692e687e5e94f233175aef7e HTTP/1.1" 200 OK
-2025-12-05 22:45:13,414 - INFO - [main.py:134] - Get Report: 692e687e5e94f233175aef7e
-2025-12-05 22:45:13,415 - INFO - [main.py:61] - Fetching data: http://localhost:3000/api/proposals/692e687e5e94f233175aef7e
-[READER] Real data for 0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2: {'address': '0x7f9B30A1ba232bC9C847d93f36c293a4726C5De2', 'amount': 23.828083316285074, 'gas_used': 861000, 'transaction_count': 41, 'dao_score': 0}
-/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
-  warnings.warn(
-/home/errick/dao/.venv_ai_oracle/lib/python3.12/site-packages/sklearn/utils/validation.py:2749: UserWarning: X does not have valid feature names, but IsolationForest was fitted with feature names
-  warnings.warn(
-INFO:     127.0.0.1:41050 - "GET /reports/proposal/692e687e5e94f233175aef7e HTTP/1.1" 200 OK
-2025-12-06 17:06:53,431 - INFO - [main.py:134] - Get Report: undefined
-2025-12-06 17:06:54,732 - INFO - [main.py:61] - Fetching data: http://localhost:3000/api/proposals/undefined
-2025-12-06 17:06:55,934 - ERROR - [main.py:71] - Fetch failed: All connection attempts failed
-2025-12-06 17:06:55,935 - ERROR - [main.py:151] - Get Report Error: Failed to fetch proposal data
-INFO:     127.0.0.1:53510 - "GET /reports/proposal/undefined HTTP/1.1" 500 Internal Server Error
-2025-12-06 17:06:56,548 - INFO - [main.py:134] - Get Report: undefined
-2025-12-06 17:06:56,784 - INFO - [main.py:61] - Fetching data: http://localhost:3000/api/proposals/undefined
-2025-12-06 17:06:56,840 - ERROR - [main.py:71] - Fetch failed: All connection attempts failed
-2025-12-06 17:06:56,840 - ERROR - [main.py:151] - Get Report Error: Failed to fetch proposal data
-INFO:     127.0.0.1:53510 - "GET /reports/proposal/undefined HTTP/1.1" 500 Internal Server Error
-2025-12-06 17:15:49,839 - INFO - [main.py:134] - Get Report: 692e687e5e94f233175aef7e
-2025-12-06 17:15:50,462 - INFO - [main.py:61] - Fetching data: http://localhost:3000/api/proposals/692e687e5e94f233175aef7e
-2025-12-06 17:15:56,027 - INFO - [main.py:134] - Get Report: 692e687e5e94f233175aef7e
-2025-12-06 17:15:56,057 - INFO - [main.py:61] - Fetching data: http://localhost:3000/api/proposals/692e687e5e94f233175aef7e
-2025-12-06 17:15:58,398 - ERROR - [main.py:71] - Fetch failed: All connection attempts failed
-2025-12-06 17:15:58,421 - ERROR - [main.py:151] - Get Report Error: Failed to fetch proposal data
-INFO:     127.0.0.1:43860 - "GET /reports/proposal/692e687e5e94f233175aef7e HTTP/1.1" 500 Internal Server Error
-2025-12-06 17:15:58,423 - ERROR - [main.py:71] - Fetch failed: All connection attempts failed
-2025-12-06 17:15:58,423 - ERROR - [main.py:151] - Get Report Error: Failed to fetch proposal data
-INFO:     127.0.0.1:43862 - "GET /reports/proposal/692e687e5e94f233175aef7e HTTP/1.1" 500 Internal Server Error
+2025-12-07 09:12:45,070 - INFO - [main.py:150] - Get Report: 692e687e5e94f233175aef7e
+2025-12-07 09:12:49,151 - INFO - [main.py:64] - Fetching data from: http://127.0.0.1:3000/api/proposals/692e687e5e94f233175aef7e
+2025-12-07 09:12:49,189 - CRITICAL - [main.py:83] - 🔥 Connection Failed to http://127.0.0.1:3000/api/proposals/692e687e5e94f233175aef7e. Is Next.js running on port 3000? Error: All connection attempts failed
+2025-12-07 09:12:49,190 - ERROR - [main.py:167] - Get Report Error: Connection refused by Node backend. Check if Next.js is running.
+INFO:     127.0.0.1:59216 - "GET /reports/proposal/692e687e5e94f233175aef7e HTTP/1.1" 500 Internal Server Error
+2025-12-07 09:12:49,652 - INFO - [main.py:150] - Get Report: 692e687e5e94f233175aef7e
+2025-12-07 09:12:49,653 - INFO - [main.py:64] - Fetching data from: http://127.0.0.1:3000/api/proposals/692e687e5e94f233175aef7e
+2025-12-07 09:12:49,655 - CRITICAL - [main.py:83] - 🔥 Connection Failed to http://127.0.0.1:3000/api/proposals/692e687e5e94f233175aef7e. Is Next.js running on port 3000? Error: All connection attempts failed
+2025-12-07 09:12:49,655 - ERROR - [main.py:167] - Get Report Error: Connection refused by Node backend. Check if Next.js is running.
+INFO:     127.0.0.1:59216 - "GET /reports/proposal/692e687e5e94f233175aef7e HTTP/1.1" 500 Internal Server Error

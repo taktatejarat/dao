@@ -125,6 +125,17 @@ wallet: {
   rejected: "Bağlantı kullanıcı tarafından reddedildi",
   terms_notice: "Cüzdanınızı bağlayarak platformun şart ve koşullarını kabul etmiş olursunuz.",
   not_connected: "Cüzdan bağlı değil",
+  secure_connection_note: "Cüzdanı bağlayarak platform kurallarını kabul etmiş olursunuz",
+  tab_recommended: "Önerilen",
+  tab_others: "Diğer",
+  no_other_wallets: "Başka cüzdan bulunamadı",
+  connection_failed: "Bağlantı başarısız oldu",
+  click_to_connect: "Bağlanmak için tıklayın",
+  desc_metamask: "Tarayıcı eklentisi ve mobil uygulama",
+  desc_walletconnect: "Herhangi bir cüzdan ile kod tarama",
+  desc_coinbase: "Coinbase tarafından doğrulanmış",
+  badge_mobile: "Mobil",
+
 },
 
   guide_page: {
@@ -482,6 +493,8 @@ wallet: {
       config_saved_desc: "Artık sunucuda yükseltme betiğini çalıştırabilirsiniz.",
       save_failed: "Kaydetme başarısız oldu",
       sign_message_content: "DAO ayarlarının güncellenmesine izin:\n\nOylama süresi: {{votingPeriod}} saniye\nProtokol ücreti: {{protocolFee}}%\nİstemci ücreti: {{clientFee}}%\n\nZaman: {{timestamp}}",
+      secure_session: "Güvenli oturum",
+
     },
   },
 
@@ -881,6 +894,15 @@ wallet: {
     circulating_supply: "Dolaşımdaki arz",
     total_supply: "Toplam token arzı",
     native_available: "{{amount}} {{symbol}} mevcut",
+    deposit_amount: "Yatırılan tutar",
+    manage_funds_title: "Fon yönetimi",
+    manage_funds_desc: "Para çekme topluluk onayı gerektirir",
+    secure_vault_title: "Güvenli kasa aktiftir",
+    secure_vault_desc: "Tüm çıkış işlemleri Timelock ve çok imzalı yönetişim ile korunur",
+    withdrawal_instruction: "Operasyonel giderler veya yatırım için para çekmek amacıyla resmi bir teklif oluşturmanız gerekir. Token sahiplerinin onayından sonra işlem kuyruğa alınır",
+    create_withdrawal_proposal: "Para çekme teklifi oluştur",
+    dao_governance_active: "DAO yönetişimi aktiftir",
+    dao_governance_desc: "Bu hazine tamamen merkezsizdir. Hiçbir yönetici fonlara doğrudan erişime sahip değildir",
   },
 
   // ==============================================================================
