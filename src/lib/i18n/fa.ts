@@ -54,6 +54,7 @@ export const fa = {
     clear_search: "پاک کردن جستجو",
     loading: "در حال بارگذاری",
     confirm_continue: "ثبت و ادامه",
+    seconds: "ثانیه",
   },
 
   header: {
@@ -129,6 +130,7 @@ export const fa = {
     disconnect: "قطع اتصال",
     rejected: "اتصال توسط کاربر رد شد",
     terms_notice: "با اتصال کیف پول، شما قوانین و مقررات پلتفرم را می‌پذیرید.",
+    not_connected: "کیف پول متصل نیست",
   },
 
   guide_page: {
@@ -490,6 +492,14 @@ export const fa = {
         unpause_processing: "در حال فعال‌سازی مجدد سیستم...",
         pause_success: "سیستم با موفقیت متوقف شد.",
         unpause_success: "سیستم با موفقیت فعال شد.",
+        settings_subtitle: "بروزرسانی امن پارامترها از طریق اسکریپت سرور",
+        save_prepare_btn: "ذخیره و آماده‌سازی ارتقاء",
+        current_onchain: "مقدار فعلی در بلاکچین: {{value}}",
+        fee_status_desc: "کارمزد پروتکل (BPS): {{protocol}} | کارمزد کلاینت (BPS): {{client}}",
+        config_saved_title: "تنظیمات با امنیت ذخیره شد",
+        config_saved_desc: "اکنون می‌توانید اسکریپت ارتقاء را در سرور اجرا کنید.",
+        save_failed: "ذخیره‌سازی ناموفق بود",
+        sign_message_content: "مجوز بروزرسانی تنظیمات DAO:\n\nدوره رأی‌گیری: {{votingPeriod}} ثانیه\nکارمزد پروتکل: {{protocolFee}}%\nکارمزد کلاینت: {{clientFee}}%\n\nزمان: {{timestamp}}",
     },
   },
 

@@ -53,6 +53,7 @@ export const en = {
     no_results_for: "No results found for",
     clear_search: "Clear search",
     confirm_continue: "Save and Continue",
+    seconds: "Second",
   },
 
   header: {
@@ -122,6 +123,7 @@ export const en = {
     disconnect: "Disconnect",
     rejected: "Connection rejected by user",
     terms_notice: "By connecting your wallet you accept the platform’s terms and conditions.",
+    not_connected: "Wallet is not connected",
   },
 
   guide_page: {
@@ -471,7 +473,14 @@ export const en = {
       unpause_processing: "System is resuming...",
       pause_success: "System successfully paused.",
       unpause_success: "System successfully reactivated.",
-
+      settings_subtitle: "Secure updating of parameters through the server script",
+      save_prepare_btn: "Save and Prepare Upgrade",
+      current_onchain: "Current on-chain value: {{value}}",
+      fee_status_desc: "Protocol fee (BPS): {{protocol}} | Client fee (BPS): {{client}}",
+      config_saved_title: "Settings saved securely",
+      config_saved_desc: "You can now run the upgrade script on the server.",
+      save_failed: "Saving failed",
+      sign_message_content: "Authorization to update DAO settings:\n\nVoting period: {{votingPeriod}} seconds\nProtocol fee: {{protocolFee}}%\nClient fee: {{clientFee}}%\n\nTimestamp: {{timestamp}}",
     },
   },
 

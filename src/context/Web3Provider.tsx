@@ -100,8 +100,6 @@ export function Web3Provider({ children }: { children: ReactNode }) {
         stakingAddress,
     };
 
-    // ✅✅✅ تغییر حیاتی اینجاست: ✅✅✅
-    // ما شرط if (areAddressesLoading) return <Spinner /> را حذف کردیم.
     // حالا حتی اگر داده‌ها هنوز در حال لود شدن باشند، {children} (یعنی صفحه لندینگ) رندر می‌شود.
     return <Web3Context.Provider value={value}>{children}</Web3Context.Provider>;
 }
@@ -109,7 +107,6 @@ export function Web3Provider({ children }: { children: ReactNode }) {
 export function useWeb3() {
     const context = useContext(Web3Context);
     if (context === undefined) {
-        // بازگشت آبجکت خالی برای جلوگیری از کرش در صورت استفاده خارج از پروایدر (محض احتیاط)
         return {} as IWeb3Context;
     }
     return context;

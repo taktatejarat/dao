@@ -1,8 +1,7 @@
-// src/app/treasury/page.tsx - FINAL POLISHED VERSION
+// src/app/treasury/page.tsx - FIXED & CLEANED
 
 "use client";
 
-import { useMemo } from 'react';
 import { AppLayout } from '@/components/layout/app-layout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -30,16 +29,32 @@ const useSafeTranslation = () => {
 };
 
 // --- Admin Actions Component ---
-const AdminTreasuryActions = ({ financeAddress, tokenAddress }: { financeAddress?: Address; tokenAddress?: Address }) => {
+// ✅ FIX: اضافه کردن onRefresh به ورودی‌ها
+const AdminTreasuryActions = ({ 
+    financeAddress, 
+    tokenAddress, 
+    onRefresh 
+}: { 
+    financeAddress?: Address; 
+    tokenAddress?: Address; 
+    onRefresh: () => void;
+}) => {
     const { t } = useSafeTranslation();
+    
+    // ✅ FIX: دریافت تمام استیت‌ها و هندلرها فقط از هوک (بدون useState اضافی)
     const {
         depositAmount, setDepositAmount,
         withdrawRycAmount, setWithdrawRycAmount,
         withdrawNativeAmount, setWithdrawNativeAmount,
         handleDeposit, handleWithdrawRyc, handleWithdrawNative,
-        isActionPending, isDepositDisabled, isWithdrawRycDisabled, isWithdrawNativeDisabled,
+        isActionPending, 
+        isDepositDisabled, isWithdrawRycDisabled, isWithdrawNativeDisabled,
         nativeTreasuryBalance
-    } = useTreasury({ financeAddress, tokenAddress });
+    } = useTreasury({ 
+        financeAddress, 
+        tokenAddress,
+        onSuccess: onRefresh // اتصال تابع رفرش به هوک
+    });
     
     const nativeSymbol = nativeTreasuryBalance?.symbol ?? t('treasury_page.native_token');
 
@@ -128,18 +143,20 @@ export default function TreasuryPage() {
     const stakingAddress = addresses?.[2].result as Address;
 
     // 2. دریافت موجودی‌ها
-    const { data: balances, isLoading: isBalLoading } = useReadContracts({
+    // ✅ FIX: استخراج تابع refetch و تغییر نام آن به refetchBalances
+    const { data: balances, isLoading: isBalLoading, refetch: refetchBalances } = useReadContracts({
         contracts: [
             { address: tokenAddress, abi: rayanChainTokenAbi, functionName: 'balanceOf', args: [financeAddress!] },
             { address: tokenAddress, abi: rayanChainTokenAbi, functionName: 'balanceOf', args: [stakingAddress!] },
             { address: tokenAddress, abi: rayanChainTokenAbi, functionName: 'totalSupply' },
         ],
-        query: { enabled: !!financeAddress && !!tokenAddress && !!stakingAddress, refetchInterval: 10000 }
+        query: { enabled: !!financeAddress && !!tokenAddress && !!stakingAddress }
     });
 
     // 3. دریافت موجودی Native
-    const { data: tokenNativeBal } = useBalance({ address: tokenAddress });
-    const { data: financeNativeBal } = useBalance({ address: financeAddress });
+    // ✅ FIX: استخراج تابع refetch و تغییر نام آن
+    const { data: tokenNativeBal, refetch: refetchTokenNative } = useBalance({ address: tokenAddress });
+    const { data: financeNativeBal, refetch: refetchFinanceNative } = useBalance({ address: financeAddress });
 
     const isLoading = isAddrLoading || isBalLoading;
 
@@ -151,7 +168,15 @@ export default function TreasuryPage() {
     const treasuryNative = financeNativeBal?.value ?? 0n;
     
     const circulating = totalSupply - (treasuryRyc + stakedRyc);
-    const nativeSymbol = financeNativeBal?.symbol || 'ETH';
+    const nativeSymbol = financeNativeBal?.symbol || 'POL';
+
+    // ✅ FIX: تعریف تابع هندلر برای رفرش کردن همه داده‌ها
+    const handleGlobalRefresh = () => {
+        console.log("🔄 Refreshing Treasury Data...");
+        refetchBalances();
+        refetchTokenNative();
+        refetchFinanceNative();
+    };
 
     return (
         <AppLayout>
@@ -170,7 +195,6 @@ export default function TreasuryPage() {
                     title={t('treasury_page.treasury_reserves')} 
                     value={`${formatNumber(formatEther(treasuryRyc), locale)} RYC`} 
                     icon={Banknote} 
-                    // ✅ FIX: Translated dynamic string
                     description={t('treasury_page.native_available', { 
                         amount: formatNumber(formatEther(treasuryNative), locale),
                         symbol: nativeSymbol
@@ -200,7 +224,7 @@ export default function TreasuryPage() {
                 />
             </div>
 
-            {/* ✅ Section 2: Circulating Supply Banner (Redesigned) */}
+            {/* Section 2: Circulating Supply Banner */}
             <Card className="mb-8 overflow-hidden border-none bg-gradient-to-r from-muted/50 to-background shadow-md">
                 <CardContent className="p-0">
                     <div className="flex flex-col md:flex-row items-stretch">
@@ -244,7 +268,11 @@ export default function TreasuryPage() {
             </Card>
 
             {userRole === 'admin' ? (
-                <AdminTreasuryActions financeAddress={financeAddress} tokenAddress={tokenAddress} />
+                <AdminTreasuryActions 
+                    financeAddress={financeAddress} 
+                    tokenAddress={tokenAddress} 
+                    onRefresh={handleGlobalRefresh} // ✅ ارسال تابع رفرش
+                />
             ) : (
                 <Alert className="mb-8 border-blue-500/20 bg-blue-500/5">
                     <Info className="h-5 w-5 text-blue-500" />

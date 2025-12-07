@@ -25,11 +25,9 @@ export const wagmiConfig = createConfig({
         metadata: {
             name: 'RayanChain DAO',
             description: 'DAO VC Platform',
-            url: 'https://daovc.net', // یک آدرس واقعی یا ساختگی معتبر بزنید
+            url: 'https://daovc.net', // یک آدرس واقعی یا ساختگی 
             icons: ['https://avatars.githubusercontent.com/u/37784886']
         },
-        // ⚠️ مهم: این آپشن را متاسفانه در wagmi v2 مستقیم نداریم
-        // اما با تنظیم url معتبر بالا، معمولاً خطا رفع می‌شود.
     }), 
     
     coinbaseWallet({ appName: 'RayanChain DAO' }),

@@ -53,6 +53,7 @@ export const tr = {
     no_results_for: "Sonuç bulunamadı:",
     clear_search: "Aramayı temizle",
     confirm_continue: "Kaydet ve Devam Et",
+    seconds: "Saniye",
   },
 
   header: {
@@ -123,6 +124,7 @@ wallet: {
   disconnect: "Bağlantıyı Kes",
   rejected: "Bağlantı kullanıcı tarafından reddedildi",
   terms_notice: "Cüzdanınızı bağlayarak platformun şart ve koşullarını kabul etmiş olursunuz.",
+  not_connected: "Cüzdan bağlı değil",
 },
 
   guide_page: {
@@ -472,7 +474,14 @@ wallet: {
       unpause_processing: "Sistem yeniden etkinleştiriliyor...",
       pause_success: "Sistem başarıyla durduruldu.",
       unpause_success: "Sistem başarıyla yeniden etkinleştirildi.",
-
+      settings_subtitle: "Sunucu betiği üzerinden parametrelerin güvenli şekilde güncellenmesi",
+      save_prepare_btn: "Kaydet ve Yükseltmeye Hazırla",
+      current_onchain: "Zincir üzerindeki mevcut değer: {{value}}",
+      fee_status_desc: "Protokol ücreti (BPS): {{protocol}} | İstemci ücreti (BPS): {{client}}",
+      config_saved_title: "Ayarlar güvenli bir şekilde kaydedildi",
+      config_saved_desc: "Artık sunucuda yükseltme betiğini çalıştırabilirsiniz.",
+      save_failed: "Kaydetme başarısız oldu",
+      sign_message_content: "DAO ayarlarının güncellenmesine izin:\n\nOylama süresi: {{votingPeriod}} saniye\nProtokol ücreti: {{protocolFee}}%\nİstemci ücreti: {{clientFee}}%\n\nZaman: {{timestamp}}",
     },
   },
 

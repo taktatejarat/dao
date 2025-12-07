@@ -1,0 +1,16 @@
+{
+  "_meta": {
+    "updatedBy": "0x55138244DC1F785C4b955480Ac70410bC1D85A08",
+    "updatedAt": "2025-12-07T05:10:47.493Z",
+    "signature": "0x1f331c359b11be1a443296082556c1685e83efb39e5c6ea0ee90e70f6e5f877e73c20a48633884bf519dd57e75e78a3f0ed850879f27891a338855822fb9eccf1c"
+  },
+  "dao": {
+    "votingPeriod": 604800,
+    "quorumPercentage": 10,
+    "approvalThreshold": 51
+  },
+  "finance": {
+    "protocolFeeBps": 100,
+    "clientFeeBps": 400
+  }
+}

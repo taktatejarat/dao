@@ -53,6 +53,7 @@ export const ar = {
     no_results_for: "لا توجد نتائج لـ",
     clear_search: "مسح البحث",
     confirm_continue: "تأكيد ومتابعة",
+    seconds: "ثانية",
   },
 
   header: {
@@ -122,6 +123,7 @@ wallet: {
   disconnect: "قطع الاتصال",
   rejected: "تم رفض الاتصال من قبل المستخدم",
   terms_notice: "من خلال ربط المحفظة فإنك تقبل شروط وأحكام المنصة.",
+  not_connected: "المحفظة غير متصلة",
 },
 
   guide_page: {
@@ -471,7 +473,14 @@ wallet: {
       unpause_processing: "يتم إعادة تفعيل النظام...",
       pause_success: "تم إيقاف النظام بنجاح.",
       unpause_success: "تم تفعيل النظام بنجاح.",
-
+      settings_subtitle: "تحديث آمن للمعاملات عبر سكربت الخادم",
+      save_prepare_btn: "حفظ والتحضير للترقية",
+      current_onchain: "القيمة الحالية على السلسلة: {{value}}",
+      fee_status_desc: "رسوم البروتوكول (BPS): {{protocol}} | رسوم العميل (BPS): {{client}}",
+      config_saved_title: "تم حفظ الإعدادات بأمان",
+      config_saved_desc: "يمكنك الآن تشغيل سكربت الترقية على الخادم.",
+      save_failed: "فشل في الحفظ",
+      sign_message_content: "تفويض تحديث إعدادات DAO:\n\nمدة التصويت: {{votingPeriod}} ثانية\nرسوم البروتوكول: {{protocolFee}}%\nرسوم العميل: {{clientFee}}%\n\nالوقت: {{timestamp}}",
     },
   },
 

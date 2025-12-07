@@ -36,7 +36,7 @@ export const ru = {
     page: "Страница",
     generated_footer: "Сгенерировано ИИ-движком RayanChain | Этот отчет не является окончательным финансовым предложением.",
     rayan_chain_vc: "Инвестиционная платформа RayanChain",
-    coming_soon: "Скоро", // Fixed typo from 'comming_soon'
+    coming_soon: "Скоро",
     all: "Все",
     view_tx: "Посмотреть транзакцию",
     ai_powered: "ИИ",
@@ -53,6 +53,7 @@ export const ru = {
     no_results_for: "Ничего не найдено для",
     clear_search: "Очистить поиск",
     confirm_continue: "Сохранить и продолжить",
+    seconds: "Секунда",
   },
 
   header: {
@@ -122,6 +123,7 @@ wallet: {
   disconnect: "Отключить",
   rejected: "Подключение отклонено пользователем",
   terms_notice: "Подключая кошелёк, вы принимаете правила и условия платформы.",
+  not_connected: "Кошелёк не подключен",
 },
 
 
@@ -473,7 +475,14 @@ wallet: {
       unpause_processing: "Система вновь активируется...",
       pause_success: "Система успешно остановлена.",
       unpause_success: "Система успешно активирована.",
-
+      settings_subtitle: "Безопасное обновление параметров через серверный скрипт",
+      save_prepare_btn: "Сохранить и подготовить обновление",
+      current_onchain: "Текущее значение в блокчейне: {{value}}",
+      fee_status_desc: "Комиссия протокола (BPS): {{protocol}} | Комиссия клиента (BPS): {{client}}",
+      config_saved_title: "Настройки успешно и безопасно сохранены",
+      config_saved_desc: "Теперь вы можете запустить скрипт обновления на сервере.",
+      save_failed: "Сохранение не удалось",
+      sign_message_content: "Разрешение на обновление настроек DAO:\n\nПериод голосования: {{votingPeriod}} секунд\nКомиссия протокола: {{protocolFee}}%\nКомиссия клиента: {{clientFee}}%\n\nВремя: {{timestamp}}",
     },
   },
 

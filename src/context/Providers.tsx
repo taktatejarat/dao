@@ -32,7 +32,6 @@ function Web3Bundle({ children }: { children: ReactNode }) {
     return (
         <WagmiProvider config={wagmiConfig}>
             <QueryClientProvider client={queryClient}>
-                {/* RainbowKitProvider حذف شد - ما UI خودمان را می‌سازیم */}
                 <Web3Provider>
                     <AuthGuard>
                         {children}
