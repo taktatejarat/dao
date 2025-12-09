@@ -163,30 +163,30 @@ function ReportContent() {
                 generated_footer: t('proposal_detail.generated_footer'), 
 
                 // Page 1 Info
-                industry: t('new_proposal_page.industry'),
-                model: t('new_proposal_page.business_model'),
-                website: t('new_proposal_page.website'),
-                teamExp: t('new_proposal_page.team_experience_years_label'),
+                industry: t('proposals.new.industry'),
+                model: t('proposals.new.business_model'),
+                website: t('proposals.new.website'),
+                teamExp: t('proposals.new.team_experience_years_label'),
                 
                 details: t('proposal_detail.details'),
                 full_description: t('proposal_detail.description'),
-                problem: t('new_proposal_page.problem'),
-                solution: t('new_proposal_page.solution'),
+                problem: t('proposals.new.problem'),
+                solution: t('proposals.new.solution'),
 
                 // Page 2 Data
                 data_analysis: t('reports_page.data_analysis'),
-                market: t('new_proposal_page.tabs.market'),
-                competitors: t('new_proposal_page.competitors'),
+                market: t('proposals.new.tabs.market'),
+                competitors: t('proposals.new.competitors'),
                 
-                financials: t('new_proposal_page.tabs.financials'),
+                financials: t('proposals.new.tabs.financials'),
                 burn_rate: t('xai.feature.burn_rate'),
-                revenue: t('new_proposal_page.financial_stats.revenue_label'),
-                break_even: t('new_proposal_page.financial_stats.break_even_label'),
+                revenue: t('proposals.new.financial_stats.revenue_label'),
+                break_even: t('proposals.new.financial_stats.break_even_label'),
                 
                 milestones: t('proposal_detail.milestones'),
                 milestone_name: t('proposal_detail.milestone'),
-                duration: t('new_proposal_page.duration_days'),
-                amount: t('new_proposal_page.amount'),
+                duration: t('proposals.new.duration_days'),
+                amount: t('proposals.new.amount'),
 
                 // Page 3 AI
                 ai_audit_report: t('reports_page.ai_audit_report'),

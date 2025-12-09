@@ -10,11 +10,11 @@ import { Button } from "@/components/ui/button";
 import { Search, Sun, Moon, Bell } from "lucide-react";
 import { LanguageSwitcher } from "./language-switcher";
 import { useTranslation } from "@/hooks/use-translation";
-// import { ConnectButton } from '@rainbow-me/rainbowkit'; // ❌ حذف شد
-import { CustomConnectButton } from "@/components/wallet/custom-connect-button"; // ✅ اضافه شد
+import { CustomConnectButton } from "@/components/wallet/custom-connect-button"; 
 import { SidebarTrigger } from "../ui/sidebar";
 import { Separator } from "@/components/ui/separator";
 import { isAddress } from "viem";
+import { useUser } from '@/context/UserContext'; 
 
 export function Header() {
   const { setTheme, theme } = useTheme();
@@ -88,9 +88,7 @@ export function Header() {
         <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-primary hidden sm:flex">
             <Bell className="h-5 w-5" />
         </Button>
-
         <LanguageSwitcher />
-        
         <Button 
           variant="ghost" 
           size="icon"
@@ -100,10 +98,7 @@ export function Header() {
           <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
           <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
         </Button>
-        
         <div className="h-8 w-[1px] bg-border mx-1 hidden sm:block"></div>
-        
-        {/* ✅ دکمه جدید اینجاست */}
         <CustomConnectButton />
       </div>
     </header>

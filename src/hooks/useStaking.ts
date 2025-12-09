@@ -1,5 +1,4 @@
-// src/hooks/useStaking.ts - FINAL, BULLETPROOF VERSION 2.0
-
+// src/hooks/useStaking.ts
 
 "use client";
 
@@ -11,7 +10,6 @@ import { stakingAbi, rayanChainTokenAbi } from '@/lib/blockchain/generated';
 import type { Address } from 'viem';
 import { parseEther, isAddress, maxUint256 } from 'viem';
 import { useSWRConfig } from 'swr';
-
 
 interface UseStakingProps {
     tokenAddress: Address | undefined;
@@ -47,7 +45,6 @@ export function useStaking({ tokenAddress, stakingAddress }: UseStakingProps) {
     });
 
     const [rycBalance, stakedBalance, earnedRewards, allowance, currentDelegatee] = useMemo(() => {
-        // تابع کمکی برای استخراج امن داده
         const getVal = (index: number, defaultValue: any) => {
             if (!contractData || !contractData[index]) return defaultValue;
             const item = contractData[index];
@@ -66,16 +63,13 @@ export function useStaking({ tokenAddress, stakingAddress }: UseStakingProps) {
 
     const parsedStakeAmount = useMemo(() => { try { return parseEther(stakeAmount || '0'); } catch { return 0n; } }, [stakeAmount]);
     const parsedUnstakeAmount = useMemo(() => { try { return parseEther(unstakeAmount || '0'); } catch { return 0n; } }, [unstakeAmount]);
-    // ✅ FIX: اجازه به آدرس خود کاربر هم می‌دهیم
     const isValidDelegateeAddress = useMemo(() => isAddress(delegateeAddress), [delegateeAddress]);
     const needsApproval = useMemo(() => (allowance ?? 0n) < parsedStakeAmount, [allowance, parsedStakeAmount]);
 
     // --- 2. Transaction Execution ---
-    // ✅ FIX: دریافت resetWrite برای پاک‌سازی وضعیت داخلی Wagmi
     const { writeContractAsync, isPending: isWritePending, reset: resetWrite } = useWriteContract();
     const { isLoading: isConfirming, isSuccess, isError, error } = useWaitForTransactionReceipt({ hash: txHash });
 
-    // تابع پاک‌سازی کامل وضعیت
     const resetState = useCallback(() => {
         setTxHash(undefined);
         setCurrentAction(null);
@@ -105,38 +99,99 @@ export function useStaking({ tokenAddress, stakingAddress }: UseStakingProps) {
 
         if (isError) {
             if (toastIdRef.current) toast.dismiss(toastIdRef.current);
-            toast.error(t('toasts.transaction_failed'), { description: error?.message?.slice(0, 100) });
+            const msg = (error as any)?.shortMessage || error?.message || "Unknown error";
+            toast.error(t('toasts.transaction_failed'), { description: msg.slice(0, 100) });
             resetState();
         }
     }, [isSuccess, isError, error, t, currentAction, mutate, refetch, resetState]);
 
-    const executeTransaction = useCallback(async (
-        action: string,
-        config: Parameters<typeof writeContractAsync>[0]
-    ) => {
-        if (currentAction) return; // جلوگیری از تداخل
+    // ✅ تابع هندلر اصلی (Approve & Stake) با Gas Limit بالا
+    const handleStake = async () => {
+        if (!tokenAddress || !stakingAddress) {
+            console.error("❌ Addresses missing:", { tokenAddress, stakingAddress });
+            toast.error("Contract addresses missing. Refresh page.");
+            return;
+        }
 
+        // --- STEP 1: APPROVE ---
+        if (needsApproval) {
+            toastIdRef.current = toast.loading(t('toasts.submitting_approval'));
+            setCurrentAction('approval');
+            
+            console.log("🚀 Sending Approve TX:", {
+                token: tokenAddress,
+                spender: stakingAddress,
+                amount: maxUint256.toString()
+            });
+
+            try {
+                const hash = await writeContractAsync({
+                    address: tokenAddress,
+                    abi: rayanChainTokenAbi,
+                    functionName: 'approve',
+                    args: [stakingAddress, maxUint256],
+                    // ⚠️ افزایش قابل توجه Gas Limit برای جلوگیری از خطای -32603
+                    gas: BigInt(500000), 
+                });
+                console.log("✅ Approve TX Sent. Hash:", hash);
+                setTxHash(hash);
+                toast.loading(t('toasts.waiting_for_confirmation'), { id: toastIdRef.current });
+            } catch (err: any) {
+                console.error("❌ Approve Error:", err);
+                if (toastIdRef.current) toast.dismiss(toastIdRef.current);
+                // نمایش دقیق‌تر خطا
+                const msg = err.details || err.shortMessage || err.message;
+                toast.error(t('common.error'), { description: msg });
+                resetState();
+            }
+            return;
+        }
+
+        // --- STEP 2: STAKE ---
+        toastIdRef.current = toast.loading(t('toasts.submitting_stake'));
+        setCurrentAction('stake');
+        
+        console.log("🚀 Sending Stake TX:", {
+            contract: stakingAddress,
+            amount: parsedStakeAmount.toString()
+        });
+
+        try {
+            const hash = await writeContractAsync({
+                address: stakingAddress,
+                abi: stakingAbi,
+                functionName: 'stake',
+                args: [parsedStakeAmount],
+                // ⚠️ افزایش Gas Limit برای تابع Stake که سنگین‌تر است
+                gas: BigInt(1000000), 
+            });
+            console.log("✅ Stake TX Sent. Hash:", hash);
+            setTxHash(hash);
+            toast.loading(t('toasts.waiting_for_confirmation'), { id: toastIdRef.current });
+        } catch (err: any) {
+            console.error("❌ Stake Error:", err);
+            if (toastIdRef.current) toast.dismiss(toastIdRef.current);
+            const msg = err.details || err.shortMessage || err.message;
+            toast.error(t('common.error'), { description: msg });
+            resetState();
+        }
+    };
+
+    // سایر هندلرها (ساده شده)
+    const executeTransaction = useCallback(async (action: string, config: any) => {
         toastIdRef.current = toast.loading(t(`toasts.submitting_${action}`));
         setCurrentAction(action); 
-        
         try {
-            const hash = await writeContractAsync(config);
+            const hash = await writeContractAsync({ ...config, gas: BigInt(250000) }); 
             setTxHash(hash);
             toast.loading(t('toasts.waiting_for_confirmation'), { id: toastIdRef.current });
         } catch (err: any) {
             if (toastIdRef.current) toast.dismiss(toastIdRef.current);
-            if (err.message.includes("User rejected")) {
-                toast.error(t('toasts.transaction_rejected'));
-            } else {
-                toast.error(t('common.error'), { description: err.shortMessage || err.message });
-            }
+            toast.error(t('common.error'), { description: err.shortMessage || err.message });
             resetState();
         }
-    }, [writeContractAsync, t, currentAction, resetState]);
+    }, [writeContractAsync, t, resetState]);
 
-    // هندلرها
-    const handleApprove = () => executeTransaction('approval', { address: tokenAddress!, abi: rayanChainTokenAbi, functionName: 'approve', args: [stakingAddress!, maxUint256] });
-    const handleStake = () => executeTransaction('stake', { address: stakingAddress!, abi: stakingAbi, functionName: 'stake', args: [parsedStakeAmount] });
     const handleUnstake = () => executeTransaction('unstake', { address: stakingAddress!, abi: stakingAbi, functionName: 'unstake', args: [parsedUnstakeAmount] });
     const handleClaim = () => executeTransaction('claim', { address: stakingAddress!, abi: stakingAbi, functionName: 'claimReward', args: [] });
     
@@ -150,8 +205,9 @@ export function useStaking({ tokenAddress, stakingAddress }: UseStakingProps) {
 
     const isActionPending = isWritePending || isConfirming;
 
+    // Button States
     const isApproveButtonDisabled = isActionPending || parsedStakeAmount <= 0n;
-    const isStakeButtonDisabled = isActionPending || parsedStakeAmount <= 0n || needsApproval;
+    const isStakeButtonDisabled = isActionPending || parsedStakeAmount <= 0n;
     const isUnstakeButtonDisabled = isActionPending || parsedUnstakeAmount <= 0n;
     const isClaimButtonDisabled = isActionPending || (earnedRewards ?? 0n) <= 0n;
     const isDelegateButtonDisabled = isActionPending || !isValidDelegateeAddress || (stakedBalance ?? 0n) <= 0n;
@@ -164,7 +220,8 @@ export function useStaking({ tokenAddress, stakingAddress }: UseStakingProps) {
         delegateeAddress, setDelegateeAddress,
         needsApproval,
         isActionPending,
-        handleApprove, handleStake, handleUnstake, handleClaim, handleDelegate, handleUndelegate,
+        handleStake, 
+        handleUnstake, handleClaim, handleDelegate, handleUndelegate,
         isApproveButtonDisabled, isStakeButtonDisabled, isUnstakeButtonDisabled, isClaimButtonDisabled, isDelegateButtonDisabled, isUndelegateButtonDisabled,
         refetch 
     };

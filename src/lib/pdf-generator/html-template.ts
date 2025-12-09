@@ -1,11 +1,11 @@
-// src/lib/pdf-generator/html-template.ts - ENTERPRISE EDITION
+// src/lib/pdf-generator/html-template.ts
 
 import fs from 'fs';
 import path from 'path';
 
 interface HtmlTemplateProps {
   report: any;
-  proposal: any;
+  proposal: any; // شامل startupStage و knowledgeBasedType
   proposalId: string;
   generatedDate: string;
   locale: string;
@@ -45,6 +45,9 @@ interface HtmlTemplateProps {
     strengths: string;
     weaknesses: string;
     noData: string;
+    // ✅ کلیدهای جدید برای PDF
+    stage_title?: string;
+    kb_title?: string;
   };
 }
 
@@ -60,7 +63,6 @@ export const generateHTML = ({ report, proposal, proposalId, generatedDate, loca
   const dir = isRTL ? 'rtl' : 'ltr';
   const textAlign = isRTL ? 'right' : 'left';
 
-  // Fonts
   const vazirReg = loadFontAsBase64('Vazirmatn-Regular.ttf');
   const vazirBold = loadFontAsBase64('Vazirmatn-Bold.ttf');
   const robotoReg = loadFontAsBase64('Roboto-Regular.ttf');
@@ -69,71 +71,35 @@ export const generateHTML = ({ report, proposal, proposalId, generatedDate, loca
   const safe = (val: any) => (val ? val : "-");
   const money = (val: any) => (val ? `$${Number(val).toLocaleString()}` : "-");
 
-  // محاسبه موقعیت نشانگر ریسک (0 تا 100 درصد)
   const riskPercent = report.risk_score || 50;
+  let riskColor = "#eab308";
+  if(riskPercent < 30) riskColor = "#22c55e";
+  if(riskPercent > 70) riskColor = "#ef4444";
+
+  // ✅ تبدیل مقادیر خام به متن خوانا
+  const stageMap: any = { 'idea': 'Idea / Pre-Revenue', 'revenue': 'Growth / Post-Revenue' };
+  const kbMap: any = { 'none': 'None', 'type1': 'Type 1 (Tech)', 'type2': 'Type 2 (Production)', 'creative': 'Creative' };
   
-  // رنگ‌بندی ریسک
-  let riskColor = "#eab308"; // زرد
-  if(riskPercent < 30) riskColor = "#22c55e"; // سبز (ریسک پایین)
-  if(riskPercent > 70) riskColor = "#ef4444"; // قرمز (ریسک بالا)
+  const displayStage = stageMap[proposal.startupStage] || safe(proposal.startupStage);
+  const displayKB = kbMap[proposal.knowledgeBasedType] || safe(proposal.knowledgeBasedType);
 
   const css = `
     @font-face { font-family: 'BodyFont'; src: url(data:font/ttf;charset=utf-8;base64,${isRTL ? vazirReg : robotoReg}) format('truetype'); font-weight: normal; }
     @font-face { font-family: 'BodyFont'; src: url(data:font/ttf;charset=utf-8;base64,${isRTL ? vazirBold : robotoBold}) format('truetype'); font-weight: bold; }
-    
-    :root {
-      --primary: #0f172a;
-      --accent: #2563eb;
-      --bg-gray: #f8fafc;
-      --border: #e2e8f0;
-    }
-
-    body {
-      font-family: 'BodyFont', sans-serif;
-      margin: 0; padding: 0;
-      background: #fff; color: #333;
-      direction: ${dir}; text-align: ${textAlign};
-      font-size: 12px; line-height: 1.5;
-    }
-    
-    .page {
-      width: 100%; height: 100%;
-      padding: 40px 50px;
-      box-sizing: border-box;
-      position: relative;
-      page-break-after: always;
-    }
+ 
+    :root { --primary: #0f172a; --accent: #2563eb; --bg-gray: #f8fafc; --border: #e2e8f0; }
+    body { font-family: 'BodyFont', sans-serif; margin: 0; padding: 0; direction: ${dir}; text-align: ${textAlign}; font-size: 12px; }
+    .page { padding: 40px 50px; page-break-after: always; }
     .page:last-child { page-break-after: auto; }
-
-    /* Header Design */
-    .header-bar {
-      border-bottom: 2px solid var(--primary);
-      padding-bottom: 15px; margin-bottom: 30px;
-      display: flex; justify-content: space-between; align-items: flex-end;
-      flex-direction: ${isRTL ? 'row' : 'row-reverse'};
-    }
-    .logo-text { font-size: 24px; font-weight: bold; color: var(--primary); letter-spacing: -0.5px; }
-    .report-meta { font-size: 10px; color: #64748b; text-align: ${isRTL ? 'left' : 'right'}; line-height: 1.4; }
-
-    /* Titles */
-    h1 { font-size: 28px; color: var(--primary); margin: 0 0 5px 0; font-weight: 800; }
-    .tagline { font-size: 14px; color: #64748b; font-style: italic; margin-bottom: 25px; }
-    
-    h2 { 
-      font-size: 16px; color: var(--accent); text-transform: uppercase; letter-spacing: 0.5px;
-      border-bottom: 1px solid var(--border); padding-bottom: 8px; margin: 25px 0 15px 0;
-    }
-
-    /* Cards & Grids */
-    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .header-bar { border-bottom: 2px solid var(--primary); padding-bottom: 15px; margin-bottom: 30px; display: flex; justify-content: space-between; flex-direction: ${isRTL ? 'row' : 'row-reverse'}; }
+    .logo-text { font-size: 24px; font-weight: bold; }
     .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
-    
-    .info-box {
-      background: var(--bg-gray); border: 1px solid var(--border);
-      padding: 12px; border-radius: 6px;
-    }
-    .info-label { font-size: 9px; text-transform: uppercase; color: #64748b; margin-bottom: 4px; font-weight: bold; }
-    .info-value { font-size: 13px; font-weight: bold; color: var(--primary); }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 15px; }
+    .info-box { background: var(--bg-gray); border: 1px solid var(--border); padding: 12px; border-radius: 6px; }
+    .info-label { font-size: 9px; text-transform: uppercase; color: #64748b; font-weight: bold; }
+    .info-value { font-size: 13px; font-weight: bold; color: var(--primary); margin-top: 4px; }
+    h1 { font-size: 28px; color: var(--primary); margin: 0; text-align: center; }
+    h2 { font-size: 16px; color: var(--accent); border-bottom: 1px solid var(--border); padding-bottom: 8px; margin: 25px 0 15px 0; }
     .ltr-val { direction: ltr; unicode-bidi: embed; text-align: ${isRTL ? 'left' : 'right'}; }
 
     /* Risk Meter Visualization */
@@ -191,42 +157,48 @@ export const generateHTML = ({ report, proposal, proposalId, generatedDate, loca
     <head><meta charset="UTF-8"><style>${css}</style></head>
     <body>
       
-      <!-- PAGE 1: OVERVIEW -->
+      <!-- PAGE 1 -->
       <div class="page">
         <div class="header-bar">
           <div class="logo-text">${labels.rayan_chain_vc}</div>
-          <div class="report-meta">
-            <strong>${labels.id}:</strong> <span style="font-family: monospace;">${proposalId}</span><br>
-            <strong>${labels.date}:</strong> ${generatedDate}<br>
-            <strong>Status:</strong> Generated via AI Engine v2.0
+          <div style="font-size: 10px; color: #666;">
+             ID: ${proposalId}<br>Date: ${generatedDate}
           </div>
         </div>
 
-        <div style="text-align: center; margin-bottom: 40px;">
+        <div style="text-align: center; margin-bottom: 30px;">
           <h1>${safe(proposal.projectName)}</h1>
-          <div class="tagline">${safe(proposal.tagline)}</div>
-          
-          <div class="grid-4" style="margin-top: 20px;">
+          <div style="font-style: italic; color: #666;">${safe(proposal.tagline)}</div>
+        </div>
+
+        <!-- ✅ بخش جدید: اطلاعات تکمیلی -->
+        <div class="grid-2">
+            <div class="info-box">
+                <div class="info-label">${labels.stage_title || 'Project Stage'}</div>
+                <div class="info-value">${displayStage}</div>
+            </div>
+            <div class="info-box">
+                <div class="info-label">${labels.kb_title || 'Knowledge Based'}</div>
+                <div class="info-value">${displayKB}</div>
+            </div>
+        </div>
+
+        <div class="grid-4" style="margin-top: 10px;">
             <div class="info-box"><div class="info-label">${labels.industry}</div><div class="info-value">${safe(proposal.startupIndustry)}</div></div>
             <div class="info-box"><div class="info-label">${labels.model}</div><div class="info-value">${safe(proposal.businessModel)}</div></div>
             <div class="info-box"><div class="info-label">${labels.teamExp}</div><div class="info-value">${safe(proposal.teamExperienceYears)} Yrs</div></div>
-            <div class="info-box"><div class="info-label">${labels.amount}</div><div class="info-value ltr-val" style="color: var(--accent);">${money(proposal.milestones?.reduce((a:any,b:any)=>a+Number(b.amount),0))}</div></div>
-          </div>
+            <div class="info-box"><div class="info-label">${labels.amount}</div><div class="info-value">${money(proposal.milestones?.reduce((a:any,b:any)=>a+Number(b.amount),0))}</div></div>
         </div>
 
         <h2>${labels.details}</h2>
-        <div style="background: #fff; padding: 10px 0; text-align: justify;">
-          <p><strong>${labels.full_description}:</strong> ${safe(proposal.description)}</p>
-          <div style="margin-top: 15px; display: flex; gap: 20px;">
-             <div style="flex:1"><strong>${labels.problem}:</strong><br>${safe(proposal.problem)}</div>
-             <div style="flex:1"><strong>${labels.solution}:</strong><br>${safe(proposal.solution)}</div>
-          </div>
-        </div>
+        <p>${safe(proposal.description)}</p>
         
-        <div class="footer">
-          CONFIDENTIAL - This document is generated automatically by RayanChain AI Oracle. 
-          It does not constitute financial advice. | Page 1/3
+        <div class="grid-2">
+             <div><strong>${labels.problem}:</strong><br>${safe(proposal.problem)}</div>
+             <div><strong>${labels.solution}:</strong><br>${safe(proposal.solution)}</div>
         </div>
+
+        <div class="footer">${labels.generated_footer} | Page 1</div>
       </div>
 
       <!-- PAGE 2: FINANCIALS & MARKET -->
@@ -269,7 +241,7 @@ export const generateHTML = ({ report, proposal, proposalId, generatedDate, loca
           </tbody>
         </table>
         
-        <div class="footer">RayanChain VC | ${labels.generated_footer} | Page 2/3</div>
+         <div class="footer">${labels.generated_footer} | Page 2</div>
       </div>
 
       <!-- PAGE 3: AI RISK ASSESSMENT -->
@@ -339,9 +311,8 @@ export const generateHTML = ({ report, proposal, proposalId, generatedDate, loca
             </ul>
           </div>
         </div>
-
-        <div class="footer">
-          Generated by RayanChain AI Oracle | Verify on-chain using Proposal ID | Page 3/3
+          <div class="footer">${labels.generated_footer} | Page 2</div>
+          </div>
         </div>
       </div>
     </body>

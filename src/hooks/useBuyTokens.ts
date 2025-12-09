@@ -43,17 +43,17 @@ export function useBuyTokens({ tokenAddress }: UseBuyTokensProps) {
         if (revertMatch && revertMatch[1]) {
             return revertMatch[1];
         }
-        return baseError?.shortMessage || t('new_proposal_page.unexpected_error_desc'); 
+        return baseError?.shortMessage || t('proposals.new.unexpected_error_desc'); 
     };
 
    const handleBuyTokens = async () => {
         if (!tokenAddress) {
-            toast.error(t('new_proposal_page.error_toast_title'), { description: t('staking_page.contract_addresses_missing') });
+            toast.error(t('proposals.new.error_toast_title'), { description: t('staking_page.contract_addresses_missing') });
             return;
         }
         const maticToSend = parseEther(buyAmount || '0');
         if (maticToSend <= 0n) {
-            toast.error(t('new_proposal_page.error_toast_title'), { description: t('staking_page.buy_amount_error') });
+            toast.error(t('proposals.new.error_toast_title'), { description: t('staking_page.buy_amount_error') });
             return;
         }
         
@@ -71,11 +71,11 @@ export function useBuyTokens({ tokenAddress }: UseBuyTokensProps) {
             });
             
             setBuyTxHash(hash);
-            toast.info(t('new_proposal_page.pending_toast_title'), { description: t('staking_page.buy_in_progress') });
+            toast.info(t('proposals.new.pending_toast_title'), { description: t('staking_page.buy_in_progress') });
 
         } catch (err) {
             console.error("Buy tokens error:", err);
-            toast.error(t('new_proposal_page.error_toast_title'), { description: extractRevertReason(err) });
+            toast.error(t('proposals.new.error_toast_title'), { description: extractRevertReason(err) });
         }
     };
 

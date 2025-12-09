@@ -1,12 +1,8 @@
 // src/app/api/profile/route.ts
 
 import { type NextRequest, NextResponse } from 'next/server';
-import { getProfile, saveProfile } from '@/lib/db'; // Import our new DB functions
+import { getUserProfile, updateUserProfile } from '@/lib/db'; // ✅ نام‌های جدید
 
-/**
- * Handles GET requests to fetch a user profile.
- * e.g., /api/profile?address=0x123...
- */
 export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams;
     const address = searchParams.get('address');
@@ -16,14 +12,16 @@ export async function GET(request: NextRequest) {
     }
 
     try {
-        const userProfile = await getProfile(address);
+        // ✅ استفاده از تابع جدید
+        const userDoc = await getUserProfile(address);
         
-        // If profile is not found, return a default structure as the frontend expects it.
-        if (!userProfile) {
+        if (!userDoc) {
+            // بازگرداندن ساختار خالی اگر کاربر نبود
             return NextResponse.json({ displayName: '', email: '' }, { status: 200 });
         }
         
-        return NextResponse.json(userProfile, { status: 200 });
+        // بازگرداندن پروفایل (پروفایل داخل داکیومنت است)
+        return NextResponse.json(userDoc.profile, { status: 200 });
 
     } catch (error) {
         console.error("Error in GET /api/profile:", error);
@@ -31,9 +29,6 @@ export async function GET(request: NextRequest) {
     }
 }
 
-/**
- * Handles POST requests to create or update a user profile.
- */
 export async function POST(request: NextRequest) {
     try {
         const { address, displayName, email } = await request.json();
@@ -42,15 +37,13 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ message: 'Address is required.' }, { status: 400 });
         }
 
-        // We can add more validation here if needed (e.g., for email format)
-
-        await saveProfile(address, { displayName, email });
+        // ✅ استفاده از تابع جدید
+        await updateUserProfile(address, { displayName, email });
 
         return NextResponse.json({ success: true, message: 'Profile updated successfully.' }, { status: 200 });
 
     } catch (error) {
         console.error("Error in POST /api/profile:", error);
-        const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred.';
-        return NextResponse.json({ success: false, message: errorMessage }, { status: 500 });
+        return NextResponse.json({ success: false, message: (error as Error).message }, { status: 500 });
     }
 }

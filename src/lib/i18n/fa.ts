@@ -55,6 +55,7 @@ export const fa = {
     loading: "در حال بارگذاری",
     confirm_continue: "ثبت و ادامه",
     seconds: "ثانیه",
+    max: "حداکثر",
   },
 
   header: {
@@ -82,12 +83,12 @@ export const fa = {
     treasury: "خزانه داری",
     staking: "سپرده‌گذاری",
     ai_reports: "گزارشهای هوشمند",
-    group_core: "اصلی",
     group_governance: "حکمرانی و رأی‌دهی",
     group_intelligence: "هوش مصنوعی و تحلیل",
     group_admin: "مدیریت سیستم",
     guest_mode: "حالت مهمان",
-    all_proposals: "همه پروپوزال‌ها"
+    all_proposals: "همه پروپوزال‌ها",
+    group_core: "هسته پلتفرم",
   },
 
   menu: {
@@ -241,52 +242,12 @@ export const fa = {
     },
   },
 
-  role_selection: {
-    title: "انتخاب نقش",
-    subtitle: "انتخاب نقش به شما امکان می‌دهد جایگاه خود را در ساختار حکمرانی و سرمایه گذاری مشخص کنید و مسیر مشارکت را بر اساس توانایی‌ها و اهداف شخصی خود تعیین نمایید این بخش برای ایجاد شفافیت در فرایند تصمیم سازی طراحی شده است تا هر عضو بتواند نقش موثر خود را در شبکه ایفا کند",
-    welcome: "به زنجیره هوشمند رایان خوش آمدید!",
-    prompt: "برای شروع، لطفا نقش خود را در پلتفرم مشخص کنید.",
+  roles: {
+    admin: "مدیر سیستم",
+    startup: "استارتاپ",
     investor: "سرمایه‌گذار",
-    startup: "استارت‌آپ",
     voter: "رأی‌دهنده",
     delegate: "نماینده",
-    investor_desc_short: "ارزیابی فرصت‌های سرمایه‌گذاری با تمرکز بر سودآوری و مدیریت ریسک",
-    continue_to_staking_cta: "ادامه برای انتخاب پلن سرمایه گذاری",
-    delegate_title: "نماینده حاکمیتی",
-    delegate_desc: "مشارکت فعال در تصمیم‌گیری‌های DAO با دریافت حق رأی وکالتی از سایر اعضا و تأثیرگذاری بر آینده سرمایه‌گذاری‌ها.",
-    investor_title: "پلن سرمایه‌گذاری خود را انتخاب کنید",
-    investor_subtitle: "با سپرده گذاری توکن بومی رایان کوین ، از مزایا و پاداشهای این پلتفرم بهره‌مند شوند",
-    startup_title: "آیا شما یک استارت‌آپ هستید؟",
-    startup_desc: "برای پروژه نوآورانه خود سرمایه جذب کنید. پیشنهاد خود را ثبت کنید تا توسط جامعه سرمایه‌گذاران ما ارزیابی شود.",
-    startup_cta: "ثبت‌نام به عنوان استارت‌آپ",
-    startup_role_granted_title: "نقش استارتاپ اعطا شد",
-    startup_role_granted_desc: "امتیازات استارتاپ به شما اعطا شده است. حالا می‌توانید پیشنهاد ارسال کنید.",
-    role_grant_error_title: "اعطای نقش ناموفق بود",
-    role_grant_error_desc: "اعطای نقش استارتاپ ناموفق بود. لطفاً دوباره تلاش کنید.",
-    granting_role: "در حال اعطای نقش...",
-    voter_title: "در حاکمیت مشارکت کنید",
-    voter_desc: "به عنوان یک کاربر رأی‌دهنده، در تصمیم‌گیری‌های کلیدی پلتفرم نقش داشته باشید و به شکل‌دهی آینده رایان جین کمک کنید.",
-    voter_cta: "ادامه به عنوان رأی‌دهنده",
-    plan_bronze_title: "برنزی",
-    plan_bronze_desc: "برای شروع سرمایه‌گذاری‌های کوچک.",
-    plan_bronze_feat1: "دسترسی به پیشنهادات عمومی",
-    plan_bronze_feat2: "قدرت رای پایه",
-    plan_bronze_feat3: "پشتیبانی استاندارد",
-    plan_silver_title: "نقره‌ای",
-    plan_silver_desc: "محبوب‌ترین گزینه برای سرمایه‌گذاران فعال.",
-    plan_silver_feat1: "دسترسی به پیشنهادات عمومی و خصوصی",
-    plan_silver_feat2: "قدرت رای ۲ برابر",
-    plan_silver_feat3: "تحلیل ریسک با هوش مصنوعی",
-    plan_silver_feat4: "پشتیبانی اولویت‌دار",
-    plan_gold_title: "طلایی",
-    plan_gold_desc: "برای سرمایه‌گذاران حرفه‌ای و نهادی.",
-    plan_gold_feat1: "دسترسی انحصاری به پروژه‌های اولیه",
-    plan_gold_feat2: "قدرت رای ۵ برابر",
-    plan_gold_feat3: "تحلیل پیشرفته با هوش مصنوعی",
-    plan_gold_feat4: "مدیر حساب اختصاصی",
-    select_plan: "انتخاب پلن",
-    redirecting: "در حال انتقال...",
-    admin: "مدیر پلتفرم",
   },
 
   // ==============================================================================
@@ -324,6 +285,7 @@ export const fa = {
     native_balance_desc: "موجودی ارز اصلی شبکه",
     staked_balance: "موجودی سپرده‌گذاری شده",
     staked_balance_desc: "توکن‌های سپرده‌گذاری شده شما",
+    no_proposals: "هیچ پروپوزالی یافت نشد",
 
     // Proposal tracking
     latest_proposal_status: "وضعیت پیشنهاد اخیر",
@@ -526,6 +488,133 @@ export const fa = {
     defi_integration: "ادغام با پروتکل DeFi",
     community_fund: "ایجاد صندوق ذخیره جامعه (ریز)",
     platform_x_partnership: "همکاری با پلتفرم X",
+
+    new: {
+      title: "ایجاد پروپوزال جدید",
+      subtitle: "چشم‌انداز خود را تعریف کنید یا منابع خزانه را مدیریت نمایید",
+      tab_startup: "جذب سرمایه استارتاپ",
+      tab_treasury: "حاکمیت DAO (خزانه)",
+      
+      // بخش استارتاپ
+      stage_title: "مرحله پروژه",
+      stage_idea: "ایده / پیش از درآمد",
+      stage_idea_desc: "نمونه اولیه (MVP)، تحقیق و توسعه",
+      stage_revenue: "رشد / پس از درآمد",
+      stage_revenue_desc: "درآمدزایی فعال، توسعه بازار",
+      
+      kb_title: "نوع دانش‌بنیان",
+      kb_none: "عادی (غیر دانش‌بنیان)",
+      kb_type1: "نوپا (نوع ۱)",
+      kb_type2: "فناور (نوع ۲)",
+      kb_creative: "خلاق / صنایع نرم",
+      
+      docs_title: "مستندات",
+      upload_pitch: "آپلود Pitch Deck",
+      upload_whitepaper: "آپلود وایت‌پیپر / BP",
+      upload_legal: "اسناد حقوقی",
+      required: "(الزامی)",
+      uploaded: "آپلود شد",
+
+      project_details: "جزئیات پروژه",
+      project_details_desc: "ارزش پیشنهادی خود را برای سرمایه‌گذاران شرح دهید.",
+      lbl_name: "نام پروژه",
+      ph_name: "مثال: رایان‌چین",
+      lbl_tagline: "شعار کوتاه",
+      ph_tagline: "مثال: آینده سرمایه‌گذاری غیرمتمرکز",
+      lbl_problem_solution: "مسئله و راه‌حل",
+      ph_problem_solution: "مشکل موجود چیست و شما چگونه آن را حل می‌کنید؟",
+      
+      market_financials: "بازار و مالی",
+      market_desc_idea: "تمرکز بر اندازه بازار و نرخ مصرف سرمایه",
+      market_desc_revenue: "تمرکز بر درآمد و شاخص‌های رشد",
+      lbl_tam: "کل بازار موجود (TAM) - $",
+      lbl_sam: "بازار قابل خدمت (SAM) - $",
+      lbl_som: "سهم بازار قابل کسب (SOM) - $",
+      
+      // فیلدهای شرطی
+      lbl_burn_rate: "نرخ مصرف ماهانه ($)",
+      lbl_runway: "مدت زمان بقا (ماه)",
+      lbl_revenue: "درآمد سال گذشته ($)",
+      lbl_profit: "حاشیه سود (%)",
+      
+      milestones_title: "مراحل سرمایه‌گذاری",
+      milestones_desc: "نحوه استفاده از سرمایه را تعریف کنید.",
+      lbl_milestone_name: "نام مرحله",
+      lbl_days: "مدت (روز)",
+      lbl_amount: "مبلغ (RYC)",
+      btn_add_milestone: "افزودن مرحله",
+      btn_submit_startup: "ثبت درخواست سرمایه",
+
+      // بخش خزانه
+      treasury_title: "درخواست برداشت وجه",
+      treasury_desc: "ایجاد پروپوزال برای برداشت وجه یا تغییر پارامترها.",
+      lbl_proposal_title: "عنوان پروپوزال",
+      lbl_desc_reason: "توضیحات و دلیل",
+      lbl_recipient: "آدرس گیرنده",
+      lbl_token_type: "نوع توکن",
+      opt_governance: "RYC (حاکمیتی)",
+      opt_native: "ارز داخلی",
+      btn_submit_treasury: "ثبت پروپوزال حاکمیتی",
+      ph_wallet: "0x...",
+      note_self_recipient: "اگر خالی باشد، به کیف پول خودتان واریز می‌شود.",
+        // Options
+        industries: {
+          defi: "مدل مالی غیرمتمرکز / وب ۳",
+          ai: "هوش مصنوعی / یادگیری ماشین",
+          gaming: "بازی / متاورس",
+          saas: "نرم‌افزار به عنوان سرویس (SaaS)",
+          placeholder: "انتخاب صنعت",
+        },
+        business_models: {
+          placeholder: "انتخاب مدل کسب‌وکار",
+          b2b: "B2B (تجارت به تجارت)",
+          b2c: "B2C (تجارت به مصرف‌کننده)",
+          b2b2c: "B2B2C (واسطه‌ای)",
+          saas: "SaaS (خدمات نرم افزار ابری)",
+          marketplace: "بازار تجارت الکترونیکی",
+      },
+
+      // Actions & Errors
+      submit_for_review: "ارسال برای بررسی",
+      success_title: "پیشنهاد با موفقیت ارسال شد",
+      success_desc: "تراکنش شما ارسال شد. هش:",
+      form_invalid_error: "لطفاً تمام فیلدها را به درستی پر کنید.",
+      form_incomplete_title: "اطلاعات وارد شده در فرم ناقص است",
+      form_incomplete_tooltip: "لطفاً تمام فیلدهای الزامی در تمام بخش‌ها را پر کنید.",
+      contract_not_deployed_title: "قرارداد مستقر نشده است",
+      contract_not_deployed_desc: "قرارداد DAO هنوز مستقر نشده است. لطفاً با مدیر تماس بگیرید.",
+      loading: "در حال بارگذاری...",
+      back_to_dashboard: "بازگشت به داشبورد",
+      invalid_address: "لطفاً یک آدرس اتریوم معتبر وارد کنید (0x به دنبال 40 کاراکتر).",
+      valid_address: "آدرس اتریوم معتبر.",
+      recipient_required: "لطفاً آدرس کیف پول گیرنده معتبر وارد کنید.",
+      
+      // Permissions & Roles
+      blockchain_role_missing_title: "نقش بلاکچین وجود ندارد",
+      blockchain_role_missing_desc: "برای ارسال پیشنهادات، شما نیاز به نقش DAO_MEMBER_ROLE در بلاکچین دارید. لطفاً با مدیر تماس بگیرید تا این نقش را به شما اعطا کند.",
+      request_role_button: "درخواست نقش",
+      grant_role_error_title: "اعطای نقش ناموفق بود",
+      grant_role_error_desc: "اعطای نقش مورد نیاز ناموفق بود. لطفاً با مدیر تماس بگیرید.",
+      grant_role_info_title: "درخواست نقش ارسال شد",
+      grant_role_info_desc: "درخواست نقش شما ارسال شده است. یک مدیر آن را بررسی کرده و مجوزهای مورد نیاز را اعطا خواهد کرد.",
+      contract_write_error: "ارسال پیشنهاد به بلاکچین ناموفق بود. لطفاً دوباره تلاش کنید.",
+      access_denied_title: "دسترسی غیرمجاز",
+      access_denied_desc: "شما برای ثبت پروپوزال باید نقش 'استارتاپ' را داشته باشید.",
+      connect_to_submit: "برای ثبت پروپوزال، لطفاً کیف پول خود را متصل کنید.",
+      
+      // AI Integration
+      ai_check_triggered: "فرآیند بررسی ریسک توسط هوش مصنوعی آغاز شد.",
+      ai_check_failed_title: "خطای فعال‌سازی هوش مصنوعی",
+      ai_check_failed_desc: "سیستم به صورت دستی آن را بررسی خواهد کرد.فرآیند بررسی ریسک توسط هوش مصنوعی ناموفق بود",
+      
+      // Feedback
+      redirecting: "در حال انتقال...",
+      success_toast_title: "تراکنش با موفقیت ارسال شد",
+      confirmed_toast_desc: "تراکنش در بلاکچین تأیید شد",
+      pending_toast_title: "تراکنش در حال پردازش است",
+      error_toast_title: "خطا در ارسال تراکنش",
+      unexpected_error_desc: "خطای ناشناخته‌ای رخ داد. لطفاً لاگ‌ها را بررسی کنید.",
+    },
   },
 
   // Proposal List Page
@@ -558,165 +647,7 @@ export const fa = {
     },
   },
 
-  // New Proposal Form
-  new_proposal_page: {
-    title: "ارسال پیشنهاد جدید",
-    subtitle: "فرم زیر را برای ثبت پروژه خود و جذب سرمایه تکمیل کنید.",
-    subtitle_professional: "اطلاعات پروژه خود را در چند مرحله برای بررسی توسط سرمایه‌گذاران و هوش مصنوعی ثبت کنید.",
-    card_title: "جزئیات پیشنهاد",
-    card_desc: "اطلاعات دقیق به سرمایه‌گذاران در تصمیم‌گیری کمک می‌کند.",
-    card_desc_professional: "لطفاً تمام بخش‌ها را با دقت و به طور کامل پر کنید.",
-    
-    // Tabs
-    tabs: {
-      overview: "اطلاعات کلی",
-      details: "جزئیات پروژه",
-      team: "تیم",
-      market: "بازار",
-      financials: "اطلاعات مالی",
-      documents: "اسناد"
-    },
 
-    // Fields
-    project_title: "عنوان پروژه",
-    project_title_placeholder: "مثلا: پلتفرم آموزشی وب ۳",
-    project_name: "نام پروژه",
-    project_name_placeholder: "مثال: زنجیره هوشمند رایان",
-    tagline: "شعار (خلاصه یک خطی)",
-    tagline_placeholder: "مثال: پلتفرم غیرمتمرکز سرمایه‌گذاری جسورانه",
-    industry: "صنعت",
-    industry_placeholder: "صنعت پروژه را انتخاب کنید",
-    website: "وب‌سایت",
-    summary: "خلاصه اجرایی",
-    summary_placeholder: "یک توضیح کلی و قانع‌کننده در مورد پروژه خود ارائه دهید...",
-    full_description: "توضیحات کامل پروپوزال",
-    full_description_placeholder: "جزئیات فنی، نقشه راه و اهداف پروژه را شرح دهید...",
-    description: "توضیحات کارهای قابل انجام در هر مرحله را وارد کنید.",
-    description_required: "لطفاً توضیحات مفصلی از پروژه خود ارائه دهید.",
-    funding_goal: "مبلغ مورد نیاز (RYC)",
-    recipient_address: "آدرس کیف پول دریافت‌کننده وجوه",
-    problem: "مسئله",
-    problem_placeholder: "چه مشکلی را در بازار شناسایی کرده و قصد حل آن را دارید؟",
-    solution: "راه‌حل",
-    solution_placeholder: "محصول یا سرویس شما چگونه این مشکل را حل می‌کند؟",
-    
-    // Business & Market
-    business_model: "مدل کسب‌وکار",
-    business_model_placeholder: "مدل درآمدی خود را انتخاب کنید",
-    market_size_label: "اندازه بازار هدف (به دلار)",
-    competitors: "تحلیل رقبا",
-    competitors_placeholder: "رقبای اصلی شما چه کسانی هستند و مزیت رقابتی شما چیست؟",
-    market_stats: {
-      tam_label: "TAM (کل بازار) ($)",
-      tam_desc: "کل بازار قابل دسترسی (Total Acceable Market)",
-      sam_label: "SAM (بازار در دسترس) ($)",
-      sam_desc: "بازار قابل سرویس‌دهی (Serviceable Available Market)",
-      som_label: "SOM (سهم بازار) ($)",
-      som_desc: "سهم بازار قابل کسب (Serviceable Obtainable Market)"
-    },
-    
-    // Team
-    team_experience_label: "سابقه تیم و بنیان‌گذاران",
-    team_experience_placeholder: "خلاصه‌ای از سابقه کاری و فنی تیم اصلی (برای تحلیل AI)",
-    team_experience_years_label: "تجربه ترکیبی تیم اصلی (سال)",
-    team_bio_label: "سوابق و بیوگرافی تیم",
-    team_bio_placeholder: "تجربه‌ها، موفقیت‌ها و نقش هر یک از اعضای کلیدی را شرح دهید...",
-    startup_industry_label: "صنعت استارتاپ",
-    startup_industry_placeholder: "مثال: فناوری سلامت (HealthTech)، هوش مصنوعی مالی (Fintech AI)",
-    
-    // Financials
-    financial_stats: {
-      burn_rate_label: "هزینه ماهانه (Burn Rate) ($)",
-      revenue_label: "درآمد سال اول ($)",
-      break_even_label: "نقطه سر‌به‌سر (ماه)"
-    },
-    has_previous_funding_label: "آیا سابقه جذب سرمایه دارید؟",
-    funding_details: "جزئیات جذب سرمایه قبلی",
-    funding_details_placeholder: "مبلغ، تاریخ و نام سرمایه‌گذاران قبلی را ذکر کنید...",
-    
-    // Milestones
-    milestones_required: "لطفاً حداقل یک مرحله با مقدار معتبر اضافه کنید.",
-    milestone_amounts_required: "لطفاً مقادیر معتبر برای تمام مراحل وارد کنید.",
-    no_milestones_added: "هنوز هیچ مرحله تأمین مالی اضافه نشده است.",
-    add_first_milestone: "اضافه کردن اولین مرحله",
-    funding_milestones: "مراحل تأمین مالی (Milestones)",
-    milestone_name: "نام مرحله",
-    milestone_name_placeholder: "مثال: توسعه MVP",
-    duration_days: "مدت (به روز)",
-    amount: "مبلغ",
-    add_milestone: "افزودن مرحله",
-    milestone: "مرحله",
-    remove: "حذف",
-    
-    // Documents
-    pitch_deck: "فایل ارائه (Pitch Deck - PDF)",
-    financials_doc: "فایل پیش‌بینی‌های مالی (PDF, XLSX)",
-    legal_doc: "اسناد حقوقی (اختیاری)",
-    off_chain_note: "توضیحات کامل به‌صورت امن در پایگاه داده خارج از زنجیره ذخیره و فقط هش آن در بلاکچین ثبت می‌شود.",
-    file_limits_title: "محدودیت‌های فایل",
-    file_limits_desc: "حداکثر حجم هر فایل ۲۰ مگابایت است. شما می‌توانید تا ۵ فایل اضافی ضمیمه کنید.",
-    additional_files: "فایل‌های ضمیمه (اختیاری)",
-    add_more_files: "افزودن فایل دیگر",
-    max_files_reached: "حداکثر تعداد فایل مجاز انتخاب شده است.",
-
-    // Options
-    industries: {
-      defi: "مدل مالی غیرمتمرکز / وب ۳",
-      ai: "هوش مصنوعی / یادگیری ماشین",
-      gaming: "بازی / متاورس",
-      saas: "نرم‌افزار به عنوان سرویس (SaaS)",
-      placeholder: "انتخاب صنعت",
-    },
-    business_models: {
-      placeholder: "انتخاب مدل کسب‌وکار",
-      b2b: "B2B (تجارت به تجارت)",
-      b2c: "B2C (تجارت به مصرف‌کننده)",
-      b2b2c: "B2B2C (واسطه‌ای)",
-      saas: "SaaS (خدمات نرم افزار ابری)",
-      marketplace: "بازار تجارت الکترونیکی",
-    },
-
-    // Actions & Errors
-    submit_for_review: "ارسال برای بررسی",
-    success_title: "پیشنهاد با موفقیت ارسال شد",
-    success_desc: "تراکنش شما ارسال شد. هش:",
-    form_invalid_error: "لطفاً تمام فیلدها را به درستی پر کنید.",
-    form_incomplete_title: "اطلاعات وارد شده در فرم ناقص است",
-    form_incomplete_tooltip: "لطفاً تمام فیلدهای الزامی در تمام بخش‌ها را پر کنید.",
-    contract_not_deployed_title: "قرارداد مستقر نشده است",
-    contract_not_deployed_desc: "قرارداد DAO هنوز مستقر نشده است. لطفاً با مدیر تماس بگیرید.",
-    loading: "در حال بارگذاری...",
-    back_to_dashboard: "بازگشت به داشبورد",
-    invalid_address: "لطفاً یک آدرس اتریوم معتبر وارد کنید (0x به دنبال 40 کاراکتر).",
-    valid_address: "آدرس اتریوم معتبر.",
-    recipient_required: "لطفاً آدرس کیف پول گیرنده معتبر وارد کنید.",
-    
-    // Permissions & Roles
-    blockchain_role_missing_title: "نقش بلاکچین وجود ندارد",
-    blockchain_role_missing_desc: "برای ارسال پیشنهادات، شما نیاز به نقش DAO_MEMBER_ROLE در بلاکچین دارید. لطفاً با مدیر تماس بگیرید تا این نقش را به شما اعطا کند.",
-    request_role_button: "درخواست نقش",
-    grant_role_error_title: "اعطای نقش ناموفق بود",
-    grant_role_error_desc: "اعطای نقش مورد نیاز ناموفق بود. لطفاً با مدیر تماس بگیرید.",
-    grant_role_info_title: "درخواست نقش ارسال شد",
-    grant_role_info_desc: "درخواست نقش شما ارسال شده است. یک مدیر آن را بررسی کرده و مجوزهای مورد نیاز را اعطا خواهد کرد.",
-    contract_write_error: "ارسال پیشنهاد به بلاکچین ناموفق بود. لطفاً دوباره تلاش کنید.",
-    access_denied_title: "دسترسی غیرمجاز",
-    access_denied_desc: "شما برای ثبت پروپوزال باید نقش 'استارتاپ' را داشته باشید.",
-    connect_to_submit: "برای ثبت پروپوزال، لطفاً کیف پول خود را متصل کنید.",
-    
-    // AI Integration
-    ai_check_triggered: "فرآیند بررسی ریسک توسط هوش مصنوعی آغاز شد.",
-    ai_check_failed_title: "خطای فعال‌سازی هوش مصنوعی",
-    ai_check_failed_desc: "سیستم به صورت دستی آن را بررسی خواهد کرد.فرآیند بررسی ریسک توسط هوش مصنوعی ناموفق بود",
-    
-    // Feedback
-    redirecting: "در حال انتقال...",
-    success_toast_title: "تراکنش با موفقیت ارسال شد",
-    confirmed_toast_desc: "تراکنش در بلاکچین تأیید شد",
-    pending_toast_title: "تراکنش در حال پردازش است",
-    error_toast_title: "خطا در ارسال تراکنش",
-    unexpected_error_desc: "خطای ناشناخته‌ای رخ داد. لطفاً لاگ‌ها را بررسی کنید.",
-  },
 
   // Proposal Detail View
   proposal_detail: {
@@ -884,8 +815,27 @@ export const fa = {
     approve_in_progress: "تأیید تراکنش در حال پردازش است. لطفاً منتظر تأیید بمانید.",
     revert_reason_approve: "توکن کافی برای تأیید تراکنش وجود ندارد یا دسترسی نامعتبر است.",
     revert_reason_stake_zero: "مقدار سپرده گذاری باید بیشتر از صفر باشد",
-    revert_reason_delegate_stake: "برای واگذاری حق رأی (Delegate)، ابتدا باید توکن RYC را سپرده گذاری کنید.",
+    revert_reason_delegate_stake: "برای واگذاری حق رأی، ابتدا باید توکن RYC را سپرده گذاری کنید.",
     contract_addresses_missing: "آدرس قراردادهای ضروری (توکن/سپرده) هنوز بارگذاری نشده‌اند. لطفا منتظر بمانید.",
+    your_staked_balance: "موجودی استیک شده شما",
+    wallet_balance: "موجودی کیف پول",
+    manage_staking: "مدیریت سپرده",
+    manage_desc: "واریز یا برداشت توکن‌ها و دریافت درآمد غیرفعال.",
+    tab_stake: "سپرده‌گذاری",
+    tab_unstake: "برداشت",
+    tab_claim: "دریافت پاداش",    
+    approve_token: "تأیید دسترسی توکن",
+    stake_button: "سپرده گذاری ",
+    unstake_button: "لغو سپرده گذاری",
+    available_rewards: "پاداش‌های موجود",
+    claim_rewards_button: "دریافت پاداش‌ها",
+    staking_info_title: "چرا استیک کنیم؟",
+    staking_info_desc: "استیک کردن توکن‌های شما را قفل می‌کند تا امنیت شبکه تأمین شود. شما حق رأی (۱:۱) و سهمی از درآمد پروتکل دریافت می‌کنید.",
+    governance_power: "قدرت حاکمیتی",
+    self_delegated: "حق رأی خودم",
+    delegate_to_address: "تفویض به آدرس",
+    delegate_button: "تفویض رأی",
+    undelegate_button: "لغو تفویض",
   },
 
   treasury_page: {
@@ -1360,6 +1310,13 @@ export const fa = {
     error_already_voted: "شما قبلاً به این پروپوزال رأی داده‌اید.",
     error_user_rejected: "تراکنش توسط کاربر لغو شد.",
     error_generic: "خطای ناشناخته ای رخ داد.",
+    submitting_claim: "در حال دریافت پاداش...",
+    submitting_delegate: "در حال تفویض حق رأی...",
+    submitting_undelegate: "در حال لغو تفویض...",
+    unstake_successful: "برداشت با موفقیت انجام شد.",
+    claim_successful: "پاداش‌ها با موفقیت برداشت شدند.",
+    delegate_successful: "حق رأی با موفقیت تفویض شد.",
+    undelegate_successful: "تفویض رأی لغو شد.",
   },
   terms_page: {
     title: "قوانین و شرایط استفاده",
@@ -1388,4 +1345,19 @@ export const fa = {
     50: "۵۰",
     100: "۱۰۰",
   },
+    onboarding: {
+    title: "تبدیل شدن به سازنده",
+    description: "قابلیت‌های جذب سرمایه را برای حساب کاربری خود فعال کنید.",
+    company_name_label: "نام استارتاپ / شرکت",
+    company_name_placeholder: "مثال: رایان هوش‌افزار",
+    terms_notice: "با فعال‌سازی حالت سازنده، شما قوانین و مقررات جمع‌سپاری مالی رایان‌چین را می‌پذیرید.",
+    submit_btn: "فعال‌سازی و ادامه",
+    processing: "در حال پردازش...",
+    success_title: "تبریک!",
+    success_desc: "حساب شما به سازنده ارتقاء یافت.",
+    error_empty_name: "لطفاً نام شرکت را وارد کنید.",
+    error_generic: "ارتقاء پروفایل با خطا مواجه شد. دوباره تلاش کنید.",
+    already_creator_title: "شما یک سازنده تأیید شده هستید",
+    create_proposal_btn: "ایجاد پروپوزال"
+  }
 };

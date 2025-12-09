@@ -1,301 +1,340 @@
-// src/app/proposals/new/page.tsx - FINAL CORRECTED WIZARD
+// src/app/proposals/new/page.tsx - FULLY RESPONSIVE & RTL SUPPORT
 
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { AppLayout } from '@/components/layout/app-layout';
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { FileInput } from '@/components/ui/file-input';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { DaoLoadingSpinner } from '@/components/icons/dao-loading-spinner';
-import { AlertTriangle, PlusCircle, Trash2, ChevronRight, ChevronLeft, Save, Paperclip, X } from 'lucide-react';
-import { useTranslation } from '@/hooks/use-translation';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
 import { useWeb3 } from '@/context/Web3Provider';
-import { useRouter } from 'next/navigation';
-import { useAccount } from 'wagmi';
-import { useCreateProposal } from '@/hooks/useCreateProposal';
+import { useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
+import { rayanChainDaoAbi } from '@/lib/blockchain/generated';
 import { toast } from 'sonner';
-import { Progress } from "@/components/ui/progress";
-import { useLanguage } from '@/context/LanguageProvider';
-
-// --- Helper for Type-Safe Translation ---
-const useSafeTranslation = () => {
-    const { t: originalT, locale } = useTranslation();
-    const t = (key: string, params?: any) => (originalT as any)(key, params);
-    return { t, locale };
-};
+import { useRouter } from 'next/navigation';
+import { DaoLoadingSpinner } from '@/components/icons/dao-loading-spinner';
+import { useCreateProposal } from '@/hooks/useCreateProposal';
+import { useTranslation } from '@/hooks/use-translation';
+import { Rocket, Vote, UploadCloud, BadgeCheck, Building2, Wallet } from 'lucide-react';
 
 export default function NewProposalPage() {
-    const { t, locale } = useSafeTranslation();
-    const { direction } = useLanguage();
+    const { t } = useTranslation();
+    const { userRole, address, daoAddress } = useWeb3();
     const router = useRouter();
-    const { userRole, isHydrated, daoAddress } = useWeb3();
-    const { isConnected } = useAccount();
     
-    // Wizard State
-    const [currentStep, setCurrentStep] = useState(1);
-    const totalSteps = 6;
-    const progress = (currentStep / totalSteps) * 100;
+    const [activeTab, setActiveTab] = useState("startup");
+    
+    // --- Treasury Logic ---
+    const [tTitle, setTTitle] = useState('');
+    const [tDesc, setTDesc] = useState('');
+    const [tAmount, setTAmount] = useState('');
+    const [tRecipient, setTRecipient] = useState('');
+    const [tToken, setTToken] = useState('1'); 
 
-    // Additional Files State
-    const [extraFiles, setExtraFiles] = useState<{id: number, file: File | null}[]>([]);
+    const { writeContractAsync, data: txHash } = useWriteContract();
+    const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ hash: txHash });
+    const [isSubmittingTreasury, setIsSubmittingTreasury] = useState(false);
 
-    const canAccessPage = userRole === 'startup' || userRole === 'admin';
+    // --- Startup Hooks ---
+    const proposalHook = useCreateProposal({ daoAddress, router });
 
-    // Hook Logic
-    const {
-        projectName, setProjectName, tagline, setTagline, website, setWebsite,
-        description, setDescription, problem, setProblem, solution, setSolution,
-        businessModel, setBusinessModel, startupIndustry, setStartupIndustry,
-        teamExperienceYears, setTeamExperienceYears, teamBio, setTeamBio,
-        tam, setTam, sam, setSam, som, setSom, competitors, setCompetitors,
-        burnRate, setBurnRate, revenueProj, setRevenueProj, breakEven, setBreakEven,
-        recipient, setRecipient, milestones,
-        setPitchDeckFile, setFinancialsFile, setLegalFile, // Legal added back
-        isPending, isFormValid,
-        handleAddMilestone, handleMilestoneChange, handleRemoveMilestone,
-        handleSubmit,
-    } = useCreateProposal({ daoAddress: daoAddress as `0x${string}` | undefined, router });
+    const handleTreasurySubmit = async () => {
+        if (!address) return toast.error(t('wallet.not_connected'));
+        setIsSubmittingTreasury(true);
+        try {
+            const res = await fetch('/api/proposals/submit', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    type: 'treasury',
+                    title: tTitle,
+                    description: tDesc,
+                    recipient: tRecipient || address,
+                    amount: tAmount,
+                    tokenType: Number(tToken),
+                    proposerAddress: address
+                })
+            });
+            const data = await res.json();
+            if (!data.success) throw new Error(data.message);
 
-    useEffect(() => {
-        if (isHydrated && !canAccessPage) { toast.error(t('new_proposal_page.access_denied_title')); router.push('/dashboard'); }
-    }, [isHydrated, canAccessPage, router, t]);
-
-    // Data Lists
-    const industries = [{ value: "DeFi", label: t('new_proposal_page.industries.defi') }, { value: "AI", label: t('new_proposal_page.industries.ai') }, { value: "Gaming", label: t('new_proposal_page.industries.gaming') }, { value: "SaaS", label: t('new_proposal_page.industries.saas') }];
-    const businessModels = [{ value: "B2B", label: t('new_proposal_page.business_models.b2b') }, { value: "B2C", label: t('new_proposal_page.business_models.b2c') }, { value: "Marketplace", label: t('new_proposal_page.business_models.marketplace') }];
-
-    // --- File Validation Helper ---
-    const handleFileChange = (setter: (f: File | null) => void, e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files ? e.target.files[0] : null;
-        if (file) {
-            if (file.size > 20 * 1024 * 1024) { // 20MB
-                toast.error(t('common.file_too_large', { max: '20MB' }));
-                e.target.value = ''; // Reset input
-                return;
-            }
-            setter(file);
+            await writeContractAsync({
+                address: daoAddress!,
+                abi: rayanChainDaoAbi,
+                functionName: 'createTreasuryActionProposal',
+                args: data.txArgs
+            });
+            toast.success(t('toasts.proposal_created_success'));
+        } catch (e) {
+            toast.error(t('toasts.submission_failed'), { description: (e as Error).message });
+            setIsSubmittingTreasury(false);
         }
     };
 
-    // --- Extra Files Handlers ---
-    const addExtraFileSlot = () => {
-        if (extraFiles.length >= 5) {
-            toast.warning(t('new_proposal_page.max_files_reached'));
-            return;
-        }
-        setExtraFiles([...extraFiles, { id: Date.now(), file: null }]);
-    };
-
-    const removeExtraFileSlot = (id: number) => {
-        setExtraFiles(extraFiles.filter(f => f.id !== id));
-    };
-
-    const handleExtraFileChange = (id: number, e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files ? e.target.files[0] : null;
-        if (file && file.size > 20 * 1024 * 1024) {
-            toast.error(t('common.file_too_large', { max: '20MB' }));
-            e.target.value = '';
-            return;
-        }
-        setExtraFiles(extraFiles.map(f => f.id === id ? { ...f, file } : f));
-    };
-
-    // --- Helper to get Step Title ---
-    const getStepTitle = (step: number) => {
-        switch(step) {
-            case 1: return t('new_proposal_page.tabs.overview');
-            case 2: return t('new_proposal_page.tabs.details');
-            case 3: return t('new_proposal_page.tabs.team');
-            case 4: return t('new_proposal_page.tabs.financials');
-            case 5: return t('proposal_detail.milestones');
-            case 6: return t('new_proposal_page.tabs.documents');
-            default: return '';
-        }
-    };
-
-    // --- STEP CONTENT RENDERER ---
-    const renderStepContent = () => {
-        switch (currentStep) {
-            case 1: // Overview
-                return (
-                    <div className="space-y-6 animate-in fade-in slide-in-from-end-4 duration-300">
-                        <div className="space-y-2"><Label>{t('new_proposal_page.project_name')}</Label><Input value={projectName} onChange={e => setProjectName(e.target.value)} disabled={isPending} autoFocus /></div>
-                        <div className="space-y-2"><Label>{t('new_proposal_page.tagline')}</Label><Input value={tagline} onChange={e => setTagline(e.target.value)} disabled={isPending} /></div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="space-y-2"><Label>{t('new_proposal_page.industry')}</Label><Select onValueChange={setStartupIndustry} value={startupIndustry}><SelectTrigger><SelectValue placeholder={t('common.select')} /></SelectTrigger><SelectContent>{industries.map(i=><SelectItem key={i.value} value={i.value}>{i.label}</SelectItem>)}</SelectContent></Select></div>
-                            <div className="space-y-2"><Label>{t('new_proposal_page.website')}</Label><Input value={website} onChange={e => setWebsite(e.target.value)} disabled={isPending} placeholder="https://" className="text-left" dir="ltr" /></div>
-                        </div>
-                    </div>
-                );
-            case 2: // Details
-                return (
-                    <div className="space-y-6 animate-in fade-in slide-in-from-end-4 duration-300">
-                        <div className="space-y-2"><Label>{t('new_proposal_page.full_description')}</Label><Textarea value={description} onChange={e => setDescription(e.target.value)} className="min-h-[120px]" disabled={isPending} /></div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="space-y-2"><Label>{t('new_proposal_page.problem')}</Label><Textarea value={problem} onChange={e => setProblem(e.target.value)} disabled={isPending} className="min-h-[100px]" /></div>
-                            <div className="space-y-2"><Label>{t('new_proposal_page.solution')}</Label><Textarea value={solution} onChange={e => setSolution(e.target.value)} disabled={isPending} className="min-h-[100px]" /></div>
-                        </div>
-                        <div className="space-y-2"><Label>{t('new_proposal_page.business_model')}</Label><Select onValueChange={setBusinessModel} value={businessModel}><SelectTrigger><SelectValue placeholder={t('common.select')} /></SelectTrigger><SelectContent>{businessModels.map(i=><SelectItem key={i.value} value={i.value}>{i.label}</SelectItem>)}</SelectContent></Select></div>
-                    </div>
-                );
-            case 3: // Team & Market
-                return (
-                    <div className="space-y-6 animate-in fade-in slide-in-from-end-4 duration-300">
-                        <div className="space-y-2"><Label>{t('new_proposal_page.team_bio_label')}</Label><Textarea value={teamBio} onChange={e => setTeamBio(e.target.value)} disabled={isPending} /></div>
-                        <div className="space-y-2"><Label>{t('new_proposal_page.team_experience_years_label')}</Label><Input type="number" value={teamExperienceYears} onChange={e => setTeamExperienceYears(e.target.value)} disabled={isPending} /></div>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div className="space-y-2"><Label>{t('new_proposal_page.market_stats.tam_label')}</Label><Input type="number" value={tam} onChange={e => setTam(e.target.value)} /></div>
-                            <div className="space-y-2"><Label>{t('new_proposal_page.market_stats.sam_label')}</Label><Input type="number" value={sam} onChange={e => setSam(e.target.value)} /></div>
-                            <div className="space-y-2"><Label>{t('new_proposal_page.market_stats.som_label')}</Label><Input type="number" value={som} onChange={e => setSom(e.target.value)} /></div>
-                        </div>
-                        <div className="space-y-2"><Label>{t('new_proposal_page.competitors')}</Label><Textarea value={competitors} onChange={e => setCompetitors(e.target.value)} /></div>
-                    </div>
-                );
-            case 4: // Financials
-                return (
-                    <div className="space-y-6 animate-in fade-in slide-in-from-end-4 duration-300">
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div className="space-y-2"><Label>{t('new_proposal_page.financial_stats.burn_rate_label')}</Label><Input type="number" value={burnRate} onChange={e => setBurnRate(e.target.value)} /></div>
-                            <div className="space-y-2"><Label>{t('new_proposal_page.financial_stats.revenue_label')}</Label><Input type="number" value={revenueProj} onChange={e => setRevenueProj(e.target.value)} /></div>
-                            <div className="space-y-2"><Label>{t('new_proposal_page.financial_stats.break_even_label')}</Label><Input type="number" value={breakEven} onChange={e => setBreakEven(e.target.value)} /></div>
-                        </div>
-                        <div className="space-y-2"><Label>{t('new_proposal_page.recipient_address')}</Label><Input value={recipient} onChange={e => setRecipient(e.target.value)} placeholder="0x..." className="text-left font-mono" dir="ltr" /></div>
-                    </div>
-                );
-            case 5: // Milestones
-                return (
-                    <div className="space-y-4 animate-in fade-in slide-in-from-end-4 duration-300">
-                        {milestones.map((milestone, index) => (
-                            <div key={index} className="flex flex-col md:flex-row gap-4 p-4 border rounded-lg bg-muted/30">
-                                <span className="font-bold text-lg text-muted-foreground pt-2 md:pt-8 w-8 text-center">{index + 1}</span>
-                                <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    <div className="space-y-1"><Label className="text-xs">{t('new_proposal_page.milestone_name')}</Label><Input value={milestone.name} onChange={(e) => handleMilestoneChange(index, 'name', e.target.value)} /></div>
-                                    <div className="space-y-1"><Label className="text-xs">{t('new_proposal_page.duration_days')}</Label><Input type="number" value={milestone.durationDays} onChange={(e) => handleMilestoneChange(index, 'durationDays', e.target.value)} /></div>
-                                    <div className="space-y-1"><Label className="text-xs">{t('new_proposal_page.amount')} (RYC)</Label><Input type="number" value={milestone.amount} onChange={(e) => handleMilestoneChange(index, 'amount', e.target.value)} /></div>
-                                </div>
-                                <Button variant="ghost" size="icon" className="self-end md:self-center" onClick={() => handleRemoveMilestone(index)} disabled={milestones.length <= 1}><Trash2 className="h-4 w-4 text-destructive" /></Button>
-                            </div>
-                        ))}
-                        <Button variant="outline" onClick={handleAddMilestone}><PlusCircle className="me-2 h-4 w-4" /> {t('new_proposal_page.add_milestone')}</Button>
-                    </div>
-                );
-            case 6: // Documents
-                return (
-                    <div className="space-y-6 animate-in fade-in slide-in-from-end-4 duration-300">
-                        <Alert className="bg-primary/5 border-primary/20">
-                            <AlertTitle>{t('new_proposal_page.file_limits_title')}</AlertTitle>
-                            <AlertDescription>{t('new_proposal_page.file_limits_desc')}</AlertDescription>
-                        </Alert>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <FileInput id="pitch" label={t('new_proposal_page.pitch_deck')} accept=".pdf" onChange={(e) => handleFileChange(setPitchDeckFile, e)} />
-                            <FileInput id="financials" label={t('new_proposal_page.financials_doc')} accept=".xlsx,.csv,.pdf" onChange={(e) => handleFileChange(setFinancialsFile, e)} />
-                            <FileInput id="legal" label={t('new_proposal_page.legal_doc')} accept=".pdf" onChange={(e) => handleFileChange(setLegalFile, e)} />
-                        </div>
-
-                        {/* Extra Files Section */}
-                        <div className="border-t pt-4">
-                            <Label className="mb-4 block">{t('new_proposal_page.additional_files')}</Label>
-                            <div className="space-y-3">
-                                {extraFiles.map((item, index) => (
-                                    <div key={item.id} className="flex gap-2 items-end">
-                                        <div className="flex-1">
-                                            <FileInput 
-                                                id={`extra-${item.id}`} 
-                                                label={`${t('common.file')} ${index + 1}`} 
-                                                onChange={(e) => handleExtraFileChange(item.id, e)} 
-                                            />
-                                        </div>
-                                        <Button variant="ghost" size="icon" className="mb-1" onClick={() => removeExtraFileSlot(item.id)}>
-                                            <X className="h-4 w-4 text-muted-foreground hover:text-destructive" />
-                                        </Button>
-                                    </div>
-                                ))}
-                            </div>
-                            {extraFiles.length < 5 && (
-                                <Button variant="ghost" size="sm" onClick={addExtraFileSlot} className="mt-2 text-primary">
-                                    <Paperclip className="me-2 h-3 w-3" /> {t('new_proposal_page.add_more_files')}
-                                </Button>
-                            )}
-                        </div>
-                        {/* هشدار فرم ناقص با رنگ نارنجی (Warning Style) */}
-                        {!isFormValid && isConnected && (
-                            <Alert className="mt-6 border-amber-500/50 bg-amber-500/10 text-amber-700 dark:text-amber-400">
-                                <AlertTriangle className="h-4 w-4 text-amber-700 dark:text-amber-400" />
-                                <AlertTitle className="font-bold">
-                                    {t('new_proposal_page.form_incomplete_title')}
-                                </AlertTitle>
-                                <AlertDescription className="opacity-90">
-                                    {t('new_proposal_page.form_incomplete_tooltip')}
-                                </AlertDescription>
-                            </Alert>
-                        )}
-                    </div>
-                );
-            default: return null;
-        }
-    };
+    if (isSuccess) router.push('/proposals');
 
     return (
         <AppLayout>
-            <div className="max-w-4xl mx-auto py-8">
-                <header className="mb-8 text-center">
-                    <h1 className="text-3xl font-bold font-headline text-gradient">{t('new_proposal_page.title')}</h1>
-                    <p className="text-muted-foreground">{t('new_proposal_page.subtitle_professional')}</p>
-                </header>
-
-                <div className="mb-8 px-1">
-                    {/* ✅ FIX: Dynamic Labels based on current step & percentage */}
-                    <div className="flex justify-between text-sm font-medium text-primary mb-2">
-                        <span>{getStepTitle(currentStep)}</span>
-                        <span>{Math.round(progress)}%</span>
-                    </div>
-                    <Progress value={progress} className="h-2" />
+            <div className="container max-w-7xl py-8 md:py-12 animate-in fade-in slide-in-from-bottom-4">
+                
+                <div className="mb-10 text-center">
+                    <h1 className="text-3xl md:text-5xl font-extrabold font-headline text-gradient mb-4">{t('proposals.new.title')}</h1>
+                    <p className="text-muted-foreground text-lg">{t('proposals.new.subtitle')}</p>
                 </div>
 
-                <Card className="border-primary/20 shadow-lg">
-                    <CardHeader className="border-b pb-4">
-                        <CardTitle className="flex justify-between items-center">
-                            {/* ✅ FIX: Step Counter localized and positioned correctly via Flexbox */}
-                            <span className="text-lg text-foreground">{getStepTitle(currentStep)}</span>
-                            <span className="text-sm font-normal text-muted-foreground">
-                                {t('common.step_counter', { current: currentStep, total: totalSteps })}
-                            </span>
-                        </CardTitle>
-                    </CardHeader>
-                    
-                    <CardContent className="py-6 min-h-[400px]">
-                        {renderStepContent()}
-                    </CardContent>
+                <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+                    <div className="flex justify-center mb-8">
+                        <TabsList className="grid w-full max-w-md grid-cols-2 h-14 p-1 bg-muted/50 rounded-full">
+                            <TabsTrigger value="startup" className="rounded-full text-base data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all">
+                                <Rocket className="w-4 h-4 mr-2 rtl:ml-2" /> {t('proposals.new.tab_startup')}
+                            </TabsTrigger>
+                            <TabsTrigger value="treasury" disabled={userRole !== 'admin'} className="rounded-full text-base data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all">
+                                <Vote className="w-4 h-4 mr-2 rtl:ml-2" /> {t('proposals.new.tab_treasury')}
+                            </TabsTrigger>
+                        </TabsList>
+                    </div>
 
-                    <CardFooter className="flex justify-between border-t pt-6 bg-muted/10">
-                        <Button 
-                            variant="ghost" 
-                            onClick={() => setCurrentStep(prev => Math.max(1, prev - 1))} 
-                            disabled={currentStep === 1 || isPending}
-                        >
-                            {/* ✅ Icons automatically flip in RTL if not forced, using proper margin classes */}
-                            <ChevronLeft className="me-2 h-4 w-4 rtl:rotate-180" /> {t('common.back')}
-                        </Button>
+                    {/* ================= STARTUP FUNDING WIZARD ================= */}
+                    <TabsContent value="startup">
+                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                            
+                            {/* Left: Configuration Panel (Sticky on Desktop) */}
+                            <div className="lg:col-span-4 space-y-6 h-fit lg:sticky lg:top-24">
+                                <Card className="border-primary/20 shadow-md">
+                                    <CardHeader className="bg-primary/5 pb-4 border-b">
+                                        <CardTitle className="text-lg flex items-center gap-2">
+                                            <Building2 className="w-5 h-5 text-primary"/> {t('proposals.new.stage_title')}
+                                        </CardTitle>
+                                    </CardHeader>
+                                    <CardContent className="pt-6 space-y-6">
+                                        {/* Stage Selection */}
+                                        <div className="space-y-3">
+                                            <RadioGroup defaultValue="idea" value={proposalHook.startupStage} onValueChange={(v: any) => proposalHook.setStartupStage(v)}>
+                                                <div className="flex items-center space-x-3 rtl:space-x-reverse border p-4 rounded-xl hover:bg-muted/50 cursor-pointer transition-colors has-[[data-state=checked]]:border-primary has-[[data-state=checked]]:bg-primary/5">
+                                                    <RadioGroupItem value="idea" id="r1" />
+                                                    <Label htmlFor="r1" className="cursor-pointer flex-1">
+                                                        <span className="font-bold block text-base">{t('proposals.new.stage_idea')}</span>
+                                                        <span className="text-xs text-muted-foreground">{t('proposals.new.stage_idea_desc')}</span>
+                                                    </Label>
+                                                </div>
+                                                <div className="flex items-center space-x-3 rtl:space-x-reverse border p-4 rounded-xl hover:bg-muted/50 cursor-pointer transition-colors has-[[data-state=checked]]:border-primary has-[[data-state=checked]]:bg-primary/5">
+                                                    <RadioGroupItem value="revenue" id="r2" />
+                                                    <Label htmlFor="r2" className="cursor-pointer flex-1">
+                                                        <span className="font-bold block text-base">{t('proposals.new.stage_revenue')}</span>
+                                                        <span className="text-xs text-muted-foreground">{t('proposals.new.stage_revenue_desc')}</span>
+                                                    </Label>
+                                                </div>
+                                            </RadioGroup>
+                                        </div>
 
-                        {currentStep < totalSteps ? (
-                            <Button onClick={() => setCurrentStep(prev => Math.min(totalSteps, prev + 1))}>
-                                {t('common.next')} <ChevronRight className="ms-2 h-4 w-4 rtl:rotate-180" />
-                            </Button>
-                        ) : (
-                            <Button onClick={handleSubmit} disabled={!isFormValid || isPending} className="bg-primary">
-                                {isPending ? <DaoLoadingSpinner className="me-2" /> : <Save className="me-2 h-4 w-4" />}
-                                {t('new_proposal_page.submit_for_review')}
-                            </Button>
-                        )}
-                    </CardFooter>
-                </Card>
+                                        {/* Knowledge Based Selection */}
+                                        <div className="space-y-2">
+                                            <Label className="flex items-center gap-2 text-sm font-medium">
+                                                <BadgeCheck className="w-4 h-4 text-amber-500" /> 
+                                                {t('proposals.new.kb_title')}
+                                            </Label>
+                                            <Select value={proposalHook.knowledgeBasedType} onValueChange={proposalHook.setKnowledgeBasedType}>
+                                                <SelectTrigger className="h-11 text-start">
+                                                    <SelectValue />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="none" className="text-start">{t('proposals.new.kb_none')}</SelectItem>
+                                                    <SelectItem value="type1" className="text-start">{t('proposals.new.kb_type1')}</SelectItem>
+                                                    <SelectItem value="type2" className="text-start">{t('proposals.new.kb_type2')}</SelectItem>
+                                                    <SelectItem value="creative" className="text-start">{t('proposals.new.kb_creative')}</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+
+                                {/* File Uploads Preview */}
+                                <Card>
+                                    <CardHeader className="pb-3 border-b"><CardTitle className="text-sm font-bold text-muted-foreground">{t('proposals.new.docs_title')}</CardTitle></CardHeader>
+                                    <CardContent className="pt-4 grid gap-3">
+                                        <Button variant="outline" className="w-full justify-start h-12 text-sm" onClick={() => document.getElementById('file-pitch')?.click()}>
+                                            <UploadCloud className="w-4 h-4 mr-3 rtl:ml-3" /> 
+                                            {t('proposals.new.upload_pitch')} 
+                                            {proposalHook.pitchDeckFile ? <span className="text-green-600 ml-auto font-bold text-xs rtl:mr-auto rtl:ml-0">✔</span> : <span className="text-muted-foreground ml-auto text-xs rtl:mr-auto rtl:ml-0">{t('proposals.new.required')}</span>}
+                                        </Button>
+                                        <input id="file-pitch" type="file" className="hidden" onChange={(e) => proposalHook.setPitchDeckFile(e.target.files?.[0] || null)} />
+                                    </CardContent>
+                                </Card>
+                            </div>
+
+                            {/* Right: Detailed Form */}
+                            <div className="lg:col-span-8 space-y-8">
+                                <Card>
+                                    <CardHeader>
+                                        <CardTitle className="text-xl">{t('proposals.new.project_details')}</CardTitle>
+                                        <CardDescription>{t('proposals.new.project_details_desc')}</CardDescription>
+                                    </CardHeader>
+                                    <CardContent className="space-y-6">
+                                        <div className="grid md:grid-cols-2 gap-6">
+                                            <div className="space-y-2">
+                                                <Label>{t('proposals.new.lbl_name')}</Label>
+                                                <Input className="h-12 text-start" placeholder={t('proposals.new.ph_name')} value={proposalHook.projectName} onChange={e => proposalHook.setProjectName(e.target.value)} />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <Label>{t('proposals.new.lbl_tagline')}</Label>
+                                                <Input className="h-12 text-start" placeholder={t('proposals.new.ph_tagline')} value={proposalHook.tagline} onChange={e => proposalHook.setTagline(e.target.value)} />
+                                            </div>
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label>{t('proposals.new.lbl_problem_solution')}</Label>
+                                            <Textarea 
+                                                className="min-h-[140px] text-start resize-y" 
+                                                placeholder={t('proposals.new.ph_problem_solution')} 
+                                                value={proposalHook.description} 
+                                                onChange={e => proposalHook.setDescription(e.target.value)} 
+                                            />
+                                        </div>
+                                    </CardContent>
+                                </Card>
+
+                                {/* Market & Financials (Dynamic) */}
+                                <Card>
+                                    <CardHeader>
+                                        <CardTitle className="text-xl">{t('proposals.new.market_financials')}</CardTitle>
+                                        <CardDescription>
+                                            {proposalHook.startupStage === 'idea' ? t('proposals.new.market_desc_idea') : t('proposals.new.market_desc_revenue')}
+                                        </CardDescription>
+                                    </CardHeader>
+                                    <CardContent className="space-y-6">
+                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                            <div className="space-y-2">
+                                                <Label>{t('proposals.new.lbl_tam')}</Label>
+                                                <Input type="number" className="h-12 text-start" placeholder="0" value={proposalHook.tam} onChange={e => proposalHook.setTam(e.target.value)} />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <Label>{t('proposals.new.lbl_sam')}</Label>
+                                                <Input type="number" className="h-12 text-start" placeholder="0" value={proposalHook.sam} onChange={e => proposalHook.setSam(e.target.value)} />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <Label>{t('proposals.new.lbl_som')}</Label>
+                                                <Input type="number" className="h-12 text-start" placeholder="0" value={proposalHook.som} onChange={e => proposalHook.setSom(e.target.value)} />
+                                            </div>
+                                        </div>
+
+                                        {/* Conditional Fields Based on Stage */}
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t">
+                                            {proposalHook.startupStage === 'idea' ? (
+                                                <>
+                                                    <div className="space-y-2">
+                                                        <Label>{t('proposals.new.lbl_burn_rate')}</Label>
+                                                        <Input type="number" className="h-12 text-start" value={proposalHook.burnRate} onChange={e => proposalHook.setBurnRate(e.target.value)} />
+                                                    </div>
+                                                    <div className="space-y-2">
+                                                        <Label>{t('proposals.new.lbl_runway')}</Label>
+                                                        <Input type="number" className="h-12 text-start" />
+                                                    </div>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <div className="space-y-2">
+                                                        <Label>{t('proposals.new.lbl_revenue')}</Label>
+                                                        <Input type="number" className="h-12 text-start" value={proposalHook.revenueProj} onChange={e => proposalHook.setRevenueProj(e.target.value)} />
+                                                    </div>
+                                                    <div className="space-y-2">
+                                                        <Label>{t('proposals.new.lbl_profit')}</Label>
+                                                        <Input type="number" className="h-12 text-start" />
+                                                    </div>
+                                                </>
+                                            )}
+                                        </div>
+                                    </CardContent>
+                                </Card>
+
+                                {/* Milestones */}
+                                <Card>
+                                    <CardHeader>
+                                        <CardTitle className="text-xl">{t('proposals.new.milestones_title')}</CardTitle>
+                                        <CardDescription>{t('proposals.new.milestones_desc')}</CardDescription>
+                                    </CardHeader>
+                                    <CardContent>
+                                        {proposalHook.milestones.map((m, i) => (
+                                            <div key={i} className="flex flex-col md:flex-row gap-4 mb-4 items-end bg-muted/20 p-4 rounded-xl">
+                                                <div className="w-full md:flex-1 space-y-2">
+                                                    <Label className="text-xs font-bold uppercase">{t('proposals.new.lbl_milestone_name')}</Label>
+                                                    <Input className="text-start" value={m.name} onChange={e => proposalHook.handleMilestoneChange(i, 'name', e.target.value)} />
+                                                </div>
+                                                <div className="w-full md:w-24 space-y-2">
+                                                    <Label className="text-xs font-bold uppercase">{t('proposals.new.lbl_days')}</Label>
+                                                    <Input type="number" className="text-center" value={m.durationDays} onChange={e => proposalHook.handleMilestoneChange(i, 'durationDays', e.target.value)} />
+                                                </div>
+                                                <div className="w-full md:w-40 space-y-2">
+                                                    <Label className="text-xs font-bold uppercase">{t('proposals.new.lbl_amount')}</Label>
+                                                    <Input type="number" className="text-start" value={m.amount} onChange={e => proposalHook.handleMilestoneChange(i, 'amount', e.target.value)} />
+                                                </div>
+                                                {i > 0 && <Button variant="destructive" size="icon" onClick={() => proposalHook.handleRemoveMilestone(i)} className="shrink-0"><span className="text-lg">×</span></Button>}
+                                            </div>
+                                        ))}
+                                        <Button variant="outline" size="lg" onClick={proposalHook.handleAddMilestone} className="mt-2 w-full border-dashed border-2 hover:border-primary hover:text-primary">
+                                            + {t('proposals.new.btn_add_milestone')}
+                                        </Button>
+                                    </CardContent>
+                                </Card>
+
+                                <Button size="lg" className="w-full bg-emerald-600 hover:bg-emerald-700 text-lg h-14 font-bold shadow-lg shadow-emerald-600/20" onClick={proposalHook.handleSubmit} disabled={proposalHook.isPending}>
+                                    {proposalHook.isPending ? <DaoLoadingSpinner /> : t('proposals.new.btn_submit_startup')}
+                                </Button>
+                            </div>
+                        </div>
+                    </TabsContent>
+
+                    {/* ================= TREASURY WIZARD ================= */}
+                    <TabsContent value="treasury">
+                        <Card className="max-w-3xl mx-auto border-purple-500/20 shadow-xl">
+                            <CardHeader className="bg-purple-500/5 pb-6 border-b border-purple-500/10">
+                                <CardTitle className="text-purple-700 flex gap-3 text-2xl"><Vote className="w-8 h-8"/> {t('proposals.new.treasury_title')}</CardTitle>
+                                <CardDescription className="text-base mt-2">{t('proposals.new.treasury_desc')}</CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-8 pt-8 px-8">
+                                <div className="space-y-2">
+                                    <Label className="text-base">{t('proposals.new.lbl_proposal_title')}</Label>
+                                    <Input className="h-12 text-start" value={tTitle} onChange={e => setTTitle(e.target.value)} />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label className="text-base">{t('proposals.new.lbl_desc_reason')}</Label>
+                                    <Textarea className="min-h-[140px] text-start resize-y" value={tDesc} onChange={e => setTDesc(e.target.value)} />
+                                </div>
+                                <div className="grid md:grid-cols-2 gap-8">
+                                    <div className="space-y-2">
+                                        <Label className="text-base">{t('treasury_page.deposit_amount')}</Label>
+                                        <Input type="number" placeholder="0.00" value={tAmount} onChange={e => setTAmount(e.target.value)} className="font-mono text-lg h-12 text-start" />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label className="text-base">{t('proposals.new.lbl_token_type')}</Label>
+                                        <Select value={tToken} onValueChange={setTToken}>
+                                            <SelectTrigger className="h-12 text-start"><SelectValue /></SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="1" className="text-start">{t('proposals.new.opt_governance')}</SelectItem>
+                                                <SelectItem value="0" className="text-start">{t('proposals.new.opt_native')}</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                </div>
+                                <div className="space-y-2">
+                                    <Label className="flex items-center gap-2 text-base">
+                                        <Wallet className="w-4 h-4 text-muted-foreground" />
+                                        {t('proposals.new.lbl_recipient')}
+                                    </Label>
+                                    <Input placeholder={t('proposals.new.ph_wallet')} value={tRecipient} onChange={e => setTRecipient(e.target.value)} className="font-mono text-sm h-12 text-start" dir="ltr" />
+                                    <p className="text-xs text-muted-foreground">{t('proposals.new.note_self_recipient')}</p>
+                                </div>
+
+                                <Button size="lg" className="w-full bg-purple-600 hover:bg-purple-700 text-lg h-14" onClick={handleTreasurySubmit} disabled={isSubmittingTreasury || isConfirming}>
+                                    {isSubmittingTreasury ? <DaoLoadingSpinner /> : t('proposals.new.btn_submit_treasury')}
+                                </Button>
+                            </CardContent>
+                        </Card>
+                    </TabsContent>
+                </Tabs>
             </div>
         </AppLayout>
     );

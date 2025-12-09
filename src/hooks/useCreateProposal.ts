@@ -1,4 +1,4 @@
-// src/hooks/useCreateProposal.ts - NO FORM EVENT VERSION
+// src/hooks/useCreateProposal.ts
 
 "use client";
 
@@ -11,6 +11,7 @@ import { toast } from 'sonner';
 import type { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
 
 export interface Milestone { name: string; durationDays: string; amount: string; }
+
 interface UseCreateProposalProps {
     daoAddress: `0x${string}` | undefined;
     router: AppRouterInstance;
@@ -21,9 +22,12 @@ export function useCreateProposal({ daoAddress, router }: UseCreateProposalProps
     const { t } = useTranslation();
     const { writeContractAsync } = useWriteContract();
     
-    // استفاده از Ref برای جلوگیری از اجرای تکراری
     const toastIdRef = useRef<string | number | null>(null);
     const isFinalizingRef = useRef(false);
+
+    // --- State های جدید ---
+    const [startupStage, setStartupStage] = useState<'idea' | 'revenue'>('idea');
+    const [knowledgeBasedType, setKnowledgeBasedType] = useState<string>('none');
 
     // --- Form States ---
     const [projectName, setProjectName] = useState('');
@@ -62,26 +66,26 @@ export function useCreateProposal({ daoAddress, router }: UseCreateProposalProps
     const [txHash, setTxHash] = useState<Hex | undefined>(undefined);
     const [mongoId, setMongoId] = useState<string | null>(null);
 
-    // Wagmi hooks
     const { data: receipt, isLoading: isConfirming, isSuccess: isConfirmed, isError: isTxError, error: txError } = useWaitForTransactionReceipt({ hash: txHash });
 
     const isFormValid = useMemo(() => {
         const areMilestonesValid = milestones.every(m => m.name.trim() && m.durationDays.trim() && m.amount.trim());
-        return projectName.trim() !== '' && description.trim().length >= 20 && isAddress(recipient) && areMilestonesValid;
-    }, [projectName, description, recipient, milestones]);
+        return projectName.trim() !== '' && description.trim().length >= 20 && areMilestonesValid;
+    }, [projectName, description, milestones]);
 
     const handleAddMilestone = useCallback(() => setMilestones(prev => [...prev, { name: '', durationDays: '', amount: '' }]), []);
+    
     const handleMilestoneChange = useCallback((index: number, field: keyof Milestone, value: string) => {
         const newMilestones = [...milestones];
         if ((field === 'amount' || field === 'durationDays') && value !== '' && !/^\d*\.?\d*$/.test(value)) return;
         newMilestones[index][field] = value;
         setMilestones(newMilestones);
     }, [milestones]);
+    
     const handleRemoveMilestone = useCallback((index: number) => {
         if (milestones.length > 1) setMilestones(prev => prev.filter((_, i) => i !== index));
     }, [milestones.length]);
 
-    // ✅ تغییر مهم: حذف event آرگومان (e: React.FormEvent)
     const handleSubmit = useCallback(async () => {
         if (!isFormValid || !daoAddress) {
             toast.warning(t('toasts.fill_all_fields'));
@@ -114,12 +118,18 @@ export function useCreateProposal({ daoAddress, router }: UseCreateProposalProps
             // 2. Save Off-Chain
             if (toastIdRef.current) toast.loading(t('toasts.saving_proposal'), { id: toastIdRef.current });
             
+            // ✅ اضافه شدن فیلدهای جدید به دیتای ارسالی
             const fullProposalData = {
-                proposerAddress: address, projectName, tagline, website, description, problem, solution, businessModel,
+                type: 'funding',
+                startupStage, // جدید
+                knowledgeBasedType, // جدید
+                proposerAddress: address, 
+                projectName, tagline, website, description, problem, solution, businessModel,
                 startupIndustry, teamExperienceYears, teamBio, 
                 marketStats: { marketSize, tam, sam, som, competitors },
                 financialStats: { burnRate, revenueProj, breakEven, hasPreviousFunding, fundingHistoryDetails },
-                recipient, milestones,
+                recipient: recipient || address, // اگر گیرنده خالی بود، خود کاربر
+                milestones,
                 documents: { pitchDeck: pitchDeckHash, financials: financialsHash, legal: legalHash },
             };
 
@@ -156,6 +166,7 @@ export function useCreateProposal({ daoAddress, router }: UseCreateProposalProps
         }
     }, [
         isFormValid, daoAddress, address, writeContractAsync, t, 
+        startupStage, knowledgeBasedType, // وابستگی‌های جدید
         projectName, tagline, website, description, problem, solution, businessModel, 
         startupIndustry, teamExperienceYears, teamBio, 
         marketSize, tam, sam, som, competitors, 
@@ -228,7 +239,11 @@ export function useCreateProposal({ daoAddress, router }: UseCreateProposalProps
     }, [isTxError, txError, t]);
 
     return {
-        // ... (state setters remain the same)
+        // فیلدهای جدید
+        startupStage, setStartupStage,
+        knowledgeBasedType, setKnowledgeBasedType,
+        
+        // فیلدهای قبلی
         projectName, setProjectName, tagline, setTagline, website, setWebsite,
         description, setDescription, problem, setProblem, solution, setSolution,
         businessModel, setBusinessModel, startupIndustry, setStartupIndustry,
@@ -240,6 +255,7 @@ export function useCreateProposal({ daoAddress, router }: UseCreateProposalProps
         setPitchDeckFile, setFinancialsFile, setLegalFile,
         isPending: isSubmitting || isConfirming, 
         isFormValid,
+        pitchDeckFile, // برای چک کردن در UI
         handleAddMilestone, handleMilestoneChange, handleRemoveMilestone,
         handleSubmit,
     };

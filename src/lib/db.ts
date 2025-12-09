@@ -1,75 +1,139 @@
 // src/lib/db.ts
 
 import clientPromise from './mongodb';
-import { type Db, type Collection, type Document } from 'mongodb';
+import { type Collection, ObjectId } from 'mongodb';
 
-// ۱. تعریف نوع داده‌های اصلی پروفایل (بدون فیلد _id)
-export interface ProfileData {
-    displayName: string;
-    email: string;
+// --- 1. تعریف دقیق مدل داده کاربر ---
+export interface UserProfile {
+    displayName?: string;
+    email?: string;
+    companyName?: string; // مخصوص استارتاپ‌ها
+    bio?: string;
+    avatarUrl?: string;
+    website?: string;
 }
 
-// ۲. تعریف نوع داکیومنتی که در MongoDB ذخیره می‌شود
-// اینترفیس ProfileData را به ارث می‌برد و نوع _id را به صراحت string تعریف می‌کند
-interface ProfileDocument extends ProfileData, Document {
-    _id: string;
+export interface UserDocument {
+    _id?: ObjectId;
+    walletAddress: string; // کلید یکتا (همیشه حروف کوچک)
+    roles: string[];       // مثال: ['user', 'startup', 'admin']
+    kycStatus: 'none' | 'pending' | 'verified' | 'rejected';
+    profile: UserProfile;
+    createdAt: Date;
+    lastLogin: Date;
+    // فیلدهای سیستمی
+    nonce?: string;        // برای امضای دیجیتال (اختیاری)
 }
 
-// Helper function to connect to the DB and get the correctly typed collection
-async function getProfilesCollection(): Promise<Collection<ProfileDocument>> {
+const DB_NAME = process.env.MONGODB_DB || "dao-vc";
+const COLLECTION_NAME = "users";
+
+// --- 2. تابع کمکی اتصال به دیتابیس ---
+async function getUsersCollection(): Promise<Collection<UserDocument>> {
     const client = await clientPromise;
-    const db: Db = client.db("dao-vc"); // نام دیتابیس شما
-    return db.collection<ProfileDocument>("profiles");
+    const db = client.db(DB_NAME);
+    return db.collection<UserDocument>(COLLECTION_NAME);
 }
 
 /**
- * Fetches a user profile from the database.
- * @param address The user's wallet address.
- * @returns The profile data (without _id) or null if not found.
+ * دریافت کاربر یا ایجاد آن در اولین ورود (Login Logic)
+ * اگر کاربر وجود نداشته باشد، با نقش پیش‌فرض 'user' ساخته می‌شود.
  */
-export async function getProfile(address: string): Promise<ProfileData | null> {
-    if (!address) return null;
+export async function getOrCreateUser(address: string): Promise<UserDocument> {
+    if (!address) throw new Error("Wallet address is required");
+    
+    const collection = await getUsersCollection();
+    const normalizedAddr = address.toLowerCase();
 
     try {
-        const collection = await getProfilesCollection();
-        
-        // حالا این کوئری از نظر تایپ صحیح است چون collection می‌داند _id از نوع string است
-        const profileDocument = await collection.findOne({ _id: address.toLowerCase() });
+        // ۱. تلاش برای یافتن کاربر
+        let user = await collection.findOne({ walletAddress: normalizedAddr });
 
-        if (!profileDocument) {
-            return null;
+        if (!user) {
+            // ۲. اگر نبود، ایجاد کاربر جدید
+            const newUser: UserDocument = {
+                walletAddress: normalizedAddr,
+                roles: ['user'], // نقش پیش‌فرض: سرمایه‌گذار/کاربر عادی
+                kycStatus: 'none',
+                profile: {
+                    displayName: `User ${normalizedAddr.slice(0, 6)}`,
+                },
+                createdAt: new Date(),
+                lastLogin: new Date()
+            };
+            
+            const result = await collection.insertOne(newUser);
+            user = { ...newUser, _id: result.insertedId };
+            console.log(`✨ New user created: ${normalizedAddr}`);
+        } else {
+            // ۳. اگر بود، آپدیت زمان آخرین ورود
+            await collection.updateOne(
+                { walletAddress: normalizedAddr },
+                { $set: { lastLogin: new Date() } }
+            );
         }
 
-        // ما _id را از نتیجه حذف می‌کنیم و فقط داده‌های پروفایل را برمی‌گردانیم
-        const { _id, ...profileData } = profileDocument;
-        return profileData;
-
+        return user;
     } catch (error) {
-        console.error("Error fetching profile from MongoDB:", error);
-        throw new Error("Failed to retrieve profile data.");
+        console.error("DB Error in getOrCreateUser:", error);
+        throw new Error("Database operation failed");
     }
 }
 
 /**
- * Creates or updates a user profile in the database.
- * @param address The user's wallet address.
- * @param profileData The profile data to save (displayName, email).
+ * دریافت پروفایل کاربر (بدون ایجاد)
  */
-export async function saveProfile(address: string, profileData: ProfileData): Promise<void> {
-    if (!address || !profileData) return;
+export async function getUserProfile(address: string): Promise<UserDocument | null> {
+    if (!address) return null;
+    const collection = await getUsersCollection();
+    return collection.findOne({ walletAddress: address.toLowerCase() });
+}
 
-    try {
-        const collection = await getProfilesCollection();
-        
-        // این کوئری نیز اکنون از نظر تایپ صحیح است
-        await collection.updateOne(
-            { _id: address.toLowerCase() }, // The filter to find the document
-            { $set: profileData },         // The data to update or insert
-            { upsert: true }               // Option to create the document if it doesn't exist
-        );
+/**
+ * ارتقاء نقش کاربر (مثلاً اضافه کردن نقش 'startup')
+ * از $addToSet استفاده می‌کند تا نقش تکراری اضافه نشود.
+ */
+export async function addRoleToUser(address: string, role: string): Promise<boolean> {
+    if (!address || !role) return false;
+    
+    const collection = await getUsersCollection();
+    const normalizedAddr = address.toLowerCase();
+    
+    const result = await collection.updateOne(
+        { walletAddress: normalizedAddr },
+        { 
+            $addToSet: { roles: role },
+            $set: { lastUpdated: new Date() } // اختیاری: ثبت زمان تغییر
+        } as any
+    );
+    
+    return result.modifiedCount > 0;
+}
 
-    } catch (error) {
-        console.error("Error saving profile to MongoDB:", error);
-        throw new Error("Failed to save profile data.");
+/**
+ * بروزرسانی اطلاعات پروفایل (نام، ایمیل، بیو و...)
+ * از Dot Notation استفاده می‌کند تا کل آبجکت profile پاک نشود.
+ */
+export async function updateUserProfile(address: string, data: Partial<UserProfile>): Promise<boolean> {
+    if (!address) return false;
+
+    const collection = await getUsersCollection();
+    const normalizedAddr = address.toLowerCase();
+
+    // ساخت آبجکت آپدیت به صورت تودرتو (مثلاً "profile.email")
+    const updateFields: any = {};
+    for (const [key, value] of Object.entries(data)) {
+        if (value !== undefined) {
+            updateFields[`profile.${key}`] = value;
+        }
     }
+
+    if (Object.keys(updateFields).length === 0) return false;
+
+    const result = await collection.updateOne(
+        { walletAddress: normalizedAddr },
+        { $set: updateFields }
+    );
+
+    return result.modifiedCount > 0;
 }

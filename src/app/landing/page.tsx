@@ -14,10 +14,12 @@ import { Badge } from "@/components/ui/badge";
 import { LanguageSwitcher } from "@/components/layout/language-switcher";
 import { useProposals } from "@/hooks/useProposals";
 import { DaoLoadingSpinner } from "@/components/icons/dao-loading-spinner";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { CustomConnectButton } from "@/components/wallet/custom-connect-button";
 import { useWalletConnect } from "@/hooks/useWalletConnect";
 import { ConnectWalletModal } from "@/components/wallet/connect-wallet-modal";
+import { useAccount } from "wagmi";
+import { useRouter } from 'next/navigation';
 
 // --- Helper for Type-Safe Translation ---
 const useSafeTranslation = () => {
@@ -81,7 +83,7 @@ const FeaturedProposalsSection = () => {
                 ) : featuredProposals.length === 0 ? (
                     <p className="text-center text-muted-foreground bg-muted/20 p-8 rounded-xl border border-dashed">{t('landing_page.no_featured_proposals')}</p>
                 ) : (
-                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
                         {featuredProposals.map((proposal) => {
                             const statusInfo = getStatusInfo(proposal.onChainStatus);
                             return (
@@ -119,7 +121,15 @@ export default function LandingPage() {
         isModalOpen, openModal, closeModal, 
         connectors, connect, isPending, connectError 
     } = useWalletConnect();
+    const { isConnected } = useAccount();
+    const router = useRouter();
 
+    // ✅ منطق ریدایرکت خودکار
+    useEffect(() => {
+        if (isConnected) {
+            router.push('/dashboard');
+        }
+    }, [isConnected, router]);
 
     return (
         <div dir={direction} className="bg-transparent text-foreground min-h-screen flex flex-col relative selection:bg-primary/30">

@@ -1,4 +1,5 @@
-// src/app/components/layout/app-sidebar.tsx - FINAL REDESIGNED & TYPE-SAFE
+// src/components/layout/app-sidebar.tsx
+
 "use client";
 
 import * as React from "react";
@@ -16,15 +17,14 @@ import {
   SidebarMenuButton,
   SidebarFooter,
   SidebarMenuSub,
-  SidebarMenuSubButton,
   SidebarMenuSubItem,
+  SidebarMenuSubButton,
   SidebarRail,
-  SidebarSeparator, // ✅ اضافه شد
+  SidebarSeparator,
 } from "@/components/ui/sidebar";
 import {
   LayoutDashboard, FileText, PiggyBank, BarChart2, User,
-  ShieldCheck, Wrench, BrainCircuit, ScrollText, LucideIcon,
-  LogOut
+  ShieldCheck, BrainCircuit, LogOut, LucideIcon
 } from "lucide-react";
 import { Logo } from "@/components/icons/logo";
 import { useWeb3 } from "@/context/Web3Provider";
@@ -35,17 +35,23 @@ import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useAccount, useDisconnect } from "wagmi";
 
-// ... (Interface ها مثل قبل باقی می‌مانند)
+// تعریف اینترفیس‌ها برای تایپ‌سیفتی
+interface SubItem {
+    titleKey: string; // کلید ترجمه
+    url: string;
+    roles: UserRole[];
+}
+
 interface NavItem {
-  title: string;
+  titleKey: string; // کلید ترجمه
   url: string;
   icon: LucideIcon;
   roles: UserRole[];
-  isActive?: boolean;
-  items?: { title: string; url: string; roles: UserRole[] }[];
+  items?: SubItem[];
 }
+
 interface NavGroup {
-  label: string;
+  labelKey: string; // کلید ترجمه
   items: NavItem[];
 }
 
@@ -57,54 +63,58 @@ export function AppSidebar() {
   const { address } = useAccount();
   const { disconnect } = useDisconnect();
 
+  // نقش پیش‌فرض برای کاربرانی که هنوز نقش ندارند (مهمان)
   const currentRole = userRole || 'voter';
 
-  const data = React.useMemo(() => {
-    const groups: NavGroup[] = [
+  // تعریف ساختار منو با استفاده از کلیدهای ترجمه
+  const navStructure: NavGroup[] = React.useMemo(() => [
       {
-        label: t('sidebar.group_core'),
+        labelKey: 'sidebar.group_core',
         items: [
-          { title: t('sidebar.dashboard'), url: "/dashboard", icon: LayoutDashboard, roles: ['admin', 'investor', 'startup', 'voter', 'delegate'] },
-          { title: t('sidebar.user_profile'), url: "/profile", icon: User, roles: ['admin', 'investor', 'startup', 'voter', 'delegate'] },
+          { titleKey: 'sidebar.dashboard', url: "/dashboard", icon: LayoutDashboard, roles: ['admin', 'investor', 'startup', 'voter', 'delegate'] },
+          { titleKey: 'sidebar.user_profile', url: "/profile", icon: User, roles: ['admin', 'investor', 'startup', 'voter', 'delegate'] },
         ]
       },
       {
-        label: t('sidebar.group_governance'),
+        labelKey: 'sidebar.group_governance',
         items: [
           {
-            title: t('sidebar.proposals'), url: "/proposals", icon: FileText, roles: ['admin', 'investor', 'startup', 'voter', 'delegate'],
+            titleKey: 'sidebar.proposals', url: "/proposals", icon: FileText, roles: ['admin', 'investor', 'startup', 'voter', 'delegate'],
             items: [
-              { title: t('sidebar.all_proposals'), url: "/proposals", roles: ['admin', 'investor', 'startup', 'voter', 'delegate'] },
-              { title: t('sidebar.submit_proposal'), url: "/proposals/new", roles: ['startup'] },
+              { titleKey: 'sidebar.all_proposals', url: "/proposals", roles: ['admin', 'investor', 'startup', 'voter', 'delegate'] },
+              { titleKey: 'sidebar.submit_proposal', url: "/proposals/new", roles: ['startup', 'admin'] }, // ادمین هم باید ببیند
             ]
           },
-          { title: t('sidebar.staking'), url: "/staking", icon: PiggyBank, roles: ['admin', 'investor', 'startup', 'voter', 'delegate'] },
+          { titleKey: 'sidebar.staking', url: "/staking", icon: PiggyBank, roles: ['admin', 'investor', 'startup', 'voter', 'delegate'] },
         ]
       },
       {
-        label: t('sidebar.group_intelligence'),
+        labelKey: 'sidebar.group_intelligence',
         items: [
-          { title: t('sidebar.ai_reports'), url: "/reports", icon: BrainCircuit, roles: ['admin', 'investor'] },
-          { title: t('sidebar.user_analytics'), url: "/analytics", icon: BarChart2, roles: ['admin'] },
+          { titleKey: 'sidebar.ai_reports', url: "/reports", icon: BrainCircuit, roles: ['admin', 'investor'] },
+          { titleKey: 'sidebar.user_analytics', url: "/analytics", icon: BarChart2, roles: ['admin'] },
         ]
       },
       {
-        label: t('sidebar.group_admin'),
+        labelKey: 'sidebar.group_admin',
         items: [
-          { title: t('sidebar.treasury'), url: "/treasury", icon: ShieldCheck, roles: ['admin'] },
+          { titleKey: 'sidebar.treasury', url: "/treasury", icon: ShieldCheck, roles: ['admin'] },
         ]
       }
-    ];
+  ], []);
 
-    return groups.map(group => ({
-      ...group,
-      items: group.items.filter(item => item.roles.includes(currentRole))
-    })).filter(group => group.items.length > 0);
-
-  }, [t, currentRole, pathname]);
+  // فیلتر کردن منو بر اساس نقش کاربر
+  const filteredNav = React.useMemo(() => {
+      return navStructure.map(group => ({
+          ...group,
+          items: group.items.filter(item => item.roles.includes(currentRole))
+      })).filter(group => group.items.length > 0);
+  }, [navStructure, currentRole]);
 
   return (
     <Sidebar collapsible="icon" side={direction === 'rtl' ? 'right' : 'left'} className="border-r border-border/50">
+      
+      {/* هدر سایدبار */}
       <SidebarHeader className="h-16 flex items-center justify-center border-b border-border/40 bg-sidebar/50 backdrop-blur-sm">
         <div className="flex items-center gap-3 w-full px-2 transition-all group-data-[collapsible=icon]:justify-center">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary shadow-sm">
@@ -117,16 +127,15 @@ export function AppSidebar() {
         </div>
       </SidebarHeader>
 
+      {/* محتوای منو */}
       <SidebarContent className="gap-0">
-        {data.map((group, index) => (
-          <React.Fragment key={group.label}>
-            {/* ✅ اضافه کردن جداکننده بین گروه‌ها (به جز گروه اول) */}
+        {filteredNav.map((group, index) => (
+          <React.Fragment key={group.labelKey}>
             {index > 0 && <SidebarSeparator className="mx-4 my-2 opacity-50" />}
             
             <SidebarGroup className="py-2">
-              {/* ✅ افزایش سایز فونت و بولد کردن تیتر گروه‌ها */}
-              <SidebarGroupLabel className="text-sm font-bold text-foreground/80 uppercase tracking-wider px-4 mb-2 mt-1">
-                {group.label}
+              <SidebarGroupLabel className="text-xs font-bold text-foreground/70 uppercase tracking-wider px-4 mb-2 mt-1">
+                {t(group.labelKey)}
               </SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu>
@@ -136,7 +145,7 @@ export function AppSidebar() {
                       <SidebarMenuItem key={item.url}>
                         <SidebarMenuButton 
                           asChild 
-                          tooltip={item.title} 
+                          tooltip={t(item.titleKey)} 
                           isActive={isActive}
                           className={cn(
                             "h-10 transition-all duration-200 mx-2 w-auto rounded-lg font-medium",
@@ -147,10 +156,11 @@ export function AppSidebar() {
                         >
                           <Link href={item.url}>
                             <item.icon className={cn("size-4", isActive && "text-primary")} />
-                            <span>{item.title}</span>
+                            <span>{t(item.titleKey)}</span>
                           </Link>
                         </SidebarMenuButton>
                         
+                        {/* زیرمنوها (Sub-menus) */}
                         {item.items && item.items.length > 0 && isActive && (
                           <SidebarMenuSub>
                             {item.items.map((subItem) => (
@@ -161,7 +171,7 @@ export function AppSidebar() {
                                     isActive={pathname === subItem.url}
                                     className={cn(pathname === subItem.url ? "text-primary font-medium" : "text-muted-foreground")}
                                   >
-                                    <Link href={subItem.url}>{subItem.title}</Link>
+                                    <Link href={subItem.url}>{t(subItem.titleKey)}</Link>
                                   </SidebarMenuSubButton>
                                 </SidebarMenuSubItem>
                                )
@@ -178,6 +188,7 @@ export function AppSidebar() {
         ))}
       </SidebarContent>
 
+      {/* فوتر (پروفایل کاربر) */}
       <SidebarFooter className="border-t border-border/40 p-2 bg-sidebar/30">
         <SidebarMenu>
           <SidebarMenuItem>
@@ -188,13 +199,14 @@ export function AppSidebar() {
                         {userRole.charAt(0).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
-                  <div className="grid flex-1 text-left text-sm leading-tight group-data-[collapsible=icon]:hidden">
-                    <span className="truncate font-semibold capitalize">{t(`role_selection.${userRole}`)}</span>
+                  <div className="grid flex-1 text-start text-sm leading-tight group-data-[collapsible=icon]:hidden">
+                    {/* ✅ استفاده از کلید ترجمه داینامیک برای نقش */}
+                    <span className="truncate font-semibold capitalize">{t(`roles.${userRole}`)}</span>
                     <span className="truncate text-xs text-muted-foreground font-mono">
                         {address ? `${address.slice(0, 6)}...${address.slice(-4)}` : '...'}
                     </span>
                   </div>
-                  <button onClick={() => disconnect()} className="ml-auto text-muted-foreground hover:text-destructive transition-colors group-data-[collapsible=icon]:hidden">
+                  <button onClick={() => disconnect()} className="ml-auto text-muted-foreground hover:text-destructive transition-colors group-data-[collapsible=icon]:hidden" title={t('wallet.disconnect')}>
                       <LogOut className="size-4" />
                   </button>
                 </div>

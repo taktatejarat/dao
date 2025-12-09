@@ -1,3 +1,4 @@
+// src/context/LanguageProvider.tsx
 
 'use client';
 
@@ -14,6 +15,7 @@ interface LanguageContextProps {
 
 const LanguageContext = createContext<LanguageContextProps | undefined>(undefined);
 
+// کانفیگ جهت زبان‌ها
 const localeConfig: Record<Locale, { direction: Direction }> = {
     fa: { direction: 'rtl' },
     en: { direction: 'ltr' },
@@ -24,11 +26,12 @@ const localeConfig: Record<Locale, { direction: Direction }> = {
 };
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
-  const [locale, setLocaleState] = useState<Locale>('fa'); // Default locale
+  // پیش‌فرض فارسی
+  const [locale, setLocaleState] = useState<Locale>('fa'); 
   const direction = localeConfig[locale].direction;
 
   useEffect(() => {
-    // This effect now runs only on the client
+    // خواندن زبان از لوکال استوریج در کلاینت
     const storedLocale = localStorage.getItem('locale') as Locale | null;
     if (storedLocale && localeConfig[storedLocale]) {
       setLocaleState(storedLocale);
@@ -39,10 +42,13 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     if (localeConfig[newLocale]) {
       localStorage.setItem('locale', newLocale);
       setLocaleState(newLocale);
+      // تغییر اتریبیوت HTML برای اعمال فوری استایل‌ها
+      document.documentElement.lang = newLocale;
+      document.documentElement.dir = localeConfig[newLocale].direction;
     }
   }, []);
 
-  // Effect to update the DOM when locale or direction changes
+  // همگام‌سازی اولیه HTML با استیت
   useEffect(() => {
     document.documentElement.lang = locale;
     document.documentElement.dir = direction;

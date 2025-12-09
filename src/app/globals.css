@@ -5,6 +5,9 @@
 @tailwind utilities;
 
 @layer base {
+    * {
+    @apply border-border;
+  }
   :root {
     /* --- تم روشن (شفاف و تمیز) --- */
     --background: 210 40% 98%; /* سفید یخی */
@@ -93,15 +96,12 @@
     --sidebar-border: 217 33% 20%;
     --sidebar-ring: 217 91% 60%;
   }
-}
-
-@layer base {
-  * {
-    @apply border-border;
-  }
   
   body {
     @apply bg-background text-foreground;
+    /* اجبار به استفاده از جهت HTML */
+    direction: inherit; 
+    text-align: start; 
     /* فونت پیش‌فرض لاتین */
     font-family: var(--font-sans); 
   }
@@ -126,6 +126,11 @@
   [dir="rtl"] .font-headline {
     font-family: var(--font-vazir) !important;
     font-weight: 700;
+  }
+  /* کلاس‌های کمکی برای اطمینان از رفتار صحیح در همه جا */
+  input, textarea, select {
+    text-align: start;
+    direction: inherit;
   }
 }
 

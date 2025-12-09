@@ -54,6 +54,7 @@ export const en = {
     clear_search: "Clear search",
     confirm_continue: "Save and Continue",
     seconds: "Second",
+    max: "Maximum",
   },
 
   header: {
@@ -224,51 +225,12 @@ export const en = {
     },
   },
 
-  role_selection: {
-    title: "Role Selection",
-    welcome: "Welcome to RayanChain!",
-    prompt: "To get started, please specify your role on the platform.",
-    investor: "Investor",
+  roles: {
+    admin: "System Administrator",
     startup: "Startup",
+    investor: "Investor",
     voter: "Voter",
     delegate: "Delegate",
-    investor_desc_short: "Evaluating investment opportunities with a focus on profitability and risk management",
-    subtitle: "Role selection allows you to define your position within the governance and investment structure and shape your participation path according to your personal goals and capabilities this section is designed to provide clarity in the decision making process enabling each member to take an effective role within the network",
-    continue_to_staking_cta: "Continue to Select Investment Plan",
-    delegate_title: "Governance Delegate",
-    delegate_desc: "Active participation in DAO decision-making by receiving delegated voting power from other members and influencing the future of investments.",
-    investor_title: "Choose Your Investment Plan",
-    investor_subtitle: "Stake RYC tokens to enjoy special benefits.",
-    startup_title: "Are you a Startup?",
-    startup_desc: "Raise capital for your innovative project. Submit your proposal to be evaluated by our community of investors.",
-    startup_cta: "Sign up as a Startup",
-    startup_role_granted_title: "Startup Role Granted",
-    startup_role_granted_desc: "You have been granted startup privileges. You can now submit proposals.",
-    role_grant_error_title: "Role Grant Failed",
-    role_grant_error_desc: "Failed to grant startup role. Please try again.",
-    granting_role: "Granting Role...",
-    voter_title: "Participate in Governance",
-    voter_desc: "As a voter, you play a key role in the platform's major decisions and help shape the future of RayanChain.",
-    voter_cta: "Continue as a Voter",
-    plan_bronze_title: "Bronze",
-    plan_bronze_desc: "For starting with small investments.",
-    plan_bronze_feat1: "Access to public proposals",
-    plan_bronze_feat2: "Basic voting power",
-    plan_bronze_feat3: "Standard support",
-    plan_silver_title: "Silver",
-    plan_silver_desc: "The most popular option for active investors.",
-    plan_silver_feat1: "Access to public and private proposals",
-    plan_silver_feat2: "2x voting power",
-    plan_silver_feat3: "AI risk analysis",
-    plan_silver_feat4: "Priority support",
-    plan_gold_title: "Gold",
-    plan_gold_desc: "For professional and institutional investors.",
-    plan_gold_feat1: "Exclusive access to early-stage projects",
-    plan_gold_feat2: "5x voting power",
-    plan_gold_feat3: "Advanced AI analysis",
-    plan_gold_feat4: "Dedicated account manager",
-    select_plan: "Select Plan",
-    redirecting: "Redirecting...",
   },
 
   // ==============================================================================
@@ -306,6 +268,7 @@ export const en = {
     native_balance_desc: "Balance of the network's native currency",
     staked_balance: "Staked Balance",
     staked_balance_desc: "Your staked tokens",
+    no_proposals: "No proposals found",
 
     // Proposal tracking
     latest_proposal_status: "Latest Proposal Status",
@@ -509,6 +472,133 @@ export const en = {
     defi_integration: "Integration with DeFi Protocol",
     community_fund: "Community Reserve Fund Creation",
     platform_x_partnership: "Partnership with Platform X",
+        new: {
+      title: "Create New Proposal",
+      subtitle: "Define your vision or manage treasury resources",
+      tab_startup: "Startup Fundraising",
+      tab_treasury: "DAO Governance (Treasury)",
+      
+      // Startup Section
+      stage_title: "Project Stage",
+      stage_idea: "Idea / Pre-Revenue",
+      stage_idea_desc: "Prototype (MVP), research and development",
+      stage_revenue: "Growth / Post-Revenue",
+      stage_revenue_desc: "Active revenue generation, market expansion",
+      
+      kb_title: "Knowledge-Based Type",
+      kb_none: "Normal (Non-Knowledge-Based)",
+      kb_type1: "Early-Stage (Type 1)",
+      kb_type2: "Technology-Based (Type 2)",
+      kb_creative: "Creative / Soft Industries",
+      
+      docs_title: "Documents",
+      upload_pitch: "Upload Pitch Deck",
+      upload_whitepaper: "Upload Whitepaper / BP",
+      upload_legal: "Legal Documents",
+      required: "(Required)",
+      uploaded: "Uploaded",
+
+      project_details: "Project Details",
+      project_details_desc: "Describe your value proposition for investors.",
+      lbl_name: "Project Name",
+      ph_name: "Example: RayanChain",
+      lbl_tagline: "Short Tagline",
+      ph_tagline: "Example: The future of decentralized investment",
+      lbl_problem_solution: "Problem and Solution",
+      ph_problem_solution: "What is the existing problem and how do you solve it?",
+      
+      market_financials: "Market and Financials",
+      market_desc_idea: "Focus on market size and burn rate",
+      market_desc_revenue: "Focus on revenue and growth metrics",
+      lbl_tam: "Total Addressable Market (TAM) - $",
+      lbl_sam: "Serviceable Available Market (SAM) - $",
+      lbl_som: "Serviceable Obtainable Market (SOM) - $",
+      
+      // Conditional Fields
+      lbl_burn_rate: "Monthly Burn Rate ($)",
+      lbl_runway: "Runway (Months)",
+      lbl_revenue: "Last Year Revenue ($)",
+      lbl_profit: "Profit Margin (%)",
+      
+      milestones_title: "Investment Milestones",
+      milestones_desc: "Define how the capital will be used.",
+      lbl_milestone_name: "Milestone Name",
+      lbl_days: "Duration (Days)",
+      lbl_amount: "Amount (RYC)",
+      btn_add_milestone: "Add Milestone",
+      btn_submit_startup: "Submit Funding Request",
+
+      // Treasury Section
+      treasury_title: "Withdrawal Request",
+      treasury_desc: "Create a proposal to withdraw funds or change parameters.",
+      lbl_proposal_title: "Proposal Title",
+      lbl_desc_reason: "Description and Reason",
+      lbl_recipient: "Recipient Address",
+      lbl_token_type: "Token Type",
+      opt_governance: "RYC (Governance)",
+      opt_native: "Native Token",
+      btn_submit_treasury: "Submit Governance Proposal",
+      ph_wallet: "0x...",
+      note_self_recipient: "If left empty, funds will be sent to your own wallet.",
+
+      // Options
+      industries: {
+        defi: "Decentralized Finance / Web3",
+        ai: "Artificial Intelligence / Machine Learning",
+        gaming: "Gaming / Metaverse",
+        saas: "Software as a Service (SaaS)",
+        placeholder: "Select Industry",
+      },
+      business_models: {
+        placeholder: "Select Business Model",
+        b2b: "B2B (Business to Business)",
+        b2c: "B2C (Business to Consumer)",
+        b2b2c: "B2B2C (Hybrid)",
+        saas: "SaaS (Cloud Software Services)",
+        marketplace: "E-commerce Marketplace",
+      },
+
+      // Actions & Errors
+      submit_for_review: "Submit for Review",
+      success_title: "Proposal Successfully Submitted",
+      success_desc: "Your transaction has been sent. Hash:",
+      form_invalid_error: "Please fill all fields correctly.",
+      form_incomplete_title: "Form Data is Incomplete",
+      form_incomplete_tooltip: "Please complete all required fields across all sections.",
+      contract_not_deployed_title: "Contract Not Deployed",
+      contract_not_deployed_desc: "The DAO contract is not deployed yet. Please contact the administrator.",
+      loading: "Loading...",
+      back_to_dashboard: "Back to Dashboard",
+      invalid_address: "Please enter a valid Ethereum address (0x followed by 40 characters).",
+      valid_address: "Valid Ethereum address.",
+      recipient_required: "Please enter a valid recipient wallet address.",
+      
+      // Permissions & Roles
+      blockchain_role_missing_title: "Blockchain Role Missing",
+      blockchain_role_missing_desc: "You need the DAO_MEMBER_ROLE on the blockchain to submit proposals. Please contact the administrator to grant this role.",
+      request_role_button: "Request Role",
+      grant_role_error_title: "Role Grant Failed",
+      grant_role_error_desc: "Failed to grant the required role. Please contact the administrator.",
+      grant_role_info_title: "Role Request Sent",
+      grant_role_info_desc: "Your role request has been submitted. An administrator will review and grant permissions.",
+      contract_write_error: "Failed to send proposal to the blockchain. Please try again.",
+      access_denied_title: "Access Denied",
+      access_denied_desc: "You must have the 'Startup' role to submit a proposal.",
+      connect_to_submit: "Please connect your wallet to submit a proposal.",
+      
+      // AI Integration
+      ai_check_triggered: "AI risk assessment process started.",
+      ai_check_failed_title: "AI Activation Error",
+      ai_check_failed_desc: "The system will review it manually. AI risk assessment failed.",
+      
+      // Feedback
+      redirecting: "Redirecting...",
+      success_toast_title: "Transaction Successfully Sent",
+      confirmed_toast_desc: "Transaction confirmed on the blockchain",
+      pending_toast_title: "Transaction Pending",
+      error_toast_title: "Error Sending Transaction",
+      unexpected_error_desc: "An unknown error occurred. Please check the logs.",
+    },
   },
 
   // Proposal List Page
@@ -538,166 +628,6 @@ export const en = {
       approved: "Approved",
       rejected: "Rejected",
     },
-  },
-
-  // New Proposal Form
-  new_proposal_page: {
-    title: "Submit New Proposal",
-    subtitle: "Complete the form below to register your project and raise funds.",
-    subtitle_professional: "Submit your project information in several steps for review by investors and AI.",
-    card_title: "Proposal Details",
-    card_desc: "Detailed information helps investors in their decision-making.",
-    card_desc_professional: "Please fill out all sections carefully and completely.",
-
-    // Tabs
-    tabs: {
-      overview: "Overview",
-      details: "Project Details",
-      team: "Team",
-      market: "Market",
-      financials: "Financials",
-      documents: "Documents"
-    },
-
-    // Fields
-    project_title: "Project Title",
-    project_title_placeholder: "e.g., Web3 Educational Platform",
-    project_name: "Project Name",
-    project_name_placeholder: "e.g., RayanChain DAO",
-    tagline: "Tagline (One-line summary)",
-    tagline_placeholder: "e.g., Decentralized venture capital platform",
-    industry: "Industry",
-    industry_placeholder: "Select the project's industry",
-    website: "Website",
-    summary: "Executive Summary",
-    summary_placeholder: "Provide a general and compelling description of your project...",
-    full_description: "Full Description",
-    full_description_placeholder: "Describe the goals, solution, and competitive advantage of your project...",
-    description: "Enter the description of tasks for each milestone.",
-    description_required: "Please provide a detailed description of your project.",
-    funding_goal: "Funding Goal (RYC)",
-    recipient_address: "Recipient Wallet Address",
-    problem: "Problem",
-    problem_placeholder: "What problem have you identified in the market and intend to solve?",
-    solution: "Solution",
-    solution_placeholder: "How does your product or service solve this problem?",
-
-    // Business & Market
-    business_model: "Business Model",
-    business_model_placeholder: "Select your revenue model",
-    market_size_label: "Target Market Size (in USD)",
-    competitors: "Competitor Analysis",
-    competitors_placeholder: "Who are your main competitors and what is your competitive advantage?",
-    market_stats: {
-      tam_label: "TAM (total market) ($)",
-      tam_desc: "total accessible market (Total Accessible Market)",
-      sam_label: "SAM (available market) ($)",
-      sam_desc: "serviceable available market (Serviceable Available Market)",
-      som_label: "SOM (market share) ($)",
-      som_desc: "serviceable obtainable market (Serviceable Obtainable Market)",
-    },
-
-    // Team
-    team_experience_label: "Team and Founders' Background",
-    team_experience_placeholder: "A summary of the core team's professional and technical background (for AI analysis).",
-    team_experience_years_label: "Combined experience of the core team (years)",
-    team_bio_label: "Team Background and Bios",
-    team_bio_placeholder: "Describe the experiences, successes, and roles of each key member...",
-    startup_industry_label: "Startup Industry",
-    startup_industry_placeholder: "e.g., HealthTech, Fintech AI",
-
-    // Financials
-    financial_stats: {
-      burn_rate_label: "monthly cost (Burn Rate) ($)",
-      revenue_label: "first year revenue ($)",
-      break_even_label: "break even point (months)",
-    },
-    has_previous_funding_label: "Do you have a history of fundraising?",
-    funding_details: "Previous Funding Details",
-    funding_details_placeholder: "Mention the amount, date, and names of previous investors...",
-
-    // Milestones
-    milestones_required: "Please add at least one milestone with a valid amount.",
-    milestone_amounts_required: "Please enter valid amounts for all milestones.",
-    no_milestones_added: "No funding milestones have been added yet.",
-    add_first_milestone: "Add First Milestone",
-    funding_milestones: "Funding Milestones",
-    milestone_name: "Milestone Name",
-    milestone_name_placeholder: "e.g., MVP Development",
-    duration_days: "Duration (in days)",
-    amount: "Amount",
-    add_milestone: "Add Milestone",
-    milestone: "Milestone",
-    remove: "Remove",
-
-    // Documents
-    pitch_deck: "Pitch Deck (PDF)",
-    financials_doc: "Financial Projections (PDF, XLSX)",
-    legal_doc: "Legal Documents (Optional)",
-    off_chain_note: "The full description is stored securely in an off-chain database, and only its hash is recorded on the blockchain.",
-    file_limits_title: "File limits",
-    file_limits_desc: "The maximum size for each file is 20 MB. You may attach up to 5 additional files.",
-    additional_files: "Additional files (optional)",
-    add_more_files: "Add another file",
-    max_files_reached: "Maximum allowed number of files selected.",
-
-    // Options
-    industries: {
-      defi: "decentralized finance model / web3",
-      ai: "artificial intelligence / machine learning",
-      gaming: "gaming / metaverse",
-      saas: "software as a service (SaaS)",
-      placeholder: "select industry",
-    },
-    business_models: {
-      placeholder: "select business model",
-      b2b: "B2B (business to business)",
-      b2c: "B2C (business to consumer)",
-      b2b2c: "B2B2C (intermediary model)",
-      saas: "SaaS (cloud software services)",
-      marketplace: "e-commerce marketplace",
-    },
-
-    // Actions & Errors
-    submit_for_review: "Submit for Review",
-    success_title: "Proposal Submitted Successfully",
-    success_desc: "Your transaction has been sent. Hash:",
-    form_invalid_error: "Please fill out all fields correctly.",
-    form_incomplete_title: "Form Incomplete",
-    form_incomplete_tooltip: "Please complete all required fields to submit the proposal.",
-    contract_not_deployed_title: "Contract Not Deployed",
-    contract_not_deployed_desc: "The DAO contract is not yet deployed. Please contact an administrator.",
-    loading: "Loading...",
-    back_to_dashboard: "Back to Dashboard",
-    invalid_address: "Please enter a valid Ethereum address (0x followed by 40 characters).",
-    valid_address: "Valid Ethereum address.",
-    recipient_required: "Please enter a valid recipient wallet address.",
-
-    // Permissions & Roles
-    blockchain_role_missing_title: "Blockchain Role Missing",
-    blockchain_role_missing_desc: "You need the DAO_MEMBER_ROLE on the blockchain to submit proposals. Please contact an administrator to grant you this role.",
-    request_role_button: "Request Role",
-    grant_role_error_title: "Role Grant Failed",
-    grant_role_error_desc: "Failed to grant the required role. Please contact an administrator.",
-    grant_role_info_title: "Role Request Sent",
-    grant_role_info_desc: "Your role request has been sent. An administrator will review and grant the required permissions.",
-    contract_write_error: "Failed to submit proposal to the blockchain. Please try again.",
-    access_denied_title: "Access Denied",
-    access_denied_desc: "Only startup users and administrators can submit proposals.",
-    connect_to_submit: "Please connect your wallet to submit a proposal.",
-
-    // AI Integration
-    ai_check_triggered: "AI risk assessment process has been initiated.",
-    ai_check_failed_title: "AI Activation Failed",
-    ai_check_failed_desc: "The AI risk assessment failed to start. The system will review it manually.",
-
-    // Feedback
-    redirecting: "Redirecting...",
-    success_toast_title: "Transaction Submitted Successfully",
-    confirmed_toast_desc: "Transaction confirmed on blockchain",
-    pending_toast_title: "Transaction Processing",
-    error_toast_title: "Transaction Error",
-    unexpected_error_desc: "An unexpected error occurred. Please check the logs.",
   },
 
   // Proposal Detail View
@@ -868,6 +798,26 @@ export const en = {
     revert_reason_stake_zero: "Stake amount must be greater than zero.",
     revert_reason_delegate_stake: "To delegate voting power, you must first stake RYC tokens.",
     contract_addresses_missing: "Essential contract addresses (Token/Staking) have not yet been loaded. Please wait.",
+    your_staked_balance: "Your staked balance",
+    wallet_balance: "Wallet balance",
+    manage_staking: "Manage staking",
+    manage_desc: "Deposit or withdraw tokens and earn passive income.",
+    tab_stake: "Stake",
+    tab_unstake: "Unstake",
+    tab_claim: "Claim rewards",
+    approve_token: "Approve token access",
+    stake_button: "Stake tokens",
+    unstake_button: "Unstake tokens",
+    available_rewards: "Available rewards",
+    claim_rewards_button: "Claim rewards",
+    staking_info_title: "Why stake?",
+    staking_info_desc: "Staking locks your tokens to help secure the network. You receive voting power (1:1) and a share of protocol revenue.",
+    governance_power: "Governance power",
+    self_delegated: "Self-delegated",
+    delegate_to_address: "Delegate to address",
+    delegate_button: "Delegate voting power",
+    undelegate_button: "Remove delegation",
+
   },
 
   treasury_page: {
@@ -1324,6 +1274,14 @@ export const en = {
     error_already_voted: "You have already voted on this proposal.",
     error_user_rejected: "The transaction was cancelled by the user.",
     error_generic: "An unknown error occurred.",
+    submitting_claim: "Claiming rewards...",
+    submitting_delegate: "Delegating voting power...",
+    submitting_undelegate: "Removing delegation...",
+    unstake_successful: "Unstake completed successfully.",
+    claim_successful: "Rewards claimed successfully.",
+    delegate_successful: "Voting power delegated successfully.",
+    undelegate_successful: "Delegation removed successfully.",
+
   },
   terms_page: {
     title: "Terms and Conditions of Use",

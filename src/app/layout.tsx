@@ -1,26 +1,29 @@
-// src/app/layout.tsx - FONT OPTIMIZATION
+// src/app/layout.tsx
 
+import '@/lib/polyfill';
 import type { Metadata } from 'next';
-import './globals.css';
-import { Providers } from '@/context/Providers';
+import { headers } from "next/headers";
+import { cookieToInitialState } from "wagmi";
+import { wagmiConfig } from "@/context/WalletConfig";
+import { Web3Provider } from "@/context/Web3Provider";
+import { UserProvider } from "@/context/UserContext";
+import { LanguageProvider } from "@/context/LanguageProvider";
 import localFont from 'next/font/local';
 import { cn } from '@/lib/utils';
 import { ClientRoot } from '@/components/layout/client-root';
-import { AuthGuard } from '@/components/auth/auth-guard';
+import { ThemeProvider } from "@/components/providers/theme-provider";
+import "./globals.css";
 
-// 1. فونت اصلی متن (لاتین) - پیشنهاد: Roboto یا Inter
-// اگر فایل‌ها را ندارید، نام فایل‌های موجود خودتان را بگذارید
+// فونت‌ها طبق فایل خودتان
 const fontSans = localFont({
   src: [
-    { path: './fonts/Roboto-Regular.ttf', weight: '400', style: 'normal' }, // مسیر فرضی
+    { path: './fonts/Roboto-Regular.ttf', weight: '400', style: 'normal' },
     { path: './fonts/Roboto-Bold.ttf', weight: '700', style: 'normal' },
   ],
   variable: '--font-sans',
   display: 'swap',
 });
 
-// 2. فونت تیترها (لاتین) - پیشنهاد: حذف Merienda و استفاده از Sans یا فونتی مثل "Montserrat"
-// اگر می‌خواهید Merienda را حذف کنید، کافیست متغیر آن را به همان فونت Sans ارجاع دهید
 const fontHeadline = localFont({
   src: [
     { path: './fonts/Roboto-Black.ttf', weight: '900', style: 'normal' },
@@ -29,7 +32,6 @@ const fontHeadline = localFont({
   display: 'swap',
 });
 
-// 3. فونت فارسی (بدون تغییر)
 const fontVazir = localFont({
   src: [
     { path: './fonts/Vazirmatn-Regular.ttf', weight: '400', style: 'normal' },
@@ -41,22 +43,28 @@ const fontVazir = localFont({
 });
 
 export const metadata: Metadata = {
-  title: 'RayanChain DAO',
+  title: 'NextN DAO-VC',
   description: 'AI-Powered Decentralized Investment Protocol',
 };
 
-export default function RootLayout({
+// ✅ اضافه شدن async برای Next.js 16
+export default async function RootLayout({
   children,
-  params: { locale }
+  params
 }: {
   children: React.ReactNode;
-  params: { locale: string };
+  params: Promise<{ locale: string }>;
 }) {
-  // تشخیص جهت (اینجا فقط برای HTML اولیه است، ClientRoot آن را مدیریت می‌کند)
+  const { locale } = await params;
   const direction = (locale === 'fa' || locale === 'ar') ? 'rtl' : 'ltr';
+  
+  // ✅ دریافت کوکی‌ها و بازسازی وضعیت Wagmi
+  const headersList = await headers();
+  const context = headersList.get('cookie');
+  const initialState = cookieToInitialState(wagmiConfig, context);
 
   return (
-    <html lang={locale} dir={direction} suppressHydrationWarning>
+    <html lang={locale || 'en'} dir={direction} suppressHydrationWarning>
       <body className={cn(
           "min-h-screen bg-background font-sans antialiased",
           fontSans.variable, 
@@ -64,13 +72,22 @@ export default function RootLayout({
           fontVazir.variable
         )}
       >
-        <Providers>
-          <ClientRoot>
-            <AuthGuard>
-              {children}
-            </AuthGuard>
-          </ClientRoot>
-        </Providers>
+        <Web3Provider initialState={initialState}>
+            <UserProvider>
+                <LanguageProvider>
+                    <ThemeProvider
+                        attribute="class"
+                        defaultTheme="system"
+                        enableSystem
+                        disableTransitionOnChange
+                    >
+                        <ClientRoot>
+                            {children}
+                        </ClientRoot>
+                    </ThemeProvider>
+                </LanguageProvider>
+            </UserProvider>
+        </Web3Provider>
       </body>
     </html>
   );

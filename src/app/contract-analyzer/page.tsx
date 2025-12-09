@@ -65,7 +65,7 @@ export default function ContractAnalyzerPage() {
                     <p className="text-muted-foreground mt-1">{t('contract_analyzer_page.subtitle')}</p>
                 </header>
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     {/* Left: Code Editor */}
                     <Card className="flex flex-col border-primary/20 shadow-lg h-full min-h-[500px]">
                         <CardHeader className="bg-muted/30 border-b pb-3">

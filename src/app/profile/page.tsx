@@ -1,4 +1,4 @@
-// src/app/profile/page.tsx - REFACTORED & CLEAN
+// src/app/profile/page.tsx - FINAL FIXED
 
 "use client";
 
@@ -12,7 +12,7 @@ import { Button } from '@/components/ui/button';
 import { 
     Settings, ShieldCheck, Server, KeyRound, 
     Gem, Banknote, Edit, Bell, User as UserIcon,
-    History, Wallet, Crown, ExternalLink, Inbox
+    History, Wallet, Crown, ExternalLink, Inbox, Rocket
 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -29,10 +29,11 @@ import { useUserHistory } from '@/hooks/useUserHistory';
 import { NotificationSettings, useUserProfile } from '@/hooks/useUserProfile';
 import { useAdminProfile } from '@/hooks/useAdminProfile';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useUser } from '@/context/UserContext';
 
 // --- Sub-Component: Admin Config Panel ---
 const AdminConfigPanel = () => {
-    const { t } = useSafeTranslation();
+    const { t } = useTranslation(); // استفاده مستقیم از هوک برای سادگی
     const { info, transferLogic, isLoading } = useAdminProfile();
     const { newOwnerAddress, setNewOwnerAddress, handleTransfer, isPending, isButtonDisabled } = transferLogic;
 
@@ -44,7 +45,7 @@ const AdminConfigPanel = () => {
                 <CardTitle className="flex items-center gap-2 text-primary text-start"><ShieldCheck className="w-5 h-5"/> {t('profile_page.platform_config_title')}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
-                <div className="grid md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-1 text-start">
                         <Label className="text-xs text-muted-foreground flex gap-1 items-center"><Server className="w-3 h-3"/> DAO Contract</Label>
                         <div className="font-mono text-sm bg-background p-2 rounded border truncate text-start" dir="ltr">{formatAddress(info.daoAddress)}</div>
@@ -79,40 +80,26 @@ const AdminConfigPanel = () => {
     );
 };
 
-// --- Helper for Type-Safe Translation ---
-const useSafeTranslation = () => {
-    const { t: originalT, locale } = useTranslation();
-    const t = (key: string, params?: any) => (originalT as any)(key, params);
-    return { t, locale };
-};
-
 export default function ProfilePage() {
     const { address, userRole } = useWeb3();
-    const { t, locale } = useSafeTranslation();
+    const { t, locale } = useTranslation();
     const { direction } = useLanguage();
 
-    // ✅ Using the new hooks
+    // ✅ دریافت isStartup از هوک useUser (اصلاح اصلی)
+    const { isStartup } = useUser(); 
+
     const { profile, setProfile, balances, isLoading, isSaving, updateProfile, notifications, setNotifications } = useUserProfile();
     const { isAdmin } = useAdminProfile();
     const { history, isLoading: isHistoryLoading } = useUserHistory();
+
     const handleSave = async () => {
-        const success = await updateProfile(profile);
-        if (success) {
-            // Toast is handled in hook, but you can add more logic here
-        }
+        await updateProfile(profile);
     };
-    // تابع کمکی برای نمایش نوع رای
+
     const getVoteBadge = (voteType: number) => {
-        // طبق قرارداد: 0 = For (موافق), 1 = Against (مخالف)
         if (voteType === 0) return <Badge className="bg-green-100 text-green-700 hover:bg-green-200 border-green-200">{t('proposal_detail.vote_for')}</Badge>;
         return <Badge className="bg-red-100 text-red-700 hover:bg-red-200 border-red-200">{t('proposal_detail.vote_against')}</Badge>;
     };
-
-    // Static Data (Can be moved to a hook later)
-    const votingHistory = [
-      { id: 'vh001', proposalId: 'P001', titleKey: 'proposals.network_upgrade', voteKey: 'profile_page.positive', date: new Date('2024-07-01') },
-      { id: 'vh002', proposalId: 'P002', titleKey: 'proposals.mobile_dapp', voteKey: 'profile_page.negative', date: new Date('2024-06-29') },
-    ];
 
     return (
         <AppLayout>
@@ -127,7 +114,7 @@ export default function ProfilePage() {
                                 <AvatarFallback className="text-3xl bg-primary/20 text-primary">{userRole?.substring(0,1).toUpperCase()}</AvatarFallback>
                             </Avatar>
                             <Badge className="absolute -bottom-2 -right-2 rtl:-right-auto rtl:-left-2 px-3 py-1 bg-primary text-primary-foreground border-2 border-background capitalize">
-                                {userRole ? t(userRole) : 'Guest'}
+                                {t(`roles.${userRole || 'voter'}`)}
                             </Badge>
                         </div>
                         
@@ -142,9 +129,19 @@ export default function ProfilePage() {
                         </div>
 
                         <div className="flex gap-3">
-                            <Button asChild variant="outline" className="gap-2">
-                                <Link href="/role-selection"><Edit className="w-4 h-4"/> {t('profile_page.change_role')}</Link>
-                            </Button>
+                            {/* دکمه ارتقا نقش یا نمایش وضعیت */}
+                            {!isStartup ? (
+                                <Button asChild variant="outline" className="gap-2 border-primary/20 hover:bg-primary/5 text-primary">
+                                    <Link href="/onboarding/startup">
+                                        <Rocket className="w-4 h-4"/> {t('onboarding.title')}
+                                    </Link>
+                                </Button>
+                            ) : (
+                                <Button variant="ghost" disabled className="gap-2 text-green-600 bg-green-50">
+                                    <ShieldCheck className="w-4 h-4"/> {t('roles.startup')}
+                                </Button>
+                            )}
+
                             <Button onClick={handleSave} disabled={isSaving}>
                                 {isSaving ? <DaoLoadingSpinner /> : t('save_settings')}
                             </Button>
@@ -188,7 +185,7 @@ export default function ProfilePage() {
                         {/* Edit Profile Form */}
                         <Card>
                             <CardHeader><CardTitle className="text-start">{t('profile_page.edit_profile')}</CardTitle></CardHeader>
-                            <CardContent className="grid gap-6 md:grid-cols-2">
+                            <CardContent className="grid gap-6 grid-cols-1 md:grid-cols-2">
                                 <div className="space-y-2 text-start">
                                     <Label htmlFor="displayName">{t('profile_page.display_name')}</Label>
                                     <Input 
@@ -216,7 +213,7 @@ export default function ProfilePage() {
                         {isAdmin && <AdminConfigPanel />}
                     </TabsContent>
                     
-                {/* --- TAB 2: HISTORY (REAL DATA) --- */}
+                {/* --- TAB 2: HISTORY --- */}
                 <TabsContent value="history" className="mt-6">
                     <Card>
                         <CardHeader>

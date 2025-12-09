@@ -6,18 +6,39 @@ import { logEvent } from '@/lib/logger';
 import { keccak256, encodePacked, Address, parseEther } from 'viem';
 import { z } from 'zod';
 
-// --- Zod Schemas ---
+function safeJSONStringify(obj: any): string {
+    const replacer = (key: string, value: any) =>
+        typeof value === 'bigint' ? value.toString() : value;
+    return JSON.stringify(obj, replacer);
+}
 
-// 1. اسکیمای مشترک (Milestones)
+function safeJsonResponse(data: any, options: ResponseInit = {}) {
+    return new NextResponse(safeJSONStringify(data), {
+        ...options,
+        headers: { ...options.headers, 'Content-Type': 'application/json' },
+    });
+}
+
+function computeProposalHash(data: object): `0x${string}` {
+    const dataString = JSON.stringify(data);
+    const salt = keccak256(encodePacked(['string', 'uint256'], ['rayan-chain-proposal', BigInt(Date.now())]));
+    return keccak256(encodePacked(['string', 'bytes32'], [dataString, salt]));
+}
+
+// --- Validation Schemas ---
+
 const milestoneSchema = z.object({
     name: z.string().min(3),
     durationDays: z.string().regex(/^\d+$/),
     amount: z.string().regex(/^\d*\.?\d*$/),
 });
 
-// 2. اسکیمای پروپوزال سرمایه‌گذاری (Funding) - همان قبلی شما
 const fundingProposalSchema = z.object({
-    type: z.literal('funding').optional(), // پیش‌فرض
+    type: z.literal('funding').optional(),
+    // ✅ فیلدهای جدید اضافه شدند
+    startupStage: z.enum(['idea', 'revenue']).default('idea'),
+    knowledgeBasedType: z.string().optional(),
+    
     proposerAddress: z.string().regex(/^0x[a-fA-F0-9]{40}$/),
     projectName: z.string().min(3),
     tagline: z.string().optional(),
@@ -55,7 +76,6 @@ const fundingProposalSchema = z.object({
     }),
 });
 
-// 3. اسکیمای جدید برای پروپوزال خزانه (Treasury)
 const treasuryProposalSchema = z.object({
     type: z.literal('treasury'),
     proposerAddress: z.string().regex(/^0x[a-fA-F0-9]{40}$/),
@@ -63,44 +83,20 @@ const treasuryProposalSchema = z.object({
     description: z.string().min(10),
     recipient: z.string().regex(/^0x[a-fA-F0-9]{40}$/),
     amount: z.string().regex(/^\d*\.?\d*$/),
-    tokenType: z.number().min(0).max(1), // 0: Native, 1: RYC
+    tokenType: z.number().min(0).max(1),
 });
 
-// --- Helper Functions ---
-
-function safeJSONStringify(obj: any): string {
-    const replacer = (key: string, value: any) =>
-        typeof value === 'bigint' ? value.toString() : value;
-    return JSON.stringify(obj, replacer);
-}
-
-function safeJsonResponse(data: any, options: ResponseInit = {}) {
-    return new NextResponse(safeJSONStringify(data), {
-        ...options,
-        headers: { ...options.headers, 'Content-Type': 'application/json' },
-    });
-}
-
-function computeProposalHash(data: object): `0x${string}` {
-    const dataString = JSON.stringify(data);
-    // اضافه کردن زمان برای یکتا شدن هش حتی اگر محتوا تکراری باشد
-    const salt = keccak256(encodePacked(['string', 'uint256'], ['rayan-chain-proposal', BigInt(Date.now())]));
-    return keccak256(encodePacked(['string', 'bytes32'], [dataString, salt]));
-}
-
-// --- Main Handler ---
+// --- Main Route ---
 
 export async function POST(req: NextRequest) {
     try {
         const body = await req.json();
-        const { type = 'funding' } = body; // تشخیص نوع پروپوزال
+        const { type = 'funding' } = body;
 
         const db = await getDb();
         const proposalsCollection = db.collection('proposals');
 
-        // ==========================================
-        // SCENARIO 1: Treasury Action Proposal
-        // ==========================================
+        // --- Treasury Action ---
         if (type === 'treasury') {
             const validation = treasuryProposalSchema.safeParse(body);
             if (!validation.success) {
@@ -108,30 +104,19 @@ export async function POST(req: NextRequest) {
             }
             const data = validation.data;
 
-            // تولید هش توضیحات
             const descriptionHash = computeProposalHash({ 
                 title: data.title, 
                 description: data.description, 
                 type: 'treasury' 
             });
 
-            // ذخیره در دیتابیس (با فرمت سازگار با سیستم)
             const offChainData = {
-                type: 'treasury',
-                projectName: data.title, // مپ کردن تایتل به نام پروژه برای نمایش در لیست
-                description: data.description,
-                proposerAddress: data.proposerAddress,
-                recipient: data.recipient,
-                amount: data.amount,
-                tokenType: data.tokenType,
-                
-                // فیلدهای سیستمی
+                ...data,
+                projectName: data.title,
                 descriptionHash,
                 createdAt: new Date(),
                 onChainStatus: 'pending_submission',
                 proposalIdOnChain: null,
-                
-                // فیلدهای خالی برای جلوگیری از کرش کردن UI در لیست‌ها
                 tagline: 'Treasury Withdrawal Request',
                 milestones: [], 
                 aiAnalysis: null 
@@ -139,7 +124,6 @@ export async function POST(req: NextRequest) {
 
             const result = await proposalsCollection.insertOne(offChainData);
 
-            // آرگومان‌های قرارداد برای createTreasuryActionProposal
             const txArgs = [
                 descriptionHash,
                 data.recipient as Address,
@@ -149,16 +133,13 @@ export async function POST(req: NextRequest) {
 
             return safeJsonResponse({
                 success: true,
-                message: 'Treasury proposal ready.',
                 mongoId: result.insertedId.toString(),
                 txArgs,
                 functionName: 'createTreasuryActionProposal'
             });
         }
 
-        // ==========================================
-        // SCENARIO 2: Funding Proposal (Startup)
-        // ==========================================
+        // --- Startup Funding ---
         else {
             const validation = fundingProposalSchema.safeParse(body);
             if (!validation.success) {
@@ -177,7 +158,7 @@ export async function POST(req: NextRequest) {
 
             const offChainData = {
                 ...data,
-                type: 'funding', // مشخص کردن نوع
+                type: 'funding',
                 descriptionHash,
                 createdAt: new Date(),
                 onChainStatus: 'pending_submission',
@@ -191,7 +172,6 @@ export async function POST(req: NextRequest) {
                 mongoId: result.insertedId.toString(),
             });
 
-            // آرگومان‌های قرارداد برای submitFundingProposal
             const txArgs = [
                 descriptionHash,
                 data.recipient as Address,
@@ -207,7 +187,6 @@ export async function POST(req: NextRequest) {
 
             return safeJsonResponse({
                 success: true,
-                message: 'Funding proposal ready.',
                 mongoId: result.insertedId.toString(),
                 txArgs,
                 functionName: 'submitFundingProposal'
@@ -216,7 +195,6 @@ export async function POST(req: NextRequest) {
 
     } catch (error) {
         console.error("Error in /api/proposals/submit:", error);
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-        return NextResponse.json({ success: false, message: errorMessage }, { status: 500 });
+        return NextResponse.json({ success: false, message: (error as Error).message }, { status: 500 });
     }
 }

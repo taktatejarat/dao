@@ -1,266 +1,259 @@
-// src/app/staking/page.tsx - FIXED ICONS & UNIFIED DESIGN
+// src/app/staking/page.tsx - SMART BUTTON INTEGRATED
 
 "use client";
 
-import { useEffect, useMemo, useState } from 'react';
 import { AppLayout } from '@/components/layout/app-layout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
+import { Wallet, ArrowRight, Lock, Unlock, Award, Users, ShieldCheck } from 'lucide-react';
 import { useTranslation } from '@/hooks/use-translation';
-import { useWeb3 } from '@/context/Web3Provider'; 
+import { useWeb3 } from '@/context/Web3Provider';
+import { useReadContracts } from 'wagmi';
 import { formatEther } from 'viem';
 import { formatNumber } from '@/lib/utils';
-import { Wallet, PiggyBank, Award, Banknote, CheckCircle, Users, Vote, Coins, TrendingUp } from 'lucide-react'; 
 import { DaoLoadingSpinner } from '@/components/icons/dao-loading-spinner';
-import { StakingPlanCard } from '@/components/staking/staking-plan-card';
-import { useSearchParams } from 'next/navigation';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { daoRegistryAbi } from '@/lib/blockchain/generated';
 import { REGISTRY_KEYS } from '@/lib/blockchain/registry-keys';
 import { useStaking } from '@/hooks/useStaking';
-import { useBuyTokens } from '@/hooks/useBuyTokens'; 
 import type { Address } from 'viem';
-import { toast } from 'sonner';
-import { useReadContract } from 'wagmi';
 import { StatCard } from '@/components/dashboard/stat-card';
 
+const useSafeTranslation = () => {
+    const { t: originalT, locale } = useTranslation();
+    const t = (key: string, params?: any) => (originalT as any)(key, params);
+    return { t, locale };
+};
+
 export default function StakingPage() {
-    const { t, locale } = useTranslation();
-    const { registryAddress, isHydrated, userRole } = useWeb3();
-    const searchParams = useSearchParams();
+    const { t, locale } = useSafeTranslation();
+    const { registryAddress, isHydrated } = useWeb3();
 
-    const getTranslatedRoleName = () => {
-        const safeRole = userRole || 'voter';
-        return t(`role_selection.${safeRole}`);
-    };
-    const roleName = getTranslatedRoleName();   
-
-    // --- Contract Addresses ---
-    const { data: tokenAddressResult, isLoading: isTokenAddrLoading } = useReadContract({
-        address: registryAddress as Address,
-        abi: daoRegistryAbi,
-        functionName: 'getAddress',
-        args: [REGISTRY_KEYS.TOKEN] as const,
-        query: { enabled: !!registryAddress && isHydrated },
+    // 1. دریافت آدرس‌ها
+    const { data: addresses, isLoading: isAddrLoading } = useReadContracts({
+        contracts: [
+            { address: registryAddress as Address, abi: daoRegistryAbi, functionName: 'getAddress', args: [REGISTRY_KEYS.TOKEN] },
+            { address: registryAddress as Address, abi: daoRegistryAbi, functionName: 'getAddress', args: [REGISTRY_KEYS.STAKING] },
+        ],
+        query: { enabled: !!registryAddress && isHydrated }
     });
-    const { data: stakingAddressResult, isLoading: isStakingAddrLoading } = useReadContract({
-        address: registryAddress as Address,
-        abi: daoRegistryAbi,
-        functionName: 'getAddress',
-        args: [REGISTRY_KEYS.STAKING] as const,
-        query: { enabled: !!registryAddress && isHydrated },
-    });
-    const tokenAddress = tokenAddressResult as Address | undefined;
-    const stakingAddress = stakingAddressResult as Address | undefined;
 
-    // --- Hooks ---
+    const tokenAddress = addresses?.[0].result as Address;
+    const stakingAddress = addresses?.[1].result as Address;
+
+    // 2. اتصال به هوک هوشمند
     const {
-        rycBalance, stakedBalance, earnedRewards,
+        rycBalance, stakedBalance, earnedRewards, currentDelegatee,
         stakeAmount, setStakeAmount,
         unstakeAmount, setUnstakeAmount,
-        needsApproval, isActionPending: isStakingActionPending,
-        handleApprove, handleStake, handleUnstake, handleClaim,
-        currentDelegatee, delegateeAddress, setDelegateeAddress,
-        handleDelegate, handleUndelegate,
-        isDelegateButtonDisabled, isUndelegateButtonDisabled,
-        isStakeButtonDisabled, isClaimButtonDisabled, isApproveButtonDisabled, isUnstakeButtonDisabled, 
-        refetch: refetchStakingData
+        delegateeAddress, setDelegateeAddress,
+        needsApproval, // ✅ متغیر کلیدی برای دکمه هوشمند
+        isActionPending,
+        handleStake, // ✅ این تابع هم Approve و هم Stake را انجام می‌دهد
+        handleUnstake, handleClaim, handleDelegate, handleUndelegate,
+        isStakeButtonDisabled, isUnstakeButtonDisabled, isClaimButtonDisabled, isDelegateButtonDisabled, isUndelegateButtonDisabled,
     } = useStaking({ tokenAddress, stakingAddress });
 
-    const {
-        buyAmount, setBuyAmount,
-        handleBuyTokens,
-        isBuyActionPending,
-        isBuyConfirmed,
-        estimatedRycReceived,
-        isEstimatingPrice,
-        resetBuyState
-    } = useBuyTokens({ tokenAddress });
+    const isLoading = isAddrLoading;
 
-    useEffect(() => {
-        if (isBuyConfirmed) {
-            toast.success(t('staking_page.buy_success_title'), { description: t('staking_page.buy_success_desc') });
-            refetchStakingData();
-            resetBuyState();
-        }
-    }, [isBuyConfirmed, refetchStakingData, resetBuyState, t]);
-    
-    useEffect(() => {
-        const amountFromUrl = searchParams.get('amount');
-        if (amountFromUrl) setStakeAmount(amountFromUrl);
-    }, [searchParams, setStakeAmount]);
-
-    // --- Plans ---
-    const allPlans = useMemo(() => [
-        { 
-            roles: ['voter'], 
-            title: t('staking_page.plan_voter_title'), 
-            tier: "bronze" as const, 
-            price: "1000000", 
-            features: [t('voter_feat1'), t('voter_feat2')],
-            description: t('staking_page.plan_voter_desc'),
-        },
-        { 
-            roles: ['startup', 'investor'], 
-            title: t('staking_page.plan_startup_title'), 
-            tier: "silver" as const, 
-            price: "50000000", 
-            features: [t('staking_page.startup_feat1'), t('staking_page.startup_feat2')],
-            isFeatured: userRole === 'startup',
-            description: t('staking_page.plan_startup_desc'),
-        },
-        { 
-            roles: ['delegate', 'investor'], 
-            title: t('staking_page.plan_delegate_title'), 
-            tier: "gold" as const, 
-            price: "200000000", 
-            features: [t('delegate_feat1'), t('delegate_feat2')],
-            isFeatured: userRole === 'delegate',
-            description: t('staking_page.plan_delegate_desc'),
-        },
-    ], [t, userRole]);
-
-    const filteredPlans = useMemo(() => {
-        if (userRole === 'admin') return allPlans;
-        const currentRole = userRole || 'voter';
-        return allPlans.filter(plan => plan.roles.includes(currentRole as any));
-    }, [allPlans, userRole]);
-
-   const isLoading = isTokenAddrLoading || isStakingAddrLoading || (!!tokenAddress && !!stakingAddress && (rycBalance === undefined || stakedBalance === undefined || earnedRewards === undefined));
+    // متن دکمه هوشمند
+    const getStakeButtonText = () => {
+        if (isActionPending) return <DaoLoadingSpinner />;
+        if (needsApproval) return t('staking_page.approve_token'); // "Approve RYC"
+        return t('staking_page.stake_button'); // "Stake RYC"
+    };
 
     return (
         <AppLayout>
-            <header className="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center">
-                <div>
-                    <h1 className="text-3xl font-bold font-headline text-gradient">{t('staking_page.title')}</h1>
-                    <p className="text-muted-foreground">{t('staking_page.subtitle_for_role')} {roleName}</p>
-                </div>
+            <header className="mb-10">
+                <h1 className="text-4xl font-bold font-headline text-gradient">{t('staking_page.title')}</h1>
+                <p className="text-lg text-muted-foreground mt-2">{t('staking_page.subtitle')}</p>
             </header>
 
-            {/* Section 1: Overview Stats (StatCard) */}
+            {/* Stats Overview */}
             <div className="grid gap-6 grid-cols-1 md:grid-cols-3 mb-10">
-                <StatCard title={t('staking_page.ryc_balance')} value={`${formatNumber(formatEther(rycBalance ?? 0n), locale)} RYC`} icon={Wallet} description={t('staking_page.card_label_balance')} isLoading={isLoading} />
-                <StatCard title={t('staking_page.staked_balance')} value={`${formatNumber(formatEther(stakedBalance ?? 0n), locale)} RYC`} icon={PiggyBank} description={t('staking_page.card_label_staked')} variant="default" isLoading={isLoading} />
-                <StatCard title={t('staking_page.earned_rewards')} value={`${formatNumber(formatEther(earnedRewards ?? 0n), locale)} RYC`} icon={Award} description={t('staking_page.card_label_earned')} variant="positive" isLoading={isLoading} />
+                <StatCard 
+                    title={t('staking_page.your_staked_balance')} 
+                    value={`${formatNumber(formatEther(stakedBalance || 0n), locale)} RYC`} 
+                    icon={Lock} 
+                    variant="default"
+                    isLoading={isLoading} 
+                />
+                <StatCard 
+                    title={t('staking_page.earned_rewards')} 
+                    value={`${formatNumber(formatEther(earnedRewards || 0n), locale)} RYC`} 
+                    icon={Award} 
+                    variant="positive"
+                    isLoading={isLoading} 
+                />
+                <StatCard 
+                    title={t('staking_page.wallet_balance')} 
+                    value={`${formatNumber(formatEther(rycBalance || 0n), locale)} RYC`} 
+                    icon={Wallet} 
+                    variant="neutral"
+                    isLoading={isLoading} 
+                />
             </div>
-            
-            {/* Section 2: Actions Grid (Interactive Cards with Background Icons) */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 
-                {/* 1. Buy RYC */}
-                <Card className="flex flex-col h-full hover:shadow-lg transition-all duration-300 relative overflow-hidden group border-primary/20">
-                    {/* ✅ Background Icon */}
-                    <div className="absolute -top-4 -right-4 p-4 opacity-[0.03] group-hover:opacity-[0.08] transition-opacity duration-500 pointer-events-none">
-                        <Coins className="w-40 h-40" />
-                    </div>
-                    
-                    <CardHeader className="relative z-10">
-                        <CardTitle className="flex items-center gap-3 text-primary text-xl">
-                            <div className="p-2 bg-primary/10 rounded-lg group-hover:bg-primary/20 transition-colors">
-                                <Coins className="w-6 h-6" />
-                            </div>
-                            {t('staking_page.buy_ryc_title')}
-                        </CardTitle>
-                        <CardDescription className="text-base">{t('staking_page.buy_ryc_desc')}</CardDescription>
-                    </CardHeader>
-                    <CardContent className="flex-1 space-y-6 relative z-10">
-                        <div className="space-y-3">
-                            <Label className="text-base">{t('staking_page.amount_of_matic_to_spend')}</Label>
-                            <Input type="number" placeholder="0.1" value={buyAmount} onChange={(e) => setBuyAmount(e.target.value)} className="h-12 text-lg" />
-                        </div>
-                        <div className="text-lg text-muted-foreground p-4 bg-muted/50 rounded-lg border border-border/50 text-center flex items-center justify-center min-h-[3.5rem]">
-                            {isEstimatingPrice ? <DaoLoadingSpinner className="h-5 w-5" /> : <span>{t('staking_page.you_will_receive')}: <strong className="text-foreground text-lg ml-2">{formatNumber(estimatedRycReceived, locale)}</strong> RYC</span>}
-                        </div>
-                        <Button className="w-full h-12 text-lg mt-auto" disabled={isBuyActionPending || isEstimatingPrice} onClick={handleBuyTokens}>
-                            {isBuyActionPending ? <DaoLoadingSpinner /> : t('staking_page.buy_ryc_cta')}
-                        </Button>
-                    </CardContent>
-                </Card>
+                {/* --- Left: Actions Panel --- */}
+                <div className="lg:col-span-2">
+                    <Card className="border-primary/10 shadow-lg bg-card">
+                        <CardHeader>
+                            <CardTitle>{t('staking_page.manage_staking')}</CardTitle>
+                            <CardDescription>{t('staking_page.manage_desc')}</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <Tabs defaultValue="stake" className="w-full">
+                                <TabsList className="grid w-full grid-cols-3 mb-8">
+                                    <TabsTrigger value="stake">{t('staking_page.tab_stake')}</TabsTrigger>
+                                    <TabsTrigger value="unstake">{t('staking_page.tab_unstake')}</TabsTrigger>
+                                    <TabsTrigger value="claim">{t('staking_page.tab_claim')}</TabsTrigger>
+                                </TabsList>
 
-                {/* 2. Stake Tokens */}
-                <Card className="flex flex-col h-full hover:shadow-lg transition-all duration-300 relative overflow-hidden group border-primary/20 bg-primary/5">
-                    {/* ✅ Background Icon */}
-                    <div className="absolute -top-4 -right-4 p-4 opacity-[0.03] group-hover:opacity-[0.08] transition-opacity duration-500 pointer-events-none">
-                        <TrendingUp className="w-40 h-40" />
-                    </div>
+                                {/* STAKE TAB */}
+                                <TabsContent value="stake" className="space-y-4">
+                                    <div className="space-y-2">
+                                        <div className="flex justify-between text-sm">
+                                            <Label>{t('staking_page.amount_to_stake')}</Label>
+                                            <span className="text-muted-foreground cursor-pointer hover:text-primary" onClick={() => setStakeAmount(formatEther(rycBalance || 0n))}>
+                                                {t('common.max')}: {formatNumber(formatEther(rycBalance || 0n), locale)}
+                                            </span>
+                                        </div>
+                                        <div className="flex gap-2">
+                                            <Input 
+                                                type="number" 
+                                                placeholder="0.0" 
+                                                className="text-lg font-mono"
+                                                value={stakeAmount}
+                                                onChange={(e) => setStakeAmount(e.target.value)}
+                                            />
+                                            {/* ✅ دکمه هوشمند */}
+                                            <Button 
+                                                className="min-w-[140px] bg-primary hover:bg-primary/90"
+                                                onClick={handleStake}
+                                                disabled={isStakeButtonDisabled}
+                                            >
+                                                {getStakeButtonText()}
+                                            </Button>
+                                        </div>
+                                    </div>
+                                    <Alert className="bg-blue-500/10 border-blue-500/20">
+                                        <ShieldCheck className="h-4 w-4 text-blue-500" />
+                                        <AlertTitle className="text-blue-600">{t('staking_page.staking_info_title')}</AlertTitle>
+                                        <AlertDescription className="text-blue-600/80 text-xs">
+                                            {t('staking_page.staking_info_desc')}
+                                        </AlertDescription>
+                                    </Alert>
+                                </TabsContent>
 
-                    <CardHeader className="relative z-10">
-                        <CardTitle className="flex items-center gap-3 text-primary text-xl">
-                            <div className="p-2 bg-primary/10 rounded-lg group-hover:bg-primary/20 transition-colors">
-                                <TrendingUp className="w-6 h-6" />
-                            </div>
-                            {t('staking_page.stake_tokens_title')}
-                        </CardTitle>
-                        <CardDescription className="text-base">{t('staking_page.stake_tokens_desc')}</CardDescription>
-                    </CardHeader>
-                    <CardContent className="flex-1 space-y-6 relative z-10">
-                        <div className="space-y-3">
-                            <Label className="text-base">{t('staking_page.amount_to_stake')}</Label>
-                            <Input type="number" placeholder="0.0" value={stakeAmount} onChange={(e) => setStakeAmount(e.target.value)} className="h-12 text-lg bg-background/80" />
-                        </div>
-                        <div className="flex-1" />
-                        {needsApproval ? (
-                            <Button className="w-full h-12 text-lg mt-auto" disabled={isBuyActionPending || isApproveButtonDisabled} onClick={handleApprove}>
-                                {isStakingActionPending ? <DaoLoadingSpinner /> : t('staking_page.approve_button')}
-                            </Button>
-                        ) : (
-                            <Button className="w-full h-12 text-lg mt-auto" disabled={isBuyActionPending || isStakeButtonDisabled} onClick={handleStake}>
-                                {isStakingActionPending ? <DaoLoadingSpinner /> : t('staking_page.stake')}
-                            </Button>
-                        )}
-                    </CardContent>
-                </Card>
+                                {/* UNSTAKE TAB */}
+                                <TabsContent value="unstake" className="space-y-4">
+                                    <div className="space-y-2">
+                                        <div className="flex justify-between text-sm">
+                                            <Label>{t('staking_page.amount_to_unstake')}</Label>
+                                            <span className="text-muted-foreground cursor-pointer hover:text-primary" onClick={() => setUnstakeAmount(formatEther(stakedBalance || 0n))}>
+                                                {t('common.max')}: {formatNumber(formatEther(stakedBalance || 0n), locale)}
+                                            </span>
+                                        </div>
+                                        <div className="flex gap-2">
+                                            <Input 
+                                                type="number" 
+                                                placeholder="0.0" 
+                                                className="text-lg font-mono"
+                                                value={unstakeAmount}
+                                                onChange={(e) => setUnstakeAmount(e.target.value)}
+                                            />
+                                            <Button 
+                                                className="min-w-[140px]" 
+                                                variant="outline"
+                                                onClick={handleUnstake}
+                                                disabled={isUnstakeButtonDisabled}
+                                            >
+                                                {isActionPending ? <DaoLoadingSpinner /> : t('staking_page.unstake_button')}
+                                            </Button>
+                                        </div>
+                                    </div>
+                                </TabsContent>
 
-                {/* 3. Manage Stake */}
-                <Card className="flex flex-col h-full hover:shadow-lg transition-all duration-300 relative overflow-hidden group border-border">
-                    {/* ✅ Background Icon */}
-                    <div className="absolute -top-4 -right-4 p-4 opacity-[0.03] group-hover:opacity-[0.08] transition-opacity duration-500 pointer-events-none">
-                        <Banknote className="w-40 h-40" />
-                    </div>
+                                {/* CLAIM TAB */}
+                                <TabsContent value="claim" className="flex flex-col items-center justify-center py-8 space-y-4">
+                                    <div className="text-center">
+                                        <h3 className="text-2xl font-bold text-green-600">{formatNumber(formatEther(earnedRewards || 0n), locale)} RYC</h3>
+                                        <p className="text-muted-foreground">{t('staking_page.available_rewards')}</p>
+                                    </div>
+                                    <Button 
+                                        size="lg" 
+                                        className="w-full max-w-xs bg-green-600 hover:bg-green-700 text-white"
+                                        onClick={handleClaim}
+                                        disabled={isClaimButtonDisabled}
+                                    >
+                                        {isActionPending ? <DaoLoadingSpinner /> : (
+                                            <>
+                                                <Award className="mr-2 h-5 w-5" />
+                                                {t('staking_page.claim_rewards_button')}
+                                            </>
+                                        )}
+                                    </Button>
+                                </TabsContent>
+                            </Tabs>
+                        </CardContent>
+                    </Card>
+                </div>
 
-                    <CardHeader className="relative z-10">
-                        <CardTitle className="flex items-center gap-3 text-foreground text-xl">
-                            <div className="p-2 bg-muted rounded-lg group-hover:bg-muted/80 transition-colors">
-                                <Banknote className="w-6 h-6" />
+                {/* --- Right: Governance Power --- */}
+                <div className="space-y-6">
+                    <Card className="border-purple-500/20 bg-purple-500/5">
+                        <CardHeader>
+                            <CardTitle className="text-purple-600 flex items-center gap-2">
+                                <Users className="h-5 w-5" />
+                                {t('staking_page.governance_power')}
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            <div className="flex justify-between items-center p-3 bg-background/50 rounded-lg border">
+                                <span className="text-sm text-muted-foreground">{t('staking_page.current_delegatee')}</span>
+                                <span className="font-mono text-xs truncate max-w-[120px]">
+                                    {!currentDelegatee || currentDelegatee === '0x0000000000000000000000000000000000000000' 
+                                        ? t('staking_page.self_delegated') 
+                                        : `${currentDelegatee.slice(0,6)}...${currentDelegatee.slice(-4)}`}
+                                </span>
                             </div>
-                            {t('staking_page.manage_stake_title')}
-                        </CardTitle>
-                        <CardDescription className="text-base">{t('staking_page.manage_stake_desc')}</CardDescription>
-                    </CardHeader>
-                    <CardContent className="flex-1 flex flex-col gap-8 relative z-10">
-                        <div className="space-y-3">
-                            <Label className="text-base">{t('staking_page.amount_to_unstake')}</Label>
-                            <div className="flex gap-2">
-                                <Input className="flex-grow h-12 text-lg" type="number" placeholder="0.0" value={unstakeAmount} onChange={(e) => setUnstakeAmount(e.target.value)} />
-                                <Button variant="outline" className="h-12 px-6" disabled={isUnstakeButtonDisabled} onClick={handleUnstake}>
-                                    {isStakingActionPending ? <DaoLoadingSpinner /> : t('staking_page.unstake')}
-                                </Button>
-                            </div>
-                        </div>
-                        
-                        <div className="mt-auto pt-6 border-t">
-                            <div className="flex justify-between items-center mb-4">
-                                <span className="text-base text-muted-foreground">{t('staking_page.unclaimed_rewards')}:</span>
-                                <span className="text-xl font-bold text-green-600">{formatNumber(formatEther(earnedRewards ?? 0n), locale)} RYC</span>
-                            </div>
-                            <Button className="w-full h-12 text-lg bg-green-600 hover:bg-green-700 text-white" disabled={isClaimButtonDisabled} onClick={handleClaim}>
-                                {isStakingActionPending ? <DaoLoadingSpinner /> : <Award className="me-2 h-5 w-5"/>}
-                                {t('staking_page.claim_rewards')}
-                            </Button>
-                        </div>
-                    </CardContent>
-                </Card>
-            </div>
 
-            {/* Plans Section */}
-            <div className="text-center mb-10 pt-8 border-t">
-                <h2 className="text-2xl font-semibold font-headline text-gradient">{t('staking_page.plans_for_role')} {roleName}</h2>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredPlans.map((plan) => (
-                    <StakingPlanCard key={plan.title} tier={plan.tier} price={formatNumber(plan.price, locale)} title={plan.title} description={plan.description} features={plan.features} isFeatured={plan.isFeatured} onSelect={() => { setStakeAmount(plan.price); window.scrollTo({ top: 0, behavior: 'smooth' }); toast.info(t('staking_page.plan_selected_toast')); }} />
-                ))}
+                            <div className="space-y-2">
+                                <Label className="text-xs">{t('staking_page.delegate_to_address')}</Label>
+                                <Input 
+                                    placeholder="0x..." 
+                                    className="h-9 text-xs font-mono"
+                                    value={delegateeAddress}
+                                    onChange={(e) => setDelegateeAddress(e.target.value)}
+                                />
+                                <div className="grid grid-cols-2 gap-2 mt-2">
+                                    <Button 
+                                        variant="secondary" 
+                                        size="sm"
+                                        onClick={handleDelegate}
+                                        disabled={isDelegateButtonDisabled}
+                                    >
+                                        {isActionPending ? <DaoLoadingSpinner className="w-3 h-3" /> : t('staking_page.delegate_button')}
+                                    </Button>
+                                    <Button 
+                                        variant="outline" 
+                                        size="sm"
+                                        onClick={handleUndelegate}
+                                        disabled={isUndelegateButtonDisabled}
+                                    >
+                                        {isActionPending ? <DaoLoadingSpinner className="w-3 h-3" /> : t('staking_page.undelegate_button')}
+                                    </Button>
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
+                </div>
             </div>
         </AppLayout>
     );
