@@ -28,6 +28,15 @@ export function useCreateProposal({ daoAddress, router }: UseCreateProposalProps
     // --- State های جدید ---
     const [startupStage, setStartupStage] = useState<'idea' | 'revenue'>('idea');
     const [knowledgeBasedType, setKnowledgeBasedType] = useState<string>('none');
+    const [companyRegId, setCompanyRegId] = useState('');
+    const [foundedDate, setFoundedDate] = useState('');
+    const [teamSize, setTeamSize] = useState('');
+    const [demoUrl, setDemoUrl] = useState('');
+    const [linkedinProfile, setLinkedinProfile] = useState('');
+    
+    // ✅ فیلدهای مالی پیشرفته
+    const [netProfit, setNetProfit] = useState('');
+    const [valuation, setValuation] = useState('');
 
     // --- Form States ---
     const [projectName, setProjectName] = useState('');
@@ -131,6 +140,15 @@ export function useCreateProposal({ daoAddress, router }: UseCreateProposalProps
                 recipient: recipient || address, // اگر گیرنده خالی بود، خود کاربر
                 milestones,
                 documents: { pitchDeck: pitchDeckHash, financials: financialsHash, legal: legalHash },
+                extraData: {
+                    companyRegId,
+                    foundedDate,
+                    teamSize,
+                    demoUrl,
+                    linkedinProfile,
+                    netProfit,
+                    valuation
+                },
             };
 
             const apiRes = await fetch('/api/proposals/submit', {
@@ -171,7 +189,8 @@ export function useCreateProposal({ daoAddress, router }: UseCreateProposalProps
         startupIndustry, teamExperienceYears, teamBio, 
         marketSize, tam, sam, som, competitors, 
         burnRate, revenueProj, breakEven, hasPreviousFunding, fundingHistoryDetails, 
-        recipient, milestones, pitchDeckFile, financialsFile, legalFile
+        recipient, milestones, pitchDeckFile, financialsFile, legalFile,
+        companyRegId, foundedDate, teamSize, demoUrl, linkedinProfile, netProfit, valuation
     ]);
 
     // --- Post-Transaction Logic ---
@@ -242,8 +261,6 @@ export function useCreateProposal({ daoAddress, router }: UseCreateProposalProps
         // فیلدهای جدید
         startupStage, setStartupStage,
         knowledgeBasedType, setKnowledgeBasedType,
-        
-        // فیلدهای قبلی
         projectName, setProjectName, tagline, setTagline, website, setWebsite,
         description, setDescription, problem, setProblem, solution, setSolution,
         businessModel, setBusinessModel, startupIndustry, setStartupIndustry,
@@ -255,8 +272,15 @@ export function useCreateProposal({ daoAddress, router }: UseCreateProposalProps
         setPitchDeckFile, setFinancialsFile, setLegalFile,
         isPending: isSubmitting || isConfirming, 
         isFormValid,
-        pitchDeckFile, // برای چک کردن در UI
+        pitchDeckFile,
         handleAddMilestone, handleMilestoneChange, handleRemoveMilestone,
         handleSubmit,
+        companyRegId, setCompanyRegId,
+        foundedDate, setFoundedDate,
+        teamSize, setTeamSize,
+        demoUrl, setDemoUrl,
+        linkedinProfile, setLinkedinProfile,
+        netProfit, setNetProfit,
+        valuation, setValuation,
     };
 }

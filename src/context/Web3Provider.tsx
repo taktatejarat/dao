@@ -3,12 +3,10 @@
 'use client';
 
 import { useState, useEffect, createContext, useContext, ReactNode, useCallback, useMemo } from 'react';
-import { WagmiProvider, type State, useAccount, useReadContracts } from 'wagmi';
+import { useAccount, useReadContracts } from 'wagmi';
 import type { Address } from 'viem';
 import { daoRegistryAbi } from '@/lib/blockchain/generated';
 import { REGISTRY_KEYS } from '@/lib/blockchain/registry-keys';
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { wagmiConfig } from "./WalletConfig";
 
 export type UserRole = 'admin' | 'investor' | 'startup' | 'voter' | 'delegate' | null;
 
@@ -26,42 +24,18 @@ export interface IWeb3Context {
 }
 
 const Web3Context = createContext<IWeb3Context | undefined>(undefined);
-const queryClient = new QueryClient();
 
-// ✅ تغییر: اضافه کردن initialState به Props
-export function Web3Provider({ children, initialState }: { children: ReactNode, initialState?: State }) {
+export function Web3Provider({ children }: { children: ReactNode }) {
     const [userRole, setUserRole] = useState<UserRole>(null);
     const [isRoleLoading, setIsRoleLoading] = useState(true);
     const [mounted, setMounted] = useState(false);
 
+    const { address, status } = useAccount();
+    const registryAddress = process.env.NEXT_PUBLIC_REGISTRY_ADDRESS as Address | undefined;
+
     useEffect(() => {
         setMounted(true);
     }, []);
-
-    return (
-        // ✅ WagmiProvider باید بالاترین سطح باشد و initialState را بگیرد
-        <WagmiProvider config={wagmiConfig} initialState={initialState}>
-            <QueryClientProvider client={queryClient}>
-                <Web3ContextInner 
-                    userRole={userRole}
-                    setUserRole={setUserRole}
-                    isRoleLoading={isRoleLoading}
-                    setIsRoleLoading={setIsRoleLoading}
-                    mounted={mounted}
-                >
-                    {children}
-                </Web3ContextInner>
-            </QueryClientProvider>
-        </WagmiProvider>
-    );
-}
-
-// کامپوننت داخلی برای استفاده از هوک‌های Wagmi (چون باید داخل WagmiProvider باشد)
-function Web3ContextInner({ 
-    children, userRole, setUserRole, isRoleLoading, setIsRoleLoading, mounted 
-}: any) {
-    const { address, status } = useAccount();
-    const registryAddress = process.env.NEXT_PUBLIC_REGISTRY_ADDRESS as Address | undefined;
 
     // --- Role Logic ---
     useEffect(() => {
@@ -81,12 +55,12 @@ function Web3ContextInner({
             setIsRoleLoading(false);
         }, 500);
         return () => clearTimeout(timer);
-    }, [status, address, setUserRole, setIsRoleLoading]);
+    }, [status, address]);
 
     const handleSetUserRole = useCallback((role: UserRole) => {
       setUserRole(role);
       if (role && address) localStorage.setItem(`userRole_${address}`, role);
-    }, [address, setUserRole]);
+    }, [address]);
 
     // --- Contract Addresses ---
     const { data: addressesData, isLoading: areAddressesLoading } = useReadContracts({
@@ -126,7 +100,6 @@ function Web3ContextInner({
 export function useWeb3() {
     const context = useContext(Web3Context);
     if (context === undefined) {
-        // برای جلوگیری از کرش در صفحاتی که گارد ندارند
         return {} as IWeb3Context;
     }
     return context;

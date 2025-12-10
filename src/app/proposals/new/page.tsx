@@ -20,7 +20,7 @@ import { useRouter } from 'next/navigation';
 import { DaoLoadingSpinner } from '@/components/icons/dao-loading-spinner';
 import { useCreateProposal } from '@/hooks/useCreateProposal';
 import { useTranslation } from '@/hooks/use-translation';
-import { Rocket, Vote, UploadCloud, BadgeCheck, Building2, Wallet } from 'lucide-react';
+import { Rocket, Vote, UploadCloud, BadgeCheck, Building2, Wallet, LinkIcon, Users } from 'lucide-react';
 
 export default function NewProposalPage() {
     const { t } = useTranslation();
@@ -103,7 +103,7 @@ export default function NewProposalPage() {
                     <TabsContent value="startup">
                         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                             
-                            {/* Left: Configuration Panel (Sticky on Desktop) */}
+                            {/* --- SIDEBAR (Fixed RTL Alignment) --- */}
                             <div className="lg:col-span-4 space-y-6 h-fit lg:sticky lg:top-24">
                                 <Card className="border-primary/20 shadow-md">
                                     <CardHeader className="bg-primary/5 pb-4 border-b">
@@ -112,19 +112,21 @@ export default function NewProposalPage() {
                                         </CardTitle>
                                     </CardHeader>
                                     <CardContent className="pt-6 space-y-6">
-                                        {/* Stage Selection */}
+                                        {/* ✅ FIX: اضافه کردن items-start و text-start برای اصلاح جهت */}
                                         <div className="space-y-3">
                                             <RadioGroup defaultValue="idea" value={proposalHook.startupStage} onValueChange={(v: any) => proposalHook.setStartupStage(v)}>
-                                                <div className="flex items-center space-x-3 rtl:space-x-reverse border p-4 rounded-xl hover:bg-muted/50 cursor-pointer transition-colors has-[[data-state=checked]]:border-primary has-[[data-state=checked]]:bg-primary/5">
-                                                    <RadioGroupItem value="idea" id="r1" />
-                                                    <Label htmlFor="r1" className="cursor-pointer flex-1">
+                                                {/* Option 1 */}
+                                                <div className="flex items-start space-x-3 rtl:space-x-reverse border p-4 rounded-xl hover:bg-muted/50 cursor-pointer transition-colors has-[[data-state=checked]]:border-primary has-[[data-state=checked]]:bg-primary/5">
+                                                    <RadioGroupItem value="idea" id="r1" className="mt-1" />
+                                                    <Label htmlFor="r1" className="cursor-pointer flex-1 text-start">
                                                         <span className="font-bold block text-base">{t('proposals.new.stage_idea')}</span>
                                                         <span className="text-xs text-muted-foreground">{t('proposals.new.stage_idea_desc')}</span>
                                                     </Label>
                                                 </div>
-                                                <div className="flex items-center space-x-3 rtl:space-x-reverse border p-4 rounded-xl hover:bg-muted/50 cursor-pointer transition-colors has-[[data-state=checked]]:border-primary has-[[data-state=checked]]:bg-primary/5">
-                                                    <RadioGroupItem value="revenue" id="r2" />
-                                                    <Label htmlFor="r2" className="cursor-pointer flex-1">
+                                                {/* Option 2 */}
+                                                <div className="flex items-start space-x-3 rtl:space-x-reverse border p-4 rounded-xl hover:bg-muted/50 cursor-pointer transition-colors has-[[data-state=checked]]:border-primary has-[[data-state=checked]]:bg-primary/5">
+                                                    <RadioGroupItem value="revenue" id="r2" className="mt-1" />
+                                                    <Label htmlFor="r2" className="cursor-pointer flex-1 text-start">
                                                         <span className="font-bold block text-base">{t('proposals.new.stage_revenue')}</span>
                                                         <span className="text-xs text-muted-foreground">{t('proposals.new.stage_revenue_desc')}</span>
                                                     </Label>
@@ -138,9 +140,10 @@ export default function NewProposalPage() {
                                                 <BadgeCheck className="w-4 h-4 text-amber-500" /> 
                                                 {t('proposals.new.kb_title')}
                                             </Label>
+                                            {/* ✅ FIX: کلاس text-start برای سلکت باکس */}
                                             <Select value={proposalHook.knowledgeBasedType} onValueChange={proposalHook.setKnowledgeBasedType}>
-                                                <SelectTrigger className="h-11 text-start">
-                                                    <SelectValue />
+                                                <SelectTrigger className="h-11 text-start justify-between">
+                                                    <SelectValue placeholder={t('proposals.new.select_placeholder')} />
                                                 </SelectTrigger>
                                                 <SelectContent>
                                                     <SelectItem value="none" className="text-start">{t('proposals.new.kb_none')}</SelectItem>
@@ -153,7 +156,7 @@ export default function NewProposalPage() {
                                     </CardContent>
                                 </Card>
 
-                                {/* File Uploads Preview */}
+                                {/* File Uploads */}
                                 <Card>
                                     <CardHeader className="pb-3 border-b"><CardTitle className="text-sm font-bold text-muted-foreground">{t('proposals.new.docs_title')}</CardTitle></CardHeader>
                                     <CardContent className="pt-4 grid gap-3">
@@ -167,8 +170,10 @@ export default function NewProposalPage() {
                                 </Card>
                             </div>
 
-                            {/* Right: Detailed Form */}
+                            {/* --- MAIN FORM --- */}
                             <div className="lg:col-span-8 space-y-8">
+                                
+                                {/* 1. Project Basic Info */}
                                 <Card>
                                     <CardHeader>
                                         <CardTitle className="text-xl">{t('proposals.new.project_details')}</CardTitle>
@@ -187,17 +192,52 @@ export default function NewProposalPage() {
                                         </div>
                                         <div className="space-y-2">
                                             <Label>{t('proposals.new.lbl_problem_solution')}</Label>
-                                            <Textarea 
-                                                className="min-h-[140px] text-start resize-y" 
-                                                placeholder={t('proposals.new.ph_problem_solution')} 
-                                                value={proposalHook.description} 
-                                                onChange={e => proposalHook.setDescription(e.target.value)} 
-                                            />
+                                            <Textarea className="min-h-[140px] text-start resize-y" placeholder={t('proposals.new.ph_problem_solution')} value={proposalHook.description} onChange={e => proposalHook.setDescription(e.target.value)} />
                                         </div>
                                     </CardContent>
                                 </Card>
 
-                                {/* Market & Financials (Dynamic) */}
+                                {/* 2. ✅ NEW: Company & Team Info (Professional Fields) */}
+                                <Card>
+                                    <CardHeader>
+                                        <CardTitle className="text-xl">{t('proposals.new.company_info')}</CardTitle>
+                                        <CardDescription>{t('proposals.new.company_info_desc')}</CardDescription>
+                                    </CardHeader>
+                                    <CardContent className="space-y-6">
+                                        <div className="grid md:grid-cols-3 gap-6">
+                                            <div className="space-y-2">
+                                                <Label>{t('proposals.new.lbl_company_reg_id')}</Label>
+                                                <Input className="h-11 text-start" value={proposalHook.companyRegId} onChange={e => proposalHook.setCompanyRegId(e.target.value)} />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <Label>{t('proposals.new.lbl_founded_date')}</Label>
+                                                <Input className="h-11 text-start" type="date" value={proposalHook.foundedDate} onChange={e => proposalHook.setFoundedDate(e.target.value)} />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <Label>{t('proposals.new.lbl_team_size')}</Label>
+                                                <div className="relative">
+                                                    <Users className="absolute left-3 rtl:right-3 top-3.5 h-4 w-4 text-muted-foreground" />
+                                                    <Input className="h-11 text-start pl-9 rtl:pr-9 rtl:pl-3" type="number" value={proposalHook.teamSize} onChange={e => proposalHook.setTeamSize(e.target.value)} />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="grid md:grid-cols-2 gap-6">
+                                            <div className="space-y-2">
+                                                <Label>{t('proposals.new.lbl_demo_url')}</Label>
+                                                <div className="relative">
+                                                    <LinkIcon className="absolute left-3 rtl:right-3 top-3.5 h-4 w-4 text-muted-foreground" />
+                                                    <Input className="h-11 text-start pl-9 rtl:pr-9 rtl:pl-3" placeholder="https://" dir="ltr" value={proposalHook.demoUrl} onChange={e => proposalHook.setDemoUrl(e.target.value)} />
+                                                </div>
+                                            </div>
+                                            <div className="space-y-2">
+                                                <Label>{t('proposals.new.lbl_linkedin')}</Label>
+                                                <Input className="h-11 text-start" placeholder="linkedin.com/in/..." dir="ltr" value={proposalHook.linkedinProfile} onChange={e => proposalHook.setLinkedinProfile(e.target.value)} />
+                                            </div>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+
+                                {/* 3. Market & Financials (Dynamic & Expanded) */}
                                 <Card>
                                     <CardHeader>
                                         <CardTitle className="text-xl">{t('proposals.new.market_financials')}</CardTitle>
@@ -209,15 +249,15 @@ export default function NewProposalPage() {
                                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                             <div className="space-y-2">
                                                 <Label>{t('proposals.new.lbl_tam')}</Label>
-                                                <Input type="number" className="h-12 text-start" placeholder="0" value={proposalHook.tam} onChange={e => proposalHook.setTam(e.target.value)} />
+                                                <Input type="number" className="h-11 text-start" placeholder="0" value={proposalHook.tam} onChange={e => proposalHook.setTam(e.target.value)} />
                                             </div>
                                             <div className="space-y-2">
                                                 <Label>{t('proposals.new.lbl_sam')}</Label>
-                                                <Input type="number" className="h-12 text-start" placeholder="0" value={proposalHook.sam} onChange={e => proposalHook.setSam(e.target.value)} />
+                                                <Input type="number" className="h-11 text-start" placeholder="0" value={proposalHook.sam} onChange={e => proposalHook.setSam(e.target.value)} />
                                             </div>
                                             <div className="space-y-2">
                                                 <Label>{t('proposals.new.lbl_som')}</Label>
-                                                <Input type="number" className="h-12 text-start" placeholder="0" value={proposalHook.som} onChange={e => proposalHook.setSom(e.target.value)} />
+                                                <Input type="number" className="h-11 text-start" placeholder="0" value={proposalHook.som} onChange={e => proposalHook.setSom(e.target.value)} />
                                             </div>
                                         </div>
 
@@ -227,22 +267,31 @@ export default function NewProposalPage() {
                                                 <>
                                                     <div className="space-y-2">
                                                         <Label>{t('proposals.new.lbl_burn_rate')}</Label>
-                                                        <Input type="number" className="h-12 text-start" value={proposalHook.burnRate} onChange={e => proposalHook.setBurnRate(e.target.value)} />
+                                                        <Input type="number" className="h-11 text-start" value={proposalHook.burnRate} onChange={e => proposalHook.setBurnRate(e.target.value)} />
                                                     </div>
                                                     <div className="space-y-2">
                                                         <Label>{t('proposals.new.lbl_runway')}</Label>
-                                                        <Input type="number" className="h-12 text-start" />
+                                                        <Input type="number" className="h-11 text-start" />
                                                     </div>
                                                 </>
                                             ) : (
                                                 <>
+                                                    {/* ✅ فیلدهای مالی پیشرفته برای استارتاپ‌های فعال */}
                                                     <div className="space-y-2">
                                                         <Label>{t('proposals.new.lbl_revenue')}</Label>
-                                                        <Input type="number" className="h-12 text-start" value={proposalHook.revenueProj} onChange={e => proposalHook.setRevenueProj(e.target.value)} />
+                                                        <Input type="number" className="h-11 text-start" value={proposalHook.revenueProj} onChange={e => proposalHook.setRevenueProj(e.target.value)} />
                                                     </div>
                                                     <div className="space-y-2">
-                                                        <Label>{t('proposals.new.lbl_profit')}</Label>
-                                                        <Input type="number" className="h-12 text-start" />
+                                                        <Label>{t('proposals.new.lbl_net_profit')}</Label>
+                                                        <Input type="number" className="h-11 text-start" value={proposalHook.netProfit} onChange={e => proposalHook.setNetProfit(e.target.value)} />
+                                                    </div>
+                                                    <div className="space-y-2">
+                                                        <Label>{t('proposals.new.lbl_ebitda')}</Label>
+                                                        <Input type="number" className="h-11 text-start" placeholder="%" />
+                                                    </div>
+                                                    <div className="space-y-2">
+                                                        <Label>{t('proposals.new.lbl_valuation')}</Label>
+                                                        <Input type="number" className="h-11 text-start" value={proposalHook.valuation} onChange={e => proposalHook.setValuation(e.target.value)} />
                                                     </div>
                                                 </>
                                             )}
@@ -250,7 +299,7 @@ export default function NewProposalPage() {
                                     </CardContent>
                                 </Card>
 
-                                {/* Milestones */}
+                                {/* 4. Milestones */}
                                 <Card>
                                     <CardHeader>
                                         <CardTitle className="text-xl">{t('proposals.new.milestones_title')}</CardTitle>

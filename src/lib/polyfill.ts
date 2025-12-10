@@ -2,8 +2,10 @@
 
 "use client";
 
-if (typeof global !== 'undefined' && typeof window === 'undefined') {
+// جلوگیری از خطای ReferenceError: indexedDB is not defined در سمت سرور (SSR)
+if (typeof window === 'undefined' && typeof global !== 'undefined') {
     
+    // تعریف ساختار جعلی مینیمال برای indexedDB
     const mockIndexedDB = {
         open: () => ({
             onupgradeneeded: null,
@@ -59,29 +61,10 @@ if (typeof global !== 'undefined' && typeof window === 'undefined') {
         databases: () => Promise.resolve([]),
     };
 
+    // ✅ فقط indexedDB را به گلوبال اضافه می‌کنیم
+    // ❌ خطوط مربوط به تعریف global.window را حذف کردیم تا Wagmi گیج نشود
     // @ts-ignore
     global.indexedDB = mockIndexedDB;
-    
-    // @ts-ignore
-    if (!global.window) {
-        // @ts-ignore
-        global.window = { indexedDB: mockIndexedDB };
-    }
-}
-
-// برای مرورگرهایی که ممکن است در حالت Private دسترسی به indexedDB نداشته باشند
-if (typeof window !== 'undefined' && !window.indexedDB) {
-    // @ts-ignore
-    window.indexedDB = {
-        open: () => ({
-            result: {
-                createObjectStore: () => ({
-                    transaction: () => ({ objectStore: () => ({}) })
-                } as any)
-            } as any,
-            addEventListener: () => {}
-        } as any)
-    };
 }
 
 export {};

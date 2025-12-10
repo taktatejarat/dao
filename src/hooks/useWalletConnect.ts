@@ -1,37 +1,50 @@
-// src/hooks/useWalletConnect.ts
-
-import { useState, useCallback } from 'react';
-import { useConnect, useDisconnect, useAccount, type Connector } from 'wagmi';
+import { useState, useCallback, useEffect } from "react";
+import { useConnect, useDisconnect, useAccount, type Connector } from "wagmi";
 
 export function useWalletConnect() {
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    
-    // دریافت توابع اتصال از Wagmi
-    const { connectors, connect, error: connectError, isPending } = useConnect();
-    const { disconnect } = useDisconnect();
-    const { isConnected } = useAccount();
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-    const openModal = useCallback(() => setIsModalOpen(true), []);
-    const closeModal = useCallback(() => setIsModalOpen(false), []);
+  const { connectors, connect, error, isPending, status, variables } = useConnect();
+  const { disconnectAsync } = useDisconnect();
+  const { isConnected } = useAccount();
 
-    // این تابع دقیقا با امضای مورد نیاز مودال هماهنگ می‌شود
-    const handleConnect = useCallback(({ connector }: { connector: Connector }) => {
-        connect({ connector });
-    }, [connect]);
+  const openModal = useCallback(() => setIsModalOpen(true), []);
+  const closeModal = useCallback(() => setIsModalOpen(false), []);
 
-    const handleDisconnect = useCallback(() => {
-        disconnect();
-    }, [disconnect]);
+  useEffect(() => {
+      if (status === "success") setIsModalOpen(false);
+  }, [status]);
 
-    return {
-        isModalOpen,
-        openModal,
-        closeModal,
-        connectors,
-        connect: handleConnect, 
-        disconnect: handleDisconnect,
-        isPending,
-        isConnected,
-        connectError
-    };
+  const handleConnect = useCallback(
+      ({ connector }: { connector: Connector }) => {
+          connect({ connector });
+      },
+      [connect]
+  );
+
+  const handleDisconnect = useCallback(async () => {
+      await disconnectAsync();
+  }, [disconnectAsync]);
+
+  // ----------- FIX: Type-safe check for connector.id --------------
+  const pendingConnectorId =
+    isPending &&
+    variables?.connector &&
+    "id" in variables.connector
+      ? (variables.connector.id as string)
+      : null;
+  //-----------------------------------------------------------------
+
+  return {
+      isModalOpen,
+      openModal,
+      closeModal,
+      connectors,
+      connect: handleConnect,
+      disconnect: handleDisconnect,
+      isPending,
+      pendingConnectorId,
+      isConnected,
+      connectError: error
+  };
 }
