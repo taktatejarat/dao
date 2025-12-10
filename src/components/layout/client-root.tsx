@@ -4,6 +4,7 @@
 
 import { useLanguage } from '@/context/LanguageProvider';
 import { useEffect } from 'react';
+import { AuthGuard } from '@/components/auth/auth-guard';
 
 export function ClientRoot({ children }: { children: React.ReactNode }) {
   const { direction, locale } = useLanguage();
@@ -23,5 +24,5 @@ export function ClientRoot({ children }: { children: React.ReactNode }) {
     }
   }, [direction, locale]);
 
-  return <>{children}</>;
+  return <AuthGuard>{children}</AuthGuard>;
 }

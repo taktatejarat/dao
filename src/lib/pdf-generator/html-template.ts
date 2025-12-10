@@ -69,7 +69,8 @@ export const generateHTML = ({ report, proposal, proposalId, generatedDate, loca
   const robotoBold = loadFontAsBase64('Roboto-Bold.ttf');
 
   const safe = (val: any) => (val ? val : "-");
-  const money = (val: any) => (val ? `$${Number(val).toLocaleString()}` : "-");
+  const money = (val: any) => (val !== undefined && val !== null && val !== '' && !isNaN(Number(val)) ? `$${Number(val).toLocaleString()}` : "-");
+  const num = (val: any) => (val !== undefined && val !== null && val !== '' && !isNaN(Number(val)) ? Number(val) : null);
 
   const riskPercent = report.risk_score || 50;
   let riskColor = "#eab308";
@@ -94,6 +95,7 @@ export const generateHTML = ({ report, proposal, proposalId, generatedDate, loca
     .header-bar { border-bottom: 2px solid var(--primary); padding-bottom: 15px; margin-bottom: 30px; display: flex; justify-content: space-between; flex-direction: ${isRTL ? 'row' : 'row-reverse'}; }
     .logo-text { font-size: 24px; font-weight: bold; }
     .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 15px; }
     .info-box { background: var(--bg-gray); border: 1px solid var(--border); padding: 12px; border-radius: 6px; }
     .info-label { font-size: 9px; text-transform: uppercase; color: #64748b; font-weight: bold; }
@@ -189,6 +191,12 @@ export const generateHTML = ({ report, proposal, proposalId, generatedDate, loca
             <div class="info-box"><div class="info-label">${labels.teamExp}</div><div class="info-value">${safe(proposal.teamExperienceYears)} Yrs</div></div>
             <div class="info-box"><div class="info-label">${labels.amount}</div><div class="info-value">${money(proposal.milestones?.reduce((a:any,b:any)=>a+Number(b.amount),0))}</div></div>
         </div>
+        <div class="grid-4" style="margin-top: 10px;">
+            <div class="info-box"><div class="info-label">Team Size</div><div class="info-value">${safe(proposal.teamSize)}</div></div>
+            <div class="info-box"><div class="info-label">Founded</div><div class="info-value">${safe(proposal.foundedDate)}</div></div>
+            <div class="info-box"><div class="info-label">Reg. ID</div><div class="info-value">${safe(proposal.companyRegId)}</div></div>
+            <div class="info-box"><div class="info-label">${labels.website}</div><div class="info-value ltr-val">${safe(proposal.demoUrl || proposal.website)}</div></div>
+        </div>
 
         <h2>${labels.details}</h2>
         <p>${safe(proposal.description)}</p>
@@ -210,7 +218,14 @@ export const generateHTML = ({ report, proposal, proposalId, generatedDate, loca
           <div class="info-box"><div class="info-label">TAM (Total Addressable)</div><div class="info-value ltr-val">${money(proposal.marketStats?.tam)}</div></div>
           <div class="info-box"><div class="info-label">SAM (Serviceable)</div><div class="info-value ltr-val">${money(proposal.marketStats?.sam)}</div></div>
           <div class="info-box"><div class="info-label">SOM (Obtainable)</div><div class="info-value ltr-val">${money(proposal.marketStats?.som)}</div></div>
-          <div class="info-box"><div class="info-label">Market Share Goal</div><div class="info-value ltr-val">~${((Number(proposal.marketStats?.som)/Number(proposal.marketStats?.sam))*100).toFixed(1)}%</div></div>
+          <div class="info-box"><div class="info-label">Market Share Goal</div><div class="info-value ltr-val">${
+            (() => {
+              const som = num(proposal.marketStats?.som);
+              const sam = num(proposal.marketStats?.sam);
+              if (som !== null && sam && sam > 0) return `~${((som / sam) * 100).toFixed(1)}%`;
+              return "-";
+            })()
+          }</div></div>
         </div>
         <p style="font-size: 11px; color: #666; margin-top: 10px;">
           <strong>${labels.competitors}:</strong> ${safe(proposal.marketStats?.competitors)}
@@ -221,7 +236,11 @@ export const generateHTML = ({ report, proposal, proposalId, generatedDate, loca
           <thead><tr><th>Metric</th><th>Value</th><th>Notes</th></tr></thead>
           <tbody>
             <tr><td>${labels.burn_rate}</td><td class="ltr-val">${money(proposal.financialStats?.burnRate)} / mo</td><td>Monthly operational cost</td></tr>
+            <tr><td>Runway</td><td class="ltr-val">${safe(proposal.financialStats?.runway)} months</td><td>Cash runway</td></tr>
             <tr><td>${labels.revenue}</td><td class="ltr-val">${money(proposal.financialStats?.revenueProj)}</td><td>Projected Annual</td></tr>
+            <tr><td>Net Profit</td><td class="ltr-val">${money(proposal.financialStats?.netProfit)}</td><td>Projected</td></tr>
+            <tr><td>EBITDA</td><td class="ltr-val">${money(proposal.financialStats?.ebitda)}</td><td>Margin guidance</td></tr>
+            <tr><td>Valuation</td><td class="ltr-val">${money(proposal.financialStats?.valuation)}</td><td>Pre/Seed estimate</td></tr>
             <tr><td>${labels.break_even}</td><td class="ltr-val">${safe(proposal.financialStats?.breakEven)}</td><td>Estimated timeline</td></tr>
           </tbody>
         </table>

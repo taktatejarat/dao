@@ -1,6 +1,7 @@
 # ai-engine/layers/layer_3_financial.py
 
 import os
+import math
 import numpy as np
 import xgboost as xgb
 import pandas as pd
@@ -67,7 +68,7 @@ def generate_financial_report(proposal_data: dict) -> dict:
     milestones = proposal_data.get('milestones', [])
 
     def safe_float(v):
-        try: return float(str(v).replace(',', '')) if v else 0.0
+        try: return float(str(v).replace(',', '')) if v not in [None, ''] else 0.0
         except: return 0.0
 
     input_features = {
@@ -75,8 +76,25 @@ def generate_financial_report(proposal_data: dict) -> dict:
         'burn_rate': safe_float(financials.get('burnRate')),
         'requested_amount': sum([safe_float(m.get('amount')) for m in milestones]),
         'milestone_count': len(milestones),
-        'team_experience': safe_float(proposal_data.get('teamExperienceYears'))
+        'team_experience': safe_float(proposal_data.get('teamExperienceYears')),
+        'revenue_proj': safe_float(financials.get('revenueProj')),
+        'runway': safe_float(financials.get('runway')),
+        'net_profit': safe_float(financials.get('netProfit')),
+        'valuation': safe_float(financials.get('valuation')),
+        'ebitda': safe_float(financials.get('ebitda')),
+        'payback_user': safe_float(financials.get('paybackMonths')),
     }
+
+    # محاسبات تکمیلی
+    monthly_revenue = input_features['revenue_proj'] / 12 if input_features['revenue_proj'] else 0
+    monthly_profit = monthly_revenue - input_features['burn_rate']
+    payback_est = None
+    if monthly_profit > 0:
+        # برآورد بازگشت سرمایه بر اساس جبران 12 ماه هزینه جاری
+        payback_est = math.ceil((input_features['burn_rate'] * 12) / monthly_profit)
+    payback_gap = None
+    if payback_est is not None and input_features['payback_user'] > 0:
+        payback_gap = payback_est - input_features['payback_user']
 
     # 2. اجرای مدل هوش مصنوعی
     success_prob_raw, contributions = ai_engine.predict(input_features)
@@ -103,14 +121,47 @@ def generate_financial_report(proposal_data: dict) -> dict:
                 "importance": float(impact)
             })
 
+    # فاکتورهای دستی بر اساس مقایسه مالی
+    strengths = []
+    weaknesses = []
+
+    if payback_gap is not None:
+        if payback_gap <= 2:
+            strengths.append({"label": "Payback alignment", "detail": f"User: {input_features['payback_user']} mo, Est: {payback_est} mo"})
+        else:
+            weaknesses.append({"label": "Payback mismatch", "detail": f"User: {input_features['payback_user']} mo vs Est: {payback_est} mo"})
+
+    if input_features['runway'] > 12:
+        strengths.append({"label": "Healthy runway", "detail": f"{input_features['runway']} months runway"})
+    elif input_features['runway'] > 0:
+        weaknesses.append({"label": "Short runway", "detail": f"{input_features['runway']} months runway"})
+
+    if input_features['net_profit'] > 0 and monthly_revenue > 0:
+        strengths.append({"label": "Positive net profit", "detail": f"${input_features['net_profit']}"})
+    elif monthly_revenue > 0 and monthly_profit <= 0:
+        weaknesses.append({"label": "Negative cashflow", "detail": f"Monthly burn {input_features['burn_rate']} exceeds revenue {round(monthly_revenue,2)}"})
+
     # داده‌های تکمیلی (محاسباتی ساده برای نمایش)
     market_sentiment = 0.5 + (0.1 if input_features['tam'] > 1e9 else 0)
     team_competency = min(100, int(input_features['team_experience'] * 10))
+
+    validations = {
+        "payback_user_months": input_features['payback_user'] or None,
+        "payback_estimated_months": payback_est,
+        "payback_gap_months": payback_gap,
+        "runway_months": input_features['runway'] or None,
+        "monthly_revenue": monthly_revenue or None,
+        "monthly_profit": monthly_profit if monthly_profit != 0 else None,
+        "notes": weaknesses + strengths
+    }
 
     return {
         "risk_score": risk_score,
         "success_probability": success_probability,
         "team_competency_score": team_competency,
         "market_sentiment_score": round(market_sentiment, 2),
-        "xai_factors": xai_factors
+        "xai_factors": xai_factors,
+        "financial_validations": validations,
+        "strengths": strengths,
+        "weaknesses": weaknesses
     }

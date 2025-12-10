@@ -59,7 +59,7 @@ export default async function RootLayout({
   const cookies = headersList.get('cookie');
 
   return (
-    <html lang={locale || 'en'} dir="ltr" suppressHydrationWarning>
+    <html lang={locale || 'en'} dir={direction} suppressHydrationWarning>
       <body className={cn(
           "min-h-screen bg-background font-sans antialiased",
           fontSans.variable, 

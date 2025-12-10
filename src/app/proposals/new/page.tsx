@@ -23,7 +23,8 @@ import { useTranslation } from '@/hooks/use-translation';
 import { Rocket, Vote, UploadCloud, BadgeCheck, Building2, Wallet, LinkIcon, Users } from 'lucide-react';
 
 export default function NewProposalPage() {
-    const { t } = useTranslation();
+    const { t, locale } = useTranslation();
+    const dir = locale === 'fa' || locale === 'ar' ? 'rtl' : 'ltr';
     const { userRole, address, daoAddress } = useWeb3();
     const router = useRouter();
     
@@ -80,7 +81,7 @@ export default function NewProposalPage() {
 
     return (
         <AppLayout>
-            <div className="container max-w-7xl py-8 md:py-12 animate-in fade-in slide-in-from-bottom-4">
+            <div className="container max-w-7xl py-8 md:py-12 animate-in fade-in slide-in-from-bottom-4" dir={dir}>
                 
                 <div className="mb-10 text-center">
                     <h1 className="text-3xl md:text-5xl font-extrabold font-headline text-gradient mb-4">{t('proposals.new.title')}</h1>
@@ -116,17 +117,17 @@ export default function NewProposalPage() {
                                         <div className="space-y-3">
                                             <RadioGroup defaultValue="idea" value={proposalHook.startupStage} onValueChange={(v: any) => proposalHook.setStartupStage(v)}>
                                                 {/* Option 1 */}
-                                                <div className="flex items-start space-x-3 rtl:space-x-reverse border p-4 rounded-xl hover:bg-muted/50 cursor-pointer transition-colors has-[[data-state=checked]]:border-primary has-[[data-state=checked]]:bg-primary/5">
+                                                <div className="flex items-start gap-3 rtl:flex-row-reverse border p-4 rounded-xl hover:bg-muted/50 cursor-pointer transition-colors has-[[data-state=checked]]:border-primary has-[[data-state=checked]]:bg-primary/5">
                                                     <RadioGroupItem value="idea" id="r1" className="mt-1" />
-                                                    <Label htmlFor="r1" className="cursor-pointer flex-1 text-start">
+                                                    <Label htmlFor="r1" className="cursor-pointer flex-1 text-start rtl:text-right">
                                                         <span className="font-bold block text-base">{t('proposals.new.stage_idea')}</span>
                                                         <span className="text-xs text-muted-foreground">{t('proposals.new.stage_idea_desc')}</span>
                                                     </Label>
                                                 </div>
                                                 {/* Option 2 */}
-                                                <div className="flex items-start space-x-3 rtl:space-x-reverse border p-4 rounded-xl hover:bg-muted/50 cursor-pointer transition-colors has-[[data-state=checked]]:border-primary has-[[data-state=checked]]:bg-primary/5">
+                                                <div className="flex items-start gap-3 rtl:flex-row-reverse border p-4 rounded-xl hover:bg-muted/50 cursor-pointer transition-colors has-[[data-state=checked]]:border-primary has-[[data-state=checked]]:bg-primary/5">
                                                     <RadioGroupItem value="revenue" id="r2" className="mt-1" />
-                                                    <Label htmlFor="r2" className="cursor-pointer flex-1 text-start">
+                                                    <Label htmlFor="r2" className="cursor-pointer flex-1 text-start rtl:text-right">
                                                         <span className="font-bold block text-base">{t('proposals.new.stage_revenue')}</span>
                                                         <span className="text-xs text-muted-foreground">{t('proposals.new.stage_revenue_desc')}</span>
                                                     </Label>
@@ -271,7 +272,12 @@ export default function NewProposalPage() {
                                                     </div>
                                                     <div className="space-y-2">
                                                         <Label>{t('proposals.new.lbl_runway')}</Label>
-                                                        <Input type="number" className="h-11 text-start" />
+                                                        <Input
+                                                            type="number"
+                                                            className="h-11 text-start"
+                                                            value={proposalHook.runway}
+                                                            onChange={e => proposalHook.setRunway(e.target.value)}
+                                                        />
                                                     </div>
                                                 </>
                                             ) : (
@@ -287,7 +293,23 @@ export default function NewProposalPage() {
                                                     </div>
                                                     <div className="space-y-2">
                                                         <Label>{t('proposals.new.lbl_ebitda')}</Label>
-                                                        <Input type="number" className="h-11 text-start" placeholder="%" />
+                                                        <Input
+                                                            type="number"
+                                                            className="h-11 text-start"
+                                                            placeholder="%"
+                                                            value={proposalHook.ebitda}
+                                                            onChange={e => proposalHook.setEbitda(e.target.value)}
+                                                        />
+                                                    </div>
+                                                    <div className="space-y-2">
+                                                        <Label>Payback Period (months)</Label>
+                                                        <Input
+                                                            type="number"
+                                                            className="h-11 text-start"
+                                                            placeholder="e.g. 12"
+                                                            value={proposalHook.paybackMonths}
+                                                            onChange={e => proposalHook.setPaybackMonths(e.target.value)}
+                                                        />
                                                     </div>
                                                     <div className="space-y-2">
                                                         <Label>{t('proposals.new.lbl_valuation')}</Label>

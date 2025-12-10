@@ -37,6 +37,8 @@ export function useCreateProposal({ daoAddress, router }: UseCreateProposalProps
     // ✅ فیلدهای مالی پیشرفته
     const [netProfit, setNetProfit] = useState('');
     const [valuation, setValuation] = useState('');
+    const [ebitda, setEbitda] = useState('');
+    const [paybackMonths, setPaybackMonths] = useState('');
 
     // --- Form States ---
     const [projectName, setProjectName] = useState('');
@@ -59,6 +61,7 @@ export function useCreateProposal({ daoAddress, router }: UseCreateProposalProps
     const [competitors, setCompetitors] = useState('');
 
     const [burnRate, setBurnRate] = useState('');
+    const [runway, setRunway] = useState('');
     const [revenueProj, setRevenueProj] = useState('');
     const [breakEven, setBreakEven] = useState('');
     const [hasPreviousFunding, setHasPreviousFunding] = useState('false');
@@ -136,7 +139,7 @@ export function useCreateProposal({ daoAddress, router }: UseCreateProposalProps
                 projectName, tagline, website, description, problem, solution, businessModel,
                 startupIndustry, teamExperienceYears, teamBio, 
                 marketStats: { marketSize, tam, sam, som, competitors },
-                financialStats: { burnRate, revenueProj, breakEven, hasPreviousFunding, fundingHistoryDetails },
+                financialStats: { burnRate, runway, revenueProj, breakEven, ebitda, netProfit, valuation, paybackMonths, hasPreviousFunding, fundingHistoryDetails },
                 recipient: recipient || address, // اگر گیرنده خالی بود، خود کاربر
                 milestones,
                 documents: { pitchDeck: pitchDeckHash, financials: financialsHash, legal: legalHash },
@@ -146,8 +149,6 @@ export function useCreateProposal({ daoAddress, router }: UseCreateProposalProps
                     teamSize,
                     demoUrl,
                     linkedinProfile,
-                    netProfit,
-                    valuation
                 },
             };
 
@@ -189,8 +190,9 @@ export function useCreateProposal({ daoAddress, router }: UseCreateProposalProps
         startupIndustry, teamExperienceYears, teamBio, 
         marketSize, tam, sam, som, competitors, 
         burnRate, revenueProj, breakEven, hasPreviousFunding, fundingHistoryDetails, 
+        runway, ebitda, netProfit, valuation, paybackMonths,
         recipient, milestones, pitchDeckFile, financialsFile, legalFile,
-        companyRegId, foundedDate, teamSize, demoUrl, linkedinProfile, netProfit, valuation
+        companyRegId, foundedDate, teamSize, demoUrl, linkedinProfile
     ]);
 
     // --- Post-Transaction Logic ---
@@ -266,8 +268,9 @@ export function useCreateProposal({ daoAddress, router }: UseCreateProposalProps
         businessModel, setBusinessModel, startupIndustry, setStartupIndustry,
         teamExperienceYears, setTeamExperienceYears, teamBio, setTeamBio,
         marketSize, setMarketSize, tam, setTam, sam, setSam, som, setSom, competitors, setCompetitors,
-        burnRate, setBurnRate, revenueProj, setRevenueProj, breakEven, setBreakEven,
+        burnRate, setBurnRate, runway, setRunway, revenueProj, setRevenueProj, breakEven, setBreakEven,
         hasPreviousFunding, setHasPreviousFunding, fundingHistoryDetails, setFundingHistoryDetails,
+        paybackMonths, setPaybackMonths,
         recipient, setRecipient, milestones,
         setPitchDeckFile, setFinancialsFile, setLegalFile,
         isPending: isSubmitting || isConfirming, 
@@ -282,5 +285,6 @@ export function useCreateProposal({ daoAddress, router }: UseCreateProposalProps
         linkedinProfile, setLinkedinProfile,
         netProfit, setNetProfit,
         valuation, setValuation,
+        ebitda, setEbitda,
     };
 }

@@ -51,6 +51,11 @@ const fundingProposalSchema = z.object({
     
     teamExperienceYears: z.string().regex(/^\d+$/),
     teamBio: z.string().min(20),
+    companyRegId: z.string().optional(),
+    foundedDate: z.string().optional(),
+    teamSize: z.string().optional(),
+    demoUrl: z.string().url().optional().or(z.literal('')),
+    linkedinProfile: z.string().url().optional().or(z.literal('')),
     
     marketStats: z.object({
         tam: z.string().optional(),
@@ -61,8 +66,13 @@ const fundingProposalSchema = z.object({
     }),
     financialStats: z.object({
         burnRate: z.string().optional(),
+        runway: z.string().optional(),
         revenueProj: z.string().optional(),
         breakEven: z.string().optional(),
+        ebitda: z.string().optional(),
+        netProfit: z.string().optional(),
+        valuation: z.string().optional(),
+        paybackMonths: z.string().optional(),
         hasPreviousFunding: z.string().refine(val => val === 'true' || val === 'false', "Invalid boolean string"),
         fundingHistoryDetails: z.string().optional(),
     }),
@@ -153,7 +163,14 @@ export async function POST(req: NextRequest) {
                 description: data.description,
                 documents: data.documents,
                 marketStats: data.marketStats, 
-                financialStats: data.financialStats
+                financialStats: data.financialStats,
+                knowledgeBasedType: data.knowledgeBasedType,
+                startupStage: data.startupStage,
+                companyRegId: data.companyRegId,
+                foundedDate: data.foundedDate,
+                teamSize: data.teamSize,
+                demoUrl: data.demoUrl,
+                linkedinProfile: data.linkedinProfile,
             });
 
             const offChainData = {

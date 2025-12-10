@@ -58,16 +58,6 @@
 │       ├── ./ai-engine/training/train_models.py
 │       ├── ./ai-engine/training/train_risk_model.py
 │       └── ./ai-engine/training/train_security_model.py
-├── ./cache
-│   ├── ./cache/solidity-files-cache.json
-│   └── ./cache/validations.json
-├── ./certs
-│   ├── ./certs/ca.crt
-│   ├── ./certs/ca.key
-│   ├── ./certs/cert.crt
-│   └── ./certs/cert.key
-├── ./components.json
-├── ./get-pip.py
 ├── ./.gitignore
 ├── ./hardhat.config.cts
 ├── ./.idx
@@ -81,18 +71,25 @@
 ├── ./package-lock.json
 ├── ./postcss.config.js
 ├── ./public
-│   └── ./public/fonts
-│       ├── ./public/fonts/Roboto-Bold.ttf
-│       ├── ./public/fonts/Roboto-Regular.ttf
-│       ├── ./public/fonts/Vazirmatn-Bold.ttf
-│       └── ./public/fonts/Vazirmatn-Regular.ttf
+│   ├── ./public/fonts
+│   │   ├── ./public/fonts/Roboto-Bold.ttf
+│   │   ├── ./public/fonts/Roboto-Regular.ttf
+│   │   ├── ./public/fonts/Vazirmatn-Bold.ttf
+│   │   └── ./public/fonts/Vazirmatn-Regular.ttf
+│   ├── ./public/images
+│   │   └── ./public/images/wallets
+│   │       ├── ./public/images/wallets/coinbase-v2.svg
+│   │       ├── ./public/images/wallets/MetaMask_Fox.svg
+│   │       ├── ./public/images/wallets/Msig-wallet.png
+│   │       ├── ./public/images/wallets/WalletConnect.svg
+│   │       └── ./public/images/wallets/wallet.svg
+│   ├── ./public/sw.js
+│   └── ./public/workbox-4754cb34.js
 ├── ./puppeteer-packages.txt
 ├── ./README.md
 ├── ./scripts
-│   ├── ./scripts/debug_and_upgrade.ts
 │   ├── ./scripts/deploy.ts
-│   ├── ./scripts/force_upgrade.ts
-│   └── ./scripts/upgrade_dao.ts
+│   └── ./scripts/smart_upgrade.ts
 ├── ./simulation
 │   ├── ./simulation/AI_Data_Gen.py
 │   ├── ./simulation/scalability.py
@@ -113,6 +110,9 @@
 │   │   ├── ./src/app/analytics
 │   │   │   └── ./src/app/analytics/page.tsx
 │   │   ├── ./src/app/api
+│   │   │   ├── ./src/app/api/admin
+│   │   │   │   └── ./src/app/api/admin/save-dao-config
+│   │   │   │       └── ./src/app/api/admin/save-dao-config/route.ts
 │   │   │   ├── ./src/app/api/ai-report
 │   │   │   │   └── ./src/app/api/ai-report/[proposalId]
 │   │   │   │       └── ./src/app/api/ai-report/[proposalId]/route.ts
@@ -122,6 +122,9 @@
 │   │   │   │   └── ./src/app/api/analytics/user
 │   │   │   │       └── ./src/app/api/analytics/user/[address]
 │   │   │   │           └── ./src/app/api/analytics/user/[address]/route.ts
+│   │   │   ├── ./src/app/api/auth
+│   │   │   │   └── ./src/app/api/auth/session
+│   │   │   │       └── ./src/app/api/auth/session/route.ts
 │   │   │   ├── ./src/app/api/charts
 │   │   │   │   └── ./src/app/api/charts/investments
 │   │   │   │       └── ./src/app/api/charts/investments/route.ts
@@ -139,7 +142,9 @@
 │   │   │   ├── ./src/app/api/oracle-status
 │   │   │   │   └── ./src/app/api/oracle-status/route.ts
 │   │   │   ├── ./src/app/api/profile
-│   │   │   │   └── ./src/app/api/profile/route.ts
+│   │   │   │   ├── ./src/app/api/profile/route.ts
+│   │   │   │   └── ./src/app/api/profile/upgrade
+│   │   │   │       └── ./src/app/api/profile/upgrade/route.ts
 │   │   │   ├── ./src/app/api/proposals
 │   │   │   │   ├── ./src/app/api/proposals/[id]
 │   │   │   │   │   ├── ./src/app/api/proposals/[id]/route.ts
@@ -187,6 +192,9 @@
 │   │   ├── ./src/app/logs
 │   │   │   └── ./src/app/logs/page.tsx
 │   │   ├── ./src/app/not-found.tsx
+│   │   ├── ./src/app/onboarding
+│   │   │   └── ./src/app/onboarding/startup
+│   │   │       └── ./src/app/onboarding/startup/page.tsx
 │   │   ├── ./src/app/page.tsx
 │   │   ├── ./src/app/profile
 │   │   │   └── ./src/app/profile/page.tsx
@@ -198,8 +206,6 @@
 │   │   │   └── ./src/app/proposals/page.tsx
 │   │   ├── ./src/app/reports
 │   │   │   └── ./src/app/reports/page.tsx
-│   │   ├── ./src/app/role-selection
-│   │   │   └── ./src/app/role-selection/page.tsx
 │   │   ├── ./src/app/setup
 │   │   │   └── ./src/app/setup/page.tsx
 │   │   ├── ./src/app/staking
@@ -212,7 +218,6 @@
 │   │   ├── ./src/components/analytics
 │   │   │   └── ./src/components/analytics/wallet-network-graph.tsx
 │   │   ├── ./src/components/auth
-│   │   │   ├── ./src/components/auth/auth-guard.tsx
 │   │   │   └── ./src/components/auth/connect-wallet.tsx
 │   │   ├── ./src/components/common
 │   │   │   └── ./src/components/common/add-to-wallet-button.tsx
@@ -236,6 +241,8 @@
 │   │   │   └── ./src/components/layout/language-switcher.tsx
 │   │   ├── ./src/components/proposals
 │   │   │   └── ./src/components/proposals/proposal-timeline.tsx
+│   │   ├── ./src/components/providers
+│   │   │   └── ./src/components/providers/theme-provider.tsx
 │   │   ├── ./src/components/reports
 │   │   │   └── ./src/components/reports/risk-gauge-chart.tsx
 │   │   ├── ./src/components/setup
@@ -283,8 +290,10 @@
 │   │       ├── ./src/components/wallet/connect-wallet-modal.tsx
 │   │       └── ./src/components/wallet/custom-connect-button.tsx
 │   ├── ./src/context
+│   │   ├── ./src/context/AppKitProvider.tsx
 │   │   ├── ./src/context/LanguageProvider.tsx
 │   │   ├── ./src/context/Providers.tsx
+│   │   ├── ./src/context/UserContext.tsx
 │   │   ├── ./src/context/WalletConfig.tsx
 │   │   └── ./src/context/Web3Provider.tsx
 │   ├── ./src/contracts
@@ -347,6 +356,7 @@
 │   │   ├── ./src/lib/mongodb.ts
 │   │   ├── ./src/lib/pdf-generator
 │   │   │   └── ./src/lib/pdf-generator/html-template.ts
+│   │   ├── ./src/lib/polyfill.ts
 │   │   ├── ./src/lib/proposal-db.ts
 │   │   └── ./src/lib/utils.ts
 │   └── ./src/types
