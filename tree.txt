@@ -218,6 +218,7 @@
 │   │   ├── ./src/components/analytics
 │   │   │   └── ./src/components/analytics/wallet-network-graph.tsx
 │   │   ├── ./src/components/auth
+│   │   │   ├── ./src/components/auth/auth-guard.tsx
 │   │   │   └── ./src/components/auth/connect-wallet.tsx
 │   │   ├── ./src/components/common
 │   │   │   └── ./src/components/common/add-to-wallet-button.tsx

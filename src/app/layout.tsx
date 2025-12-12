@@ -30,6 +30,7 @@ const fontHeadline = localFont({
   display: 'swap',
 });
 
+// فونت وزیرمتن برای فارسی
 const fontVazir = localFont({
   src: [
     { path: './fonts/Vazirmatn-Regular.ttf', weight: '400', style: 'normal' },
@@ -39,7 +40,6 @@ const fontVazir = localFont({
   variable: '--font-vazir',
   display: 'swap',
 });
-
 
 export const metadata: Metadata = {
   title: 'NextN DAO-VC',
@@ -54,38 +54,41 @@ export default async function RootLayout({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const direction = (locale === 'fa' || locale === 'ar') ? 'rtl' : 'ltr';
+  const isRtl = locale === 'fa' || locale === 'ar';
+  const direction = isRtl ? 'rtl' : 'ltr';
+  
   const headersList = await headers();
   const cookies = headersList.get('cookie');
 
   return (
     <html lang={locale || 'en'} dir={direction} suppressHydrationWarning>
       <body className={cn(
-          "min-h-screen bg-background font-sans antialiased",
+          "min-h-screen bg-background antialiased",
           fontSans.variable, 
           fontHeadline.variable,
-          fontVazir.variable
+          fontVazir.variable,
+          // ✅ FIX: اعمال فونت وزیر برای زبان‌های راست‌چین
+          isRtl ? "font-vazir" : "font-sans"
         )}
       >
-        {/* ✅ استفاده از AppKitProvider به عنوان لایه اصلی اتصال */}
-        <AppKitProvider cookies={cookies}>
-            <Web3Provider>
-                <UserProvider>
-                    <LanguageProvider>
-                        <ThemeProvider
-                            attribute="class"
-                            defaultTheme="system"
-                            enableSystem
-                            disableTransitionOnChange
-                        >
+        <LanguageProvider>
+            <ThemeProvider
+                attribute="class"
+                defaultTheme="system"
+                enableSystem
+                disableTransitionOnChange
+            >
+                <AppKitProvider cookies={cookies}>
+                    <Web3Provider>
+                        <UserProvider>
                             <ClientRoot>
                                 {children}
                             </ClientRoot>
-                        </ThemeProvider>
-                    </LanguageProvider>
-                </UserProvider>
-            </Web3Provider>
-        </AppKitProvider>
+                        </UserProvider>
+                    </Web3Provider>
+                </AppKitProvider>
+            </ThemeProvider>
+        </LanguageProvider>
       </body>
     </html>
   );

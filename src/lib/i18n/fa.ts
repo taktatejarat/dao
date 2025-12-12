@@ -431,6 +431,7 @@ export const fa = {
     critical_access_warning: "هشدار امنیتی بسیار مهم!\n\nشما در حال تلاش برای ورود به بخش «مدیریت زیرساخت» (Setup) هستید. این بخش قابلیت بازنشانی کل قراردادها را دارد.\n\nلطفاً برای تأیید نهایی امضا کنید.",
     view_all: "نمایش همه",
     latest_update: "آخرین بروزرسانی",
+    no_activities_found: "هیج رخدادی وجود ندارد",
     
     // Dashboard Admin Sub-object
     admin: {
@@ -626,7 +627,37 @@ export const fa = {
       lbl_ebitda: "حاشیه سود عملیاتی (EBITDA)",
       lbl_valuation: "ارزش‌گذاری پیشنهادی (Pre-Money Valuation)",
       select_placeholder: "انتخاب کنید...",
+            
+      // Step Titles
+      step1_title: "اطلاعات پایه",
+      step2_title: "تیم و حقوقی",
+      step3_title: "بازار و استراتژی",
+      step4_title: "مالی و مراحل پرداخت",
+      step5_title: "مستندات و ارسال",
+
+      // Step 1: Basics
+      lbl_competitors: "رقبای اصلی",
+      ph_competitors: "۳ رقیب اصلی خود را نام ببرید...",
+      lbl_business_model: "مدل درآمدی",
+      ph_business_model: "چگونه کسب درآمد می‌کنید؟ (مثلاً اشتراک، کارمزد و...)",
+
+      // Step 4: Financials
+      upload_financials: "پروجکشن مالی (Excel/PDF)",
+      drag_drop_click: "کلیک برای آپلود",
+
     },
+  },
+           
+  validation: {
+    required: "این فیلد الزامی است",
+    min_length_3: "حداقل باید ۳ کاراکتر باشد",
+    min_length_20: "توضیحات باید حداقل ۲۰ کاراکتر باشد",
+    positive_number: "باید عدد مثبت باشد",
+    url_invalid: "فرمت آدرس اینترنتی صحیح نیست",
+    url_invalid_http: "باید با http:// یا https:// شروع شود",
+    sam_gt_tam: "SAM نمی‌تواند از TAM بزرگتر باشد",
+    som_gt_sam: "SOM نمی‌تواند از SAM بزرگتر باشد",
+    address_invalid: "آدرس کیف پول معتبر نیست",
   },
 
   // Proposal List Page
@@ -1329,6 +1360,7 @@ export const fa = {
     claim_successful: "پاداش‌ها با موفقیت برداشت شدند.",
     delegate_successful: "حق رأی با موفقیت تفویض شد.",
     undelegate_successful: "تفویض رأی لغو شد.",
+    fill_required: "لطفاً تمام فیلدهای اجباری این مرحله را تکمیل کنید.",
   },
   terms_page: {
     title: "قوانین و شرایط استفاده",
