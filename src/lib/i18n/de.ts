@@ -541,20 +541,21 @@ wallet: {
       note_self_recipient: "Wenn leer, wird an Ihre eigene Wallet ausgezahlt.",
 
       industries: {
-        defi: "Dezentrale Finanzen / Web3",
-        ai: "Künstliche Intelligenz / Machine Learning",
-        gaming: "Gaming / Metaverse",
-        saas: "SaaS (Software-as-a-Service)",
-        placeholder: "Branche auswählen",
+        software: "Softwareanwendungen",
+        biotechnology: "Biotechnologie und Gesundheit",
+        mobile: "Mobile Anwendung",
+        e_commerce: "E-Commerce-Plattformen",
+        enterprise: "Unternehmenssoftware",
+        other: "Allgemeine Software",
       },
 
       business_models: {
-        placeholder: "Geschäftsmodell auswählen",
-        b2b: "B2B (Unternehmen zu Unternehmen)",
-        b2c: "B2C (Unternehmen zu Verbraucher)",
-        b2b2c: "B2B2C (Hybrid-Modell)",
-        saas: "SaaS (Cloud-Softwaredienste)",
-        marketplace: "Online-Marktplatz",
+          placeholder: "Auswahl des Geschäftsmodells",
+          b2b: "B2B Geschäft zu Geschäft",
+          b2c: "B2C Geschäft zu Verbraucher",
+          b2b2c: "B2B2C Vermittlermodell",
+          saas: "SaaS Cloud Software Dienste",
+          marketplace: "Elektronischer Marktplatz",
       },
 
       submit_for_review: "Zur Prüfung einreichen",

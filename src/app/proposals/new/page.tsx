@@ -1,4 +1,4 @@
-// src/app/proposals/new/page.tsx - WITH VALIDATION MESSAGES
+// src/app/proposals/new/page.tsx - FIXED FOCUS & ADDED BUSINESS MODEL SELECT
 
 "use client";
 
@@ -25,6 +25,48 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
+// ✅ FIX: کامپوننت‌های کمکی باید بیرون از کامپوننت اصلی باشند تا مشکل فوکوس حل شود
+const FileUploadBox = ({ label, file, setFile, required = false, accept = ".pdf", t }: any) => (
+    <div className={cn(
+        "border border-dashed rounded-xl p-6 flex flex-col items-center justify-center bg-muted/20 hover:bg-muted/40 transition-colors gap-3 text-center group relative overflow-hidden",
+        required && !file ? "border-amber-500/50 bg-amber-500/5" : "border-primary/30"
+    )}>
+        <input 
+            type="file" 
+            accept={accept}
+            className="absolute inset-0 opacity-0 cursor-pointer z-20" 
+            onChange={(e) => setFile(e.target.files?.[0] || null)} 
+        />
+        <div className={cn("p-3 rounded-full transition-colors", file ? "bg-green-100 text-green-600" : "bg-primary/10 text-primary group-hover:bg-primary/20")}>
+            {file ? <FileCheck className="w-6 h-6" /> : <UploadCloud className="w-6 h-6" />}
+        </div>
+        <div className="space-y-1">
+            <p className="font-medium text-sm">
+                {label} {required && <span className="text-red-500">*</span>}
+            </p>
+            <p className="text-xs text-muted-foreground">
+                {file ? file.name : (t ? t('proposals.new.drag_drop_click') : "Click to upload")}
+            </p>
+        </div>
+        {file && <span className="absolute top-2 right-2 text-green-600 bg-white/80 rounded-full p-0.5"><CheckCircle2 className="w-4 h-4"/></span>}
+    </div>
+);
+
+const FormItem = ({ label, required, error, children }: any) => (
+    <div className="space-y-2">
+        <Label className="flex items-center gap-1">
+            {label} {required && <span className="text-red-500">*</span>}
+        </Label>
+        {children}
+        {error && (
+            <div className="flex items-center gap-1 text-red-500 text-xs animate-in slide-in-from-top-1">
+                <AlertCircle className="w-3 h-3" />
+                <span>{error}</span>
+            </div>
+        )}
+    </div>
+);
+
 export default function NewProposalPage() {
     const { t, locale } = useTranslation();
     const dir = locale === 'fa' || locale === 'ar' ? 'rtl' : 'ltr';
@@ -33,6 +75,26 @@ export default function NewProposalPage() {
     const router = useRouter();
     const [activeTab, setActiveTab] = useState("startup");
     const wizard = useCreateProposal({ daoAddress, router });
+
+    // --- Data Constants ---
+    const INDUSTRIES = [
+        { value: "Software", label: t("proposals.new.industries.software") },
+        { value: "Biotechnology", label: t("proposals.new.industries.biotechnology") },
+        { value: "Mobile", label: t("proposals.new.industries.mobile") },
+        { value: "E-Commerce", label: t("proposals.new.industries.e_commerce") },
+        { value: "Enterprise", label: t("proposals.new.industries.enterprise") },
+        { value: "Other", label: t("proposals.new.industries.other") }
+    ];
+
+    // ✅ ADDED: لیست مدل‌های کسب‌وکار
+    const BUSINESS_MODELS = [
+        { value: "B2B", label: t("proposals.new.business_models.b2b") },
+        { value: "B2C", label: t("proposals.new.business_models.b2c") },
+        { value: "B2B2C", label: t("proposals.new.business_models.b2b2c") },
+        { value: "SaaS", label: t("proposals.new.business_models.saas") },
+        { value: "Marketplace", label: t("proposals.new.business_models.marketplace") },
+        { value: "Other", label: t("proposals.new.industries.other") }
+    ];
 
     // --- Treasury Logic ---
     const [tTitle, setTTitle] = useState('');
@@ -77,49 +139,6 @@ export default function NewProposalPage() {
         }
     };
     if (isSuccess) router.push('/proposals');
-
-    // --- Helpers ---
-    const FileUploadBox = ({ label, file, setFile, required = false, accept = ".pdf" }: any) => (
-        <div className={cn(
-            "border border-dashed rounded-xl p-6 flex flex-col items-center justify-center bg-muted/20 hover:bg-muted/40 transition-colors gap-3 text-center group relative overflow-hidden",
-            required && !file ? "border-amber-500/50 bg-amber-500/5" : "border-primary/30"
-        )}>
-            <input 
-                type="file" 
-                accept={accept}
-                className="absolute inset-0 opacity-0 cursor-pointer z-20" 
-                onChange={(e) => setFile(e.target.files?.[0] || null)} 
-            />
-            <div className={cn("p-3 rounded-full transition-colors", file ? "bg-green-100 text-green-600" : "bg-primary/10 text-primary group-hover:bg-primary/20")}>
-                {file ? <FileCheck className="w-6 h-6" /> : <UploadCloud className="w-6 h-6" />}
-            </div>
-            <div className="space-y-1">
-                <p className="font-medium text-sm">
-                    {label} {required && <span className="text-red-500">*</span>}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                    {file ? file.name : t('proposals.new.drag_drop_click')}
-                </p>
-            </div>
-            {file && <span className="absolute top-2 right-2 text-green-600 bg-white/80 rounded-full p-0.5"><CheckCircle2 className="w-4 h-4"/></span>}
-        </div>
-    );
-
-    // Wrapper for Input with Error Message
-    const FormItem = ({ label, required, error, children }: any) => (
-        <div className="space-y-2">
-            <Label className="flex items-center gap-1">
-                {label} {required && <span className="text-red-500">*</span>}
-            </Label>
-            {children}
-            {error && (
-                <div className="flex items-center gap-1 text-red-500 text-xs animate-in slide-in-from-top-1">
-                    <AlertCircle className="w-3 h-3" />
-                    <span>{error}</span>
-                </div>
-            )}
-        </div>
-    );
 
     return (
         <AppLayout>
@@ -199,6 +218,28 @@ export default function NewProposalPage() {
                                             </FormItem>
                                         </div>
 
+                                        <div className="space-y-2">
+                                            <Label>{t('proposals.new.lbl_industry')} <span className="text-red-500">*</span></Label>
+                                            <Select value={wizard.startupIndustry} onValueChange={wizard.setStartupIndustry}>
+                                                <SelectTrigger className={wizard.errors.startupIndustry ? "border-red-500" : ""}>
+                                                    <SelectValue placeholder={t('proposals.new.select_placeholder')} />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {INDUSTRIES.map((ind) => (
+                                                        <SelectItem key={ind.value} value={ind.value}>
+                                                            {ind.label}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                            {wizard.errors.startupIndustry && (
+                                                <div className="flex items-center gap-1 text-red-500 text-xs animate-in slide-in-from-top-1">
+                                                    <AlertCircle className="w-3 h-3" />
+                                                    <span>{wizard.errors.startupIndustry}</span>
+                                                </div>
+                                            )}
+                                        </div>
+
                                         <FormItem label={t('proposals.new.lbl_problem_solution')} required error={wizard.errors.description}>
                                             <Textarea 
                                                 className={cn("min-h-[120px]", wizard.errors.description ? "border-red-500 focus-visible:ring-red-500" : "")} 
@@ -265,6 +306,11 @@ export default function NewProposalPage() {
                                             </FormItem>
                                         </div>
 
+                                        <div className="space-y-2">
+                                            <Label>{t('proposals.new.lbl_team_experience')}</Label>
+                                            <Input placeholder={t('proposals.new.ph_team_experience')} value={wizard.teamExperienceYears} onChange={e => wizard.setTeamExperienceYears(e.target.value)} />
+                                        </div>
+
                                         <div className="grid md:grid-cols-2 gap-6">
                                             <FormItem label={t('proposals.new.lbl_linkedin')} required error={wizard.errors.linkedinProfile}>
                                                 <div className="relative">
@@ -323,13 +369,20 @@ export default function NewProposalPage() {
                                             />
                                         </FormItem>
                                         
+                                        {/* ✅ FIX: تغییر مدل کسب‌وکار به Select */}
                                         <FormItem label={t('proposals.new.lbl_business_model')} required error={wizard.errors.businessModel}>
-                                            <Textarea 
-                                                placeholder={t('proposals.new.ph_business_model')} 
-                                                value={wizard.businessModel} 
-                                                onChange={e => wizard.setBusinessModel(e.target.value)} 
-                                                className={wizard.errors.businessModel ? "border-red-500" : ""}
-                                            />
+                                            <Select value={wizard.businessModel} onValueChange={wizard.setBusinessModel}>
+                                                <SelectTrigger className={wizard.errors.businessModel ? "border-red-500" : ""}>
+                                                    <SelectValue placeholder={t('proposals.new.business_models.placeholder')} />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {BUSINESS_MODELS.map((bm) => (
+                                                        <SelectItem key={bm.value} value={bm.value}>
+                                                            {bm.label}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
                                         </FormItem>
                                     </div>
                                 )}
@@ -414,22 +467,26 @@ export default function NewProposalPage() {
                                                 file={wizard.pitchDeckFile} 
                                                 setFile={wizard.setPitchDeckFile} 
                                                 required={true}
+                                                t={t}
                                             />
                                             <FileUploadBox 
                                                 label={t('proposals.new.upload_financials')} 
                                                 file={wizard.financialsFile} 
                                                 setFile={wizard.setFinancialsFile} 
                                                 accept=".pdf,.xls,.xlsx"
+                                                t={t}
                                             />
                                             <FileUploadBox 
                                                 label={t('proposals.new.upload_legal')} 
                                                 file={wizard.legalFile} 
-                                                setFile={wizard.setLegalFile} 
+                                                setFile={wizard.setLegalFile}
+                                                t={t} 
                                             />
                                             <FileUploadBox 
                                                 label={t('proposals.new.upload_whitepaper')} 
                                                 file={wizard.whitepaperFile} 
-                                                setFile={wizard.setWhitepaperFile} 
+                                                setFile={wizard.setWhitepaperFile}
+                                                t={t} 
                                             />
                                         </div>
 

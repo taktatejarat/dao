@@ -42,7 +42,7 @@ const fontVazir = localFont({
 });
 
 export const metadata: Metadata = {
-  title: 'NextN DAO-VC',
+  title: 'RayanChain DAOVC',
   description: 'AI-Powered Decentralized Investment Protocol',
 };
 

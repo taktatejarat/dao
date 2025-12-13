@@ -1,4 +1,4 @@
-// src/hooks/useProposalVote.ts - FINAL, BULLETPROOF VERSION
+// src/hooks/useProposalVote.ts - FIXED INFINITE LOOP
 
 "use client";
 
@@ -7,17 +7,15 @@ import { toast } from 'sonner';
 import { useTranslation } from '@/hooks/use-translation';
 import { rayanChainDaoAbi } from '@/lib/blockchain/generated';
 import type { Address } from 'viem';
-import { BaseError } from 'viem';
-import { useEffect, useState, useCallback, useRef } from 'react';
+import { useEffect, useState, useCallback, useRef, useMemo } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 
 interface UseProposalVoteProps {
     daoAddress: Address | undefined;
-    proposalId: bigint | null; // می‌تواند null باشد
+    proposalId: bigint | null;
     isVotingActive: boolean;
 }
 
-// VoteType enum values from the smart contract
 const VOTE_FOR = 0;
 const VOTE_AGAINST = 1;
 
@@ -27,25 +25,53 @@ export function useProposalVote({ daoAddress, proposalId, isVotingActive }: UseP
     const queryClient = useQueryClient();
 
     const [txHash, setTxHash] = useState<`0x${string}` | undefined>(undefined);
-
-    // ✅ FIX: استفاده از Ref برای نگهداری شناسه Toast در طول چرخه حیات کامپوننت
     const toastIdRef = useRef<string | number | null>(null);
 
-    // --- خواندن وضعیت رأی کاربر ---
+    // ✅ FIX 1: Memoize args for hasVoted read
+    const hasVotedArgs = useMemo(() => 
+        (proposalId !== null && address) ? ([proposalId, address] as const) : undefined
+    , [proposalId, address]);
+
+    // --- Read Vote Status ---
     const { data: hasVotedResult } = useReadContract({
         address: daoAddress,
         abi: rayanChainDaoAbi,
         functionName: 'hasVoted',
-        args: [proposalId!, address!],
-        query: { enabled: isVotingActive && !!address && proposalId !== null },
+        args: hasVotedArgs,
+        query: { enabled: isVotingActive && !!address && !!hasVotedArgs },
     });
     const hasVoted = hasVotedResult ?? false;
 
-    // --- مدیریت تراکنش ---
+    // ✅ FIX 2: Memoize args for Simulate
+    const voteForArgs = useMemo(() => 
+        proposalId !== null ? ([proposalId, VOTE_FOR] as const) : undefined
+    , [proposalId]);
+
+    const voteAgainstArgs = useMemo(() => 
+        proposalId !== null ? ([proposalId, VOTE_AGAINST] as const) : undefined
+    , [proposalId]);
+
+    // --- Simulate Contracts ---
+    const { data: voteForConfig } = useSimulateContract({
+        address: daoAddress,
+        abi: rayanChainDaoAbi,
+        functionName: 'vote',
+        args: voteForArgs,
+        query: { enabled: isVotingActive && !!voteForArgs },
+    });
+
+    const { data: voteAgainstConfig } = useSimulateContract({
+        address: daoAddress,
+        abi: rayanChainDaoAbi,
+        functionName: 'vote',
+        args: voteAgainstArgs,
+        query: { enabled: isVotingActive && !!voteAgainstArgs },
+    });
+
+    // --- Transaction Management ---
     const { isPending: isSubmitting, writeContractAsync } = useWriteContract();
     const { isLoading: isConfirming, isSuccess, isError, error } = useWaitForTransactionReceipt({ hash: txHash });
 
-    // تابع کمکی ساده داخلی
     const getErrorMessage = (err: any) => {
         const message = err?.message || '';
         if (message.includes("Already voted")) return t('toasts.error_already_voted');
@@ -53,56 +79,29 @@ export function useProposalVote({ daoAddress, proposalId, isVotingActive }: UseP
         return t('toasts.error_generic');
     };
 
-    // useEffect اصلاح شده برای مدیریت تمیز Toast ها 
     useEffect(() => {
         if (!txHash) return;
 
         if (isSuccess) {
-            // 1. حذف پیام "در حال انتظار" قبلی
             if (toastIdRef.current) toast.dismiss(toastIdRef.current);
-            // 2. نمایش پیام موفقیت
             toast.success(t('toasts.vote_successful'));
-            // 3. رفرش داده‌ها
             queryClient.invalidateQueries({ queryKey: ['readContract'] });
-            // 4. پاکسازی وضعیت
             setTxHash(undefined);
             toastIdRef.current = null;
         }
 
         if (isError) {
             if (toastIdRef.current) toast.dismiss(toastIdRef.current);
-            //استفاده از ترجمه ساده
             toast.error(getErrorMessage(error));
             setTxHash(undefined);
             toastIdRef.current = null;
         }
     }, [isSuccess, isError, error, queryClient, t, txHash]);
 
-
-    // --- Simulation hooks (بدون تغییر) ---
-    const { data: voteForConfig } = useSimulateContract({
-        address: daoAddress,
-        abi: rayanChainDaoAbi,
-        functionName: 'vote',
-        args: [proposalId!, VOTE_FOR],
-        query: { enabled: isVotingActive && proposalId !== null },
-    });
-    const { data: voteAgainstConfig } = useSimulateContract({
-        address: daoAddress,
-        abi: rayanChainDaoAbi,
-        functionName: 'vote',
-        args: [proposalId!, VOTE_AGAINST],
-        query: { enabled: isVotingActive && proposalId !== null },
-    });
-
-    /**
-     * Handles the vote submission using our standard, robust pattern.
-     */
     const handleVote = useCallback(async (voteType: 'for' | 'against') => {
         if (!isVotingActive || !daoAddress || proposalId === null) return;
         
         const voteEnum = voteType === 'for' ? VOTE_FOR : VOTE_AGAINST;
-        // ✅ ذخیره ID توست در Ref
         toastIdRef.current = toast.loading(t('toasts.submitting_vote'));
 
         try {
@@ -113,11 +112,9 @@ export function useProposalVote({ daoAddress, proposalId, isVotingActive }: UseP
                 args: [proposalId, voteEnum],
             });
             setTxHash(hash);
-            // آپدیت پیام موجود به جای ساخت پیام جدید
             toast.loading(t('toasts.waiting_for_confirmation'), { id: toastIdRef.current });
         } catch (err) {
             if (toastIdRef.current) toast.dismiss(toastIdRef.current);
-            // استفاده از ترجمه ساده
             toast.error(getErrorMessage(err));
         }
     }, [isVotingActive, daoAddress, proposalId, writeContractAsync, t]);

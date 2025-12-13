@@ -542,20 +542,21 @@ wallet: {
       note_self_recipient: "Boş bırakılırsa, ödeme sizin cüzdanınıza yapılır.",
 
       industries: {
-        defi: "DeFi / Web3",
-        ai: "Yapay Zekâ / Makine Öğrenimi",
-        gaming: "Oyun / Metaverse",
-        saas: "SaaS (Hizmet olarak Yazılım)",
-        placeholder: "Sektör seçin",
+        software: "Yazılım uygulamaları",
+        biotechnology: "Biyoteknoloji ve sağlık",
+        mobile: "Mobil uygulama",
+        e_commerce: "E-ticaret platformları",
+        enterprise: "Kurumsal yazılımlar",
+        other: "Genel amaçlı yazılımlar",
       },
 
       business_models: {
-        placeholder: "İş modeli seçin",
-        b2b: "B2B (İşletmeden işletmeye)",
-        b2c: "B2C (İşletmeden tüketiciye)",
-        b2b2c: "B2B2C (Hibrit Model)",
-        saas: "SaaS (Bulut Yazılım Hizmetleri)",
-        marketplace: "Pazar Yeri",
+          placeholder: "İş modeli seçimi",
+          b2b: "B2B işletmeden işletmeye",
+          b2c: "B2C işletmeden tüketiciye",
+          b2b2c: "B2B2C aracı model",
+          saas: "SaaS bulut yazılım hizmetleri",
+          marketplace: "Elektronik ticaret pazaryeri",
       },
 
       submit_for_review: "İncelemeye Gönder",

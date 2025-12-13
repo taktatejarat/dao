@@ -19,44 +19,45 @@ const metadata = {
   icons: ['https://avatars.githubusercontent.com/u/37784886']
 }
 
-// این کار خطای "may be a mistake" را برطرف می‌کند چون به کامپایلر می‌گوییم ما از ساختار داده مطمئن هستیم.
+// Double Casting
 const typedNetworks = networks as unknown as [AppKitNetwork, ...AppKitNetwork[]];
 
-// ایجاد نمونه AppKit
-createAppKit({
-  adapters: [wagmiAdapter],
-  projectId,
-  networks: typedNetworks,
-  defaultNetwork: polygonAmoy,
-  metadata: metadata,
-  features: {
-    analytics: false,
-    email: false, 
-    socials: []   
-  },
-})
-
+// ✅ FIX: Create AppKit ONLY ONCE outside component
+// This prevents re-initialization loops
+if (typeof window !== 'undefined') {
+    createAppKit({
+        adapters: [wagmiAdapter],
+        projectId,
+        networks: typedNetworks,
+        defaultNetwork: polygonAmoy,
+        metadata: metadata,
+        features: {
+            analytics: false,
+            email: false, 
+            socials: []   
+        },
+    })
+}
 
 export function AppKitProvider({ children, cookies }: { children: ReactNode; cookies: string | null }) {
   const initialState = cookieToInitialState(wagmiAdapter.wagmiConfig as Config, cookies);
-
-  // 1. دریافت تم فعلی از Next-Themes
   const { resolvedTheme } = useTheme();
-  // 2. دریافت تابع تغییر تم از Reown
   const { setThemeMode } = useAppKitTheme();
 
-  // 3. همگام‌سازی تم‌ها
+  // Sync Theme
   useEffect(() => {
     if (resolvedTheme === 'dark' || resolvedTheme === 'light') {
       setThemeMode(resolvedTheme);
     }
   }, [resolvedTheme, setThemeMode]);
 
+  // Stable Query Client
   const [queryClient] = useState(() => new QueryClient({
     defaultOptions: {
         queries: {
             staleTime: 60 * 1000,
             refetchOnWindowFocus: false,
+            retry: 1, // کاهش تعداد تلاش مجدد در صورت خطا
         },
     },
   }));

@@ -20,8 +20,9 @@ from services.oracle_caller import update_proposal_risk_score, update_participat
 from services.blockchain_reader import get_user_onchain_profile
 from score_calculator import calculate_pop_score
 
-# Import training function for retraining route
-from training.train_models import train_financial_model, train_security_model
+# ✅ FIX: ایمپورت از فایل‌های صحیح
+from training.train_risk_model import train_model as train_financial_core
+from training.train_security_model import train_security_model
 
 app = FastAPI(title="RayanChain AI Engine")
 
@@ -92,13 +93,13 @@ def run_retraining_task():
     """Background task to retrain models without stopping the server"""
     logger.info("🔄 Background Retraining Started...")
     try:
-        # 1. Train Financial Model
-        train_financial_model()
-        ai_engine.load_models()
+        # 1. Train Financial Model (Pipeline)
+        train_financial_core()
+        ai_engine.load_models() # Reload in Layer 3
         
         # 2. Train Security Model
         train_security_model()
-        security_engine.__init__() 
+        security_engine.load_models() # Reload in Layer 1
         
         logger.info("✅ Retraining Complete & Models Reloaded.")
     except Exception as e:

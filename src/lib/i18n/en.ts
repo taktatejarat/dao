@@ -539,20 +539,21 @@ export const en = {
         note_self_recipient: "If left empty the funds will be sent to your own wallet",
 
         industries: {
-          defi: "DeFi / Web3",
-          ai: "Artificial Intelligence / Machine Learning",
-          gaming: "Gaming / Metaverse",
-          saas: "Software as a Service (SaaS)",
-          placeholder: "Select Industry",
+          software: "Software applications",
+          biotechnology: "Biotechnology and health",
+          mobile: "Mobile application",
+          e_commerce: "E-commerce platforms",
+          enterprise: "Enterprise software",
+          other: "General purpose software",
         },
 
         business_models: {
-          placeholder: "Select Business Model",
-          b2b: "B2B (Business to Business)",
-          b2c: "B2C (Business to Consumer)",
-          b2b2c: "B2B2C (Hybrid)",
-          saas: "SaaS (Cloud Software Services)",
-          marketplace: "E-commerce Marketplace",
+            placeholder: "Select business model",
+            b2b: "B2B business to business",
+            b2c: "B2C business to consumer",
+            b2b2c: "B2B2C intermediary model",
+            saas: "SaaS cloud software services",
+            marketplace: "E commerce marketplace",
         },
 
         submit_for_review: "Submit for Review",

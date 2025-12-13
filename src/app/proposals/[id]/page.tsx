@@ -1,4 +1,4 @@
-// src/app/proposals/[id]/page.tsx - FINAL CORRECTED VERSION
+// src/app/proposals/[id]/page.tsx - FIXED TYPE ERRORS
 
 "use client";
 
@@ -12,22 +12,13 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
+    AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+    AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { 
-    BrainCircuit, AlertTriangle, Banknote, 
-    Calendar, Check, Clock, ShieldCheck, User, 
-    Users, X, PlayCircle, CheckCircle, LineChart, 
-    Scale, Lock, XCircle, TrendingUp, Wallet,
-    Info,
-    Hash
+    BrainCircuit, AlertTriangle, Banknote, Calendar, Check, Clock, ShieldCheck, 
+    User, Users, X, PlayCircle, CheckCircle, LineChart, XCircle, TrendingUp, 
+    Wallet, Info, Hash, Lock
 } from 'lucide-react';
 import { formatNumber, formatLocaleDate, formatAddress } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
@@ -45,24 +36,19 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Progress } from "@/components/ui/progress"; 
 import { Input } from "@/components/ui/input"; 
 import { toast } from 'sonner';
-import { StatCard } from '@/components/dashboard/stat-card'; // ✅ کامپوننت جدید
+import { StatCard } from '@/components/dashboard/stat-card';
 
-// تعریف دقیق اینترفیس داده‌های بلاکچین
+// ABIs defined outside component
+const VOTING_POWER_ABI = parseAbi(['function votingPower(address account) view returns (uint256)']);
+const INVEST_ABI = parseAbi(['function invest(uint256 _proposalId, uint256 _amount) external']);
+const REFUND_ABI = parseAbi(['function claimRefund(uint256 _proposalId) external']);
+
 interface OnChainProposal { 
-    id: bigint; 
-    proposer: Address; 
-    amount: bigint; // Hard Cap
-    deadline: bigint; 
-    forVotes: bigint; 
-    againstVotes: bigint; 
-    state: number; 
-    executed: boolean; 
-    aiRiskScore: bigint; 
-    totalRaised: bigint;
-    fundingDeadline: bigint;
+    id: bigint; proposer: Address; amount: bigint; deadline: bigint; 
+    forVotes: bigint; againstVotes: bigint; state: number; executed: boolean; 
+    aiRiskScore: bigint; totalRaised: bigint; fundingDeadline: bigint;
 }
 
-// تابع کمکی برای وضعیت‌ها
 const getStatusInfo = (state: number, t: (key: string) => string) => {
     switch (state) {
         case 0: return { text: t('proposal_detail.status.pending'), color: 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20', icon: Clock };
@@ -80,7 +66,6 @@ const getStatusInfo = (state: number, t: (key: string) => string) => {
     }
 };
 
-// ثابت‌های وضعیت
 const PROPOSAL_STATE_VOTING = 2;
 const PROPOSAL_STATE_APPROVED = 3;
 const PROPOSAL_STATE_FUNDING = 8;
@@ -99,12 +84,11 @@ export default function ProposalDetailPage() {
     const [isLoading, setIsLoading] = useState(true);
     const [showStakingAlert, setShowStakingAlert] = useState(false);
     
-    // States for Dialogs and Inputs
     const [proofText, setProofText] = useState("");
     const [isReleaseDialogOpen, setIsReleaseDialogOpen] = useState(false);
     const [investAmount, setInvestAmount] = useState("");
 
-    // 1. دریافت داده‌های آف-چین (MongoDB)
+    // 1. Fetch Off-Chain Data
     useEffect(() => {
         const fetchAllData = async () => {
             if (!proposalIdParam) { setIsLoading(false); return; }
@@ -126,25 +110,33 @@ export default function ProposalDetailPage() {
         try { return BigInt(raw.toString()); } catch { return null; }
     }, [offChainData]);
 
-    // 2. دریافت داده‌های آن-چین (Smart Contract)
+    // ✅ FIX: Added 'as const' to fix type mismatch (bigint[] vs readonly [bigint])
+    const contractReadArgs = useMemo(() => 
+        onChainProposalId ? ([onChainProposalId] as const) : undefined
+    , [onChainProposalId]);
+
+    // 2. Fetch On-Chain Data
     const { data: onChainResult, isLoading: isOnChainLoading, error: onChainError } = useReadContract({
         address: daoAddress,
         abi: rayanChainDaoAbi,
         functionName: 'proposals',
-        args: onChainProposalId ? [onChainProposalId] : undefined,
+        args: contractReadArgs, 
         query: { enabled: isWeb3Hydrated && !!daoAddress && !!onChainProposalId },
     });
 
-    // 3. دریافت قدرت رای کاربر
+    // 3. User Voting Power
+    // ✅ FIX: Added 'as const' to fix type mismatch (string[] vs readonly [Address])
+    const votingPowerArgs = useMemo(() => address ? ([address] as const) : undefined, [address]);
+    
     const { data: userVotingPower } = useReadContract({
         address: stakingAddress, 
-        abi: parseAbi(['function votingPower(address account) view returns (uint256)']),
+        abi: VOTING_POWER_ABI, 
         functionName: 'votingPower', 
-        args: address ? [address] : undefined,
+        args: votingPowerArgs,
         query: { enabled: !!address && !!stakingAddress }
     });
 
-    // 4. دریافت کل عرضه توکن (برای محاسبه درصد)
+    // 4. Token Supply
     const { data: tokenTotalSupply } = useReadContract({
         address: tokenAddress,
         abi: rayanChainTokenAbi,
@@ -152,11 +144,9 @@ export default function ProposalDetailPage() {
         query: { enabled: !!tokenAddress }
     });
 
-    // پارس کردن داده‌های آن-چین
     const onChainData = useMemo((): OnChainProposal | null => {
         if (!onChainResult || !Array.isArray(onChainResult)) return null;
         const result = onChainResult as any[];
-        
         return {
             id: result[0],
             proposer: result[2],
@@ -172,25 +162,17 @@ export default function ProposalDetailPage() {
         };
     }, [onChainResult]);
 
-    // ✅✅✅ FIX: استخراج دقیق و ایمن داده‌های هوش مصنوعی از JSON ✅✅✅
     const aiMetrics = useMemo(() => {
         if (!offChainData?.aiAnalysis) return null;
-        
-        // تلاش برای پیدا کردن داده در ساختارهای مختلف
         const financial = offChainData.aiAnalysis.financialAnalysis || {};
-        
-        // گاهی اوقات داده‌ها مستقیم هستند، گاهی داخل financialAnalysis
         const marketScoreRaw = financial.market_sentiment_score ?? offChainData.aiAnalysis.market_sentiment ?? 0;
         const teamScoreRaw = financial.team_competency_score ?? offChainData.aiAnalysis.team_score ?? 0;
-
         return {
-            // تبدیل 0.85 به 85%
             marketScore: typeof marketScoreRaw === 'number' ? `${(marketScoreRaw * 100).toFixed(0)}%` : 'N/A',
             teamScore: typeof teamScoreRaw === 'number' ? `${(teamScoreRaw * 100).toFixed(0)}%` : 'N/A',
         };
     }, [offChainData]);
 
-    // --- Actions ---
     const { writeContractAsync: investAsync } = useWriteContract();
     
     const handleInvest = async () => {
@@ -199,7 +181,7 @@ export default function ProposalDetailPage() {
             const toastId = toast.loading("Processing investment...");
             await investAsync({
                 address: daoAddress,
-                abi: parseAbi(['function invest(uint256 _proposalId, uint256 _amount) external']),
+                abi: INVEST_ABI,
                 functionName: 'invest',
                 args: [onChainProposalId, parseEther(investAmount)]
             });
@@ -218,7 +200,7 @@ export default function ProposalDetailPage() {
             const toastId = toast.loading("Processing refund...");
             await refundAsync({
                 address: daoAddress,
-                abi: parseAbi(['function claimRefund(uint256 _proposalId) external']),
+                abi: REFUND_ABI,
                 functionName: 'claimRefund',
                 args: [onChainProposalId]
             });
@@ -229,7 +211,6 @@ export default function ProposalDetailPage() {
         }
     };
 
-    // Milestone Logic
     const { requestRelease, isreleasing } = useMilestoneRelease({
         daoAddress,
         originalProposalId: onChainProposalId || 0n
@@ -258,11 +239,11 @@ export default function ProposalDetailPage() {
     };
 
     const finalError = error || onChainError?.message;
-    if (finalError || (!offChainData && !onChainData && !isLoading && !isOnChainLoading)) {
+    
+    if (finalError) {
         return <AppLayout><Alert variant="destructive"><AlertTriangle className="h-4 w-4" /><AlertTitle>{t('common.error')}</AlertTitle><AlertDescription>{finalError}</AlertDescription></Alert></AppLayout>;
     }
     
-    // Calculations
     const networkTotal = tokenTotalSupply ? BigInt(tokenTotalSupply.toString()) : 0n;
     const forVotesBig = onChainData ? BigInt(onChainData.forVotes) : 0n;
     const againstVotesBig = onChainData ? BigInt(onChainData.againstVotes) : 0n;
@@ -282,17 +263,18 @@ export default function ProposalDetailPage() {
 
     const { text: statusText, color: statusColor, icon: StatusIcon } = getStatusInfo(onChainData?.state ?? -1, t);
 
+    const totalRequested = (offChainData?.milestones || []).reduce((acc: number, m: any) => {
+        return acc + (parseFloat(m.amount) || 0);
+    }, 0);
+
   return (
         <AppLayout>
-            {/*  RE-DESIGNED HEADER  */}
             <header className="mb-10 bg-card border rounded-2xl p-6 shadow-sm relative overflow-hidden">
-                {/* Background Decoration */}
                 <div className="absolute top-0 right-0 p-10 opacity-[0.03] pointer-events-none">
                     <BrainCircuit className="w-64 h-64" />
                 </div>
 
                 <div className="flex flex-col gap-6 relative z-10">
-                    {/* Top Row: ID & Status */}
                     <div className="flex flex-wrap justify-between items-center gap-4">
                         <div className="flex items-center gap-3">
                             <Link href="/proposals">
@@ -300,7 +282,6 @@ export default function ProposalDetailPage() {
                                     ← {t('dashboard.view_all')}
                                 </Button>
                             </Link>
-                            {/* Proposal ID (Improved Visibility) */}
                             <Badge variant="secondary" className="px-3 py-1.5 text-sm font-mono flex items-center gap-1.5 bg-muted/80">
                                 <Hash className="w-3.5 h-3.5 text-muted-foreground" />
                                 <span className="font-semibold text-foreground">
@@ -309,7 +290,6 @@ export default function ProposalDetailPage() {
                             </Badge>
                         </div>
 
-                        {/* Status Badge (Prominent Position) */}
                         <div className="flex items-center gap-3">
                             {onChainData && (
                                 <Badge variant="outline" className={`${statusColor} px-4 py-1.5 text-sm font-medium flex items-center gap-2 border-2`}>
@@ -328,7 +308,6 @@ export default function ProposalDetailPage() {
                         </div>
                     </div>
 
-                    {/* Middle Row: Title & Tagline */}
                     <div>
                         <h1 className="text-3xl sm:text-4xl font-extrabold font-headline text-gradient leading-tight mb-3">
                             {offChainData?.projectName ?? t('common.loading')}
@@ -341,11 +320,7 @@ export default function ProposalDetailPage() {
             </header>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                
-                {/* --- Left Column: Main Content --- */}
                 <div className="lg:col-span-2 space-y-8">
-                     
-                     {/* 1. AI Analysis Stats */}
                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         <StatCard 
                             title={t('proposal_detail.ai_risk_score')} 
@@ -370,7 +345,6 @@ export default function ProposalDetailPage() {
                         />
                     </div>
 
-                    {/* 2. Description (Increased Font Size) */}
                     <Card>
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2 text-xl">
@@ -385,7 +359,6 @@ export default function ProposalDetailPage() {
                         </CardContent>
                     </Card>
 
-                   {/* 3. Voting Section */}
                    <Card>
                         <CardHeader>
                             <CardTitle className="flex justify-between items-center text-xl">
@@ -400,7 +373,6 @@ export default function ProposalDetailPage() {
                                 <div className="space-y-4"><Skeleton className="h-8 w-3/4" /><Skeleton className="h-6 w-1/2" /></div>
                             ) : onChainData ? (
                                 <div className="space-y-8">
-                                    {/* Votes For */}
                                     <div>
                                         <div className="flex justify-between mb-2 text-base">
                                             <span className="font-medium text-green-600 flex items-center gap-2">
@@ -415,7 +387,6 @@ export default function ProposalDetailPage() {
                                         <Progress value={Math.max(forPercentageRaw, 1)} className="h-4 bg-green-100 dark:bg-green-950 [&>div]:bg-green-600" />
                                     </div>
 
-                                    {/* Votes Against */}
                                     <div>
                                         <div className="flex justify-between mb-2 text-base">
                                             <span className="font-medium text-destructive flex items-center gap-2">
@@ -452,7 +423,6 @@ export default function ProposalDetailPage() {
                         )}
                     </Card>
 
-                    {/* 4. Funding / Investment Section */}
                     {(onChainData?.state === PROPOSAL_STATE_FUNDING) && (
                         <Card className="border-primary/50 shadow-lg shadow-primary/10 overflow-hidden relative">
                             <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none"><Banknote className="w-32 h-32 text-primary" /></div>
@@ -487,7 +457,6 @@ export default function ProposalDetailPage() {
                         </Card>
                     )}
 
-                    {/* 5. Refund Section */}
                     {(onChainData?.state === PROPOSAL_STATE_FUNDING_FAILED) && (
                         <Card className="border-destructive/50 bg-destructive/5">
                             <CardHeader>
@@ -500,7 +469,6 @@ export default function ProposalDetailPage() {
                         </Card>
                     )}
 
-                    {/* 6. Milestone Management (Owner Only) */}
                     {isProjectOwner && onChainData?.state === PROPOSAL_STATE_FUNDED && (
                         <Card className="border-blue-500/50 bg-blue-500/5 shadow-lg shadow-blue-500/10">
                             <CardHeader>
@@ -552,11 +520,9 @@ export default function ProposalDetailPage() {
                     )}
                 </div>
 
-                {/* --- Right Column: Sidebar Info --- */}
                 <div className="space-y-6">
                     {onChainData && <ProposalTimeline currentState={BigInt(onChainData.state)} />}
                     
-                    {/* ✅ Detailed Stats using StatCard (Compact Grid) */}
                     <div className="space-y-4">
                         <StatCard 
                             title={t('proposal_detail.proposer')} 
@@ -567,9 +533,9 @@ export default function ProposalDetailPage() {
                         />
                         <StatCard 
                             title={t('proposal_detail.total_requested')} 
-                            value={`${formatNumber(offChainData?.milestones.reduce((acc: number, m: any) => acc + parseFloat(m.amount), 0) ?? 0)} RYC`} 
+                            value={`${formatNumber(totalRequested)} RYC`} 
                             icon={Wallet} 
-                            variant="warning" // Yellow for financial
+                            variant="warning"
                         />
                         {onChainData && (
                             <>
@@ -589,7 +555,6 @@ export default function ProposalDetailPage() {
                         )}
                     </div>
                     
-                    {/* Admin Actions */}
                     {userRole === 'admin' && onChainData && (onChainData.state === PROPOSAL_STATE_APPROVED) && !onChainData.executed && (
                          <Card className="border-primary border-dashed bg-primary/5">
                              <CardHeader><CardTitle className="text-primary text-sm">{t('proposal_detail.admin_actions')}</CardTitle></CardHeader>

@@ -11,6 +11,7 @@ export type LogCategory =
   | 'USER_ACTION'   // اقدامات کلی کاربر در UI
   | 'SECURITY'      // هشدارهای امنیتی
   | 'AI_REPORT_FETCH'
+  | 'AI_ENGINE_OFFLINE'
   | 'AI_ENGINE_ERROR'  
   | 'AI_REPORT_SUCCESS'
   | 'AI_RESPONSE_RECEIVED' 

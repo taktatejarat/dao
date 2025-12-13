@@ -558,22 +558,22 @@ export const fa = {
       btn_submit_treasury: "ثبت پروپوزال حاکمیتی",
       ph_wallet: "0x...",
       note_self_recipient: "اگر خالی باشد، به کیف پول خودتان واریز می‌شود.",
-        // Options
         industries: {
-          defi: "مدل مالی غیرمتمرکز / وب ۳",
-          ai: "هوش مصنوعی / یادگیری ماشین",
-          gaming: "بازی / متاورس",
-          saas: "نرم‌افزار به عنوان سرویس (SaaS)",
-          placeholder: "انتخاب صنعت",
+          software: "برنامه های کاربردی",
+          biotechnology: "بایوتکنولوژی و سلامت",
+          mobile: "اپلیکیشن موبایل",
+          e_commerce: "پلتفرمهای تجارت الکترونیکی",
+          enterprise: "نرم افزارهای سازمانی",
+	        other: "نرم افزارهای عمومی/غیره",
         },
         business_models: {
-          placeholder: "انتخاب مدل کسب‌وکار",
-          b2b: "B2B (تجارت به تجارت)",
-          b2c: "B2C (تجارت به مصرف‌کننده)",
-          b2b2c: "B2B2C (واسطه‌ای)",
-          saas: "SaaS (خدمات نرم افزار ابری)",
-          marketplace: "بازار تجارت الکترونیکی",
-      },
+            placeholder: "انتخاب مدل کسب‌وکار",
+            b2b: "B2B (تجارت به تجارت)",
+            b2c: "B2C (تجارت به مصرف‌کننده)",
+            b2b2c: "B2B2C (واسطه‌ای)",
+            saas: "SaaS (خدمات نرم افزار ابری)",
+            marketplace: "بازار تجارت الکترونیکی",
+        },
 
       // Actions & Errors
       submit_for_review: "ارسال برای بررسی",
@@ -620,12 +620,13 @@ export const fa = {
       lbl_company_reg_id: "شماره ثبت شرکت / شناسه ملی",
       lbl_founded_date: "تاریخ تأسیس",
       lbl_team_size: "تعداد اعضای تیم",
+      lbl_team_experience: "شرح خلاصه تجربه تیم",
       lbl_demo_url: "لینک دمو / MVP",
       lbl_linkedin: "لینکدین شرکت / بنیان‌گذار",
       lbl_last_year_revenue: "درآمد محقق شده سال قبل",
       lbl_net_profit: "سود خالص (سال قبل)",
       lbl_ebitda: "حاشیه سود عملیاتی (EBITDA)",
-      lbl_valuation: "ارزش‌گذاری پیشنهادی (Pre-Money Valuation)",
+      lbl_valuation: "ارزش‌گذاری پیشنهادی",
       select_placeholder: "انتخاب کنید...",
             
       // Step Titles
@@ -640,6 +641,10 @@ export const fa = {
       ph_competitors: "۳ رقیب اصلی خود را نام ببرید...",
       lbl_business_model: "مدل درآمدی",
       ph_business_model: "چگونه کسب درآمد می‌کنید؟ (مثلاً اشتراک، کارمزد و...)",
+      lbl_industry: "نام صنعت",
+      ph_industry: "فینتک ، هوش مصنوعی ، ...",
+      ph_team_experience: "مثلا 5 سال مدیر فنی رایان اندیش و...",
+      
 
       // Step 4: Financials
       upload_financials: "پروجکشن مالی (Excel/PDF)",
