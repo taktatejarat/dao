@@ -55,7 +55,7 @@ export const de = {
     confirm_continue: "Speichern und Fortfahren",
     seconds: "Sekunde",
     max: "Maximum",
-
+    na: "Nicht verfügbar",
   },
 
   header: {
@@ -686,6 +686,16 @@ wallet: {
     you_have_voted_desc: "Vielen Dank für Ihre Teilnahme am Governance Prozess Das Ergebnis wird nach Abschluss der Abstimmungsfrist bekanntgegeben",
     admin_actions: "Verwaltungsaktionen",
     execute_proposal: "Vorschlag ausführen",
+    invest_now: "Jetzt investieren",
+    claim_refund: "Rückerstattung anfordern",
+    investment_amount: "Investitionsbetrag RYC",
+    project_lead: "Projektleiter",
+    funding_in_progress: "Aktive Kapitalbeschaffung",
+    funding_desc: "Dieses Projekt ist genehmigt und befindet sich in der Kapitalbeschaffung.",
+    funding_failed_title: "Kapitalbeschaffung fehlgeschlagen",
+    funding_failed_desc: "Dieses Projekt hat den Mindestfinanzierungsbetrag nicht erreicht. Sie können eine Rückerstattung erhalten.",
+    raised: "Eingeworben",
+    goal: "Ziel",
     
     timeline:{
       title: "Status des Vorschlags",
@@ -705,6 +715,10 @@ wallet: {
         executed: "Ausgeführt",
         unknown: "Unbekannt",
         validation: "Wird validiert",
+        funding: "Kapitalbeschaffung läuft",
+        funded: "Finanziert",
+        funding_failed: "Kapitalbeschaffung fehlgeschlagen",
+        processing: "In Bearbeitung",
       },
       alert: {
         insufficient_power_title: "Unzureichendes Stimmrecht",
@@ -1288,6 +1302,12 @@ wallet: {
     claim_successful: "Belohnungen erfolgreich abgerufen.",
     delegate_successful: "Stimmrecht erfolgreich delegiert.",
     undelegate_successful: "Delegierung erfolgreich aufgehoben.",
+    processing_investment: "Investition wird verarbeitet...",
+    investment_submitted: "Investitionsanfrage gesendet",
+    investment_failed: "Investition fehlgeschlagen bitte prüfen Sie Guthaben und Wallet Bestätigung",
+    processing_refund: "Rückerstattung wird verarbeitet...",
+    refund_claimed: "Rückerstattung erfolgreich",
+    refund_failed: "Rückerstattung fehlgeschlagen",
 
   },
   terms_page: {

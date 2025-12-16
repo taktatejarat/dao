@@ -56,6 +56,7 @@ export const fa = {
     confirm_continue: "ثبت و ادامه",
     seconds: "ثانیه",
     max: "حداکثر",
+    na: "نامشخص",
   },
 
   header: {
@@ -747,6 +748,17 @@ export const fa = {
     you_have_voted_desc: "از مشارکت شما در فرآیند حاکمیت سپاسگزاریم. نتیجه پس از پایان مهلت رأی‌گیری مشخص خواهد شد.",
     admin_actions: "اقدامات مدیریتی",
     execute_proposal: "اجرای پروپوزال",
+    invest_now: "سرمایه‌گذاری کنید",
+    claim_refund: "دریافت بازپرداخت",
+    investment_amount: "مبلغ سرمایه‌گذاری (RYC)",
+    project_lead: "رهبر پروژه",
+    funding_in_progress: "جذب سرمایه فعال",
+    funding_desc: "این پروژه تأیید شده و در حال جذب سرمایه است.",
+    funding_failed_title: "جذب سرمایه ناموفق",
+    funding_failed_desc: "این پروژه به حداقل سرمایه مورد نیاز نرسید. می‌توانید مبلغ خود را پس بگیرید.",
+    raised: "جذب شده",
+    goal: "هدف",
+    voting_ended: "رأی گیری پایان یافته",
     
     timeline: {
       title: "وضعیت پروپوزال",
@@ -766,6 +778,11 @@ export const fa = {
         executed: "اجرا شده",
         unknown: "نامشخص",
         validation: "در حال اعتبارسنجی",
+        funding: "در حال جذب سرمایه",
+        funded: "تأمین مالی شده",
+        funding_failed: "عدم موفقیت جذب سرمایه",
+        processing: "در حال پردازش",
+        failed: "ناموفق",
       },
     alert: {
       insufficient_power_title: "عدم حق رأی کافی",
@@ -1396,6 +1413,12 @@ export const fa = {
     delegate_successful: "حق رأی با موفقیت تفویض شد.",
     undelegate_successful: "تفویض رأی لغو شد.",
     fill_required: "لطفاً تمام فیلدهای اجباری این مرحله را تکمیل کنید.",
+    processing_investment: "در حال پردازش سرمایه‌گذاری...",
+    investment_submitted: "درخواست سرمایه‌گذاری ثبت شد!",
+    investment_failed: "سرمایه‌گذاری ناموفق بود. موجودی و تأییدیه کیف پول را چک کنید.",
+    processing_refund: "در حال پردازش بازپرداخت...",
+    refund_claimed: "بازپرداخت با موفقیت انجام شد!",
+    refund_failed: "دریافت بازپرداخت ناموفق بود.",
   },
   terms_page: {
     title: "قوانین و شرایط استفاده",

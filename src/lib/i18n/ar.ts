@@ -55,7 +55,7 @@ export const ar = {
     confirm_continue: "تأكيد ومتابعة",
     seconds: "ثانية",
     max: "الحد الأقصى",
-
+    na: "غير محدد",
   },
 
   header: {
@@ -690,6 +690,16 @@ wallet: {
     you_have_voted_desc: "نشكرك على مشاركتك في عملية الحوكمة سيتم الإعلان عن النتيجة بعد انتهاء فترة التصويت",
     admin_actions: "الإجراءات الإدارية",
     execute_proposal: "تنفيذ المقترح",
+    invest_now: "استثمر الآن",
+    claim_refund: "استرداد المبلغ",
+    investment_amount: "مبلغ الاستثمار RYC",
+    project_lead: "قائد المشروع",
+    funding_in_progress: "جمع التمويل نشط",
+    funding_desc: "تمت الموافقة على هذا المشروع وهو جارٍ جمع التمويل له.",
+    funding_failed_title: "فشل جمع التمويل",
+    funding_failed_desc: "لم يصل هذا المشروع إلى الحد الأدنى المطلوب من التمويل. يمكنك استرداد المبلغ.",
+    raised: "المبلغ المُجمّع",
+    goal: "الهدف",
 
     timeline:{
       title: "حالة المقترح",
@@ -709,6 +719,10 @@ wallet: {
       executed: "تم التنفيذ",
       unknown: "غير معروف",
       validation: "قيد التحقق",
+      funding: "جارٍ جمع التمويل",
+      funded: "تم التمويل",
+      funding_failed: "فشل جمع التمويل",
+      processing: "جارٍ المعالجة",
     },
     alert: {
       insufficient_power_title: "عدم كفاية حق التصويت",
@@ -1301,7 +1315,12 @@ wallet: {
     claim_successful: "تم سحب المكافآت بنجاح.",
     delegate_successful: "تم تفويض حق التصويت بنجاح.",
     undelegate_successful: "تم إلغاء التفويض بنجاح.",
-
+    processing_investment: "جارٍ معالجة الاستثمار...",
+    investment_submitted: "تم تسجيل طلب الاستثمار",
+    investment_failed: "فشل الاستثمار يرجى التحقق من الرصيد وتأكيد المحفظة",
+    processing_refund: "جارٍ معالجة الاسترداد...",
+    refund_claimed: "تم الاسترداد بنجاح",
+    refund_failed: "فشل استرداد المبلغ",
   },
   terms_page: {
     title: "قواعد وشروط الاستخدام",

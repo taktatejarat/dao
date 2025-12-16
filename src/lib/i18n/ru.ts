@@ -55,7 +55,7 @@ export const ru = {
     confirm_continue: "Сохранить и продолжить",
     seconds: "Секунда",
     max: "Максимум",
-
+    na: "Не указано",
   },
 
   header: {
@@ -693,6 +693,16 @@ wallet: {
     you_have_voted_desc: "Благодарим вас за участие в процессе управления Результат будет доступен после завершения периода голосования",
     admin_actions: "Административные действия",
     execute_proposal: "Исполнить предложение",
+    invest_now: "Инвестировать сейчас",
+    claim_refund: "Запросить возврат",
+    investment_amount: "Сумма инвестиций RYC",
+    project_lead: "Руководитель проекта",
+    funding_in_progress: "Активный сбор инвестиций",
+    funding_desc: "Проект одобрен и находится на стадии привлечения инвестиций.",
+    funding_failed_title: "Неудачный сбор инвестиций",
+    funding_failed_desc: "Проект не достиг минимальной суммы финансирования. Вы можете вернуть средства.",
+    raised: "Собрано",
+    goal: "Цель",
 
     timeline: {
       title: "Статус предложения",
@@ -712,6 +722,10 @@ wallet: {
       executed: "Выполнено",
       unknown: "Неизвестно",
       validation: "Проходит проверку",
+      funding: "Идет сбор инвестиций",
+      funded: "Профинансировано",
+      funding_failed: "Сбор инвестиций не удался",
+      processing: "В процессе обработки",     
     },
     alert: {
       insufficient_power_title: "Недостаточно права голоса",
@@ -1295,7 +1309,12 @@ wallet: {
     claim_successful: "Награды успешно получены.",
     delegate_successful: "Голос успешно делегирован.",
     undelegate_successful: "Делегирование успешно отменено.",
-
+    processing_investment: "Обработка инвестиции...",
+    investment_submitted: "Заявка на инвестицию отправлена",
+    investment_failed: "Инвестиция не удалась проверьте баланс и подтверждение кошелька",
+    processing_refund: "Обработка возврата...",
+    refund_claimed: "Возврат успешно выполнен",
+    refund_failed: "Не удалось выполнить возврат",
   },
   terms_page: {
     title: "Правила и условия использования",

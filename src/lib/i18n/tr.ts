@@ -55,7 +55,7 @@ export const tr = {
     confirm_continue: "Kaydet ve Devam Et",
     seconds: "Saniye",
     max: "Maksimum",
-
+    na: "Bilinmiyor",  
   },
 
   header: {
@@ -687,6 +687,16 @@ wallet: {
     you_have_voted_desc: "Yönetişim sürecine katılımınız için teşekkür ederiz Sonuç oylama süresi tamamlandıktan sonra belirlenecektir",
     admin_actions: "Yönetim işlemleri",
     execute_proposal: "Teklifi yürüt",
+    invest_now: "Şimdi yatırım yap",
+    claim_refund: "İade talep et",
+    investment_amount: "Yatırım tutarı RYC",
+    project_lead: "Proje lideri",
+    funding_in_progress: "Aktif yatırım toplama",
+    funding_desc: "Bu proje onaylandı ve yatırım toplamaktadır.",
+    funding_failed_title: "Yatırım toplama başarısız",
+    funding_failed_desc: "Bu proje gerekli minimum yatırıma ulaşamadı. İade alabilirsiniz.",
+    raised: "Toplanan",
+    goal: "Hedef",
     
     timeline: {
       title: "Teklif durumu",
@@ -706,6 +716,10 @@ wallet: {
       executed: "Uygulandı",
       unknown: "Bilinmiyor",
       validation: "Doğrulanıyor",
+      funding: "Yatırım toplama aşamasında",
+      funded: "Fonlandı",
+      funding_failed: "Yatırım toplama başarısız",
+      processing: "İşleniyor",    
     },
     alert: {
       insufficient_power_title: "Yetersiz oy hakkı",
@@ -1289,7 +1303,12 @@ wallet: {
     claim_successful: "Ödüller başarıyla alındı.",
     delegate_successful: "Oy yetkisi başarıyla devredildi.",
     undelegate_successful: "Delege etme işlemi kaldırıldı.",
-
+    processing_investment: "Yatırım işleniyor...",
+    investment_submitted: "Yatırım talebi gönderildi",
+    investment_failed: "Yatırım başarısız bakiye ve cüzdan onayını kontrol edin",
+    processing_refund: "İade işleniyor...",
+    refund_claimed: "İade başarıyla alındı",
+    refund_failed: "İade alma başarısız",
   },
   terms_page: {
     title: "Kullanım şartları ve kuralları",

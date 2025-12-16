@@ -55,6 +55,7 @@ export const en = {
     confirm_continue: "Save and Continue",
     seconds: "Second",
     max: "Maximum",
+    na: "Not available",  
   },
 
   header: {
@@ -688,6 +689,16 @@ export const en = {
     you_have_voted_desc: "Thank you for participating in the governance process The result will be available after the voting period ends",
     admin_actions: "Administrative actions",
     execute_proposal: "Execute proposal",
+    invest_now: "Invest now",
+    claim_refund: "Claim refund",
+    investment_amount: "Investment amount RYC",
+    project_lead: "Project lead",
+    funding_in_progress: "Active funding",
+    funding_desc: "This project is approved and currently raising funds.",
+    funding_failed_title: "Funding failed",
+    funding_failed_desc: "This project did not reach the minimum required funding. You can claim a refund.",
+    raised: "Raised",
+    goal: "Goal",
 
     timeline: {
       title: "Proposal status",
@@ -707,6 +718,10 @@ export const en = {
       executed: "Executed",
       unknown: "Unknown",
       validation: "Validating",
+      funding: "Funding in progress",
+      funded: "Funded",
+      funding_failed: "Funding failed",
+      processing: "Processing",  
     },
     alert: {
       insufficient_power_title: "Insufficient voting power",
@@ -1289,7 +1304,12 @@ export const en = {
     claim_successful: "Rewards claimed successfully.",
     delegate_successful: "Voting power delegated successfully.",
     undelegate_successful: "Delegation removed successfully.",
-
+    processing_investment: "Processing investment...",
+    investment_submitted: "Investment request submitted",
+    investment_failed: "Investment failed please check wallet balance and confirmation",
+    processing_refund: "Processing refund...",
+    refund_claimed: "Refund successfully claimed",
+    refund_failed: "Refund claim failed",
   },
   terms_page: {
     title: "Terms and Conditions of Use",
