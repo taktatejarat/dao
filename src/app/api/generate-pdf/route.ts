@@ -1,89 +1,120 @@
+// src/app/api/generate-pdf/route.ts - WITH KEY-LEVEL FALLBACK TO ENGLISH
+
 import { NextRequest, NextResponse } from 'next/server';
 import puppeteer from 'puppeteer';
 import { generateHTML } from '@/lib/pdf-generator/html-template';
 import path from 'path';
 import fs from 'fs';
 
+// ایمپورت تمام دیکشنری‌های زبان
+import { fa } from '@/lib/i18n/fa';
+import { en } from '@/lib/i18n/en';
+import { ar } from '@/lib/i18n/ar';
+import { de } from '@/lib/i18n/de';
+import { ru } from '@/lib/i18n/ru';
+import { tr } from '@/lib/i18n/tr';
+
+const DICTIONARIES: Record<string, any> = { fa, en, ar, de, ru, tr };
+
+const LOCALE_MAP: Record<string, string> = {
+    fa: 'fa-IR', en: 'en-US', ar: 'ar-SA', 
+    de: 'de-DE', ru: 'ru-RU', tr: 'tr-TR'
+};
+
+// تابع کمکی برای پیمایش در آبجکت دیکشنری
+const resolvePath = (object: any, path: string, defaultValue: any = null) => {
+    return path.split('.').reduce((o, p) => (o ? o[p] : defaultValue), object);
+};
+
 export async function POST(req: NextRequest) {
-  console.log("--- [PDF DEBUG] Start Request ---");
+  console.log("--- [PDF GENERATION] Start ---");
   
   try {
     const body = await req.json();
-    const { report, proposal, proposalId, locale, labels } = body;
-    console.log("1. Data received for ID:", proposalId);
+    const { report, proposal, proposalId, locale = 'en' } = body; 
 
-    // بررسی مسیر فونت‌ها (یکی از دلایل رایج کرش کردن)
+    // 1. تعیین دیکشنری هدف و دیکشنری فال‌بک (انگلیسی)
+    const targetDict = DICTIONARIES[locale] || en;
+    const fallbackDict = en;
+
+    // 2. ساخت تابع ترجمه هوشمند با قابلیت Fallback
+    const t = (key: string, params?: any): string => {
+        // الف: تلاش برای یافتن در زبان انتخاب شده
+        let value = resolvePath(targetDict, key);
+
+        // ب: اگر پیدا نشد یا رشته نبود، تلاش در زبان انگلیسی (Fallback)
+        if (!value || typeof value !== 'string') {
+            value = resolvePath(fallbackDict, key);
+        }
+
+        // ج: اگر در انگلیسی هم نبود، خود کلید را برگردان
+        if (!value || typeof value !== 'string') {
+            return key;
+        }
+
+        // د: جایگزینی پارامترها
+        let translatedText = value;
+        if (params) {
+            Object.keys(params).forEach(paramKey => {
+                // جایگزینی تمام تکرارها
+                translatedText = translatedText.split(`{${paramKey}}`).join(params[paramKey]);
+            });
+        }
+
+        return translatedText;
+    };
+
+    // 3. بررسی فونت
     const fontDir = path.join(process.cwd(), 'public', 'fonts');
-    console.log("2. Checking fonts in:", fontDir);
+    // برای فارسی و عربی وزیر، برای بقیه روبوتو
+    const requiredFont = ['fa', 'ar'].includes(locale) ? 'Vazirmatn-Regular.ttf' : 'Roboto-Regular.ttf';
     
-    if (!fs.existsSync(path.join(fontDir, 'Vazirmatn-Regular.ttf'))) {
-        throw new Error(`Font file missing: ${path.join(fontDir, 'Vazirmatn-Regular.ttf')}`);
+    if (!fs.existsSync(path.join(fontDir, requiredFont))) {
+        throw new Error(`Required font (${requiredFont}) not found.`);
     }
-    console.log("   - Fonts found.");
 
-    // تولید HTML
-    console.log("3. Generating HTML...");
+    // 4. فرمت تاریخ
+    const dateLocale = LOCALE_MAP[locale] || 'en-US';
+    const formattedDate = new Date().toLocaleDateString(dateLocale, {
+        year: 'numeric', month: 'long', day: 'numeric'
+    });
+
+    // 5. تولید HTML
     const htmlContent = generateHTML({
       report, 
       proposal, 
       proposalId, 
-      generatedDate: new Date().toLocaleDateString(locale === 'fa' ? 'fa-IR' : 'en-US'),
+      generatedDate: formattedDate,
       locale,
-      labels
+      t // تابع ترجمه هوشمند
     });
-    console.log("   - HTML Generated (Length: " + htmlContent.length + ")");
 
-    // اجرای Puppeteer
-    console.log("4. Launching Puppeteer...");
+    // 6. اجرای Puppeteer
     const browser = await puppeteer.launch({
       headless: true,
-      // این آرگومان‌ها برای جلوگیری از کرش در لینوکس/داکر حیاتی هستند
-      args: [
-        '--no-sandbox', 
-        '--disable-setuid-sandbox',
-        '--disable-dev-shm-usage', // حل مشکل حافظه در کانتینرها
-        '--disable-gpu'
-      ],
+      args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage', '--disable-gpu', '--font-render-hinting=none'],
     });
-    console.log("   - Browser Launched.");
     
     const page = await browser.newPage();
-    console.log("5. New Page Created.");
-
     await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
-    console.log("6. Content Set.");
     
     const pdfBuffer = await page.pdf({
       format: 'A4',
       printBackground: true,
-      margin: { top: '10mm', bottom: '10mm' }
+      margin: { top: '0', bottom: '0', left: '0', right: '0' }
     });
-    console.log("7. PDF Buffer Created (Size: " + pdfBuffer.length + ")");
 
     await browser.close();
-    console.log("8. Browser Closed.");
 
-    const buffer = Buffer.from(pdfBuffer);
-
-    console.log("--- [PDF DEBUG] Success ---");
-    return new NextResponse(buffer, {
+    return new NextResponse(Buffer.from(pdfBuffer), {
       headers: {
         'Content-Type': 'application/pdf',
-        'Content-Disposition': `attachment; filename="RayanChain-Report-${proposalId}.pdf"`,
+        'Content-Disposition': `attachment; filename="RayanChain-${locale.toUpperCase()}-${proposalId}.pdf"`,
       },
     });
 
   } catch (error: any) {
-    console.error("--- [PDF DEBUG] CRITICAL ERROR ---");
-    console.error(error); // چاپ کل آبجکت خطا
-    
-    // اگر خطا مربوط به کتابخانه لینوکس باشد، متن آن را برمی‌گرداند
-    const errorMessage = error.message || String(error);
-    
-    return NextResponse.json({ 
-        message: 'Failed to generate PDF', 
-        error: errorMessage,
-        stack: error.stack 
-    }, { status: 500 });
+    console.error("PDF Error:", error);
+    return NextResponse.json({ message: 'Failed to generate PDF', error: error.message }, { status: 500 });
   }
 }

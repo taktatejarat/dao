@@ -1,11 +1,13 @@
 # ai-engine/main.py - FINAL WITH RETRAIN & NETWORK FIX
 
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 import httpx 
 from pydantic import BaseModel 
 import os
 import sys
+from apscheduler.schedulers.background import BackgroundScheduler
 
 # Ensure local imports work
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
@@ -23,8 +25,24 @@ from score_calculator import calculate_pop_score
 # ✅ FIX: ایمپورت از فایل‌های صحیح
 from training.train_risk_model import train_model as train_financial_core
 from training.train_security_model import train_security_model
+# ✅ سرویس جدید ناظر
+from services.observer_service import run_proposal_observer
+# --- Scheduler Setup ---
+scheduler = BackgroundScheduler()
 
-app = FastAPI(title="RayanChain AI Engine")
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup
+    logger.info("🕰️ Starting Auto-Observer Scheduler...")
+    # اجرای ناظر هر 5 دقیقه (300 ثانیه)
+    scheduler.add_job(run_proposal_observer, 'interval', seconds=300, id='dao_observer')
+    scheduler.start()
+    yield
+    # Shutdown
+    logger.info("🛑 Stopping Scheduler...")
+    scheduler.shutdown()
+
+app = FastAPI(title="RayanChain AI Engine", lifespan=lifespan) # ✅ اضافه کردن lifespan
 
 # --- تنظیمات حیاتی CORS برای شبکه ---
 # این بخش اجازه می‌دهد وقتی با موبایل (172.16...) وصل می‌شوید، 

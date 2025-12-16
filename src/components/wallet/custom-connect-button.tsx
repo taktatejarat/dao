@@ -1,10 +1,11 @@
-// src/components/wallet/custom-connect-button.tsx - RESTORED FEATURES
+// src/components/wallet/custom-connect-button.tsx - FIXED EMPTY MODAL
+
 
 "use client";
 
 import { useEffect, useState } from "react";
-import { useAccount, useBalance, useDisconnect, useChainId, useSwitchChain } from "wagmi";
-import { useAppKit, useAppKitNetwork } from "@reown/appkit/react";
+import { useAccount, useBalance, useDisconnect, useConnect, useConnectors } from "wagmi";
+import { useAppKit } from "@reown/appkit/react";
 import { Button } from "@/components/ui/button";
 import { ConnectWalletModal } from "./connect-wallet-modal"; 
 import { Wallet, LogOut, ChevronDown, Copy, ExternalLink, Network, User } from "lucide-react";
@@ -20,7 +21,7 @@ import { useTranslation } from "@/hooks/use-translation";
 import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { formatEther } from "viem";
-import { Badge } from "@/components/ui/badge";
+
 
 export function CustomConnectButton() {
     const { t } = useTranslation();
@@ -30,15 +31,17 @@ export function CustomConnectButton() {
     // Wagmi Hooks
     const { address, isConnected, chain } = useAccount();
     const { disconnect } = useDisconnect();
-    const { data: balanceData } = useBalance({ address });
-    const { open: openAppKit } = useAppKit(); // دسترسی به تنظیمات Reown
-    const { switchNetwork } = useAppKitNetwork(); // برای تغییر شبکه
+    
+    const connectors = useConnectors(); // دریافت لیست
+    const { connect, isPending, error: connectError } = useConnect(); // دریافت تابع عملیات
 
+    const { data: balanceData } = useBalance({ address });
+    const { open: openAppKit } = useAppKit();
+    
     useEffect(() => {
         setMounted(true);
     }, []);
 
-    // Helper: Copy Address
     const copyAddress = () => {
         if (address) {
             navigator.clipboard.writeText(address);
@@ -46,10 +49,8 @@ export function CustomConnectButton() {
         }
     };
 
-    // Helper: Format Address (0x1234...5678)
     const shortAddress = address ? `${address.slice(0, 6)}...${address.slice(-4)}` : "";
     
-    // Helper: Format Balance
     const formattedBalance = balanceData 
         ? `${parseFloat(formatEther(balanceData.value)).toFixed(3)} ${balanceData.symbol}`
         : "0.000";
@@ -75,10 +76,10 @@ export function CustomConnectButton() {
                 <ConnectWalletModal 
                     isOpen={isModalOpen}
                     onClose={() => setIsModalOpen(false)}
-                    connectors={[]} // این پراپ در فایل مودال مدیریت می‌شود
-                    connect={() => {}} 
-                    isPending={false}
-                    error={null}
+                    connectors={connectors} // لیست کانکتورها از هوک جدید
+                    connect={connect} 
+                    isPending={isPending}
+                    error={connectError}
                 />
             </>
         );
@@ -88,14 +89,14 @@ export function CustomConnectButton() {
     return (
         <div className="flex items-center gap-2">
             
-            {/* نمایش شبکه (Network Badge) */}
+            {/* نمایش شبکه */}
             <Button 
                 variant="ghost" 
                 size="sm" 
                 className="hidden md:flex items-center gap-2 bg-muted/50 border border-border"
-                onClick={() => openAppKit({ view: 'Networks' })} // باز کردن مودال شبکه Reown
+                onClick={() => openAppKit({ view: 'Networks' })} 
             >
-                {chain?.id === 80002 ? ( // مثال برای Polygon Amoy
+                {chain?.id === 80002 ? ( 
                     <span className="w-2 h-2 rounded-full bg-purple-500 animate-pulse"/>
                 ) : (
                     <Network className="w-4 h-4 text-muted-foreground" />
@@ -129,13 +130,11 @@ export function CustomConnectButton() {
                     
                     <DropdownMenuSeparator />
                     
-                    {/* کپی آدرس */}
                     <DropdownMenuItem onClick={copyAddress} className="cursor-pointer gap-2">
                         <Copy className="w-4 h-4" />
                         {t('wallet.copy_address')}
                     </DropdownMenuItem>
 
-                    {/* مشاهده در اکسپلورر */}
                     <DropdownMenuItem asChild className="cursor-pointer gap-2">
                         <a 
                             href={`${chain?.blockExplorers?.default.url}/address/${address}`} 
@@ -148,7 +147,6 @@ export function CustomConnectButton() {
                         </a>
                     </DropdownMenuItem>
 
-                    {/* باز کردن پروفایل Reown */}
                     <DropdownMenuItem onClick={() => openAppKit({ view: 'Account' })} className="cursor-pointer gap-2">
                         <User className="w-4 h-4" />
                         {t('wallet.my_account')}
@@ -156,7 +154,6 @@ export function CustomConnectButton() {
 
                     <DropdownMenuSeparator />
                     
-                    {/* قطع اتصال */}
                     <DropdownMenuItem onClick={() => disconnect()} className="cursor-pointer text-red-500 focus:text-red-600 focus:bg-red-50 dark:focus:bg-red-950/30 gap-2">
                         <LogOut className="w-4 h-4" />
                         {t('wallet.disconnect')}
@@ -167,7 +164,6 @@ export function CustomConnectButton() {
     );
 }
 
-// کامپوننت لودینگ ساده برای جلوگیری از ایمپورت‌های چرخشی
 function DaoLoadingSpinner() {
     return <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />;
 }

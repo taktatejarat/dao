@@ -1,4 +1,4 @@
-// src/hooks/useProposalVote.ts - FIXED INFINITE LOOP
+// src/hooks/useProposalVote.ts - FIXED TOASTS
 
 "use client";
 
@@ -7,7 +7,7 @@ import { toast } from 'sonner';
 import { useTranslation } from '@/hooks/use-translation';
 import { rayanChainDaoAbi } from '@/lib/blockchain/generated';
 import type { Address } from 'viem';
-import { useEffect, useState, useCallback, useRef, useMemo } from 'react';
+import { useEffect, useState, useCallback, useMemo, useRef } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 
 interface UseProposalVoteProps {
@@ -25,14 +25,15 @@ export function useProposalVote({ daoAddress, proposalId, isVotingActive }: UseP
     const queryClient = useQueryClient();
 
     const [txHash, setTxHash] = useState<`0x${string}` | undefined>(undefined);
+    // ذخیره ID توست برای آپدیت یا بستن آن
     const toastIdRef = useRef<string | number | null>(null);
 
-    // ✅ FIX 1: Memoize args for hasVoted read
+    // --- Memoized Args ---
     const hasVotedArgs = useMemo(() => 
         (proposalId !== null && address) ? ([proposalId, address] as const) : undefined
     , [proposalId, address]);
 
-    // --- Read Vote Status ---
+    // --- Read ---
     const { data: hasVotedResult } = useReadContract({
         address: daoAddress,
         abi: rayanChainDaoAbi,
@@ -42,57 +43,36 @@ export function useProposalVote({ daoAddress, proposalId, isVotingActive }: UseP
     });
     const hasVoted = hasVotedResult ?? false;
 
-    // ✅ FIX 2: Memoize args for Simulate
-    const voteForArgs = useMemo(() => 
-        proposalId !== null ? ([proposalId, VOTE_FOR] as const) : undefined
-    , [proposalId]);
-
-    const voteAgainstArgs = useMemo(() => 
-        proposalId !== null ? ([proposalId, VOTE_AGAINST] as const) : undefined
-    , [proposalId]);
-
-    // --- Simulate Contracts ---
-    const { data: voteForConfig } = useSimulateContract({
-        address: daoAddress,
-        abi: rayanChainDaoAbi,
-        functionName: 'vote',
-        args: voteForArgs,
-        query: { enabled: isVotingActive && !!voteForArgs },
-    });
-
-    const { data: voteAgainstConfig } = useSimulateContract({
-        address: daoAddress,
-        abi: rayanChainDaoAbi,
-        functionName: 'vote',
-        args: voteAgainstArgs,
-        query: { enabled: isVotingActive && !!voteAgainstArgs },
-    });
-
-    // --- Transaction Management ---
+    // --- Write ---
     const { isPending: isSubmitting, writeContractAsync } = useWriteContract();
     const { isLoading: isConfirming, isSuccess, isError, error } = useWaitForTransactionReceipt({ hash: txHash });
 
-    const getErrorMessage = (err: any) => {
-        const message = err?.message || '';
-        if (message.includes("Already voted")) return t('toasts.error_already_voted');
-        if (message.includes("User rejected")) return t('toasts.error_user_rejected');
-        return t('toasts.error_generic');
-    };
-
+    // --- Toast & Effect Logic ---
     useEffect(() => {
-        if (!txHash) return;
+        if (!txHash) return; // اگر تراکنشی نیست کاری نکن
 
         if (isSuccess) {
+            // Dismiss previous loading toast
             if (toastIdRef.current) toast.dismiss(toastIdRef.current);
+            // Show success
             toast.success(t('toasts.vote_successful'));
+            
+            // Refresh Data
             queryClient.invalidateQueries({ queryKey: ['readContract'] });
+            
+            // Reset
             setTxHash(undefined);
             toastIdRef.current = null;
         }
 
         if (isError) {
             if (toastIdRef.current) toast.dismiss(toastIdRef.current);
-            toast.error(getErrorMessage(error));
+            
+            const msg = error?.message?.includes("User rejected") 
+                ? t('toasts.error_user_rejected') 
+                : t('toasts.error_generic');
+            
+            toast.error(msg);
             setTxHash(undefined);
             toastIdRef.current = null;
         }
@@ -102,6 +82,8 @@ export function useProposalVote({ daoAddress, proposalId, isVotingActive }: UseP
         if (!isVotingActive || !daoAddress || proposalId === null) return;
         
         const voteEnum = voteType === 'for' ? VOTE_FOR : VOTE_AGAINST;
+        
+        // ایجاد Toast لودینگ و ذخیره ID
         toastIdRef.current = toast.loading(t('toasts.submitting_vote'));
 
         try {
@@ -112,18 +94,18 @@ export function useProposalVote({ daoAddress, proposalId, isVotingActive }: UseP
                 args: [proposalId, voteEnum],
             });
             setTxHash(hash);
+            // آپدیت پیام تست به "در حال انتظار برای تایید شبکه"
             toast.loading(t('toasts.waiting_for_confirmation'), { id: toastIdRef.current });
         } catch (err) {
             if (toastIdRef.current) toast.dismiss(toastIdRef.current);
-            toast.error(getErrorMessage(err));
+            // اگر کاربر رد کرد یا خطا داد
+            toast.error(t('toasts.transaction_rejected'));
         }
     }, [isVotingActive, daoAddress, proposalId, writeContractAsync, t]);
 
     return {
         handleVote,
         isVotingPending: isSubmitting || isConfirming,
-        canVoteFor: !!voteForConfig?.request && !hasVoted,
-        canVoteAgainst: !!voteAgainstConfig?.request && !hasVoted,
         hasVoted,
     };
 }

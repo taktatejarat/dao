@@ -145,3 +145,31 @@ def update_participation_score(user_address: str, score: int):
         send_transaction('updateParticipationScore', [checksum_addr, int(score)])
     except Exception as e:
         logger.error(f"Invalid address format for participation score: {user_address} - {e}")
+
+
+def check_and_execute_proposal(proposal_id: int):
+    """
+    بررسی و نهایی‌سازی وضعیت پروپوزال در بلاکچین.
+    این تابع سعی می‌کند تابع executeProposal را صدا بزند.
+    اگر پروپوزال شرایط اجرا را داشته باشد (زمان تمام شده + رأی کافی)، وضعیت آن تغییر می‌کند.
+    """
+    try:
+        logger.info(f"🤖 Observer: Checking proposal {proposal_id} for execution...")
+        
+        # فراخوانی تابع executeProposal در قرارداد
+        # نکته: در قراردادهای استاندارد، اگر زمان نرسیده باشد یا رأی کافی نباشد، این تراکنش Revert می‌شود.
+        # ما فقط تراکنش را می‌فرستیم، منطق قرارداد تصمیم می‌گیرد.
+        tx_hash = send_transaction('executeProposal', [int(proposal_id)])
+        
+        if tx_hash:
+            logger.info(f"✅ Observer: Execution transaction sent for Proposal {proposal_id}: {tx_hash}")
+            return True
+        return False
+
+    except Exception as e:
+        # اگر خطا داد (مثلاً هنوز زمانش نرسیده)، فقط لاگ می‌کنیم و برنامه متوقف نمی‌شود
+        if "execution reverted" in str(e).lower():
+            logger.debug(f"Proposal {proposal_id} not ready for execution yet.")
+        else:
+            logger.error(f"Observer Error for proposal {proposal_id}: {e}")
+        return False

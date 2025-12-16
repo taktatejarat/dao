@@ -162,6 +162,50 @@ export default function ProposalDetailPage() {
         };
     }, [onChainResult]);
 
+    // SMART LOGIC: محاسبه وضعیت واقعی بر اساس زمان و آرا 
+    const smartStatus = useMemo(() => {
+        if (!onChainData) return null;
+        const now = Date.now() / 1000; // time in seconds
+        const deadline = Number(onChainData.deadline);
+        const state = onChainData.state;
+        const forVotes = onChainData.forVotes;
+        const againstVotes = onChainData.againstVotes;
+
+        // اگر در حال رأی‌گیری است اما زمان تمام شده
+        if (state === PROPOSAL_STATE_VOTING && now > deadline) {
+            if (forVotes > againstVotes) {
+                // رأی آورده ولی هنوز Execute نشده
+                return { state: 3, label: t('proposal_detail.status.succeeded'), color: 'bg-green-500/10 text-green-600 border-green-500/20', icon: CheckCircle };
+            } else {
+                // رأی نیاورده و منقضی شده
+                return { state: 4, label: t('proposal_detail.status.defeated'), color: 'bg-red-500/10 text-red-600 border-red-500/20', icon: XCircle };
+            }
+        }
+
+        // حالت‌های استاندارد
+        switch (state) {
+            case 0: return { state: 0, label: t('proposal_detail.status.pending'), color: 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20', icon: Clock };
+            case 1: return { state: 1, label: t('proposal_detail.status.validation'), color: 'bg-indigo-500/10 text-indigo-500 border-indigo-500/20', icon: ShieldCheck };
+            case 2: return { state: 2, label: t('proposal_detail.status.active'), color: 'bg-blue-500/10 text-blue-500 border-blue-500/20', icon: PlayCircle }; 
+            case 3: return { state: 3, label: t('proposal_detail.status.succeeded'), color: 'bg-green-500/10 text-green-500 border-green-500/20', icon: CheckCircle }; 
+            case 4: return { state: 4, label: t('proposal_detail.status.defeated'), color: 'bg-red-500/10 text-red-500 border-red-500/20', icon: XCircle }; 
+            case 5: return { state: 5, label: t('proposal_detail.status.executed'), color: 'bg-emerald-600/10 text-emerald-600 border-emerald-600/20', icon: ShieldCheck };
+            case 6: return { state: 6, label: t('proposal_detail.status.expired'), color: 'bg-orange-500/10 text-orange-500 border-orange-500/20', icon: AlertTriangle };
+            case 7: return { state: 7, label: t('proposal_detail.status.canceled'), color: 'bg-gray-500/10 text-gray-500 border-gray-500/20', icon: X };
+            case 8: return { state: 8, label: "Funding", color: 'bg-cyan-500/10 text-cyan-500 border-cyan-500/20', icon: Banknote };
+            case 9: return { state: 9, label: "Funded", color: 'bg-teal-500/10 text-teal-500 border-teal-500/20', icon: CheckCircle };
+            case 10: return { state: 10, label: "Funding Failed", color: 'bg-rose-500/10 text-rose-500 border-rose-500/20', icon: AlertTriangle };
+            default: return { state: -1, label: t('proposal_detail.status.unknown'), color: 'bg-gray-500', icon: Info };
+        }
+    }, [onChainData, t]);
+
+    const isVotingAllowed = useMemo(() => {
+        if (!onChainData) return false;
+        const now = Date.now() / 1000;
+        // فقط اگر وضعیت Voting باشد و زمان نگذشته باشد
+        return onChainData.state === PROPOSAL_STATE_VOTING && now <= Number(onChainData.deadline);
+    }, [onChainData]);
+
     const aiMetrics = useMemo(() => {
         if (!offChainData?.aiAnalysis) return null;
         const financial = offChainData.aiAnalysis.financialAnalysis || {};
@@ -221,7 +265,7 @@ export default function ProposalDetailPage() {
     const { handleVote: submitVote, isVotingPending, hasVoted } = useProposalVote({
         daoAddress,
         proposalId: onChainProposalId!,
-        isVotingActive: !!onChainData && onChainData.state === PROPOSAL_STATE_VOTING,
+        isVotingActive: isVotingAllowed, // ✅ استفاده از وضعیت هوشمند
     });
     
     const { handleExecute, isExecuting } = useProposalExecute({
@@ -291,10 +335,11 @@ export default function ProposalDetailPage() {
                         </div>
 
                         <div className="flex items-center gap-3">
-                            {onChainData && (
-                                <Badge variant="outline" className={`${statusColor} px-4 py-1.5 text-sm font-medium flex items-center gap-2 border-2`}>
-                                    <StatusIcon className="w-4 h-4" />
-                                    <span>{statusText}</span>
+                            {/* ✅ نمایش وضعیت هوشمند */}
+                            {smartStatus && (
+                                <Badge variant="outline" className={`${smartStatus.color} px-4 py-1.5 text-sm font-medium flex items-center gap-2 border-2`}>
+                                    <smartStatus.icon className="w-4 h-4" />
+                                    <span>{smartStatus.label}</span>
                                 </Badge>
                             )}
                             {offChainData?._id && (
@@ -318,7 +363,14 @@ export default function ProposalDetailPage() {
                     </div>
                 </div>
             </header>
-
+            {/* ✅ هشدار زمان منقضی */}
+            {!isVotingAllowed && onChainData?.state === PROPOSAL_STATE_VOTING && (
+                <Alert className="mb-8 border-orange-500/50 bg-orange-500/10">
+                    <Clock className="h-5 w-5 text-orange-600" />
+                    <AlertTitle className="text-orange-600">{t('proposal_detail.alert.deadline_passed_title')}</AlertTitle>
+                    <AlertDescription>{t('proposal_detail.alert.deadline_passed_desc')}</AlertDescription>
+                </Alert>
+            )}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <div className="lg:col-span-2 space-y-8">
                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -400,7 +452,6 @@ export default function ProposalDetailPage() {
                                         </div>
                                         <Progress value={Math.max(againstPercentageRaw, 1)} className="h-4 bg-red-100 dark:bg-red-950 [&>div]:bg-destructive" />
                                     </div>
-
                                     {hasVoted && (
                                         <Alert className="mt-6 border-green-500/50 bg-green-500/10">
                                             <CheckCircle className="h-5 w-5 text-green-600" />
@@ -411,16 +462,17 @@ export default function ProposalDetailPage() {
                             ) : <div className="text-base text-muted-foreground">{t('proposal_detail.onchain_data_unavailable')}</div>}
                         </CardContent>
                         
-                        {onChainData && onChainData.state === PROPOSAL_STATE_VOTING && !hasVoted && (
-                            <CardFooter className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
-                                <Button size="lg" className="bg-green-600 hover:bg-green-700 w-full text-base h-12" onClick={() => handleVoteClick('for')} disabled={isVotingPending}>
-                                    {isVotingPending ? <DaoLoadingSpinner /> : <Check className="me-2 w-5 h-5"/>}{t('proposal_detail.vote_for')}
-                                </Button>
-                                <Button size="lg" variant="destructive" className="w-full text-base h-12" onClick={() => handleVoteClick('against')} disabled={isVotingPending}>
-                                    {isVotingPending ? <DaoLoadingSpinner /> : <X className="me-2 w-5 h-5"/>}{t('proposal_detail.vote_against')}
-                                </Button>
-                            </CardFooter>
-                        )}
+                        {/* ✅ FIX: دکمه‌ها فقط زمانی فعال باشند که رأی‌گیری مجاز است */}
+                                {isVotingAllowed && !hasVoted && (
+                                        <CardFooter className="grid grid-cols-2 gap-4 pt-2">
+                                        <Button className="bg-green-600 hover:bg-green-700" onClick={() => handleVoteClick('for')} disabled={isVotingPending}><Check className="me-2"/>{t('proposal_detail.vote_for')}</Button>
+                                        <Button variant="destructive" onClick={() => handleVoteClick('against')} disabled={isVotingPending}><X className="me-2"/>{t('proposal_detail.vote_against')}</Button>
+                                    </CardFooter>
+                                    )} 
+                                    {/* پیام وضعیت غیرفعال */}
+                                    {!isVotingAllowed && onChainData?.state === PROPOSAL_STATE_VOTING && (
+                                 <CardFooter><Button variant="secondary" className="w-full" disabled>{t('proposal_detail.voting_ended')}</Button></CardFooter>
+                             )}
                     </Card>
 
                     {(onChainData?.state === PROPOSAL_STATE_FUNDING) && (

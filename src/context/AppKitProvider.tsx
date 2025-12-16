@@ -19,25 +19,24 @@ const metadata = {
   icons: ['https://avatars.githubusercontent.com/u/37784886']
 }
 
+
 // Double Casting
 const typedNetworks = networks as unknown as [AppKitNetwork, ...AppKitNetwork[]];
 
-// ✅ FIX: Create AppKit ONLY ONCE outside component
-// This prevents re-initialization loops
-if (typeof window !== 'undefined') {
-    createAppKit({
-        adapters: [wagmiAdapter],
-        projectId,
-        networks: typedNetworks,
-        defaultNetwork: polygonAmoy,
-        metadata: metadata,
-        features: {
-            analytics: false,
-            email: false, 
-            socials: []   
-        },
-    })
-}
+// ✅ FIX: تابع createAppKit باید بدون شرط اجرا شود تا در SSR هم در دسترس باشد.
+// کتابخانه Reown خودش بررسی‌های لازم برای window را انجام می‌دهد.
+createAppKit({
+    adapters: [wagmiAdapter],
+    projectId,
+    networks: typedNetworks,
+    defaultNetwork: polygonAmoy,
+    metadata: metadata,
+    features: {
+        analytics: false,
+        email: false, 
+        socials: []   
+    },
+})
 
 export function AppKitProvider({ children, cookies }: { children: ReactNode; cookies: string | null }) {
   const initialState = cookieToInitialState(wagmiAdapter.wagmiConfig as Config, cookies);
@@ -57,7 +56,7 @@ export function AppKitProvider({ children, cookies }: { children: ReactNode; coo
         queries: {
             staleTime: 60 * 1000,
             refetchOnWindowFocus: false,
-            retry: 1, // کاهش تعداد تلاش مجدد در صورت خطا
+            retry: 1, 
         },
     },
   }));
