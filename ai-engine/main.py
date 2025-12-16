@@ -6,6 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import httpx 
 from pydantic import BaseModel 
 import os
+import threading
 import sys
 from apscheduler.schedulers.background import BackgroundScheduler
 
@@ -21,28 +22,36 @@ from layers.layer_5_integration import generate_final_investability_score
 from services.oracle_caller import update_proposal_risk_score, update_participation_score
 from services.blockchain_reader import get_user_onchain_profile
 from score_calculator import calculate_pop_score
+from blockchain_listener import start_listener_task
 
-# ✅ FIX: ایمپورت از فایل‌های صحیح
+# FIX: ایمپورت از فایل‌های صحیح
 from training.train_risk_model import train_model as train_financial_core
 from training.train_security_model import train_security_model
-# ✅ سرویس جدید ناظر
+#  سرویس جدید ناظر
 from services.observer_service import run_proposal_observer
+
 # --- Scheduler Setup ---
 scheduler = BackgroundScheduler()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Startup
-    logger.info("🕰️ Starting Auto-Observer Scheduler...")
-    # اجرای ناظر هر 5 دقیقه (300 ثانیه)
-    scheduler.add_job(run_proposal_observer, 'interval', seconds=300, id='dao_observer')
+    # 1. Start Scheduler (Observer) - هر 2 دقیقه چک کند
+    logger.info("🕰️ Starting Smart Observer...")
+    scheduler.add_job(run_proposal_observer, 'interval', seconds=120) 
     scheduler.start()
+    
+    # 2. Start Blockchain Listener (Background Thread)
+    # لیسنر باید در ترد جدا باشد چون یک حلقه بی‌نهایت است
+    listener_thread = threading.Thread(target=start_listener_task, daemon=True)
+    listener_thread.start()
+    logger.info("🎧 Blockchain Listener thread started.")
+    
     yield
     # Shutdown
     logger.info("🛑 Stopping Scheduler...")
     scheduler.shutdown()
 
-app = FastAPI(title="RayanChain AI Engine", lifespan=lifespan) # ✅ اضافه کردن lifespan
+app = FastAPI(title="RayanChain AI Engine", lifespan=lifespan)
 
 # --- تنظیمات حیاتی CORS برای شبکه ---
 # این بخش اجازه می‌دهد وقتی با موبایل (172.16...) وصل می‌شوید، 

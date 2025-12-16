@@ -57,6 +57,7 @@ export const fa = {
     seconds: "ثانیه",
     max: "حداکثر",
     na: "نامشخص",
+    no_data: "سابقه ای وجود ندارد",
   },
 
   header: {
@@ -759,6 +760,7 @@ export const fa = {
     raised: "جذب شده",
     goal: "هدف",
     voting_ended: "رأی گیری پایان یافته",
+    history_title: "سوابق پروپوزال",
     
     timeline: {
       title: "وضعیت پروپوزال",
