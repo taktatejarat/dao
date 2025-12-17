@@ -1,6 +1,7 @@
-# ai-engine/layers/layer_3_financial.py
+# ai-engine/layers/layer_3_financial.py - PROFESSIONAL GRADE ANALYSIS
 
 import os
+import math
 import joblib
 import pandas as pd
 import xgboost as xgb
@@ -27,125 +28,182 @@ class FinancialModelHandler:
         if os.path.exists(PREPROCESSOR_PATH):
             try:
                 self.preprocessor = joblib.load(PREPROCESSOR_PATH)
-            except Exception as e:
-                logger.error(f"Failed to load Preprocessor: {e}")
+            except Exception:
+                pass
 
-    def predict(self, raw_features: dict):
+    def predict_success_prob(self, features: dict):
+        """پیش‌بینی احتمال موفقیت با مدل یادگیری ماشین"""
         if not self.model or not self.preprocessor:
             return 0.5 
         try:
-            input_df = pd.DataFrame([{
-                'industry': raw_features.get('industry', 'Other'),
-                'requested_amount_usd': raw_features.get('requested_amount', 0),
-                'milestone_count': raw_features.get('milestone_count', 1),
-                'team_experience_years': raw_features.get('team_experience', 1)
+            df = pd.DataFrame([{
+                'industry': features.get('industry', 'Other'),
+                'requested_amount_usd': features.get('requested_amount', 0),
+                'milestone_count': features.get('milestone_count', 1),
+                'team_experience_years': features.get('team_experience', 1)
             }])
-            processed_data = self.preprocessor.transform(input_df)
-            dmatrix = xgb.DMatrix(processed_data)
-            return float(self.model.predict(dmatrix)[0])
+            processed = self.preprocessor.transform(df)
+            return float(self.model.predict(xgb.DMatrix(processed))[0])
         except Exception:
             return 0.5
 
 ai_engine = FinancialModelHandler()
+
+def safe_float(v):
+    try: return float(str(v).replace(',', '')) if v not in [None, '', 'undefined'] else 0.0
+    except: return 0.0
+
+def calculate_team_score(data):
+    """محاسبه شایستگی تیم (0-100)"""
+    score = 50 # پایه
+    exp = safe_float(data.get('teamExperienceYears'))
+    size = safe_float(data.get('teamSize'))
+    linkedin = data.get('linkedinProfile', '')
+
+    # تجربه
+    if exp > 10: score += 20
+    elif exp > 5: score += 10
+    elif exp < 2: score -= 10
+
+    # سایز تیم
+    if 2 <= size <= 10: score += 10
+    elif size == 1: score -= 5 # Solo founder risk
+
+    # حضور آنلاین
+    if linkedin and 'linkedin.com' in linkedin: score += 10
+    
+    # نوع دانش بنیان
+    kb_type = data.get('knowledgeBasedType', 'none')
+    if kb_type in ['type1', 'creative']: score += 10
+
+    return min(100, max(0, score))
+
+def calculate_market_score(data, market_stats):
+    """محاسبه جذابیت بازار (0-100)"""
+    score = 50
+    tam = safe_float(market_stats.get('tam'))
+    sam = safe_float(market_stats.get('sam'))
+    competitors = market_stats.get('competitors', '')
+    
+    # اندازه بازار
+    if tam > 1_000_000_000: score += 20 # Unicorn potential
+    elif tam > 100_000_000: score += 10
+    elif tam < 1_000_000: score -= 10 # Niche/Small
+    
+    # واقع‌گرایی (SAM نباید بزرگتر از TAM باشد)
+    if sam > tam: score -= 20
+    
+    # تحلیل رقبا (متنی)
+    if len(competitors) > 50: score += 10 # Well researched
+    elif len(competitors) < 5: score -= 10 # No research
+    
+    return min(100, max(0, score))
 
 def generate_financial_report(proposal_data: dict) -> dict:
     market = proposal_data.get('marketStats', {})
     financials = proposal_data.get('financialStats', {})
     milestones = proposal_data.get('milestones', [])
     
-    # Data Extraction & Cleaning
+    # --- 1. استخراج و نرمال‌سازی داده‌ها ---
     raw_ind = proposal_data.get('startupIndustry', 'Other')
-    # نگاشت ساده برای اطمینان از سازگاری با مدل
     valid_inds = ['Software', 'Biotechnology', 'Mobile', 'E-Commerce', 'Enterprise']
     industry = raw_ind if raw_ind in valid_inds else 'Other'
-
-    def safe_float(v):
-        try: return float(str(v).replace(',', '')) if v not in [None, ''] else 0.0
-        except: return 0.0
 
     requested_amount = sum([safe_float(m.get('amount')) for m in milestones])
     team_exp = safe_float(proposal_data.get('teamExperienceYears'))
     burn_rate = safe_float(financials.get('burnRate'))
+    revenue = safe_float(financials.get('revenueProj'))
     
-    # AI Prediction
-    input_features = {
+    # --- 2. محاسبات تحلیلی (Heuristics) ---
+    team_score = calculate_team_score(proposal_data)
+    market_score = calculate_market_score(proposal_data, market)
+    
+    # پیش‌بینی ML
+    ml_success_prob = ai_engine.predict_success_prob({
         'industry': industry,
         'requested_amount': requested_amount,
         'milestone_count': len(milestones),
-        'team_experience': team_exp,
-    }
-    
-    success_prob_raw = ai_engine.predict(input_features)
-    success_probability = int(success_prob_raw * 100)
-    risk_score = 100 - success_probability
+        'team_experience': team_exp
+    })
 
-    # --- Rule-Based Analysis (xAI) ---
+    # ترکیب امتیاز نهایی: 40% مدل ML + 30% تیم + 30% بازار
+    # امتیاز ریسک برعکس موفقیت است (100 - موفقیت)
+    weighted_success = (ml_success_prob * 100 * 0.4) + (team_score * 0.3) + (market_score * 0.3)
+    final_risk_score = 100 - int(weighted_success)
+
+    # --- 3. تولید تحلیل متنی (Strengths/Weaknesses) ---
     strengths = []
     weaknesses = []
 
-    # 1. Team Analysis
-    if team_exp >= 5:
-        strengths.append({"key": "xai.strength.team_exp_high", "values": {"val": int(team_exp)}})
-    elif team_exp <= 2:
-        weaknesses.append({"key": "xai.weakness.team_exp_low", "values": {"val": int(team_exp)}})
-    else:
-        # اگر خنثی بود، در نقاط قوت با متن ملایم‌تر می‌آوریم یا اصلاً نمی‌آوریم
-        strengths.append({"key": "xai.strength.strong_team", "values": {}})
-
-    # 2. Runway Analysis
+    # A. تحلیل Runway (بسیار مهم برای VC)
     if burn_rate > 0 and requested_amount > 0:
-        runway = requested_amount / burn_rate
-        if runway < 6:
-            weaknesses.append({"key": "xai.weakness.runway_short", "values": {"val": int(runway)}})
-        elif runway > 18:
-            strengths.append({"key": "xai.strength.runway_long", "values": {"val": int(runway)}})
-        else:
-            strengths.append({"key": "xai.strength.positive_burn", "values": {}})
+        runway_months = requested_amount / burn_rate
+        if runway_months < 6:
+            weaknesses.append({"key": "xai.weakness.runway_critical", "values": {"val": f"{int(runway_months)}"}})
+        elif runway_months > 18:
+            strengths.append({"key": "xai.strength.runway_healthy", "values": {"val": f"{int(runway_months)}"}})
+        elif runway_months >= 12:
+             strengths.append({"key": "xai.strength.runway_standard", "values": {"val": f"{int(runway_months)}"}})
     
-    # 3. Industry Analysis
-    if industry in ['Software', 'Biotechnology']:
-        strengths.append({"key": "xai.strength.industry_growth", "values": {"val": industry}})
-    elif industry == 'E-Commerce':
-        weaknesses.append({"key": "xai.weakness.industry_saturated", "values": {"val": industry}})
+    # B. تحلیل تیم
+    if team_score > 75:
+        strengths.append({"key": "xai.strength.strong_team_composition", "values": {}})
+    elif team_score < 40:
+        weaknesses.append({"key": "xai.weakness.team_experience_gap", "values": {}})
 
-    # 4. Milestones
-    if not milestones:
-        weaknesses.append({"key": "xai.weakness.no_milestones", "values": {}})
+    # C. تحلیل بازار
+    if market_score > 70:
+        strengths.append({"key": "xai.strength.large_market_potential", "values": {"val": f"${int(safe_float(market.get('tam'))/1000000)}M"}})
+    
+    # D. تعادل مالی
+    if revenue > 0:
+        if revenue > burn_rate * 12:
+             strengths.append({"key": "xai.strength.profitable_projection", "values": {}})
+        else:
+             weaknesses.append({"key": "xai.weakness.high_burn_relative_to_revenue", "values": {}})
+    elif proposal_data.get('startupStage') == 'revenue':
+         weaknesses.append({"key": "xai.weakness.revenue_stage_no_revenue", "values": {}})
+
+    # E. کیفیت مایل‌ستون‌ها
+    if len(milestones) < 2:
+        weaknesses.append({"key": "xai.weakness.lump_sum_risk", "values": {}})
+    elif len(milestones) > 2:
+        strengths.append({"key": "xai.strength.well_structured_milestones", "values": {}})
+
+    # Fallbacks
+    if not strengths: strengths.append({"key": "xai.strength.balanced_risk", "values": {}})
+    if not weaknesses: weaknesses.append({"key": "xai.weakness.general_execution_risk", "values": {}})
+
+    # --- 4. تعیین توصیه نهایی ---
+    if final_risk_score <= 35:
+        rec_key = "recommendation.highly_recommended"
+        level_key = "risk_level.low"
+    elif final_risk_score <= 60:
+        rec_key = "recommendation.cautious_buy"
+        level_key = "risk_level.medium"
+    elif final_risk_score <= 80:
+        rec_key = "recommendation.high_risk_venture"
+        level_key = "risk_level.high"
     else:
-        strengths.append({"key": "xai.strength.positive_milestones", "values": {}})
-
-    # Fallbacks to prevent empty lists
-    if not strengths:
-        strengths.append({"key": "xai.strength.balanced_profile", "values": {}})
-    if not weaknesses:
-        weaknesses.append({"key": "xai.weakness.standard_risk", "values": {}})
-
-    # Recommendation Logic
-    if risk_score <= 30:
-        rec_key = "recommendation.low_risk_desc"
-        risk_level = "low"
-    elif risk_score <= 60:
-        rec_key = "recommendation.medium_risk_desc"
-        risk_level = "medium"
-    elif risk_score <= 85:
-        rec_key = "recommendation.high_risk_desc"
-        risk_level = "high"
-    else:
-        rec_key = "recommendation.very_high_risk_desc"
-        risk_level = "very_high"
+        rec_key = "recommendation.not_recommended"
+        level_key = "risk_level.very_high"
 
     return {
-        "risk_score": risk_score,
-        "success_probability": success_probability,
-        "team_competency_score": min(100, int(team_exp * 10)),
-        "market_sentiment_score": 0.75,
-        "proposer_trust_score": 80, # Placeholder until security module is fully integrated
+        "risk_score": final_risk_score,
+        "success_probability": int(weighted_success),
+        "team_competency_score": int(team_score),
+        "market_sentiment_score": market_score / 100, # Normalize to 0-1 for UI
+        "proposer_trust_score": 85, # Static for now
         
         "strengths": strengths,
         "weaknesses": weaknesses,
         
-        "recommendation_text_key": rec_key, # کلید ترجمه توصیه
-        "risk_level_key": f"risk_level.{risk_level}", # کلید ترجمه سطح ریسک
+        "recommendation_text_key": rec_key,
+        "risk_level_key": level_key,
         
-        "raw_data": input_features # For debugging
+        # اطلاعات دیباگ (در خروجی نهایی استفاده نمی‌شود اما برای لاگ خوب است)
+        "debug_info": {
+            "ml_prob": ml_success_prob,
+            "runway": requested_amount / burn_rate if burn_rate else 0
+        }
     }

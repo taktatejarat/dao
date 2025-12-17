@@ -646,7 +646,7 @@ export const fa = {
       lbl_industry: "نام صنعت",
       ph_industry: "فینتک ، هوش مصنوعی ، ...",
       ph_team_experience: "مثلا 5 سال مدیر فنی رایان اندیش و...",
-      
+      file_preserved: "فایلهای قبلی استفاده شده",
 
       // Step 4: Financials
       upload_financials: "پروجکشن مالی (Excel/PDF)",
@@ -761,6 +761,9 @@ export const fa = {
     goal: "هدف",
     voting_ended: "رأی گیری پایان یافته",
     history_title: "سوابق پروپوزال",
+    resubmit_title: "بازنگری و ارسال مجدد",
+    resubmit_desc: "این پروپوزال موفق به کسب آراء یا سرمایه لازم نشد. می‌توانید با حفظ اطلاعات قبلی و ویرایش شرایط (مانند تعدیل بودجه یا تکمیل مستندات)، یک نسخه اصلاح‌شده جدید ایجاد کنید.",
+    btn_resubmit: "ایجاد نسخه اصلاح‌شده",
     
     timeline: {
       title: "وضعیت پروپوزال",
@@ -1421,6 +1424,7 @@ export const fa = {
     processing_refund: "در حال پردازش بازپرداخت...",
     refund_claimed: "بازپرداخت با موفقیت انجام شد!",
     refund_failed: "دریافت بازپرداخت ناموفق بود.",
+    revision_mode: "حالت اصلاح و ثبت دوباره",
   },
   terms_page: {
     title: "قوانین و شرایط استفاده",

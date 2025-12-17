@@ -699,6 +699,11 @@ export const en = {
     funding_failed_desc: "This project did not reach the minimum required funding. You can claim a refund.",
     raised: "Raised",
     goal: "Goal",
+    voting_ended: "Voting ended",
+    history_title: "Proposal history",
+    resubmit_title: "Review and resubmit",
+    resubmit_desc: "This proposal did not obtain the required votes or funding. You can create a new revised version while keeping the previous information and editing the conditions such as adjusting the budget or completing the documentation.",
+    btn_resubmit: "Create revised version",
 
     timeline: {
       title: "Proposal status",
@@ -1310,6 +1315,8 @@ export const en = {
     processing_refund: "Processing refund...",
     refund_claimed: "Refund successfully claimed",
     refund_failed: "Refund claim failed",
+    revision_mode: "Revision and resubmission mode",
+
   },
   terms_page: {
     title: "Terms and Conditions of Use",

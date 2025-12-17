@@ -1,4 +1,4 @@
-// src/app/api/generate-pdf/route.ts - WITH KEY-LEVEL FALLBACK TO ENGLISH
+// src/app/api/generate-pdf/route.ts - FIXED TYPE ERROR
 
 import { NextRequest, NextResponse } from 'next/server';
 import puppeteer from 'puppeteer';
@@ -6,7 +6,7 @@ import { generateHTML } from '@/lib/pdf-generator/html-template';
 import path from 'path';
 import fs from 'fs';
 
-// ایمپورت تمام دیکشنری‌های زبان
+// Import Dictionaries
 import { fa } from '@/lib/i18n/fa';
 import { en } from '@/lib/i18n/en';
 import { ar } from '@/lib/i18n/ar';
@@ -21,9 +21,14 @@ const LOCALE_MAP: Record<string, string> = {
     de: 'de-DE', ru: 'ru-RU', tr: 'tr-TR'
 };
 
-// تابع کمکی برای پیمایش در آبجکت دیکشنری
+// ✅ FIX: تابع ایمن برای پیمایش آبجکت
 const resolvePath = (object: any, path: string, defaultValue: any = null) => {
-    return path.split('.').reduce((o, p) => (o ? o[p] : defaultValue), object);
+    if (!path || typeof path !== 'string') return defaultValue || "";
+    try {
+        return path.split('.').reduce((o, p) => (o ? o[p] : defaultValue), object);
+    } catch (e) {
+        return defaultValue;
+    }
 };
 
 export async function POST(req: NextRequest) {
@@ -33,63 +38,64 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { report, proposal, proposalId, locale = 'en' } = body; 
 
-    // 1. تعیین دیکشنری هدف و دیکشنری فال‌بک (انگلیسی)
     const targetDict = DICTIONARIES[locale] || en;
     const fallbackDict = en;
 
-    // 2. ساخت تابع ترجمه هوشمند با قابلیت Fallback
+    // ✅ FIX: تابع ترجمه هوشمند و ایمن
     const t = (key: string, params?: any): string => {
-        // الف: تلاش برای یافتن در زبان انتخاب شده
+        if (!key) return "";
+        
+        // 1. Try Target Language
         let value = resolvePath(targetDict, key);
 
-        // ب: اگر پیدا نشد یا رشته نبود، تلاش در زبان انگلیسی (Fallback)
+        // 2. Try Fallback (English)
         if (!value || typeof value !== 'string') {
             value = resolvePath(fallbackDict, key);
         }
 
-        // ج: اگر در انگلیسی هم نبود، خود کلید را برگردان
+        // 3. Return Key if nothing found
         if (!value || typeof value !== 'string') {
-            return key;
+            // تمیز کردن کلید برای نمایش بهتر (مثلاً xai.strength.team -> team)
+            const parts = key.split('.');
+            return parts.length > 1 ? parts[parts.length - 1].replace(/_/g, ' ') : key;
         }
 
-        // د: جایگزینی پارامترها
+        // 4. Interpolation
         let translatedText = value;
-        if (params) {
+        if (params && typeof params === 'object') {
             Object.keys(params).forEach(paramKey => {
-                // جایگزینی تمام تکرارها
-                translatedText = translatedText.split(`{${paramKey}}`).join(params[paramKey]);
+                const val = params[paramKey];
+                // فقط اگر مقدار معتبر بود جایگزین کن
+                if (val !== undefined && val !== null) {
+                    translatedText = translatedText.split(`{${paramKey}}`).join(String(val));
+                }
             });
         }
 
         return translatedText;
     };
 
-    // 3. بررسی فونت
     const fontDir = path.join(process.cwd(), 'public', 'fonts');
-    // برای فارسی و عربی وزیر، برای بقیه روبوتو
     const requiredFont = ['fa', 'ar'].includes(locale) ? 'Vazirmatn-Regular.ttf' : 'Roboto-Regular.ttf';
     
     if (!fs.existsSync(path.join(fontDir, requiredFont))) {
         throw new Error(`Required font (${requiredFont}) not found.`);
     }
 
-    // 4. فرمت تاریخ
     const dateLocale = LOCALE_MAP[locale] || 'en-US';
     const formattedDate = new Date().toLocaleDateString(dateLocale, {
         year: 'numeric', month: 'long', day: 'numeric'
     });
 
-    // 5. تولید HTML
     const htmlContent = generateHTML({
       report, 
       proposal, 
       proposalId, 
       generatedDate: formattedDate,
       locale,
-      t // تابع ترجمه هوشمند
+      t
     });
 
-    // 6. اجرای Puppeteer
     const browser = await puppeteer.launch({
       headless: true,
       args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage', '--disable-gpu', '--font-render-hinting=none'],

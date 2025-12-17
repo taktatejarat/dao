@@ -72,7 +72,7 @@ export function ProposalTimeline({ currentState }: ProposalTimelineProps) {
                                     isFailed && "text-red-500"
                                 )}>
                                     {t(step.labelKey)}
-                                    {isFailed && <span className="block text-[9px] opacity-80">{t('proposal_detail.status_failed')}</span>}
+                                    {isFailed && <span className="block text-[9px] opacity-80">{t('proposal_detail.status.failed')}</span>}
                                 </span>
                             </div>
 

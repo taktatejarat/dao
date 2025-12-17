@@ -1,8 +1,9 @@
-// src/app/proposals/new/page.tsx - FIXED FOCUS & ADDED BUSINESS MODEL SELECT
+// src/app/proposals/new/page.tsx - FINAL CORRECTED VERSION
 
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect, Suspense } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { AppLayout } from '@/components/layout/app-layout';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -15,7 +16,6 @@ import { useWeb3 } from '@/context/Web3Provider';
 import { useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { rayanChainDaoAbi } from '@/lib/blockchain/generated';
 import { toast } from 'sonner';
-import { useRouter } from 'next/navigation';
 import { DaoLoadingSpinner } from '@/components/icons/dao-loading-spinner';
 import { useCreateProposal } from '@/hooks/useCreateProposal';
 import { useTranslation } from '@/hooks/use-translation';
@@ -24,8 +24,9 @@ import {
     LinkIcon, Users, FileCheck, CheckCircle2, ArrowRight, ArrowLeft, FileText, AlertCircle 
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { parseEther } from 'viem'; // Added missing import
 
-// ✅ FIX: کامپوننت‌های کمکی باید بیرون از کامپوننت اصلی باشند تا مشکل فوکوس حل شود
+// --- Helper Components ---
 const FileUploadBox = ({ label, file, setFile, required = false, accept = ".pdf", t }: any) => (
     <div className={cn(
         "border border-dashed rounded-xl p-6 flex flex-col items-center justify-center bg-muted/20 hover:bg-muted/40 transition-colors gap-3 text-center group relative overflow-hidden",
@@ -45,7 +46,7 @@ const FileUploadBox = ({ label, file, setFile, required = false, accept = ".pdf"
                 {label} {required && <span className="text-red-500">*</span>}
             </p>
             <p className="text-xs text-muted-foreground">
-                {file ? file.name : (t ? t('proposals.new.drag_drop_click') : "Click to upload")}
+                {file ? (file.name || t('proposals.new.file_preserved')) : t('proposals.new.drag_drop_click')}
             </p>
         </div>
         {file && <span className="absolute top-2 right-2 text-green-600 bg-white/80 rounded-full p-0.5"><CheckCircle2 className="w-4 h-4"/></span>}
@@ -67,16 +68,30 @@ const FormItem = ({ label, required, error, children }: any) => (
     </div>
 );
 
-export default function NewProposalPage() {
+// --- Main Content Component ---
+function NewProposalContent() {
     const { t, locale } = useTranslation();
     const dir = locale === 'fa' || locale === 'ar' ? 'rtl' : 'ltr';
     const isRtl = dir === 'rtl';
     const { userRole, address, daoAddress } = useWeb3();
     const router = useRouter();
+    
+    // Search Params
+    const searchParams = useSearchParams();
+    const cloneId = searchParams.get('clone');
+
     const [activeTab, setActiveTab] = useState("startup");
     const wizard = useCreateProposal({ daoAddress, router });
 
-    // --- Data Constants ---
+    // Load Clone Data
+    useEffect(() => {
+        if (cloneId) {
+            wizard.loadProposalForRevision(cloneId);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [cloneId]); 
+
+    // Constants
     const INDUSTRIES = [
         { value: "Software", label: t("proposals.new.industries.software") },
         { value: "Biotechnology", label: t("proposals.new.industries.biotechnology") },
@@ -86,22 +101,22 @@ export default function NewProposalPage() {
         { value: "Other", label: t("proposals.new.industries.other") }
     ];
 
-    // ✅ ADDED: لیست مدل‌های کسب‌وکار
     const BUSINESS_MODELS = [
         { value: "B2B", label: t("proposals.new.business_models.b2b") },
         { value: "B2C", label: t("proposals.new.business_models.b2c") },
         { value: "B2B2C", label: t("proposals.new.business_models.b2b2c") },
         { value: "SaaS", label: t("proposals.new.business_models.saas") },
         { value: "Marketplace", label: t("proposals.new.business_models.marketplace") },
-        { value: "Other", label: t("proposals.new.industries.other") }
+        { value: "Other", label: t("proposals.new.business_models.other") }
     ];
 
-    // --- Treasury Logic ---
+    // Treasury Logic
     const [tTitle, setTTitle] = useState('');
     const [tDesc, setTDesc] = useState('');
     const [tAmount, setTAmount] = useState('');
     const [tRecipient, setTRecipient] = useState('');
     const [tToken, setTToken] = useState('1'); 
+    
     const { writeContractAsync, data: txHash } = useWriteContract();
     const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ hash: txHash });
     const [isSubmittingTreasury, setIsSubmittingTreasury] = useState(false);
@@ -126,6 +141,7 @@ export default function NewProposalPage() {
             });
             const data = await res.json();
             if (!data.success) throw new Error(data.message);
+            
             await writeContractAsync({
                 address: daoAddress!,
                 abi: rayanChainDaoAbi,
@@ -138,449 +154,242 @@ export default function NewProposalPage() {
             setIsSubmittingTreasury(false);
         }
     };
-    if (isSuccess) router.push('/proposals');
+
+    if (isSuccess) {
+        // Simple redirect for Treasury
+        setTimeout(() => router.push('/proposals'), 1000);
+    }
 
     return (
-        <AppLayout>
-            <div className="container max-w-5xl py-8 md:py-12 animate-in fade-in slide-in-from-bottom-4" dir={dir}>
-                
-                <div className="mb-8 text-center">
-                    <h1 className="text-3xl font-extrabold font-headline text-gradient">{t('proposals.new.title')}</h1>
+        <div className="container max-w-5xl py-8 md:py-12 animate-in fade-in slide-in-from-bottom-4" dir={dir}>
+            <div className="mb-8 text-center">
+                <h1 className="text-3xl font-extrabold font-headline text-gradient">{t('proposals.new.title')}</h1>
+                {cloneId && (
+                    <div className="inline-flex items-center gap-2 mt-2 px-3 py-1 bg-amber-500/10 text-amber-600 rounded-full text-sm font-medium border border-amber-200">
+                        <ArrowRight className="w-4 h-4 rtl:rotate-180" />
+                        {t('toasts.revision_mode')}
+                    </div>
+                )}
+            </div>
+
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+                <div className="flex justify-center mb-8">
+                    <TabsList className="grid w-full max-w-md grid-cols-2 h-12 p-1 bg-muted rounded-full">
+                        <TabsTrigger value="startup" className="rounded-full text-sm font-bold data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                            <Rocket className="w-4 h-4 mr-2 rtl:ml-2" /> {t('proposals.new.tab_startup')}
+                        </TabsTrigger>
+                        <TabsTrigger value="treasury" disabled={userRole !== 'admin'} className="rounded-full text-sm font-bold data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                            <Vote className="w-4 h-4 mr-2 rtl:ml-2" /> {t('proposals.new.tab_treasury')}
+                        </TabsTrigger>
+                    </TabsList>
                 </div>
 
-                <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                    {/* Mode Selection */}
-                    <div className="flex justify-center mb-8">
-                        <TabsList className="grid w-full max-w-md grid-cols-2 h-12 p-1 bg-muted rounded-full">
-                            <TabsTrigger value="startup" className="rounded-full text-sm font-bold data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                                <Rocket className="w-4 h-4 mr-2 rtl:ml-2" /> {t('proposals.new.tab_startup')}
-                            </TabsTrigger>
-                            <TabsTrigger value="treasury" disabled={userRole !== 'admin'} className="rounded-full text-sm font-bold data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                                <Vote className="w-4 h-4 mr-2 rtl:ml-2" /> {t('proposals.new.tab_treasury')}
-                            </TabsTrigger>
-                        </TabsList>
+                {/* STARTUP FORM */}
+                <TabsContent value="startup" className="focus-visible:outline-none">
+                    
+                    {/* Stepper */}
+                    <div className="mb-8 hidden md:flex items-center justify-between px-4">
+                        {[1, 2, 3, 4, 5].map((step) => {
+                            const isActive = step === wizard.currentStep;
+                            const isDone = step < wizard.currentStep;
+                            return (
+                                <div key={step} className="flex items-center flex-1 last:flex-none">
+                                    <div className={cn(
+                                        "w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm border-2 transition-all",
+                                        isActive ? "border-primary bg-primary text-primary-foreground scale-110 shadow-lg" : 
+                                        isDone ? "border-primary bg-primary/20 text-primary" : "border-muted text-muted-foreground"
+                                    )}>
+                                        {isDone ? <CheckCircle2 className="w-6 h-6" /> : step}
+                                    </div>
+                                    {step !== 5 && (
+                                        <div className={cn("h-1 flex-1 mx-4 rounded-full transition-colors", isDone ? "bg-primary" : "bg-muted")} />
+                                    )}
+                                </div>
+                            )
+                        })}
                     </div>
 
-                    {/* ================= STARTUP WIZARD ================= */}
-                    <TabsContent value="startup" className="focus-visible:outline-none">
-                        
-                        {/* Stepper Header */}
-                        <div className="mb-8 hidden md:flex items-center justify-between px-4">
-                            {[1, 2, 3, 4, 5].map((step) => {
-                                const isActive = step === wizard.currentStep;
-                                const isDone = step < wizard.currentStep;
-                                return (
-                                    <div key={step} className="flex items-center flex-1 last:flex-none">
-                                        <div className={cn(
-                                            "w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm border-2 transition-all",
-                                            isActive ? "border-primary bg-primary text-primary-foreground scale-110 shadow-lg" : 
-                                            isDone ? "border-primary bg-primary/20 text-primary" : "border-muted text-muted-foreground"
-                                        )}>
-                                            {isDone ? <CheckCircle2 className="w-6 h-6" /> : step}
-                                        </div>
-                                        {step !== 5 && (
-                                            <div className={cn("h-1 flex-1 mx-4 rounded-full transition-colors", isDone ? "bg-primary" : "bg-muted")} />
-                                        )}
+                    <Card className="border-primary/10 shadow-xl bg-card/50 backdrop-blur-sm">
+                        <CardContent className="p-6 md:p-8 min-h-[400px]">
+                            
+                            {/* STEP 1 */}
+                            {wizard.currentStep === 1 && (
+                                <div className="space-y-6 animate-in slide-in-from-right-4 fade-in duration-300">
+                                    <div className="flex items-center gap-3 pb-4 border-b">
+                                        <Building2 className="w-6 h-6 text-primary" />
+                                        <h2 className="text-xl font-bold">{t('proposals.new.step1_title')}</h2>
                                     </div>
-                                )
-                            })}
-                        </div>
-
-                        {/* Wizard Steps */}
-                        <Card className="border-primary/10 shadow-xl bg-card/50 backdrop-blur-sm">
-                            <CardContent className="p-6 md:p-8 min-h-[400px]">
-                                
-                                {/* STEP 1: Basic Info */}
-                                {wizard.currentStep === 1 && (
-                                    <div className="space-y-6 animate-in slide-in-from-right-4 fade-in duration-300">
-                                        <div className="flex items-center gap-3 pb-4 border-b">
-                                            <Building2 className="w-6 h-6 text-primary" />
-                                            <h2 className="text-xl font-bold">{t('proposals.new.step1_title')}</h2>
-                                        </div>
-
-                                        <div className="grid md:grid-cols-2 gap-6">
-                                            <FormItem label={t('proposals.new.lbl_name')} required error={wizard.errors.projectName}>
-                                                <Input 
-                                                    placeholder={t('proposals.new.ph_name')} 
-                                                    value={wizard.projectName} 
-                                                    onChange={e => wizard.setProjectName(e.target.value)} 
-                                                    className={wizard.errors.projectName ? "border-red-500 focus-visible:ring-red-500" : ""}
-                                                    autoFocus 
-                                                />
-                                            </FormItem>
-                                            <FormItem label={t('proposals.new.lbl_tagline')} required error={wizard.errors.tagline}>
-                                                <Input 
-                                                    placeholder={t('proposals.new.ph_tagline')} 
-                                                    value={wizard.tagline} 
-                                                    onChange={e => wizard.setTagline(e.target.value)}
-                                                    className={wizard.errors.tagline ? "border-red-500 focus-visible:ring-red-500" : ""}
-                                                />
-                                            </FormItem>
-                                        </div>
-
-                                        <div className="space-y-2">
-                                            <Label>{t('proposals.new.lbl_industry')} <span className="text-red-500">*</span></Label>
-                                            <Select value={wizard.startupIndustry} onValueChange={wizard.setStartupIndustry}>
-                                                <SelectTrigger className={wizard.errors.startupIndustry ? "border-red-500" : ""}>
-                                                    <SelectValue placeholder={t('proposals.new.select_placeholder')} />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    {INDUSTRIES.map((ind) => (
-                                                        <SelectItem key={ind.value} value={ind.value}>
-                                                            {ind.label}
-                                                        </SelectItem>
-                                                    ))}
-                                                </SelectContent>
-                                            </Select>
-                                            {wizard.errors.startupIndustry && (
-                                                <div className="flex items-center gap-1 text-red-500 text-xs animate-in slide-in-from-top-1">
-                                                    <AlertCircle className="w-3 h-3" />
-                                                    <span>{wizard.errors.startupIndustry}</span>
-                                                </div>
-                                            )}
-                                        </div>
-
-                                        <FormItem label={t('proposals.new.lbl_problem_solution')} required error={wizard.errors.description}>
-                                            <Textarea 
-                                                className={cn("min-h-[120px]", wizard.errors.description ? "border-red-500 focus-visible:ring-red-500" : "")} 
-                                                placeholder={t('proposals.new.ph_problem_solution')} 
-                                                value={wizard.description} 
-                                                onChange={e => wizard.setDescription(e.target.value)} 
-                                            />
+                                    <div className="grid md:grid-cols-2 gap-6">
+                                        <FormItem label={t('proposals.new.lbl_name')} required error={wizard.errors.projectName}>
+                                            <Input placeholder={t('proposals.new.ph_name')} value={wizard.projectName} onChange={e => wizard.setProjectName(e.target.value)} autoFocus />
                                         </FormItem>
-
-                                        <div className="grid md:grid-cols-2 gap-6">
-                                            <div className="space-y-2">
-                                                <Label>{t('proposals.new.stage_title')}</Label>
-                                                <Select value={wizard.startupStage} onValueChange={(v:any) => wizard.setStartupStage(v)}>
-                                                    <SelectTrigger><SelectValue /></SelectTrigger>
-                                                    <SelectContent>
-                                                        <SelectItem value="idea">{t('proposals.new.stage_idea')}</SelectItem>
-                                                        <SelectItem value="revenue">{t('proposals.new.stage_revenue')}</SelectItem>
-                                                    </SelectContent>
-                                                </Select>
-                                            </div>
-                                            <div className="space-y-2">
-                                                <Label>{t('proposals.new.kb_title')}</Label>
-                                                <Select value={wizard.knowledgeBasedType} onValueChange={wizard.setKnowledgeBasedType}>
-                                                    <SelectTrigger><SelectValue /></SelectTrigger>
-                                                    <SelectContent>
-                                                        <SelectItem value="none">{t('proposals.new.kb_none')}</SelectItem>
-                                                        <SelectItem value="type1">{t('proposals.new.kb_type1')}</SelectItem>
-                                                        <SelectItem value="type2">{t('proposals.new.kb_type2')}</SelectItem>
-                                                        <SelectItem value="creative">{t('proposals.new.kb_creative')}</SelectItem>
-                                                    </SelectContent>
-                                                </Select>
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
-
-                                {/* STEP 2: Team & Company */}
-                                {wizard.currentStep === 2 && (
-                                    <div className="space-y-6 animate-in slide-in-from-right-4 fade-in duration-300">
-                                        <div className="flex items-center gap-3 pb-4 border-b">
-                                            <Users className="w-6 h-6 text-primary" />
-                                            <h2 className="text-xl font-bold">{t('proposals.new.step2_title')}</h2>
-                                        </div>
-
-                                        <div className="grid md:grid-cols-3 gap-6">
-                                            <FormItem label={t('proposals.new.lbl_founded_date')} required error={wizard.errors.foundedDate}>
-                                                <Input 
-                                                    type="date" 
-                                                    value={wizard.foundedDate} 
-                                                    onChange={e => wizard.setFoundedDate(e.target.value)} 
-                                                    className={wizard.errors.foundedDate ? "border-red-500" : ""}
-                                                />
-                                            </FormItem>
-                                            <FormItem label={t('proposals.new.lbl_team_size')} required error={wizard.errors.teamSize}>
-                                                <Input 
-                                                    type="number" 
-                                                    value={wizard.teamSize} 
-                                                    onChange={e => wizard.setTeamSize(e.target.value)} 
-                                                    className={wizard.errors.teamSize ? "border-red-500" : ""}
-                                                />
-                                            </FormItem>
-                                            <FormItem label={t('proposals.new.lbl_company_reg_id')}>
-                                                <Input value={wizard.companyRegId} onChange={e => wizard.setCompanyRegId(e.target.value)} />
-                                            </FormItem>
-                                        </div>
-
-                                        <div className="space-y-2">
-                                            <Label>{t('proposals.new.lbl_team_experience')}</Label>
-                                            <Input placeholder={t('proposals.new.ph_team_experience')} value={wizard.teamExperienceYears} onChange={e => wizard.setTeamExperienceYears(e.target.value)} />
-                                        </div>
-
-                                        <div className="grid md:grid-cols-2 gap-6">
-                                            <FormItem label={t('proposals.new.lbl_linkedin')} required error={wizard.errors.linkedinProfile}>
-                                                <div className="relative">
-                                                    <LinkIcon className="absolute left-3 rtl:right-3 top-3.5 h-4 w-4 text-muted-foreground" />
-                                                    <Input 
-                                                        className={cn("pl-9 rtl:pr-9 rtl:pl-3", wizard.errors.linkedinProfile ? "border-red-500" : "")} 
-                                                        placeholder="https://linkedin.com/in/..." 
-                                                        dir="ltr" 
-                                                        value={wizard.linkedinProfile} 
-                                                        onChange={e => wizard.setLinkedinProfile(e.target.value)} 
-                                                    />
-                                                </div>
-                                            </FormItem>
-                                            <FormItem label={t('proposals.new.lbl_demo_url')} error={wizard.errors.demoUrl}>
-                                                <div className="relative">
-                                                    <LinkIcon className="absolute left-3 rtl:right-3 top-3.5 h-4 w-4 text-muted-foreground" />
-                                                    <Input 
-                                                        className={cn("pl-9 rtl:pr-9 rtl:pl-3", wizard.errors.demoUrl ? "border-red-500" : "")}
-                                                        placeholder="https://" 
-                                                        dir="ltr" 
-                                                        value={wizard.demoUrl} 
-                                                        onChange={e => wizard.setDemoUrl(e.target.value)} 
-                                                    />
-                                                </div>
-                                            </FormItem>
-                                        </div>
-                                    </div>
-                                )}
-
-                                {/* STEP 3: Market & Strategy */}
-                                {wizard.currentStep === 3 && (
-                                    <div className="space-y-6 animate-in slide-in-from-right-4 fade-in duration-300">
-                                        <div className="flex items-center gap-3 pb-4 border-b">
-                                            <Rocket className="w-6 h-6 text-primary" />
-                                            <h2 className="text-xl font-bold">{t('proposals.new.step3_title')}</h2>
-                                        </div>
-
-                                        <div className="grid md:grid-cols-3 gap-6">
-                                            <FormItem label={t('proposals.new.lbl_tam')} required error={wizard.errors.tam}>
-                                                <Input type="number" placeholder="$" value={wizard.tam} onChange={e => wizard.setTam(e.target.value)} className={wizard.errors.tam ? "border-red-500" : ""}/>
-                                            </FormItem>
-                                            <FormItem label={t('proposals.new.lbl_sam')} required error={wizard.errors.sam}>
-                                                <Input type="number" placeholder="$" value={wizard.sam} onChange={e => wizard.setSam(e.target.value)} className={wizard.errors.sam ? "border-red-500" : ""}/>
-                                            </FormItem>
-                                            <FormItem label={t('proposals.new.lbl_som')} required error={wizard.errors.som}>
-                                                <Input type="number" placeholder="$" value={wizard.som} onChange={e => wizard.setSom(e.target.value)} className={wizard.errors.som ? "border-red-500" : ""}/>
-                                            </FormItem>
-                                        </div>
-
-                                        <FormItem label={t('proposals.new.lbl_competitors')} required error={wizard.errors.competitors}>
-                                            <Textarea 
-                                                placeholder={t('proposals.new.ph_competitors')} 
-                                                value={wizard.competitors} 
-                                                onChange={e => wizard.setCompetitors(e.target.value)} 
-                                                className={wizard.errors.competitors ? "border-red-500" : ""}
-                                            />
-                                        </FormItem>
-                                        
-                                        {/* ✅ FIX: تغییر مدل کسب‌وکار به Select */}
-                                        <FormItem label={t('proposals.new.lbl_business_model')} required error={wizard.errors.businessModel}>
-                                            <Select value={wizard.businessModel} onValueChange={wizard.setBusinessModel}>
-                                                <SelectTrigger className={wizard.errors.businessModel ? "border-red-500" : ""}>
-                                                    <SelectValue placeholder={t('proposals.new.business_models.placeholder')} />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    {BUSINESS_MODELS.map((bm) => (
-                                                        <SelectItem key={bm.value} value={bm.value}>
-                                                            {bm.label}
-                                                        </SelectItem>
-                                                    ))}
-                                                </SelectContent>
-                                            </Select>
+                                        <FormItem label={t('proposals.new.lbl_tagline')} required error={wizard.errors.tagline}>
+                                            <Input placeholder={t('proposals.new.ph_tagline')} value={wizard.tagline} onChange={e => wizard.setTagline(e.target.value)} />
                                         </FormItem>
                                     </div>
-                                )}
-
-                                {/* STEP 4: Financials & Milestones */}
-                                {wizard.currentStep === 4 && (
-                                    <div className="space-y-6 animate-in slide-in-from-right-4 fade-in duration-300">
-                                        <div className="flex items-center gap-3 pb-4 border-b">
-                                            <Wallet className="w-6 h-6 text-primary" />
-                                            <h2 className="text-xl font-bold">{t('proposals.new.step4_title')}</h2>
-                                        </div>
-
-                                        {/* Dynamic Financial Fields */}
-                                        <div className="grid md:grid-cols-3 gap-6 bg-muted/30 p-4 rounded-xl">
-                                            {wizard.startupStage === 'idea' ? (
-                                                <>
-                                                    <FormItem label={t('proposals.new.lbl_burn_rate')} required error={wizard.errors.burnRate}>
-                                                        <Input type="number" value={wizard.burnRate} onChange={e => wizard.setBurnRate(e.target.value)} className={wizard.errors.burnRate ? "border-red-500" : ""}/>
-                                                    </FormItem>
-                                                    <FormItem label={`${t('proposals.new.lbl_runway')} (Months)`} required error={wizard.errors.runway}>
-                                                        <Input type="number" value={wizard.runway} onChange={e => wizard.setRunway(e.target.value)} className={wizard.errors.runway ? "border-red-500" : ""}/>
-                                                    </FormItem>
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <FormItem label={t('proposals.new.lbl_revenue')} required error={wizard.errors.revenueProj}>
-                                                        <Input type="number" value={wizard.revenueProj} onChange={e => wizard.setRevenueProj(e.target.value)} className={wizard.errors.revenueProj ? "border-red-500" : ""}/>
-                                                    </FormItem>
-                                                    <FormItem label={t('proposals.new.lbl_net_profit')} required error={wizard.errors.netProfit}>
-                                                        <Input type="number" value={wizard.netProfit} onChange={e => wizard.setNetProfit(e.target.value)} className={wizard.errors.netProfit ? "border-red-500" : ""}/>
-                                                    </FormItem>
-                                                    <FormItem label={`${t('proposals.new.lbl_ebitda')} %`}>
-                                                        <Input type="number" value={wizard.ebitda} onChange={e => wizard.setEbitda(e.target.value)} />
-                                                    </FormItem>
-                                                </>
-                                            )}
-                                            <FormItem label={t('proposals.new.lbl_valuation')} required error={wizard.errors.valuation}>
-                                                <Input type="number" value={wizard.valuation} onChange={e => wizard.setValuation(e.target.value)} className={wizard.errors.valuation ? "border-red-500" : ""}/>
-                                            </FormItem>
-                                        </div>
-
-                                        {/* Milestones */}
-                                        <div className="space-y-4">
-                                            <div className="flex justify-between items-center">
-                                                <Label className="text-lg">{t('proposals.new.milestones_title')}</Label>
-                                                <Button variant="ghost" size="sm" onClick={wizard.handleAddMilestone} className="text-primary hover:bg-primary/10">
-                                                    + {t('proposals.new.btn_add_milestone')}
-                                                </Button>
-                                            </div>
-                                            {wizard.milestones.map((m, i) => (
-                                                <div key={i} className="flex flex-col md:flex-row gap-3 items-end bg-card border p-3 rounded-lg">
-                                                    <div className="flex-1 w-full space-y-1">
-                                                        <Label className="text-xs">{t('proposals.new.lbl_milestone_name')}</Label>
-                                                        <Input value={m.name} onChange={e => wizard.handleMilestoneChange(i, 'name', e.target.value)} />
-                                                    </div>
-                                                    <div className="w-24 space-y-1">
-                                                        <Label className="text-xs">{t('proposals.new.lbl_days')}</Label>
-                                                        <Input type="number" className="text-center" value={m.durationDays} onChange={e => wizard.handleMilestoneChange(i, 'durationDays', e.target.value)} />
-                                                    </div>
-                                                    <div className="w-32 space-y-1">
-                                                        <Label className="text-xs">{t('proposals.new.lbl_amount')}</Label>
-                                                        <Input type="number" value={m.amount} onChange={e => wizard.handleMilestoneChange(i, 'amount', e.target.value)} />
-                                                    </div>
-                                                    {i > 0 && <Button variant="destructive" size="icon" onClick={() => wizard.handleRemoveMilestone(i)} type="button"><span className="text-lg">×</span></Button>}
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                )}
-
-                                {/* STEP 5: Documents & Submit */}
-                                {wizard.currentStep === 5 && (
-                                    <div className="space-y-6 animate-in slide-in-from-right-4 fade-in duration-300">
-                                        <div className="flex items-center gap-3 pb-4 border-b">
-                                            <FileText className="w-6 h-6 text-primary" />
-                                            <h2 className="text-xl font-bold">{t('proposals.new.step5_title')}</h2>
-                                        </div>
-
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                            <FileUploadBox 
-                                                label={t('proposals.new.upload_pitch')} 
-                                                file={wizard.pitchDeckFile} 
-                                                setFile={wizard.setPitchDeckFile} 
-                                                required={true}
-                                                t={t}
-                                            />
-                                            <FileUploadBox 
-                                                label={t('proposals.new.upload_financials')} 
-                                                file={wizard.financialsFile} 
-                                                setFile={wizard.setFinancialsFile} 
-                                                accept=".pdf,.xls,.xlsx"
-                                                t={t}
-                                            />
-                                            <FileUploadBox 
-                                                label={t('proposals.new.upload_legal')} 
-                                                file={wizard.legalFile} 
-                                                setFile={wizard.setLegalFile}
-                                                t={t} 
-                                            />
-                                            <FileUploadBox 
-                                                label={t('proposals.new.upload_whitepaper')} 
-                                                file={wizard.whitepaperFile} 
-                                                setFile={wizard.setWhitepaperFile}
-                                                t={t} 
-                                            />
-                                        </div>
-
-                                        <div className="space-y-2 mt-6 p-4 bg-muted/20 rounded-lg">
-                                            <FormItem label={t('proposals.new.lbl_recipient')} error={wizard.errors.recipient}>
-                                                <div className="relative">
-                                                    <Wallet className="absolute left-3 rtl:right-3 top-3.5 w-4 h-4 text-muted-foreground" />
-                                                    <Input 
-                                                        placeholder={t('proposals.new.ph_wallet')} 
-                                                        value={wizard.recipient} 
-                                                        onChange={e => wizard.setRecipient(e.target.value)} 
-                                                        className={cn("pl-9 rtl:pr-9 rtl:pl-3 font-mono text-sm", wizard.errors.recipient ? "border-red-500" : "")} 
-                                                        dir="ltr" 
-                                                    />
-                                                </div>
-                                            </FormItem>
-                                            <p className="text-xs text-muted-foreground">{t('proposals.new.note_self_recipient')}</p>
-                                        </div>
-                                    </div>
-                                )}
-
-                            </CardContent>
-
-                            <CardFooter className="flex justify-between p-6 border-t bg-muted/10">
-                                <Button 
-                                    variant="outline" 
-                                    onClick={wizard.handlePrevStep} 
-                                    disabled={wizard.currentStep === 1 || wizard.isPending}
-                                    type="button"
-                                >
-                                    {isRtl ? <ArrowRight className="w-4 h-4 ml-2" /> : <ArrowLeft className="w-4 h-4 mr-2" />}
-                                    {t('common.back')}
-                                </Button>
-
-                                {wizard.currentStep < 5 ? (
-                                    <Button onClick={wizard.handleNextStep} type="button">
-                                        {t('common.next')}
-                                        {isRtl ? <ArrowLeft className="w-4 h-4 mr-2" /> : <ArrowRight className="w-4 h-4 ml-2" />}
-                                    </Button>
-                                ) : (
-                                    <Button 
-                                        onClick={wizard.handleSubmit} 
-                                        disabled={wizard.isPending} 
-                                        className="bg-emerald-600 hover:bg-emerald-700 min-w-[150px]"
-                                        type="button"
-                                    >
-                                        {wizard.isPending ? <DaoLoadingSpinner /> : t('proposals.new.btn_submit_startup')}
-                                    </Button>
-                                )}
-                            </CardFooter>
-                        </Card>
-                    </TabsContent>
-
-                    {/* ================= TREASURY TAB ================= */}
-                    <TabsContent value="treasury" className="focus-visible:outline-none">
-                        <Card className="max-w-3xl mx-auto border-purple-500/20 shadow-xl">
-                            {/* Treasury Content Remains Same */}
-                            <CardHeader className="bg-purple-500/5 pb-6 border-b border-purple-500/10">
-                                <CardTitle className="text-purple-700 flex gap-3 text-2xl"><Vote className="w-8 h-8"/> {t('proposals.new.treasury_title')}</CardTitle>
-                                <CardDescription className="text-base mt-2">{t('proposals.new.treasury_desc')}</CardDescription>
-                            </CardHeader>
-                            <CardContent className="space-y-8 pt-8 px-8">
-                                <div className="space-y-2">
-                                    <Label className="text-base">{t('proposals.new.lbl_proposal_title')}</Label>
-                                    <Input className="h-12" value={tTitle} onChange={e => setTTitle(e.target.value)} />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label className="text-base">{t('proposals.new.lbl_desc_reason')}</Label>
-                                    <Textarea className="min-h-[140px] resize-y" value={tDesc} onChange={e => setTDesc(e.target.value)} />
-                                </div>
-                                <div className="grid md:grid-cols-2 gap-8">
-                                    <div className="space-y-2">
-                                        <Label className="text-base">{t('treasury_page.deposit_amount')}</Label>
-                                        <Input type="number" placeholder="0.00" value={tAmount} onChange={e => setTAmount(e.target.value)} className="font-mono text-lg h-12" />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label className="text-base">{t('proposals.new.lbl_token_type')}</Label>
-                                        <Select value={tToken} onValueChange={setTToken}>
-                                            <SelectTrigger className="h-12"><SelectValue /></SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="1">{t('proposals.new.opt_governance')}</SelectItem>
-                                                <SelectItem value="0">{t('proposals.new.opt_native')}</SelectItem>
-                                            </SelectContent>
+                                    <FormItem label={t('proposals.new.lbl_industry')} required error={wizard.errors.startupIndustry}>
+                                        <Select value={wizard.startupIndustry} onValueChange={wizard.setStartupIndustry}>
+                                            <SelectTrigger><SelectValue placeholder={t('proposals.new.select_placeholder')} /></SelectTrigger>
+                                            <SelectContent>{INDUSTRIES.map((ind) => (<SelectItem key={ind.value} value={ind.value}>{ind.label}</SelectItem>))}</SelectContent>
                                         </Select>
+                                    </FormItem>
+                                    <FormItem label={t('proposals.new.lbl_problem_solution')} required error={wizard.errors.description}>
+                                        <Textarea className="min-h-[120px]" placeholder={t('proposals.new.ph_problem_solution')} value={wizard.description} onChange={e => wizard.setDescription(e.target.value)} />
+                                    </FormItem>
+                                    <div className="grid md:grid-cols-2 gap-6">
+                                        <div className="space-y-2"><Label>{t('proposals.new.stage_title')}</Label><Select value={wizard.startupStage} onValueChange={(v:any) => wizard.setStartupStage(v)}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="idea">{t('proposals.new.stage_idea')}</SelectItem><SelectItem value="revenue">{t('proposals.new.stage_revenue')}</SelectItem></SelectContent></Select></div>
+                                        <div className="space-y-2"><Label>{t('proposals.new.kb_title')}</Label><Select value={wizard.knowledgeBasedType} onValueChange={wizard.setKnowledgeBasedType}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="none">{t('proposals.new.kb_none')}</SelectItem><SelectItem value="type1">{t('proposals.new.kb_type1')}</SelectItem><SelectItem value="type2">{t('proposals.new.kb_type2')}</SelectItem><SelectItem value="creative">{t('proposals.new.kb_creative')}</SelectItem></SelectContent></Select></div>
                                     </div>
                                 </div>
-                                <Button size="lg" className="w-full bg-purple-600 hover:bg-purple-700 text-lg h-14" onClick={handleTreasurySubmit} disabled={isSubmittingTreasury || isConfirming} type="button">
-                                    {isSubmittingTreasury ? <DaoLoadingSpinner /> : t('proposals.new.btn_submit_treasury')}
+                            )}
+
+                            {/* STEP 2 */}
+                            {wizard.currentStep === 2 && (
+                                <div className="space-y-6 animate-in slide-in-from-right-4 fade-in duration-300">
+                                    <div className="flex items-center gap-3 pb-4 border-b">
+                                        <Users className="w-6 h-6 text-primary" />
+                                        <h2 className="text-xl font-bold">{t('proposals.new.step2_title')}</h2>
+                                    </div>
+                                    <div className="grid md:grid-cols-3 gap-6">
+                                        <FormItem label={t('proposals.new.lbl_founded_date')} required error={wizard.errors.foundedDate}><Input type="date" value={wizard.foundedDate} onChange={e => wizard.setFoundedDate(e.target.value)} /></FormItem>
+                                        <FormItem label={t('proposals.new.lbl_team_size')} required error={wizard.errors.teamSize}><Input type="number" value={wizard.teamSize} onChange={e => wizard.setTeamSize(e.target.value)} /></FormItem>
+                                        <FormItem label={t('proposals.new.lbl_company_reg_id')}><Input value={wizard.companyRegId} onChange={e => wizard.setCompanyRegId(e.target.value)} /></FormItem>
+                                    </div>
+                                    <div className="space-y-2"><Label>{t('proposals.new.lbl_team_experience')}</Label><Input type="number" placeholder="e.g. 5" value={wizard.teamExperienceYears} onChange={e => wizard.setTeamExperienceYears(e.target.value)} /></div>
+                                    <div className="grid md:grid-cols-2 gap-6">
+                                        <FormItem label={t('proposals.new.lbl_linkedin')} required error={wizard.errors.linkedinProfile}><div className="relative"><LinkIcon className="absolute left-3 rtl:right-3 top-3.5 h-4 w-4 text-muted-foreground" /><Input className="pl-9 rtl:pr-9 rtl:pl-3" placeholder="https://linkedin.com/in/..." dir="ltr" value={wizard.linkedinProfile} onChange={e => wizard.setLinkedinProfile(e.target.value)} /></div></FormItem>
+                                        <FormItem label={t('proposals.new.lbl_demo_url')} error={wizard.errors.demoUrl}><div className="relative"><LinkIcon className="absolute left-3 rtl:right-3 top-3.5 h-4 w-4 text-muted-foreground" /><Input className="pl-9 rtl:pr-9 rtl:pl-3" placeholder="https://" dir="ltr" value={wizard.demoUrl} onChange={e => wizard.setDemoUrl(e.target.value)} /></div></FormItem>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* STEP 3 */}
+                            {wizard.currentStep === 3 && (
+                                <div className="space-y-6 animate-in slide-in-from-right-4 fade-in duration-300">
+                                    <div className="flex items-center gap-3 pb-4 border-b">
+                                        <Rocket className="w-6 h-6 text-primary" />
+                                        <h2 className="text-xl font-bold">{t('proposals.new.step3_title')}</h2>
+                                    </div>
+                                    <div className="grid md:grid-cols-3 gap-6">
+                                        <FormItem label={t('proposals.new.lbl_tam')} required error={wizard.errors.tam}><Input type="number" placeholder="$" value={wizard.tam} onChange={e => wizard.setTam(e.target.value)} /></FormItem>
+                                        <FormItem label={t('proposals.new.lbl_sam')} required error={wizard.errors.sam}><Input type="number" placeholder="$" value={wizard.sam} onChange={e => wizard.setSam(e.target.value)} /></FormItem>
+                                        <FormItem label={t('proposals.new.lbl_som')} required error={wizard.errors.som}><Input type="number" placeholder="$" value={wizard.som} onChange={e => wizard.setSom(e.target.value)} /></FormItem>
+                                    </div>
+                                    <FormItem label={t('proposals.new.lbl_competitors')} required error={wizard.errors.competitors}><Textarea placeholder={t('proposals.new.ph_competitors')} value={wizard.competitors} onChange={e => wizard.setCompetitors(e.target.value)} /></FormItem>
+                                    <FormItem label={t('proposals.new.lbl_business_model')} required error={wizard.errors.businessModel}>
+                                        <Select value={wizard.businessModel} onValueChange={wizard.setBusinessModel}>
+                                            <SelectTrigger><SelectValue placeholder={t('proposals.new.business_models.placeholder')} /></SelectTrigger>
+                                            <SelectContent>{BUSINESS_MODELS.map((bm) => (<SelectItem key={bm.value} value={bm.value}>{bm.label}</SelectItem>))}</SelectContent>
+                                        </Select>
+                                    </FormItem>
+                                </div>
+                            )}
+
+                            {/* STEP 4 */}
+                            {wizard.currentStep === 4 && (
+                                <div className="space-y-6 animate-in slide-in-from-right-4 fade-in duration-300">
+                                    <div className="flex items-center gap-3 pb-4 border-b">
+                                        <Wallet className="w-6 h-6 text-primary" />
+                                        <h2 className="text-xl font-bold">{t('proposals.new.step4_title')}</h2>
+                                    </div>
+                                    <div className="grid md:grid-cols-3 gap-6 bg-muted/30 p-4 rounded-xl">
+                                        {wizard.startupStage === 'idea' ? (
+                                            <>
+                                                <FormItem label={t('proposals.new.lbl_burn_rate')} required error={wizard.errors.burnRate}><Input type="number" value={wizard.burnRate} onChange={e => wizard.setBurnRate(e.target.value)} /></FormItem>
+                                                <FormItem label={`${t('proposals.new.lbl_runway')} (Months)`} required error={wizard.errors.runway}><Input type="number" value={wizard.runway} onChange={e => wizard.setRunway(e.target.value)} /></FormItem>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <FormItem label={t('proposals.new.lbl_revenue')} required error={wizard.errors.revenueProj}><Input type="number" value={wizard.revenueProj} onChange={e => wizard.setRevenueProj(e.target.value)} /></FormItem>
+                                                <FormItem label={t('proposals.new.lbl_net_profit')} required error={wizard.errors.netProfit}><Input type="number" value={wizard.netProfit} onChange={e => wizard.setNetProfit(e.target.value)} /></FormItem>
+                                                <FormItem label={`${t('proposals.new.lbl_ebitda')} %`}><Input type="number" value={wizard.ebitda} onChange={e => wizard.setEbitda(e.target.value)} /></FormItem>
+                                            </>
+                                        )}
+                                        <FormItem label={t('proposals.new.lbl_valuation')} required error={wizard.errors.valuation}><Input type="number" value={wizard.valuation} onChange={e => wizard.setValuation(e.target.value)} /></FormItem>
+                                    </div>
+                                    <div className="space-y-4">
+                                        <div className="flex justify-between items-center"><Label className="text-lg">{t('proposals.new.milestones_title')}</Label><Button variant="ghost" size="sm" onClick={wizard.handleAddMilestone} className="text-primary hover:bg-primary/10">+ {t('proposals.new.btn_add_milestone')}</Button></div>
+                                        {wizard.milestones.map((m, i) => (
+                                            <div key={i} className="flex flex-col md:flex-row gap-3 items-end bg-card border p-3 rounded-lg">
+                                                <div className="flex-1 w-full space-y-1"><Label className="text-xs">{t('proposals.new.lbl_milestone_name')}</Label><Input value={m.name} onChange={e => wizard.handleMilestoneChange(i, 'name', e.target.value)} /></div>
+                                                <div className="w-24 space-y-1"><Label className="text-xs">{t('proposals.new.lbl_days')}</Label><Input type="number" className="text-center" value={m.durationDays} onChange={e => wizard.handleMilestoneChange(i, 'durationDays', e.target.value)} /></div>
+                                                <div className="w-32 space-y-1"><Label className="text-xs">{t('proposals.new.lbl_amount')}</Label><Input type="number" value={m.amount} onChange={e => wizard.handleMilestoneChange(i, 'amount', e.target.value)} /></div>
+                                                {i > 0 && <Button variant="destructive" size="icon" onClick={() => wizard.handleRemoveMilestone(i)} type="button"><span className="text-lg">×</span></Button>}
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* STEP 5 */}
+                            {wizard.currentStep === 5 && (
+                                <div className="space-y-6 animate-in slide-in-from-right-4 fade-in duration-300">
+                                    <div className="flex items-center gap-3 pb-4 border-b">
+                                        <FileText className="w-6 h-6 text-primary" />
+                                        <h2 className="text-xl font-bold">{t('proposals.new.step5_title')}</h2>
+                                    </div>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <FileUploadBox label={t('proposals.new.upload_pitch')} file={wizard.pitchDeckFile} setFile={wizard.pitchDeckFile} required={true} t={t} />
+                                        <FileUploadBox label={t('proposals.new.upload_financials')} file={wizard.financialsFile} setFile={wizard.financialsFile} accept=".pdf,.xls,.xlsx" t={t} />
+                                        <FileUploadBox label={t('proposals.new.upload_legal')} file={wizard.legalFile} setFile={wizard.legalFile} t={t} />
+                                        <FileUploadBox label={t('proposals.new.upload_whitepaper')} file={wizard.whitepaperFile} setFile={wizard.whitepaperFile} t={t} />
+                                    </div>
+                                    <div className="space-y-2 mt-6 p-4 bg-muted/20 rounded-lg">
+                                        <FormItem label={t('proposals.new.lbl_recipient')} error={wizard.errors.recipient}>
+                                            <div className="relative"><Wallet className="absolute left-3 rtl:right-3 top-3.5 w-4 h-4 text-muted-foreground" /><Input placeholder={t('proposals.new.ph_wallet')} value={wizard.recipient} onChange={e => wizard.setRecipient(e.target.value)} className={cn("pl-9 rtl:pr-9 rtl:pl-3 font-mono text-sm", wizard.errors.recipient ? "border-red-500" : "")} dir="ltr" /></div>
+                                        </FormItem>
+                                        <p className="text-xs text-muted-foreground">{t('proposals.new.note_self_recipient')}</p>
+                                    </div>
+                                </div>
+                            )}
+                        </CardContent>
+
+                        <CardFooter className="flex justify-between p-6 border-t bg-muted/10">
+                            <Button variant="outline" onClick={wizard.handlePrevStep} disabled={wizard.currentStep === 1 || wizard.isPending} type="button">
+                                {isRtl ? <ArrowRight className="w-4 h-4 ml-2" /> : <ArrowLeft className="w-4 h-4 mr-2" />}
+                                {t('common.back')}
+                            </Button>
+                            {wizard.currentStep < 5 ? (
+                                <Button onClick={wizard.handleNextStep} type="button">
+                                    {t('common.next')}
+                                    {isRtl ? <ArrowLeft className="w-4 h-4 mr-2" /> : <ArrowRight className="w-4 h-4 ml-2" />}
                                 </Button>
-                            </CardContent>
-                        </Card>
-                    </TabsContent>
-                </Tabs>
-            </div>
+                            ) : (
+                                <Button onClick={wizard.handleSubmit} disabled={wizard.isPending} className="bg-emerald-600 hover:bg-emerald-700 min-w-[150px]" type="button">
+                                    {wizard.isPending ? <DaoLoadingSpinner /> : t('proposals.new.btn_submit_startup')}
+                                </Button>
+                            )}
+                        </CardFooter>
+                    </Card>
+                </TabsContent>
+
+                {/* TREASURY FORM */}
+                <TabsContent value="treasury" className="focus-visible:outline-none">
+                    <Card className="max-w-3xl mx-auto border-purple-500/20 shadow-xl">
+                        <CardHeader className="bg-purple-500/5 pb-6 border-b border-purple-500/10">
+                            <CardTitle className="text-purple-700 flex gap-3 text-2xl"><Vote className="w-8 h-8"/> {t('proposals.new.treasury_title')}</CardTitle>
+                            <CardDescription className="text-base mt-2">{t('proposals.new.treasury_desc')}</CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-8 pt-8 px-8">
+                            <div className="space-y-2"><Label className="text-base">{t('proposals.new.lbl_proposal_title')}</Label><Input className="h-12" value={tTitle} onChange={e => setTTitle(e.target.value)} /></div>
+                            <div className="space-y-2"><Label className="text-base">{t('proposals.new.lbl_desc_reason')}</Label><Textarea className="min-h-[140px] resize-y" value={tDesc} onChange={e => setTDesc(e.target.value)} /></div>
+                            <div className="grid md:grid-cols-2 gap-8"><div className="space-y-2"><Label className="text-base">{t('treasury_page.deposit_amount')}</Label><Input type="number" placeholder="0.00" value={tAmount} onChange={e => setTAmount(e.target.value)} className="font-mono text-lg h-12" /></div><div className="space-y-2"><Label className="text-base">{t('proposals.new.lbl_token_type')}</Label><Select value={tToken} onValueChange={setTToken}><SelectTrigger className="h-12"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="1">{t('proposals.new.opt_governance')}</SelectItem><SelectItem value="0">{t('proposals.new.opt_native')}</SelectItem></SelectContent></Select></div></div>
+                            <Button size="lg" className="w-full bg-purple-600 hover:bg-purple-700 text-lg h-14" onClick={handleTreasurySubmit} disabled={isSubmittingTreasury || isConfirming} type="button">{isSubmittingTreasury ? <DaoLoadingSpinner /> : t('proposals.new.btn_submit_treasury')}</Button>
+                        </CardContent>
+                    </Card>
+                </TabsContent>
+            </Tabs>
+        </div>
+    );
+}
+
+// ✅ Export Main Page Wrapper with Suspense
+export default function NewProposalPage() {
+    return (
+        <AppLayout>
+            <Suspense fallback={<div className="flex items-center justify-center min-h-[60vh]"><DaoLoadingSpinner /></div>}>
+                <NewProposalContent />
+            </Suspense>
         </AppLayout>
     );
 }

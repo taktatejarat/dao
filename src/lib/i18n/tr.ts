@@ -697,7 +697,12 @@ wallet: {
     funding_failed_desc: "Bu proje gerekli minimum yatırıma ulaşamadı. İade alabilirsiniz.",
     raised: "Toplanan",
     goal: "Hedef",
-    
+    voting_ended: "Oylama sona erdi",
+    history_title: "Teklif geçmişi",
+    resubmit_title: "Gözden geçirme ve yeniden gönderme",
+    resubmit_desc: "Bu teklif gerekli oyları veya yatırımı alamadı. Önceki bilgileri koruyarak ve koşulları düzenleyerek örneğin bütçe ayarlaması veya belgelerin tamamlanması ile yeni bir revize edilmiş sürüm oluşturabilirsiniz.",
+    btn_resubmit: "Revize edilmiş sürüm oluştur",
+
     timeline: {
       title: "Teklif durumu",
       submitted: "Gönderildi",
@@ -1309,6 +1314,8 @@ wallet: {
     processing_refund: "İade işleniyor...",
     refund_claimed: "İade başarıyla alındı",
     refund_failed: "İade alma başarısız",
+    revision_mode: "Düzeltme ve yeniden gönderme modu",
+
   },
   terms_page: {
     title: "Kullanım şartları ve kuralları",

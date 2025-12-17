@@ -696,7 +696,12 @@ wallet: {
     funding_failed_desc: "Dieses Projekt hat den Mindestfinanzierungsbetrag nicht erreicht. Sie können eine Rückerstattung erhalten.",
     raised: "Eingeworben",
     goal: "Ziel",
-    
+    voting_ended: "Abstimmung beendet",
+    history_title: "Antragshistorie",
+    resubmit_title: "Überarbeitung und erneute Einreichung",
+    resubmit_desc: "Dieser Antrag hat nicht die erforderlichen Stimmen oder Finanzmittel erhalten. Sie können eine neue überarbeitete Version erstellen und dabei die bisherigen Informationen beibehalten sowie Bedingungen anpassen etwa Budgetanpassungen oder die Vervollständigung der Dokumentation.",
+    btn_resubmit: "Überarbeitete Version erstellen",
+
     timeline:{
       title: "Status des Vorschlags",
       submitted: "Eingereicht",
@@ -1308,6 +1313,7 @@ wallet: {
     processing_refund: "Rückerstattung wird verarbeitet...",
     refund_claimed: "Rückerstattung erfolgreich",
     refund_failed: "Rückerstattung fehlgeschlagen",
+    revision_mode: "Überarbeitungs- und Wiedereinreichungsmodus",
 
   },
   terms_page: {

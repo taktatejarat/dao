@@ -183,6 +183,9 @@ export default function ProposalDetailPage() {
         // If loading or no data
         return { state: -1, label: t('common.loading'), color: 'bg-gray-100 text-gray-500', icon: Info };
     }, [onChainData, offChainData, t]);
+    
+    // نکته مهم: اگر در دیتابیس وضعیت defeated بود، به آن اعتماد کن
+    const isDefeatedInDB = offChainData?.onChainStatus === 'defeated';
 
     // --- 6. AI Metrics Logic (Fixed Nested Access) ---
     const aiMetrics = useMemo(() => {
