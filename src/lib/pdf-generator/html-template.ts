@@ -60,12 +60,14 @@ export const generateHTML = ({ report, proposal, proposalId, generatedDate, loca
 
   // --- CSS Styles ---
   const css = `
+    /* ✅ FIX: Removed Google Fonts @import to prevent Timeout */
     @font-face { font-family: '${fontFamily}'; src: url(data:font/ttf;charset=utf-8;base64,${fontReg}) format('truetype'); font-weight: normal; }
     @font-face { font-family: '${fontFamily}'; src: url(data:font/ttf;charset=utf-8;base64,${fontBold}) format('truetype'); font-weight: bold; }
     
     :root { --primary: #0f172a; --accent: #2563eb; --gray: #64748b; --light: #f1f5f9; }
     
     body { font-family: '${fontFamily}', sans-serif; direction: ${dir}; text-align: ${align}; margin: 0; padding: 0; color: #334155; font-size: 11px; line-height: 1.5; }
+
     
     /* Layout */
     .page { padding: 40px 50px; position: relative; height: 100%; page-break-after: always; }
