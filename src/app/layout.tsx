@@ -11,6 +11,7 @@ import { ThemeProvider } from "@/components/providers/theme-provider";
 import localFont from 'next/font/local';
 import { cn } from '@/lib/utils';
 import { ClientRoot } from '@/components/layout/client-root';
+import { Toaster } from "sonner";
 import "./globals.css";
 
 const fontSans = localFont({
@@ -62,22 +63,10 @@ export default async function RootLayout({
 
   return (
     <html lang={locale || 'en'} dir={direction} suppressHydrationWarning>
-      <body className={cn(
-          "min-h-screen bg-background antialiased",
-          fontSans.variable, 
-          fontHeadline.variable,
-          fontVazir.variable,
-          // ✅ FIX: اعمال فونت وزیر برای زبان‌های راست‌چین
-          isRtl ? "font-vazir" : "font-sans"
-        )}
-      >
+      <body className={cn("min-h-screen bg-background antialiased",fontSans.variable, fontHeadline.variable, fontVazir.variable, isRtl ? "font-vazir" : "font-sans" )}>
         <LanguageProvider>
-            <ThemeProvider
-                attribute="class"
-                defaultTheme="system"
-                enableSystem
-                disableTransitionOnChange
-            >
+            <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+              <Toaster position="top-center" richColors closeButton dir={direction} toastOptions={{style: { fontFamily: isRtl ? 'var(--font-vazir)' : 'var(--font-sans)' }}}/>
                 <AppKitProvider cookies={cookies}>
                     <Web3Provider>
                         <UserProvider>
